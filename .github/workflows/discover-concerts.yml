@@ -26,10 +26,10 @@ jobs:
           LASTFM_USER: ${{ secrets.LASTFM_USER }}
         run: node scripts/discover-concerts.mjs
 
-      - name: Commit updated planned.json
+      - name: Commit updated recommendations.json
         run: |
           git config user.name "listening-mirror-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add data/planned.json
-          git diff --cached --quiet && echo "No changes" || git commit -m "chore: refresh discovered concerts"
+          git add data/recommendations.json
+          git diff --cached --quiet && echo "No changes" || git commit -m "chore: refresh recommendations"
           git push
