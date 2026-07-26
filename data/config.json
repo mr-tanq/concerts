@@ -1,0 +1,24 @@
+{
+  "location": {
+    "homeCity": "Nieuwegein",
+    "homeCountry": "NL",
+    "searchCountries": ["NL", "BE"],
+    "searchRadiusKm": 150
+  },
+  "discovery": {
+    "sources": ["lastfm"],
+    "concertApis": ["podiuminfo"],
+    "lookbackDays": 180,
+    "lookaheadDays": 120,
+    "minScoreToShow": 30
+  },
+  "scoring": {
+    "weights": {
+      "directArtistMatch": 40,
+      "listeningRecency": 20,
+      "listeningFrequency": 25,
+      "genreOverlap": 10,
+      "distanceBonus": 5
+    }
+  }
+}
