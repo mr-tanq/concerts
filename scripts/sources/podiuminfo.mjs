@@ -1,27 +1,23 @@
 // sources/podiuminfo.mjs
 //
-// Podiuminfo is NOT an artist-page lookup here — per spec, we search their
-// concertagenda EVENT database directly (?input_zoek=<artist>) and parse
-// every matching event row. This naturally supports:
-//   - exact artist matches
-//   - artists in multi-band lineups (title = "A + B", "A / B", "A • B • C")
-//   - multiple consecutive dates / the same artist at different venues on
-//     different days (each occurrence has its own unique Podiuminfo
-//     concert id — that id IS our dedup key, so no extra logic needed)
-//   - festival lineups (Podiuminfo lists individual festival-day
-//     appearances as their own concert ids when an artist plays a festival)
-//
-// KNOWN LIMITATION — please read before relying on this in production:
-// Podiuminfo's markup was inspected through a text/markdown-rendering
-// fetch (not raw HTML source), so the exact date/venue DOM structure is
-// inferred from visible patterns rather than verified against real tags.
-// City extraction in particular is still a heuristic (often "Unknown") —
-// that's the next thing to tighten if it matters to you.
+// Two-phase approach:
+//   Phase 1: search the concertagenda (?input_zoek=<artist>) to find which
+//            concert PAGES mention this artist at all (coarse match on the
+//            listing's anchor title attribute).
+//   Phase 2: fetch each matched concert's OWN page and parse its <title>
+//            tag, which follows a highly reliable format:
+//              "Concert {Artist(s)} in {Venue}, {City} op {weekday} {day} {month} {year}"
+//            This is the authoritative source for date/venue/city — NOT the
+//            search-results listing DOM. An earlier version tried to infer
+//            the date by climbing the listing page's DOM looking for a
+//            nearby day heading; that produced systematically wrong dates
+//            (multiple unrelated venues all collapsing onto one date) once
+//            tested against real data. Fetching the concert's own page
+//            costs one extra request per match, but is unambiguous.
 
 import * as cheerio from "cheerio";
 
 const BASE = "https://www.podiuminfo.nl/concertagenda/";
-const WEEKDAYS = ["maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag", "zondag"];
 const MONTHS = {
   januari: "01", februari: "02", maart: "03", april: "04", mei: "05", juni: "06",
   juli: "07", augustus: "08", september: "09", oktober: "10", november: "11", december: "12",
@@ -43,34 +39,6 @@ function buildSearchUrl(artist, page = 1) {
   return `${BASE}?${params.toString()}`;
 }
 
-// Parses "maandag 22 juli 2026" / "wo 22 jul" style headers into YYYY-MM-DD.
-// Podiuminfo shows both a short form in the compact table and a long form
-// in the expanded per-day blocks — we only need one to resolve successfully.
-//
-// IMPORTANT: text passed in here is often prevAll().text() — i.e. ALL
-// preceding sibling text concatenated, which can contain MULTIPLE date
-// headings (one per earlier day-group in the listing). We must take the
-// LAST one (closest to our row), not the first — taking the first caused
-// many unrelated events across the page to all collapse onto whatever the
-// earliest date on the page happened to be.
-function parseDutchDateHeading(text) {
-  const clean = text.toLowerCase().replace(/\s+/g, " ").trim();
-  const pattern = /(\d{1,2})\s+(januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december)\s+(\d{4})/g;
-  let match;
-  let lastMatch = null;
-  while ((match = pattern.exec(clean)) !== null) {
-    lastMatch = match;
-  }
-  if (lastMatch) {
-    const [, day, monthName, year] = lastMatch;
-    return `${year}-${MONTHS[monthName]}-${day.padStart(2, "0")}`;
-  }
-  return null;
-}
-
-// Splits an event title into [mainArtists..., supportingArtists...] using
-// the separators Podiuminfo actually uses for shared bills. Order matters:
-// try the least ambiguous separators first.
 function splitLineup(title) {
   const cleaned = title.replace(/^Concert\s+/i, "");
   const parts = cleaned
@@ -117,84 +85,105 @@ async function fetchPage(url, retries = 3) {
   }
 }
 
-function parseSearchResultsPage(html) {
+// ---------- Phase 1: find candidate concert URLs from the search listing ----------
+
+function findCandidateConcertLinks(html) {
   const $ = cheerio.load(html);
-  const events = [];
+  const candidates = new Map(); // concertId -> { href }
 
   $('a[href*="/concert/"]').each((_, node) => {
     const $a = $(node);
     const href = $a.attr("href") || "";
-    const m = href.match(/\/concert\/(\d+)\/([^/]+)\/([^/]+)\/?/);
+    const m = href.match(/\/concert\/(\d+)\/([^/]+)\/?/);
     if (!m) return;
-    const [, concertId, , venueSlug] = m;
+    const [, concertId] = m;
 
     const titleAttr = $a.attr("title") || "";
     if (!/^Concert\s+/i.test(titleAttr)) return;
-    const withoutPrefix = titleAttr.replace(/^Concert\s+/i, "");
-    const lastInIdx = withoutPrefix.toLowerCase().lastIndexOf(" in ");
-    if (lastInIdx === -1) return;
-    const eventTitle = withoutPrefix.slice(0, lastInIdx).trim();
-    const venueName = withoutPrefix.slice(lastInIdx + 4).trim();
-    if (!eventTitle || !venueName) return;
 
-    let city = null;
-    const $container = $a.closest("li, tr, div");
-    const $containerClone = $container.clone();
-    $containerClone.find('a[href*="/ticket/"], img').remove();
-    const containerText = $containerClone.text().replace(/\s+/g, " ").trim();
-    const afterVenue = containerText.split(venueName)[1];
-    if (afterVenue) {
-      const cityMatch = afterVenue.match(/^[,\s]*([A-ZÀ-Ý][\wÀ-ÿ'.\-]*(?:\s[A-ZÀ-Ý][\wÀ-ÿ'.\-]*){0,2})/);
-      if (cityMatch) city = cityMatch[1].trim();
+    if (!candidates.has(concertId)) {
+      candidates.set(concertId, { concertId, href });
     }
-
-    // Date: walk up to find the nearest preceding day heading.
-    let date = null;
-    let cursor = $container;
-    for (let i = 0; i < 6 && cursor.length && !date; i++) {
-      const headingText = cursor.prevAll().text();
-      date = parseDutchDateHeading(headingText);
-      cursor = cursor.parent();
-    }
-
-    const ticketHref = $container.find('a[href*="/ticket/"]').attr("href") || null;
-    const img = $container.find("img").attr("src") || null;
-    const lineup = splitLineup(eventTitle);
-
-    events.push({
-      concertId,
-      venueSlug,
-      title: eventTitle,
-      lineup,
-      venue: venueName,
-      city,
-      date,
-      url: `https://www.podiuminfo.nl${href}`,
-      ticketUrl: ticketHref ? `https://www.podiuminfo.nl${ticketHref}` : null,
-      image: img,
-    });
   });
 
-  return events;
+  return [...candidates.values()];
+}
+
+// ---------- Phase 2: fetch a concert's own page for authoritative data ----------
+
+// Expected <title>: "Concert {Artist(s)} in {Venue}, {City} op {weekday} {day} {month} {year}"
+function parseConcertPageTitle(html) {
+  const $ = cheerio.load(html);
+  const titleText = ($("head title").first().text() || $("title").first().text() || "").trim();
+
+  const m = titleText.match(
+    /^Concert\s+(.+?)\s+in\s+(.+?)\s+op\s+\S+\s+(\d{1,2})\s+(januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december)\s+(\d{4})/i
+  );
+  if (!m) return null;
+
+  const [, lineupRaw, venueCityRaw, day, monthName, year] = m;
+
+  const lastComma = venueCityRaw.lastIndexOf(",");
+  let venue = venueCityRaw.trim();
+  let city = null;
+  if (lastComma !== -1) {
+    venue = venueCityRaw.slice(0, lastComma).trim();
+    city = venueCityRaw.slice(lastComma + 1).trim();
+  }
+
+  const date = `${year}-${MONTHS[monthName.toLowerCase()]}-${day.padStart(2, "0")}`;
+
+  const image = $('meta[property="og:image"]').attr("content") || null;
+  const ticketHref = $('a[href*="/ticket/"]').first().attr("href") || null;
+
+  return {
+    lineup: splitLineup(lineupRaw.trim()),
+    venue,
+    city,
+    date,
+    image,
+    ticketUrl: ticketHref ? (ticketHref.startsWith("http") ? ticketHref : `https://www.podiuminfo.nl${ticketHref}`) : null,
+  };
 }
 
 export async function searchPodiuminfo(artistName, { maxPages = 3 } = {}) {
-  const seen = new Map();
+  const candidateMap = new Map();
+
   for (let page = 1; page <= maxPages; page++) {
     const html = await fetchPage(buildSearchUrl(artistName, page));
-    const events = parseSearchResultsPage(html);
-    if (events.length === 0) break;
+    const candidates = findCandidateConcertLinks(html);
+    if (candidates.length === 0) break;
 
-    let matchedOnThisPage = 0;
-    for (const ev of events) {
-      const matches = ev.lineup.some((name) => isArtistMatch(name, artistName));
-      if (!matches) continue;
-      matchedOnThisPage++;
-      if (!seen.has(ev.concertId)) seen.set(ev.concertId, ev);
+    let newOnThisPage = 0;
+    for (const c of candidates) {
+      if (!candidateMap.has(c.concertId)) {
+        candidateMap.set(c.concertId, c.href);
+        newOnThisPage++;
+      }
     }
-    if (matchedOnThisPage === 0) break;
+    if (newOnThisPage === 0) break;
   }
-  return [...seen.values()];
+
+  const results = [];
+  for (const [concertId, href] of candidateMap.entries()) {
+    const url = `https://www.podiuminfo.nl${href}`;
+    let html;
+    try {
+      html = await fetchPage(url);
+    } catch (err) {
+      console.warn(`Failed to fetch concert page ${url}: ${err.message}`);
+      continue;
+    }
+    const parsed = parseConcertPageTitle(html);
+    if (!parsed) continue;
+
+    const matches = parsed.lineup.some((name) => isArtistMatch(name, artistName));
+    if (!matches) continue;
+
+    results.push({ concertId, url, ...parsed });
+  }
+
+  return results;
 }
 
 export async function queryPodiuminfo(artistName) {
@@ -222,12 +211,6 @@ export async function queryPodiuminfo(artistName) {
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const artist = process.argv[2] || "Mono";
-  const dump = process.argv.includes("--dump");
-  const html = await fetchPage(buildSearchUrl(artist, 1));
-  if (dump) {
-    console.log(html.slice(0, 5000));
-  } else {
-    const results = await queryPodiuminfo(artist);
-    console.log(JSON.stringify(results, null, 2));
-  }
+  const results = await queryPodiuminfo(artist);
+  console.log(JSON.stringify(results, null, 2));
 }
