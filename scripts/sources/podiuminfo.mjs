@@ -15,12 +15,8 @@
 // Podiuminfo's markup was inspected through a text/markdown-rendering
 // fetch (not raw HTML source), so the exact date/venue DOM structure is
 // inferred from visible patterns rather than verified against real tags.
-// The two things most likely to need a tweak once you run this for real:
-//   1. `extractDateForAnchor()` — the day-grouping heuristic
-//   2. the artist-splitting regex for multi-act titles
-// If matches come back with wrong/missing dates, dump the raw HTML of one
-// search result page (see `--dump` flag below) and send it over — that's
-// a five-minute fix once we can see real tags instead of guessing.
+// City extraction in particular is still a heuristic — if you see
+// city: "Unknown" a lot, that's the next thing to tighten.
 
 import * as cheerio from "cheerio";
 
@@ -47,9 +43,6 @@ function buildSearchUrl(artist, page = 1) {
   return `${BASE}?${params.toString()}`;
 }
 
-// Parses "maandag 22 juli 2026" / "wo 22 jul" style headers into YYYY-MM-DD.
-// Podiuminfo shows both a short form in the compact table and a long form
-// in the expanded per-day blocks — we only need one to resolve successfully.
 function parseDutchDateHeading(text) {
   const clean = text.toLowerCase().replace(/\s+/g, " ").trim();
   const longMatch = clean.match(/(\d{1,2})\s+(januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december)\s+(\d{4})/);
@@ -60,9 +53,6 @@ function parseDutchDateHeading(text) {
   return null;
 }
 
-// Splits an event title into [mainArtists..., supportingArtists...] using
-// the separators Podiuminfo actually uses for shared bills. Order matters:
-// try the least ambiguous separators first.
 function splitLineup(title) {
   const cleaned = title.replace(/^Concert\s+/i, "");
   const parts = cleaned
@@ -73,14 +63,14 @@ function splitLineup(title) {
 }
 
 function isArtistMatch(candidate, wanted) {
-  const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "");
-  return norm(candidate).includes(norm(wanted)) || norm(wanted).includes(norm(candidate));
+  // Exact match only (case/whitespace-insensitive). Substring matching used
+  // to let "Lost" match an unrelated event titled "Lost in Kyiv" — since
+  // splitLineup() already breaks a bill into atomic act names, each segment
+  // should be compared as a whole name, not a fuzzy fragment.
+  const norm = (s) => s.toLowerCase().trim().replace(/\s+/g, " ");
+  return norm(candidate) === norm(wanted);
 }
 
-// Podiuminfo will 429 (rate-limit) us if we fire requests back-to-back
-// across many artists in a loop. We enforce a minimum gap between ANY two
-// requests (module-level, shared across all calls) and back off hard,
-// respecting Retry-After, whenever we do get rate-limited.
 const MIN_GAP_MS = 1200;
 let lastRequestAt = 0;
 
@@ -125,9 +115,19 @@ function parseSearchResultsPage(html) {
     const [, concertId, , venueSlug] = m;
 
     const titleAttr = $a.attr("title") || "";
-    const tm = titleAttr.match(/^Concert\s+(.+?)\s+in\s+(.+)$/i);
-    if (!tm) return;
-    const [, eventTitle, venueName] = tm;
+    // Split on the LAST " in " rather than the first — some event titles
+    // contain "in" as part of their own name (e.g. "Lost in Kyiv in
+    // Wintercircus", where "Lost in Kyiv" is the event and "Wintercircus"
+    // is the venue). A non-greedy first-match regex mis-split this into
+    // venue="Kyiv in Wintercircus". Right-most split is far more often
+    // correct since venue names rarely contain the word "in" themselves.
+    if (!/^Concert\s+/i.test(titleAttr)) return;
+    const withoutPrefix = titleAttr.replace(/^Concert\s+/i, "");
+    const lastInIdx = withoutPrefix.toLowerCase().lastIndexOf(" in ");
+    if (lastInIdx === -1) return;
+    const eventTitle = withoutPrefix.slice(0, lastInIdx).trim();
+    const venueName = withoutPrefix.slice(lastInIdx + 4).trim();
+    if (!eventTitle || !venueName) return;
 
     let city = null;
     const $container = $a.closest("li, tr, div");
@@ -221,4 +221,4 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     const results = await queryPodiuminfo(artist);
     console.log(JSON.stringify(results, null, 2));
   }
-      }
+}
