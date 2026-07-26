@@ -77,23 +77,46 @@ function isArtistMatch(candidate, wanted) {
   return norm(candidate).includes(norm(wanted)) || norm(wanted).includes(norm(candidate));
 }
 
-async function fetchPage(url) {
-  const res = await fetch(url, {
+// Podiuminfo will 429 (rate-limit) us if we fire requests back-to-back
+// across many artists in a loop. We enforce a minimum gap between ANY two
+// requests (module-level, shared across all calls) and back off hard,
+// respecting Retry-After, whenever we do get rate-limited.
+const MIN_GAP_MS = 1200;
+let lastRequestAt = 0;
+
+async function sleep(ms) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+async function throttledFetch(url) {
+  const wait = lastRequestAt + MIN_GAP_MS - Date.now();
+  if (wait > 0) await sleep(wait);
+  lastRequestAt = Date.now();
+  return fetch(url, {
     headers: { "User-Agent": "Mozilla/5.0 (listening-mirror discovery bot; personal use)" },
   });
-  if (!res.ok) throw new Error(`Podiuminfo request failed: ${res.status} ${url}`);
-  return res.text();
+}
+
+async function fetchPage(url, retries = 3) {
+  for (let attempt = 0; ; attempt++) {
+    const res = await throttledFetch(url);
+    if (res.ok) return res.text();
+
+    if (res.status === 429 && attempt < retries) {
+      const retryAfterHeader = Number(res.headers.get("retry-after"));
+      const backoffMs = retryAfterHeader > 0 ? retryAfterHeader * 1000 : 3000 * 2 ** attempt;
+      console.warn(`Podiuminfo 429, backing off ${backoffMs}ms (attempt ${attempt + 1}/${retries})`);
+      await sleep(backoffMs);
+      continue;
+    }
+    throw new Error(`Podiuminfo request failed: ${res.status} ${url}`);
+  }
 }
 
 function parseSearchResultsPage(html) {
   const $ = cheerio.load(html);
   const events = [];
 
-  // Every concert has an <a href="/concert/{id}/{artist-slug}/{venue-slug}/">
-  // with a title attribute of the form "Concert {Title} in {Venue}".
-  // We anchor on this because it survived every markup variant we saw,
-  // unlike table/row classes which may differ between the compact and
-  // expanded views the site renders.
   $('a[href*="/concert/"]').each((_, node) => {
     const $a = $(node);
     const href = $a.attr("href") || "";
@@ -103,27 +126,20 @@ function parseSearchResultsPage(html) {
 
     const titleAttr = $a.attr("title") || "";
     const tm = titleAttr.match(/^Concert\s+(.+?)\s+in\s+(.+)$/i);
-    if (!tm) return; // skip anchors that aren't event links with the expected title format
+    if (!tm) return;
     const [, eventTitle, venueName] = tm;
 
-    // City: look for a nearby sibling/parent text node, or the next
-    // <a href="/concertagenda/.../plaats/..."> style link if present.
     let city = null;
     const $container = $a.closest("li, tr, div");
-    // Strip ticket links / images before flattening — their inner text
-    // ("Koop ticket", alt text, etc.) otherwise bleeds into the city match.
     const $containerClone = $container.clone();
     $containerClone.find('a[href*="/ticket/"], img').remove();
     const containerText = $containerClone.text().replace(/\s+/g, " ").trim();
-    // heuristic: venue name followed by ", City" or a standalone
-    // capitalised word/phrase right after the venue in the flattened text
     const afterVenue = containerText.split(venueName)[1];
     if (afterVenue) {
       const cityMatch = afterVenue.match(/^[,\s]*([A-ZÀ-Ý][\wÀ-ÿ'.\-]*(?:\s[A-ZÀ-Ý][\wÀ-ÿ'.\-]*){0,2})/);
       if (cityMatch) city = cityMatch[1].trim();
     }
 
-    // Date: walk up to find the nearest preceding day heading.
     let date = null;
     let cursor = $container;
     for (let i = 0; i < 6 && cursor.length && !date; i++) {
@@ -132,12 +148,8 @@ function parseSearchResultsPage(html) {
       cursor = cursor.parent();
     }
 
-    // Ticket link, if present nearby
     const ticketHref = $container.find('a[href*="/ticket/"]').attr("href") || null;
-
-    // Image, if the row includes one
     const img = $container.find("img").attr("src") || null;
-
     const lineup = splitLineup(eventTitle);
 
     events.push({
@@ -157,16 +169,8 @@ function parseSearchResultsPage(html) {
   return events;
 }
 
-/**
- * Search Podiuminfo's event database for every upcoming concert that
- * includes the given artist — as a main act or in a shared/festival lineup.
- * Returns normalized events, deduped by Podiuminfo's own concert id (which
- * is unique per date+venue occurrence, so multi-day runs and the same
- * artist at different venues on different nights are kept separately and
- * automatically deduped on re-runs).
- */
 export async function searchPodiuminfo(artistName, { maxPages = 3 } = {}) {
-  const seen = new Map(); // concertId -> event
+  const seen = new Map();
   for (let page = 1; page <= maxPages; page++) {
     const html = await fetchPage(buildSearchUrl(artistName, page));
     const events = parseSearchResultsPage(html);
@@ -179,18 +183,15 @@ export async function searchPodiuminfo(artistName, { maxPages = 3 } = {}) {
       matchedOnThisPage++;
       if (!seen.has(ev.concertId)) seen.set(ev.concertId, ev);
     }
-    if (matchedOnThisPage === 0) break; // no more relevant results, stop paginating
+    if (matchedOnThisPage === 0) break;
   }
   return [...seen.values()];
 }
 
-// Adapter shape expected by discover-concerts.mjs (same interface as the
-// bandsintown/ticketmaster adapters): returns events already normalized to
-// { artist, date, time, venue, city, country, ticketUrl, image, source }.
 export async function queryPodiuminfo(artistName) {
   const events = await searchPodiuminfo(artistName);
   return events
-    .filter((e) => e.date) // drop anything we couldn't date — better than a wrong date
+    .filter((e) => e.date)
     .map((e) => {
       const mainArtist = e.lineup.find((name) => isArtistMatch(name, artistName)) || e.lineup[0];
       const supporting = e.lineup.filter((name) => name !== mainArtist);
@@ -201,7 +202,7 @@ export async function queryPodiuminfo(artistName) {
         time: null,
         venue: e.venue,
         city: e.city || "Unknown",
-        country: "NL", // podiuminfo also covers BE; refine with a city->country lookup if needed
+        country: "NL",
         ticketUrl: e.ticketUrl,
         image: e.image,
         source: "podiuminfo",
@@ -210,7 +211,6 @@ export async function queryPodiuminfo(artistName) {
     });
 }
 
-// Quick manual test: `node scripts/sources/podiuminfo.mjs "Mono" --dump`
 if (import.meta.url === `file://${process.argv[1]}`) {
   const artist = process.argv[2] || "Mono";
   const dump = process.argv.includes("--dump");
@@ -221,4 +221,4 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     const results = await queryPodiuminfo(artist);
     console.log(JSON.stringify(results, null, 2));
   }
-}
+      }
