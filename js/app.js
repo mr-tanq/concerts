@@ -1,29 +1,14 @@
 import { buildArchiveView, filterConcerts } from "./archive-stats.js";
 
 const TABS = ["mirror", "realm", "concerts", "identity", "archive"];
-const HIDDEN_KEY = "lm_hidden_planned_ids";
-const GOING_KEY = "lm_going_planned_ids";
-
-function getIdSet(storageKey) {
-  try {
-    return new Set(JSON.parse(localStorage.getItem(storageKey) || "[]"));
-  } catch {
-    return new Set();
-  }
-}
-function addIdToSet(storageKey, id) {
-  const set = getIdSet(storageKey);
-  set.add(id);
-  localStorage.setItem(storageKey, JSON.stringify([...set]));
-}
-function getHiddenIds() { return getIdSet(HIDDEN_KEY); }
-function hideId(id) { addIdToSet(HIDDEN_KEY, id); }
-function markGoing(id) { addIdToSet(GOING_KEY, id); }
-// NOTE: "Plan"/"Hide" are stored in the browser's localStorage only — this is a
-// static site with no write-back to GitHub from the client. When you actually
-// attend a "going" concert, run the import workflow (see README) to move it
-// into data/archive.json for good. This is the one manual step in an
-// otherwise fully automated pipeline.
+// Session-only queue state for the swipe deck (NOT persisted). The only
+// durable outcome of Plan/Dismiss is running the matching GitHub Action —
+// see the instruction panel that appears after each swipe. Refreshing the
+// page without running that Action will show the card again, by design:
+// the browser has no write access to the repo, so nothing here can silently
+// pretend to be permanent.
+let deckQueue = [];
+let lastDecision = null; // { action: "plan" | "dismiss", concert }
 
 async function loadJSON(path) {
   const res = await fetch(path, { cache: "no-store" });
@@ -168,58 +153,140 @@ function timelineCard(c) {
   `);
 }
 
-// ---------- Concerts tab ----------
+// ---------- Concerts tab: recommendation deck ----------
 
-function renderConcerts(plannedData) {
+function renderConcerts(recsData, plannedData) {
+  deckQueue = [...recsData.concerts];
   const root = document.getElementById("panel-concerts");
+  renderConcertsShell(root, plannedData);
+}
+
+function renderConcertsShell(root, plannedData) {
   root.innerHTML = "";
   root.appendChild(el(`
     <h2 class="section-title">Concerts</h2>
-    <p class="section-sub">Signals from your listening. Live shows you might actually care about.</p>
+    <p class="section-sub">Recommendations from your listening — nothing is planned automatically. You decide.</p>
   `));
 
-  const hidden = getHiddenIds();
-  const visible = plannedData.concerts.filter(
-    (c) => c.status === "active" && !c.hidden && !hidden.has(c.id)
-  );
+  const pills = el(`
+    <div class="pill-row">
+      <div class="pill active" data-view="discover">Discover</div>
+      <div class="pill" data-view="planned">Planned (${plannedData.concerts.length})</div>
+    </div>
+  `);
+  root.appendChild(pills);
 
-  if (visible.length === 0) {
-    root.appendChild(el(`<div class="empty-state">No live matches right now. The discovery job runs on a schedule — check back soon.</div>`));
+  const body = el(`<div id="concerts-body"></div>`);
+  root.appendChild(body);
+
+  pills.querySelectorAll(".pill").forEach((p) => {
+    p.addEventListener("click", () => {
+      pills.querySelectorAll(".pill").forEach((x) => x.classList.remove("active"));
+      p.classList.add("active");
+      if (p.dataset.view === "discover") renderDeck(body);
+      else renderPlannedList(body, plannedData);
+    });
+  });
+
+  renderDeck(body);
+}
+
+function renderDeck(body) {
+  body.innerHTML = "";
+
+  if (lastDecision) {
+    body.appendChild(decisionBanner(lastDecision));
+  }
+
+  if (deckQueue.length === 0) {
+    body.appendChild(el(`<div class="empty-state">No more recommendations right now. The discovery job runs on a schedule — check back soon.</div>`));
     return;
   }
 
-  visible.forEach((c) => root.appendChild(concertCard(c)));
+  const current = deckQueue[0];
+  body.appendChild(recommendationCard(current, body));
+  if (deckQueue.length > 1) {
+    body.appendChild(el(`<p style="text-align:center;color:var(--text-faint);font-size:13px;margin-top:8px">${deckQueue.length - 1} more after this</p>`));
+  }
 }
 
-function concertCard(c) {
+function decisionBanner(decision) {
+  const { action, concert } = decision;
+  const actionLabel = action === "plan" ? "Plan concert" : "Dismiss concert";
+  const verb = action === "plan" ? "Planned" : "Dismissed";
+  const banner = el(`
+    <div class="card" style="border-color:var(--accent-orange);margin-bottom:16px">
+      <div style="font-weight:700;margin-bottom:6px">${verb} (locally) — one step left</div>
+      <div class="section-sub" style="margin-bottom:10px">
+        This won't be permanent until you run the <strong>"${actionLabel}"</strong> GitHub Action with this id:
+      </div>
+      <div style="background:var(--card-2);border-radius:8px;padding:10px;font-family:monospace;font-size:13px;word-break:break-all;margin-bottom:10px">${concert.id}</div>
+      <button class="btn-copy-id" style="width:100%;border:none;border-radius:10px;padding:10px;font-weight:700;background:#253044;color:var(--text);cursor:pointer">Copy id</button>
+    </div>
+  `);
+  banner.querySelector(".btn-copy-id").addEventListener("click", async (e) => {
+    try {
+      await navigator.clipboard.writeText(concert.id);
+      e.target.textContent = "Copied ✓";
+    } catch {
+      e.target.textContent = concert.id;
+    }
+  });
+  return banner;
+}
+
+function recommendationCard(c, body) {
   const card = el(`
     <div class="concert-card">
       ${c.image ? `<div class="image" style="background-image:url('${c.image}')"></div>` : ""}
       <div class="body">
-        <div class="artist">${c.artist}</div>
+        <div class="artist">${c.artist}${c.supportingArtists?.length ? ` + ${c.supportingArtists.join(" + ")}` : ""}</div>
         <div class="meta">${c.venue} · ${c.city} · ${formatDate(c.date)}${c.time ? " · " + c.time : ""}</div>
         <div class="why">Why this: ${c.match.reason}</div>
-        <div class="match-line">${c.match.label} · Score ${c.match.score} · Matched by ${c.match.matchedBy}</div>
+        <div class="match-line">${c.match.label} · Score ${c.match.score}</div>
         <div class="actions">
+          <button class="btn-hide">Dismiss</button>
+          <button class="btn-skip">Skip</button>
           <button class="btn-plan">Plan</button>
-          <button class="btn-hide">Hide</button>
-          ${c.ticketUrl ? `<button class="btn-tickets">Tickets</button>` : ""}
         </div>
+        ${c.ticketUrl ? `<button class="btn-tickets" style="width:100%;margin-top:10px;border:none;border-radius:10px;padding:12px;font-weight:700;background:#1f3350;color:#8ec1ff;cursor:pointer">Tickets</button>` : ""}
       </div>
     </div>
   `);
+
+  card.querySelector(".btn-skip").addEventListener("click", () => {
+    deckQueue.push(deckQueue.shift());
+    lastDecision = null;
+    renderDeck(body);
+  });
+
   card.querySelector(".btn-hide").addEventListener("click", () => {
-    hideId(c.id);
-    card.remove();
+    deckQueue.shift();
+    lastDecision = { action: "dismiss", concert: c };
+    renderDeck(body);
   });
-  card.querySelector(".btn-plan").addEventListener("click", (e) => {
-    markGoing(c.id);
-    e.target.textContent = "Going ✓";
-    e.target.disabled = true;
+
+  card.querySelector(".btn-plan").addEventListener("click", () => {
+    deckQueue.shift();
+    lastDecision = { action: "plan", concert: c };
+    renderDeck(body);
   });
+
   const ticketsBtn = card.querySelector(".btn-tickets");
   if (ticketsBtn) ticketsBtn.addEventListener("click", () => window.open(c.ticketUrl, "_blank"));
+
   return card;
+}
+
+function renderPlannedList(body, plannedData) {
+  body.innerHTML = "";
+  if (plannedData.concerts.length === 0) {
+    body.appendChild(el(`<div class="empty-state">Nothing planned yet. Swipe "Plan" on a recommendation and run the GitHub Action to add it here.</div>`));
+    return;
+  }
+  [...plannedData.concerts]
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .forEach((c) => body.appendChild(timelineCard(c)));
 }
 
 // ---------- Tab switching ----------
@@ -238,12 +305,13 @@ async function init() {
   setActiveTab("archive");
 
   try {
-    const [archiveData, plannedData] = await Promise.all([
+    const [archiveData, recsData, plannedData] = await Promise.all([
       loadJSON("data/archive.json"),
+      loadJSON("data/recommendations.json"),
       loadJSON("data/planned.json"),
     ]);
     renderArchive(archiveData);
-    renderConcerts(plannedData);
+    renderConcerts(recsData, plannedData);
   } catch (err) {
     console.error(err);
     document.getElementById("panel-archive").innerHTML =
