@@ -1,224 +1,226 @@
-// sources/podiuminfo.mjs
+#!/usr/bin/env node
+// discover-concerts.mjs
 //
-// Podiuminfo is NOT an artist-page lookup here — per spec, we search their
-// concertagenda EVENT database directly (?input_zoek=<artist>) and parse
-// every matching event row. This naturally supports:
-//   - exact artist matches
-//   - artists in multi-band lineups (title = "A + B", "A / B", "A • B • C")
-//   - multiple consecutive dates / the same artist at different venues on
-//     different days (each occurrence has its own unique Podiuminfo
-//     concert id — that id IS our dedup key, so no extra logic needed)
-//   - festival lineups (Podiuminfo lists individual festival-day
-//     appearances as their own concert ids when an artist plays a festival)
+// Runs in a GitHub Action on a schedule. No servers, no Cloudflare —
+// this script IS the backend. It:
+//   1. Reads your Last.fm listening signal
+//   2. Builds a ranked, weighted list of artists you actually listen to
+//   3. Searches Podiuminfo's event database for each artist (NL/BE only)
+//   4. Scores + dedupes the results
+//   5. Writes data/planned.json (git commit happens in the workflow, not here)
 //
-// KNOWN LIMITATION — please read before relying on this in production:
-// Podiuminfo's markup was inspected through a text/markdown-rendering
-// fetch (not raw HTML source), so the exact date/venue DOM structure is
-// inferred from visible patterns rather than verified against real tags.
-// The two things most likely to need a tweak once you run this for real:
-//   1. `extractDateForAnchor()` — the day-grouping heuristic
-//   2. the artist-splitting regex for multi-act titles
-// If matches come back with wrong/missing dates, dump the raw HTML of one
-// search result page (see `--dump` flag below) and send it over — that's
-// a five-minute fix once we can see real tags instead of guessing.
+// Required secrets (set in repo Settings > Secrets and variables > Actions):
+//   LASTFM_API_KEY   - https://www.last.fm/api/account/create
+//   LASTFM_USER      - your Last.fm username
+//
+// That's it — two secrets, no Spotify OAuth dance, no Ticketmaster/
+// Bandsintown keys. Deliberately minimal per your call to keep this to
+// Podiuminfo + Last.fm only. If you ever want to catch shows outside NL/BE
+// again, this is the one place a new source adapter plugs back in
+// (see SOURCE_ADAPTERS below).
 
-import * as cheerio from "cheerio";
+import { readFile, writeFile } from "node:fs/promises";
+import path from "node:path";
+import { queryPodiuminfo } from "./sources/podiuminfo.mjs";
 
-const BASE = "https://www.podiuminfo.nl/concertagenda/";
-const WEEKDAYS = ["maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag", "zondag"];
-const MONTHS = {
-  januari: "01", februari: "02", maart: "03", april: "04", mei: "05", juni: "06",
-  juli: "07", augustus: "08", september: "09", oktober: "10", november: "11", december: "12",
+// Wraps fetch with a couple of retries + backoff. CI runners occasionally
+// hit transient network blips (ECONNRESET, timeouts) that have nothing to
+// do with our code — retrying once or twice clears the vast majority of
+// these without needing a human to re-run the whole workflow.
+async function fetchWithRetry(url, options = {}, retries = 2) {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await fetch(url, options);
+    } catch (err) {
+      if (attempt >= retries) throw err;
+      const delayMs = 500 * 2 ** attempt;
+      console.warn(`fetch failed (${err.message}), retrying in ${delayMs}ms... (${attempt + 1}/${retries})`);
+      await new Promise((r) => setTimeout(r, delayMs));
+    }
+  }
+}
+
+const ROOT = path.resolve(new URL(".", import.meta.url).pathname, "..");
+const CONFIG = JSON.parse(await readFile(path.join(ROOT, "data/config.json"), "utf8"));
+const ARCHIVE = JSON.parse(await readFile(path.join(ROOT, "data/archive.json"), "utf8"));
+
+// ---------- 1. Listening signal ----------
+
+async function getLastfmWeightedArtists() {
+  const key = process.env.LASTFM_API_KEY;
+  const user = process.env.LASTFM_USER;
+  if (!key || !user) {
+    console.warn("Last.fm not configured — skipping (set LASTFM_API_KEY, LASTFM_USER)");
+    return [];
+  }
+
+  const topUrl = `https://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=${user}&api_key=${key}&format=json&period=6month&limit=100`;
+  const recentUrl = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${user}&api_key=${key}&format=json&limit=200`;
+
+  const [topRes, recentRes] = await Promise.all([fetchWithRetry(topUrl), fetchWithRetry(recentUrl)]);
+  const top = await topRes.json();
+  const recent = await recentRes.json();
+
+  const weighted = new Map();
+
+  for (const a of top?.topartists?.artist || []) {
+    weighted.set(a.name.toLowerCase(), {
+      name: a.name,
+      playcount: Number(a.playcount) || 0,
+      recentPlays: 0,
+    });
+  }
+  for (const t of recent?.recenttracks?.track || []) {
+    const name = t.artist?.["#text"];
+    if (!name) continue;
+    const key2 = name.toLowerCase();
+    const entry = weighted.get(key2) || { name, playcount: 0, recentPlays: 0 };
+    entry.recentPlays += 1;
+    weighted.set(key2, entry);
+  }
+
+  const list = [...weighted.values()];
+  const maxPlay = Math.max(1, ...list.map((a) => a.playcount));
+  const maxRecent = Math.max(1, ...list.map((a) => a.recentPlays));
+  return list.map((a) => ({
+    ...a,
+    frequencyScore: a.playcount / maxPlay,
+    recencyScore: a.recentPlays / maxRecent,
+  }));
+}
+
+// ---------- 2. Concert sources ----------
+
+const SOURCE_ADAPTERS = {
+  podiuminfo: queryPodiuminfo,
 };
 
-function buildSearchUrl(artist, page = 1) {
-  const params = new URLSearchParams({
-    input_zoek: artist,
-    input_datum: "",
-    input_genre: "",
-    input_livestream: "",
-    input_not_cancelled: "1",
-    input_plaats: "",
-    input_podium: "",
-    input_provincie: "",
-    sort: "event_date_time_asc",
-    page: String(page),
-  });
-  return `${BASE}?${params.toString()}`;
-}
+// ---------- 3. Scoring ----------
 
-// Parses "maandag 22 juli 2026" / "wo 22 jul" style headers into YYYY-MM-DD.
-// Podiuminfo shows both a short form in the compact table and a long form
-// in the expanded per-day blocks — we only need one to resolve successfully.
-function parseDutchDateHeading(text) {
-  const clean = text.toLowerCase().replace(/\s+/g, " ").trim();
-  const longMatch = clean.match(/(\d{1,2})\s+(januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december)\s+(\d{4})/);
-  if (longMatch) {
-    const [, day, monthName, year] = longMatch;
-    return `${year}-${MONTHS[monthName]}-${day.padStart(2, "0")}`;
+function scoreEvent(event, artistSignal, cfg) {
+  const w = cfg.scoring.weights;
+  let score = 0;
+  let reasons = [];
+
+  score += w.directArtistMatch;
+  reasons.push(`Known artist: ${event.artist}`);
+
+  if (artistSignal) {
+    score += w.listeningFrequency * artistSignal.frequencyScore;
+    score += w.listeningRecency * artistSignal.recencyScore;
+    if (artistSignal.recencyScore > 0.3) reasons.push("Recently in rotation");
   }
-  return null;
+
+  const homeCountry = cfg.location.homeCountry;
+  if (event.country === homeCountry) score += w.distanceBonus;
+
+  score = Math.round(Math.min(100, score));
+  const label = score >= 70 ? "Excellent match" : score >= 45 ? "Strong match" : score >= 25 ? "Possible match" : "Weak match";
+
+  return {
+    score,
+    label,
+    matchedBy: "direct",
+    reason: reasons.join(" · "),
+    matchedArtists: [event.artist],
+  };
 }
 
-// Splits an event title into [mainArtists..., supportingArtists...] using
-// the separators Podiuminfo actually uses for shared bills. Order matters:
-// try the least ambiguous separators first.
-function splitLineup(title) {
-  const cleaned = title.replace(/^Concert\s+/i, "");
-  const parts = cleaned
-    .split(/\s*(?:\+|•|\/)\s*/)
-    .map((p) => p.trim())
-    .filter(Boolean);
-  return parts.length ? parts : [cleaned.trim()];
+function alreadyInArchive(event, archiveConcerts) {
+  return archiveConcerts.some(
+    (c) =>
+      c.artist.toLowerCase() === event.artist.toLowerCase() &&
+      c.date === event.date &&
+      c.venue?.toLowerCase() === event.venue?.toLowerCase()
+  );
 }
 
-function isArtistMatch(candidate, wanted) {
-  const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "");
-  return norm(candidate).includes(norm(wanted)) || norm(wanted).includes(norm(candidate));
+function makeId(event) {
+  const slug = (s) => (s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  return `planned-${slug(event.artist)}-${slug(event.venue)}-${event.date}`;
 }
 
-// Podiuminfo will 429 (rate-limit) us if we fire requests back-to-back
-// across many artists in a loop. We enforce a minimum gap between ANY two
-// requests (module-level, shared across all calls) and back off hard,
-// respecting Retry-After, whenever we do get rate-limited.
-const MIN_GAP_MS = 1200;
-let lastRequestAt = 0;
+// ---------- 4. Main ----------
 
-async function sleep(ms) {
-  return new Promise((r) => setTimeout(r, ms));
-}
-
-async function throttledFetch(url) {
-  const wait = lastRequestAt + MIN_GAP_MS - Date.now();
-  if (wait > 0) await sleep(wait);
-  lastRequestAt = Date.now();
-  return fetch(url, {
-    headers: { "User-Agent": "Mozilla/5.0 (listening-mirror discovery bot; personal use)" },
-  });
-}
-
-async function fetchPage(url, retries = 3) {
-  for (let attempt = 0; ; attempt++) {
-    const res = await throttledFetch(url);
-    if (res.ok) return res.text();
-
-    if (res.status === 429 && attempt < retries) {
-      const retryAfterHeader = Number(res.headers.get("retry-after"));
-      const backoffMs = retryAfterHeader > 0 ? retryAfterHeader * 1000 : 3000 * 2 ** attempt;
-      console.warn(`Podiuminfo 429, backing off ${backoffMs}ms (attempt ${attempt + 1}/${retries})`);
-      await sleep(backoffMs);
-      continue;
-    }
-    throw new Error(`Podiuminfo request failed: ${res.status} ${url}`);
+async function main() {
+  let signals = [];
+  try {
+    signals = await getLastfmWeightedArtists();
+  } catch (err) {
+    console.error(`Last.fm fetch failed after retries: ${err.message}`);
+    console.warn("Continuing with no listening signal — planned.json will end up empty this run.");
   }
-}
+  const signalByName = new Map(signals.map((s) => [s.name.toLowerCase(), s]));
 
-function parseSearchResultsPage(html) {
-  const $ = cheerio.load(html);
-  const events = [];
+  const candidateArtists = signals
+    .sort((a, b) => (b.frequencyScore + b.recencyScore) - (a.frequencyScore + a.recencyScore))
+    .slice(0, 30)
+    .map((s) => s.name);
 
-  $('a[href*="/concert/"]').each((_, node) => {
-    const $a = $(node);
-    const href = $a.attr("href") || "";
-    const m = href.match(/\/concert\/(\d+)\/([^/]+)\/([^/]+)\/?/);
-    if (!m) return;
-    const [, concertId, , venueSlug] = m;
+  console.log(`Querying concert sources for ${candidateArtists.length} artists...`);
 
-    const titleAttr = $a.attr("title") || "";
-    const tm = titleAttr.match(/^Concert\s+(.+?)\s+in\s+(.+)$/i);
-    if (!tm) return;
-    const [, eventTitle, venueName] = tm;
-
-    let city = null;
-    const $container = $a.closest("li, tr, div");
-    const $containerClone = $container.clone();
-    $containerClone.find('a[href*="/ticket/"], img').remove();
-    const containerText = $containerClone.text().replace(/\s+/g, " ").trim();
-    const afterVenue = containerText.split(venueName)[1];
-    if (afterVenue) {
-      const cityMatch = afterVenue.match(/^[,\s]*([A-ZÀ-Ý][\wÀ-ÿ'.\-]*(?:\s[A-ZÀ-Ý][\wÀ-ÿ'.\-]*){0,2})/);
-      if (cityMatch) city = cityMatch[1].trim();
+  const activeSources = CONFIG.discovery.concertApis.filter((s) => SOURCE_ADAPTERS[s]);
+  const rawEvents = [];
+  for (const artist of candidateArtists) {
+    for (const source of activeSources) {
+      const events = await SOURCE_ADAPTERS[source](artist);
+      rawEvents.push(...events);
     }
+  }
 
-    let date = null;
-    let cursor = $container;
-    for (let i = 0; i < 6 && cursor.length && !date; i++) {
-      const headingText = cursor.prevAll().text();
-      date = parseDutchDateHeading(headingText);
-      cursor = cursor.parent();
-    }
+  const seen = new Set();
+  const results = [];
+  const today = new Date().toISOString().slice(0, 10);
+  const lookaheadCutoff = new Date(Date.now() + CONFIG.discovery.lookaheadDays * 86400000)
+    .toISOString()
+    .slice(0, 10);
 
-    const ticketHref = $container.find('a[href*="/ticket/"]').attr("href") || null;
-    const img = $container.find("img").attr("src") || null;
-    const lineup = splitLineup(eventTitle);
+  for (const event of rawEvents) {
+    if (!event.date || event.date < today || event.date > lookaheadCutoff) continue;
+    if (!CONFIG.location.searchCountries.includes(event.country)) continue;
+    if (alreadyInArchive(event, ARCHIVE.concerts)) continue;
 
-    events.push({
-      concertId,
-      venueSlug,
-      title: eventTitle,
-      lineup,
-      venue: venueName,
-      city,
-      date,
-      url: `https://www.podiuminfo.nl${href}`,
-      ticketUrl: ticketHref ? `https://www.podiuminfo.nl${ticketHref}` : null,
-      image: img,
+    const id = makeId(event);
+    if (seen.has(id)) continue;
+    seen.add(id);
+
+    const match = scoreEvent(event, signalByName.get(event.artist.toLowerCase()), CONFIG);
+    if (match.score < CONFIG.discovery.minScoreToShow) continue;
+
+    results.push({
+      id,
+      artist: event.artist,
+      supportingArtists: event.supportingArtists || [],
+      date: event.date,
+      time: event.time || null,
+      venue: event.venue || "Unknown venue",
+      city: event.city || "Unknown city",
+      country: event.country || "??",
+      isFestival: false,
+      image: event.image,
+      ticketUrl: event.ticketUrl || null,
+      sourceApis: [event.source],
+      match,
+      status: "active",
+      hidden: false,
+      userAction: null,
+      discoveredAt: new Date().toISOString(),
     });
-  });
-
-  return events;
-}
-
-export async function searchPodiuminfo(artistName, { maxPages = 3 } = {}) {
-  const seen = new Map();
-  for (let page = 1; page <= maxPages; page++) {
-    const html = await fetchPage(buildSearchUrl(artistName, page));
-    const events = parseSearchResultsPage(html);
-    if (events.length === 0) break;
-
-    let matchedOnThisPage = 0;
-    for (const ev of events) {
-      const matches = ev.lineup.some((name) => isArtistMatch(name, artistName));
-      if (!matches) continue;
-      matchedOnThisPage++;
-      if (!seen.has(ev.concertId)) seen.set(ev.concertId, ev);
-    }
-    if (matchedOnThisPage === 0) break;
   }
-  return [...seen.values()];
+
+  results.sort((a, b) => b.match.score - a.match.score);
+
+  const output = {
+    $schema: "Listening Mirror Planned Concerts Schema v1",
+    meta: { lastUpdated: new Date().toISOString(), generatedBy: "discover-concerts.mjs" },
+    concerts: results,
+  };
+
+  await writeFile(path.join(ROOT, "data/planned.json"), JSON.stringify(output, null, 2) + "\n");
+  console.log(`Wrote ${results.length} matched concerts to data/planned.json`);
 }
 
-export async function queryPodiuminfo(artistName) {
-  const events = await searchPodiuminfo(artistName);
-  return events
-    .filter((e) => e.date)
-    .map((e) => {
-      const mainArtist = e.lineup.find((name) => isArtistMatch(name, artistName)) || e.lineup[0];
-      const supporting = e.lineup.filter((name) => name !== mainArtist);
-      return {
-        artist: mainArtist,
-        supportingArtists: supporting,
-        date: e.date,
-        time: null,
-        venue: e.venue,
-        city: e.city || "Unknown",
-        country: "NL",
-        ticketUrl: e.ticketUrl,
-        image: e.image,
-        source: "podiuminfo",
-        podiuminfoUrl: e.url,
-      };
-    });
-}
-
-if (import.meta.url === `file://${process.argv[1]}`) {
-  const artist = process.argv[2] || "Mono";
-  const dump = process.argv.includes("--dump");
-  const html = await fetchPage(buildSearchUrl(artist, 1));
-  if (dump) {
-    console.log(html.slice(0, 5000));
-  } else {
-    const results = await queryPodiuminfo(artist);
-    console.log(JSON.stringify(results, null, 2));
-  }
-      }
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
