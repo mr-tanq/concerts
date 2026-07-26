@@ -1,0 +1,12 @@
+{
+  "name": "listening-mirror-scripts",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "discover": "node scripts/discover-concerts.mjs",
+    "test-podiuminfo": "node scripts/sources/podiuminfo.mjs"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0"
+  }
+}
