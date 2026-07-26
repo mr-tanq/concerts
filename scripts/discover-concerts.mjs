@@ -1,32 +1,29 @@
 #!/usr/bin/env node
 // discover-concerts.mjs
 //
-// Runs in a GitHub Action on a schedule. No servers, no Cloudflare —
-// this script IS the backend. It:
+// This is a RECOMMENDATION engine, not an auto-planner. It never touches
+// data/planned.json. It:
 //   1. Reads your Last.fm listening signal
 //   2. Builds a ranked, weighted list of artists you actually listen to
 //   3. Searches Podiuminfo's event database for each artist (NL/BE only)
-//   4. Scores + dedupes the results
-//   5. Writes data/planned.json (git commit happens in the workflow, not here)
+//   4. Scores the results
+//   5. Excludes anything you've already dismissed or planned before
+//      (data/recommendation-history.json is the durable memory for that —
+//      otherwise a dismissed concert would just reappear on the next run)
+//   6. Writes the remaining candidates to data/recommendations.json
+//
+// The only way a concert leaves "recommendation" and becomes real is you
+// explicitly running the "Plan concert" GitHub Action on it. Nothing here
+// ever writes to data/planned.json.
 //
 // Required secrets (set in repo Settings > Secrets and variables > Actions):
 //   LASTFM_API_KEY   - https://www.last.fm/api/account/create
 //   LASTFM_USER      - your Last.fm username
-//
-// That's it — two secrets, no Spotify OAuth dance, no Ticketmaster/
-// Bandsintown keys. Deliberately minimal per your call to keep this to
-// Podiuminfo + Last.fm only. If you ever want to catch shows outside NL/BE
-// again, this is the one place a new source adapter plugs back in
-// (see SOURCE_ADAPTERS below).
 
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { queryPodiuminfo } from "./sources/podiuminfo.mjs";
 
-// Wraps fetch with a couple of retries + backoff. CI runners occasionally
-// hit transient network blips (ECONNRESET, timeouts) that have nothing to
-// do with our code — retrying once or twice clears the vast majority of
-// these without needing a human to re-run the whole workflow.
 async function fetchWithRetry(url, options = {}, retries = 2) {
   for (let attempt = 0; ; attempt++) {
     try {
@@ -43,6 +40,7 @@ async function fetchWithRetry(url, options = {}, retries = 2) {
 const ROOT = path.resolve(new URL(".", import.meta.url).pathname, "..");
 const CONFIG = JSON.parse(await readFile(path.join(ROOT, "data/config.json"), "utf8"));
 const ARCHIVE = JSON.parse(await readFile(path.join(ROOT, "data/archive.json"), "utf8"));
+const HISTORY = JSON.parse(await readFile(path.join(ROOT, "data/recommendation-history.json"), "utf8"));
 
 // ---------- 1. Listening signal ----------
 
@@ -137,7 +135,7 @@ function alreadyInArchive(event, archiveConcerts) {
 
 function makeId(event) {
   const slug = (s) => (s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-  return `planned-${slug(event.artist)}-${slug(event.venue)}-${event.date}`;
+  return `rec-${slug(event.artist)}-${slug(event.venue)}-${event.date}`;
 }
 
 // ---------- 4. Main ----------
@@ -148,7 +146,7 @@ async function main() {
     signals = await getLastfmWeightedArtists();
   } catch (err) {
     console.error(`Last.fm fetch failed after retries: ${err.message}`);
-    console.warn("Continuing with no listening signal — planned.json will end up empty this run.");
+    console.warn("Continuing with no listening signal — recommendations.json will end up empty this run.");
   }
   const signalByName = new Map(signals.map((s) => [s.name.toLowerCase(), s]));
 
@@ -168,6 +166,7 @@ async function main() {
     }
   }
 
+  const excludedIds = new Set([...HISTORY.dismissedIds, ...HISTORY.plannedIds]);
   const seen = new Set();
   const results = [];
   const today = new Date().toISOString().slice(0, 10);
@@ -182,6 +181,7 @@ async function main() {
 
     const id = makeId(event);
     if (seen.has(id)) continue;
+    if (excludedIds.has(id)) continue;
     seen.add(id);
 
     const match = scoreEvent(event, signalByName.get(event.artist.toLowerCase()), CONFIG);
@@ -201,9 +201,6 @@ async function main() {
       ticketUrl: event.ticketUrl || null,
       sourceApis: [event.source],
       match,
-      status: "active",
-      hidden: false,
-      userAction: null,
       discoveredAt: new Date().toISOString(),
     });
   }
@@ -211,13 +208,13 @@ async function main() {
   results.sort((a, b) => b.match.score - a.match.score);
 
   const output = {
-    $schema: "Listening Mirror Planned Concerts Schema v1",
+    $schema: "Listening Mirror Recommendations Schema v1",
     meta: { lastUpdated: new Date().toISOString(), generatedBy: "discover-concerts.mjs" },
     concerts: results,
   };
 
-  await writeFile(path.join(ROOT, "data/planned.json"), JSON.stringify(output, null, 2) + "\n");
-  console.log(`Wrote ${results.length} matched concerts to data/planned.json`);
+  await writeFile(path.join(ROOT, "data/recommendations.json"), JSON.stringify(output, null, 2) + "\n");
+  console.log(`Wrote ${results.length} recommendations to data/recommendations.json`);
 }
 
 main().catch((err) => {
