@@ -23,6 +23,23 @@ import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { queryPodiuminfo } from "./sources/podiuminfo.mjs";
 
+// Wraps fetch with a couple of retries + backoff. CI runners occasionally
+// hit transient network blips (ECONNRESET, timeouts) that have nothing to
+// do with our code — retrying once or twice clears the vast majority of
+// these without needing a human to re-run the whole workflow.
+async function fetchWithRetry(url, options = {}, retries = 2) {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await fetch(url, options);
+    } catch (err) {
+      if (attempt >= retries) throw err;
+      const delayMs = 500 * 2 ** attempt;
+      console.warn(`fetch failed (${err.message}), retrying in ${delayMs}ms... (${attempt + 1}/${retries})`);
+      await new Promise((r) => setTimeout(r, delayMs));
+    }
+  }
+}
+
 const ROOT = path.resolve(new URL(".", import.meta.url).pathname, "..");
 const CONFIG = JSON.parse(await readFile(path.join(ROOT, "data/config.json"), "utf8"));
 const ARCHIVE = JSON.parse(await readFile(path.join(ROOT, "data/archive.json"), "utf8"));
@@ -37,15 +54,14 @@ async function getLastfmWeightedArtists() {
     return [];
   }
 
-  // Two calls: top artists overall (weight) + recent tracks (recency boost)
   const topUrl = `https://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=${user}&api_key=${key}&format=json&period=6month&limit=100`;
   const recentUrl = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${user}&api_key=${key}&format=json&limit=200`;
 
-  const [topRes, recentRes] = await Promise.all([fetch(topUrl), fetch(recentUrl)]);
+  const [topRes, recentRes] = await Promise.all([fetchWithRetry(topUrl), fetchWithRetry(recentUrl)]);
   const top = await topRes.json();
   const recent = await recentRes.json();
 
-  const weighted = new Map(); // name(lowercase) -> { name, playcount, recentPlays }
+  const weighted = new Map();
 
   for (const a of top?.topartists?.artist || []) {
     weighted.set(a.name.toLowerCase(), {
@@ -68,15 +84,12 @@ async function getLastfmWeightedArtists() {
   const maxRecent = Math.max(1, ...list.map((a) => a.recentPlays));
   return list.map((a) => ({
     ...a,
-    frequencyScore: a.playcount / maxPlay, // 0..1
-    recencyScore: a.recentPlays / maxRecent, // 0..1
+    frequencyScore: a.playcount / maxPlay,
+    recencyScore: a.recentPlays / maxRecent,
   }));
 }
 
 // ---------- 2. Concert sources ----------
-// Podiuminfo only for now (NL/BE event-database search). Adding a source
-// back later just means writing one more `async (artistName) => [...]`
-// function with this same output shape and adding it to the map below.
 
 const SOURCE_ADAPTERS = {
   podiuminfo: queryPodiuminfo,
@@ -130,10 +143,15 @@ function makeId(event) {
 // ---------- 4. Main ----------
 
 async function main() {
-  const signals = await getLastfmWeightedArtists();
+  let signals = [];
+  try {
+    signals = await getLastfmWeightedArtists();
+  } catch (err) {
+    console.error(`Last.fm fetch failed after retries: ${err.message}`);
+    console.warn("Continuing with no listening signal — planned.json will end up empty this run.");
+  }
   const signalByName = new Map(signals.map((s) => [s.name.toLowerCase(), s]));
 
-  // Only query Podiuminfo for artists you actually listen to (top N by weight)
   const candidateArtists = signals
     .sort((a, b) => (b.frequencyScore + b.recencyScore) - (a.frequencyScore + a.recencyScore))
     .slice(0, 60)
