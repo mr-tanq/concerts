@@ -52,7 +52,7 @@ async function getLastfmWeightedArtists() {
     return [];
   }
 
-  const topUrl = `https://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=${user}&api_key=${key}&format=json&period=6month&limit=100`;
+  const topUrl = `https://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=${user}&api_key=${key}&format=json&period=6month&limit=200`;
   const recentUrl = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${user}&api_key=${key}&format=json&limit=200`;
 
   const [topRes, recentRes] = await Promise.all([fetchWithRetry(topUrl), fetchWithRetry(recentUrl)]);
@@ -152,7 +152,7 @@ async function main() {
 
   const candidateArtists = signals
     .sort((a, b) => (b.frequencyScore + b.recencyScore) - (a.frequencyScore + a.recencyScore))
-    .slice(0, 30)
+    .slice(0, 200)
     .map((s) => s.name);
 
   console.log(`Querying concert sources for ${candidateArtists.length} artists...`);
