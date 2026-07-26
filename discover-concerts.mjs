@@ -1,0 +1,208 @@
+#!/usr/bin/env node
+// discover-concerts.mjs
+//
+// Runs in a GitHub Action on a schedule. No servers, no Cloudflare —
+// this script IS the backend. It:
+//   1. Reads your Last.fm listening signal
+//   2. Builds a ranked, weighted list of artists you actually listen to
+//   3. Searches Podiuminfo's event database for each artist (NL/BE only)
+//   4. Scores + dedupes the results
+//   5. Writes data/planned.json (git commit happens in the workflow, not here)
+//
+// Required secrets (set in repo Settings > Secrets and variables > Actions):
+//   LASTFM_API_KEY   - https://www.last.fm/api/account/create
+//   LASTFM_USER      - your Last.fm username
+//
+// That's it — two secrets, no Spotify OAuth dance, no Ticketmaster/
+// Bandsintown keys. Deliberately minimal per your call to keep this to
+// Podiuminfo + Last.fm only. If you ever want to catch shows outside NL/BE
+// again, this is the one place a new source adapter plugs back in
+// (see SOURCE_ADAPTERS below).
+
+import { readFile, writeFile } from "node:fs/promises";
+import path from "node:path";
+import { queryPodiuminfo } from "./sources/podiuminfo.mjs";
+
+const ROOT = path.resolve(new URL(".", import.meta.url).pathname, "..");
+const CONFIG = JSON.parse(await readFile(path.join(ROOT, "data/config.json"), "utf8"));
+const ARCHIVE = JSON.parse(await readFile(path.join(ROOT, "data/archive.json"), "utf8"));
+
+// ---------- 1. Listening signal ----------
+
+async function getLastfmWeightedArtists() {
+  const key = process.env.LASTFM_API_KEY;
+  const user = process.env.LASTFM_USER;
+  if (!key || !user) {
+    console.warn("Last.fm not configured — skipping (set LASTFM_API_KEY, LASTFM_USER)");
+    return [];
+  }
+
+  // Two calls: top artists overall (weight) + recent tracks (recency boost)
+  const topUrl = `https://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=${user}&api_key=${key}&format=json&period=6month&limit=100`;
+  const recentUrl = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${user}&api_key=${key}&format=json&limit=200`;
+
+  const [topRes, recentRes] = await Promise.all([fetch(topUrl), fetch(recentUrl)]);
+  const top = await topRes.json();
+  const recent = await recentRes.json();
+
+  const weighted = new Map(); // name(lowercase) -> { name, playcount, recentPlays }
+
+  for (const a of top?.topartists?.artist || []) {
+    weighted.set(a.name.toLowerCase(), {
+      name: a.name,
+      playcount: Number(a.playcount) || 0,
+      recentPlays: 0,
+    });
+  }
+  for (const t of recent?.recenttracks?.track || []) {
+    const name = t.artist?.["#text"];
+    if (!name) continue;
+    const key2 = name.toLowerCase();
+    const entry = weighted.get(key2) || { name, playcount: 0, recentPlays: 0 };
+    entry.recentPlays += 1;
+    weighted.set(key2, entry);
+  }
+
+  const list = [...weighted.values()];
+  const maxPlay = Math.max(1, ...list.map((a) => a.playcount));
+  const maxRecent = Math.max(1, ...list.map((a) => a.recentPlays));
+  return list.map((a) => ({
+    ...a,
+    frequencyScore: a.playcount / maxPlay, // 0..1
+    recencyScore: a.recentPlays / maxRecent, // 0..1
+  }));
+}
+
+// ---------- 2. Concert sources ----------
+// Podiuminfo only for now (NL/BE event-database search). Adding a source
+// back later just means writing one more `async (artistName) => [...]`
+// function with this same output shape and adding it to the map below.
+
+const SOURCE_ADAPTERS = {
+  podiuminfo: queryPodiuminfo,
+};
+
+// ---------- 3. Scoring ----------
+
+function scoreEvent(event, artistSignal, cfg) {
+  const w = cfg.scoring.weights;
+  let score = 0;
+  let reasons = [];
+
+  score += w.directArtistMatch;
+  reasons.push(`Known artist: ${event.artist}`);
+
+  if (artistSignal) {
+    score += w.listeningFrequency * artistSignal.frequencyScore;
+    score += w.listeningRecency * artistSignal.recencyScore;
+    if (artistSignal.recencyScore > 0.3) reasons.push("Recently in rotation");
+  }
+
+  const homeCountry = cfg.location.homeCountry;
+  if (event.country === homeCountry) score += w.distanceBonus;
+
+  score = Math.round(Math.min(100, score));
+  const label = score >= 70 ? "Excellent match" : score >= 45 ? "Strong match" : score >= 25 ? "Possible match" : "Weak match";
+
+  return {
+    score,
+    label,
+    matchedBy: "direct",
+    reason: reasons.join(" · "),
+    matchedArtists: [event.artist],
+  };
+}
+
+function alreadyInArchive(event, archiveConcerts) {
+  return archiveConcerts.some(
+    (c) =>
+      c.artist.toLowerCase() === event.artist.toLowerCase() &&
+      c.date === event.date &&
+      c.venue?.toLowerCase() === event.venue?.toLowerCase()
+  );
+}
+
+function makeId(event) {
+  const slug = (s) => (s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  return `planned-${slug(event.artist)}-${slug(event.venue)}-${event.date}`;
+}
+
+// ---------- 4. Main ----------
+
+async function main() {
+  const signals = await getLastfmWeightedArtists();
+  const signalByName = new Map(signals.map((s) => [s.name.toLowerCase(), s]));
+
+  // Only query Podiuminfo for artists you actually listen to (top N by weight)
+  const candidateArtists = signals
+    .sort((a, b) => (b.frequencyScore + b.recencyScore) - (a.frequencyScore + a.recencyScore))
+    .slice(0, 60)
+    .map((s) => s.name);
+
+  console.log(`Querying concert sources for ${candidateArtists.length} artists...`);
+
+  const activeSources = CONFIG.discovery.concertApis.filter((s) => SOURCE_ADAPTERS[s]);
+  const rawEvents = [];
+  for (const artist of candidateArtists) {
+    for (const source of activeSources) {
+      const events = await SOURCE_ADAPTERS[source](artist);
+      rawEvents.push(...events);
+    }
+  }
+
+  const seen = new Set();
+  const results = [];
+  const today = new Date().toISOString().slice(0, 10);
+  const lookaheadCutoff = new Date(Date.now() + CONFIG.discovery.lookaheadDays * 86400000)
+    .toISOString()
+    .slice(0, 10);
+
+  for (const event of rawEvents) {
+    if (!event.date || event.date < today || event.date > lookaheadCutoff) continue;
+    if (!CONFIG.location.searchCountries.includes(event.country)) continue;
+    if (alreadyInArchive(event, ARCHIVE.concerts)) continue;
+
+    const id = makeId(event);
+    if (seen.has(id)) continue;
+    seen.add(id);
+
+    const match = scoreEvent(event, signalByName.get(event.artist.toLowerCase()), CONFIG);
+    if (match.score < CONFIG.discovery.minScoreToShow) continue;
+
+    results.push({
+      id,
+      artist: event.artist,
+      supportingArtists: event.supportingArtists || [],
+      date: event.date,
+      time: event.time || null,
+      venue: event.venue || "Unknown venue",
+      city: event.city || "Unknown city",
+      country: event.country || "??",
+      isFestival: false,
+      image: event.image,
+      ticketUrl: event.ticketUrl || null,
+      sourceApis: [event.source],
+      match,
+      status: "active",
+      hidden: false,
+      userAction: null,
+      discoveredAt: new Date().toISOString(),
+    });
+  }
+
+  results.sort((a, b) => b.match.score - a.match.score);
+
+  const output = {
+    $schema: "Listening Mirror Planned Concerts Schema v1",
+    meta: { lastUpdated: new Date().toISOString(), generatedBy: "discover-concerts.mjs" },
+    concerts: results,
+  };
+
+  await writeFile(path.join(ROOT, "data/planned.json"), JSON.stringify(output, null, 2) + "\n");
+  console.log(`Wrote ${results.length} matched concerts to data/planned.json`);
+}
+
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
