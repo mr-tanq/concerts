@@ -15,8 +15,8 @@
 // Podiuminfo's markup was inspected through a text/markdown-rendering
 // fetch (not raw HTML source), so the exact date/venue DOM structure is
 // inferred from visible patterns rather than verified against real tags.
-// City extraction in particular is still a heuristic — if you see
-// city: "Unknown" a lot, that's the next thing to tighten.
+// City extraction in particular is still a heuristic (often "Unknown") —
+// that's the next thing to tighten if it matters to you.
 
 import * as cheerio from "cheerio";
 
@@ -43,16 +43,34 @@ function buildSearchUrl(artist, page = 1) {
   return `${BASE}?${params.toString()}`;
 }
 
+// Parses "maandag 22 juli 2026" / "wo 22 jul" style headers into YYYY-MM-DD.
+// Podiuminfo shows both a short form in the compact table and a long form
+// in the expanded per-day blocks — we only need one to resolve successfully.
+//
+// IMPORTANT: text passed in here is often prevAll().text() — i.e. ALL
+// preceding sibling text concatenated, which can contain MULTIPLE date
+// headings (one per earlier day-group in the listing). We must take the
+// LAST one (closest to our row), not the first — taking the first caused
+// many unrelated events across the page to all collapse onto whatever the
+// earliest date on the page happened to be.
 function parseDutchDateHeading(text) {
   const clean = text.toLowerCase().replace(/\s+/g, " ").trim();
-  const longMatch = clean.match(/(\d{1,2})\s+(januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december)\s+(\d{4})/);
-  if (longMatch) {
-    const [, day, monthName, year] = longMatch;
+  const pattern = /(\d{1,2})\s+(januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december)\s+(\d{4})/g;
+  let match;
+  let lastMatch = null;
+  while ((match = pattern.exec(clean)) !== null) {
+    lastMatch = match;
+  }
+  if (lastMatch) {
+    const [, day, monthName, year] = lastMatch;
     return `${year}-${MONTHS[monthName]}-${day.padStart(2, "0")}`;
   }
   return null;
 }
 
+// Splits an event title into [mainArtists..., supportingArtists...] using
+// the separators Podiuminfo actually uses for shared bills. Order matters:
+// try the least ambiguous separators first.
 function splitLineup(title) {
   const cleaned = title.replace(/^Concert\s+/i, "");
   const parts = cleaned
@@ -63,10 +81,6 @@ function splitLineup(title) {
 }
 
 function isArtistMatch(candidate, wanted) {
-  // Exact match only (case/whitespace-insensitive). Substring matching used
-  // to let "Lost" match an unrelated event titled "Lost in Kyiv" — since
-  // splitLineup() already breaks a bill into atomic act names, each segment
-  // should be compared as a whole name, not a fuzzy fragment.
   const norm = (s) => s.toLowerCase().trim().replace(/\s+/g, " ");
   return norm(candidate) === norm(wanted);
 }
@@ -115,12 +129,6 @@ function parseSearchResultsPage(html) {
     const [, concertId, , venueSlug] = m;
 
     const titleAttr = $a.attr("title") || "";
-    // Split on the LAST " in " rather than the first — some event titles
-    // contain "in" as part of their own name (e.g. "Lost in Kyiv in
-    // Wintercircus", where "Lost in Kyiv" is the event and "Wintercircus"
-    // is the venue). A non-greedy first-match regex mis-split this into
-    // venue="Kyiv in Wintercircus". Right-most split is far more often
-    // correct since venue names rarely contain the word "in" themselves.
     if (!/^Concert\s+/i.test(titleAttr)) return;
     const withoutPrefix = titleAttr.replace(/^Concert\s+/i, "");
     const lastInIdx = withoutPrefix.toLowerCase().lastIndexOf(" in ");
@@ -140,6 +148,7 @@ function parseSearchResultsPage(html) {
       if (cityMatch) city = cityMatch[1].trim();
     }
 
+    // Date: walk up to find the nearest preceding day heading.
     let date = null;
     let cursor = $container;
     for (let i = 0; i < 6 && cursor.length && !date; i++) {
