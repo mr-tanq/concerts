@@ -1,0 +1,29 @@
+name: Plan concert
+
+on:
+  workflow_dispatch:
+    inputs:
+      recommendation_id:
+        description: "id of the recommendation (from data/recommendations.json), e.g. rec-mono-tivolivredenburg-2026-11-21"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node scripts/plan-concert.mjs "${{ inputs.recommendation_id }}"
+      - name: Commit
+        run: |
+          git config user.name "listening-mirror-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/planned.json data/recommendations.json data/recommendation-history.json
+          git commit -m "chore: plan concert ${{ inputs.recommendation_id }}"
+          git push
