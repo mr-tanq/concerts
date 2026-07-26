@@ -156,6 +156,7 @@ async function main() {
     .map((s) => s.name);
 
   console.log(`Querying concert sources for ${candidateArtists.length} artists...`);
+  console.log(`Candidate artists: ${candidateArtists.join(", ")}`);
 
   const activeSources = CONFIG.discovery.concertApis.filter((s) => SOURCE_ADAPTERS[s]);
   const rawEvents = [];
