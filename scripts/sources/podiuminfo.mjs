@@ -6,32 +6,21 @@
 // verified directly (fetching that exact URL) that the server now IGNORES
 // this query param entirely and just returns the generic, unfiltered
 // agenda — the relaunch moved free-text search to client-side JavaScript.
-// This explained a cluster of earlier bugs (missing real matches, huge
-// numbers of unrelated "candidates" for popular artist names) — none of
-// it was ever really filtered by artist at all.
 //
 // The new approach crawls Podiuminfo's per-DAY agenda pages instead:
 //   https://www.podiuminfo.nl/concertagenda/YYYY/MM/DD/
-// These are still plain server-rendered pages (confirmed working), and
-// each one is unambiguous — every event on it belongs to exactly that one
-// date, so there's no cross-day date-parsing ambiguity like the old
-// listing-climbing approach had.
+// These are still plain server-rendered pages, and each one is unambiguous
+// — every event on it belongs to exactly that one date.
 //
 // Flow:
 //   1. For each day in the lookahead window, fetch that day's agenda page
 //      (cached — see dayCacheEntries) and extract every event's concert id
-//      + a COARSE lineup guess from the anchor's title attribute
-//      ("Concert X in Y" — same reliable prefix format as before).
+//      + a COARSE lineup guess from the anchor's title attribute.
 //   2. Check that coarse lineup against ALL tracked artist names (cheap,
-//      in-memory, no network cost — this is the big win: cost no longer
-//      scales with how many artists you track).
+//      in-memory, no network cost).
 //   3. Only for actual coarse matches, fetch that concert's OWN page
 //      (cached — concertCacheEntries) and parse its authoritative <title>
-//      tag for confirmed lineup/venue/city/date, exactly as before.
-//
-// This keeps every correctness guarantee from before (authoritative
-// per-page data, exact matching, concert-id dedup) while cutting total
-// requests from "per artist" to "per day + per actual match".
+//      tag for confirmed lineup/venue/city/date.
 
 import * as cheerio from "cheerio";
 
@@ -94,8 +83,6 @@ async function fetchPage(url, retries = 3) {
   }
 }
 
-// ---------- Day agenda pages (candidate discovery) ----------
-
 function buildDayUrl(dateStr) {
   const [year, month, day] = dateStr.split("-");
   return `https://www.podiuminfo.nl/concertagenda/${year}/${month}/${day}/`;
@@ -143,14 +130,8 @@ async function getDayCandidates(dateStr, dayCacheEntries) {
   return candidates;
 }
 
-// ---------- Individual concert pages (authoritative data) ----------
-
 // Expected <title>: "Concert {Artist(s)} in {Venue}, {City} op [weekday] {day} {month} {year}"
-// NOTE: the weekday is OPTIONAL — the real <title> tag often omits it
-// ("... op 17 februari 2027"), even though the meta-description usually
-// includes it ("... op woensdag 17 februari 2027"). An earlier version of
-// this regex required the weekday and silently failed to parse every
-// single real concert page as a result.
+// The weekday is OPTIONAL — the real <title> tag often omits it.
 function parseConcertPageTitle(html) {
   const $ = cheerio.load(html);
   const titleText = ($("head title").first().text() || $("title").first().text() || "").trim();
@@ -252,6 +233,23 @@ export async function discoverEvents({ trackedArtistNames, startDate, endDate, d
   return events;
 }
 
+// Podiuminfo's day agenda covers both NL and BE, but nothing in the page
+// title tells us which — only the city does. This list is built from
+// cities we've actually seen in real data; it won't be exhaustive, but
+// covers the venues most likely to show up. Defaults to NL if unrecognized.
+const BELGIAN_CITIES = new Set([
+  "brussel", "antwerpen", "gent", "brugge", "leuven", "hasselt", "turnhout",
+  "liège", "luik", "charleroi", "mechelen", "kortrijk", "oostende", "namur",
+  "namen", "mons", "bergen", "ieper", "aalst", "roeselare", "sint-niklaas",
+  "genk", "seraing", "ittre", "deurne", "gentbrugge", "diest",
+  "lier", "geel", "vilvoorde", "waregem", "kontich",
+]);
+
+function detectCountry(city) {
+  if (!city) return "NL";
+  return BELGIAN_CITIES.has(city.toLowerCase().trim()) ? "BE" : "NL";
+}
+
 export async function queryPodiuminfoForArtists(trackedArtistNames, { startDate, endDate, dayCacheEntries, concertCacheEntries }) {
   const events = await discoverEvents({ trackedArtistNames, startDate, endDate, dayCacheEntries, concertCacheEntries });
 
@@ -267,7 +265,7 @@ export async function queryPodiuminfoForArtists(trackedArtistNames, { startDate,
         time: null,
         venue: e.venue,
         city: e.city || "Unknown",
-        country: "NL",
+        country: detectCountry(e.city),
         ticketUrl: e.ticketUrl,
         image: e.image,
         source: "podiuminfo",
