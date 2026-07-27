@@ -425,3 +425,49 @@ nav.tab-bar button.active { color: var(--accent-orange); }
   cursor: pointer;
   padding: 4px 8px;
 }
+
+/* ---------- Dismissed / restore list ---------- */
+
+.btn-restore-all {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: var(--card-2);
+  color: var(--text);
+  border-radius: 12px;
+  padding: 14px;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+.btn-restore-all:disabled { opacity: 0.6; }
+
+.dismissed-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+.dismissed-info { flex: 1; min-width: 0; }
+.dismissed-info .artist { font-weight: 700; font-size: 16px; }
+.dismissed-info .meta {
+  color: var(--text-dim);
+  font-size: 13px;
+  margin-top: 3px;
+  overflow-wrap: anywhere;
+}
+.btn-restore {
+  flex: 0 0 auto;
+  border: none;
+  background: #22304a;
+  color: #b9d4ff;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn-restore:disabled { opacity: 0.6; }
