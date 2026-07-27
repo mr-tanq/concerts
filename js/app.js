@@ -1,14 +1,13 @@
 import { buildArchiveView, filterConcerts } from "./archive-stats.js";
+import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection } from "./github-api.js";
 
 const TABS = ["mirror", "realm", "concerts", "identity", "archive"];
-// Session-only queue state for the swipe deck (NOT persisted). The only
-// durable outcome of Plan/Dismiss is running the matching GitHub Action —
-// see the instruction panel that appears after each swipe. Refreshing the
-// page without running that Action will show the card again, by design:
-// the browser has no write access to the repo, so nothing here can silently
-// pretend to be permanent.
+// Session-only deck order. The COMMITTED outcome of a swipe (Plan/Dismiss)
+// is a direct GitHub API write (see planConcertRemote/dismissConcertRemote
+// below) — the browser holds a fine-grained Personal Access Token in
+// localStorage and calls api.github.com directly, so swiping is
+// immediately permanent, no manual Action step needed.
 let deckQueue = [];
-let lastDecision = null; // { action: "plan" | "dismiss", concert }
 
 async function loadJSON(path) {
   const res = await fetch(path, { cache: "no-store" });
@@ -153,7 +152,141 @@ function timelineCard(c) {
   `);
 }
 
-// ---------- Concerts tab: recommendation deck ----------
+// ---------- Remote plan/dismiss (mirrors scripts/plan-concert.mjs and scripts/dismiss-concert.mjs) ----------
+
+async function planConcertRemote(rec) {
+  const config = getGithubConfig();
+  if (!config) throw new Error("not-configured");
+
+  const [recs, planned, history] = await Promise.all([
+    getFile(config, "data/recommendations.json"),
+    getFile(config, "data/planned.json"),
+    getFile(config, "data/recommendation-history.json"),
+  ]);
+
+  const idx = recs.json.concerts.findIndex((c) => c.id === rec.id);
+  if (idx === -1) throw new Error("This recommendation no longer exists (maybe already handled elsewhere).");
+  const r = recs.json.concerts[idx];
+
+  const plannedRecord = {
+    id: `planned-${r.id.replace(/^rec-/, "")}`,
+    artist: r.artist,
+    supportingArtists: r.supportingArtists || [],
+    date: r.date,
+    time: r.time || null,
+    venue: r.venue,
+    city: r.city,
+    country: r.country,
+    isFestival: r.isFestival || false,
+    image: r.image || null,
+    ticketUrl: r.ticketUrl || null,
+    sourceApis: r.sourceApis || [],
+    recommendationId: r.id,
+    planning: { plannedAt: new Date().toISOString(), originalScore: r.match?.score ?? null },
+  };
+
+  const dup = planned.json.concerts.some(
+    (c) => c.artist === plannedRecord.artist && c.date === plannedRecord.date && c.venue === plannedRecord.venue
+  );
+  if (!dup) planned.json.concerts.push(plannedRecord);
+  planned.json.meta.lastUpdated = new Date().toISOString();
+
+  recs.json.concerts.splice(idx, 1);
+  recs.json.meta.lastUpdated = new Date().toISOString();
+
+  if (!history.json.plannedIds.includes(r.id)) history.json.plannedIds.push(r.id);
+
+  await putFile(config, "data/planned.json", planned.json, planned.sha, `chore: plan ${r.id} (via app)`);
+  await putFile(config, "data/recommendations.json", recs.json, recs.sha, `chore: remove planned ${r.id} from recommendations (via app)`);
+  await putFile(config, "data/recommendation-history.json", history.json, history.sha, `chore: mark ${r.id} planned (via app)`);
+}
+
+async function dismissConcertRemote(rec) {
+  const config = getGithubConfig();
+  if (!config) throw new Error("not-configured");
+
+  const [recs, history] = await Promise.all([
+    getFile(config, "data/recommendations.json"),
+    getFile(config, "data/recommendation-history.json"),
+  ]);
+
+  const idx = recs.json.concerts.findIndex((c) => c.id === rec.id);
+  if (idx !== -1) {
+    recs.json.concerts.splice(idx, 1);
+    recs.json.meta.lastUpdated = new Date().toISOString();
+  }
+  if (!history.json.dismissedIds.includes(rec.id)) history.json.dismissedIds.push(rec.id);
+
+  await putFile(config, "data/recommendations.json", recs.json, recs.sha, `chore: dismiss ${rec.id} (via app)`);
+  await putFile(config, "data/recommendation-history.json", history.json, history.sha, `chore: mark ${rec.id} dismissed (via app)`);
+}
+
+// ---------- Settings modal (GitHub connection) ----------
+
+function openSettingsModal() {
+  const existing = getGithubConfig() || { owner: "", repo: "", token: "" };
+  const root = document.getElementById("settings-modal-root");
+  root.innerHTML = "";
+  const overlay = el(`
+    <div class="modal-overlay">
+      <div class="modal-sheet">
+        <h3>Connect GitHub</h3>
+        <p class="hint">
+          Lets swipes commit directly to your repo — no manual Action step.
+          Create a <strong>fine-grained Personal Access Token</strong> at
+          github.com → Settings → Developer settings → Personal access
+          tokens → Fine-grained tokens, scoped to <strong>only this repo</strong>,
+          with <strong>Contents: Read and write</strong> permission. It's
+          stored only in this browser's local storage.
+        </p>
+        <label>Repo owner (username)</label>
+        <input id="input-owner" type="text" placeholder="mr-tanq" value="${existing.owner || ""}" />
+        <label>Repo name</label>
+        <input id="input-repo" type="text" placeholder="concerts" value="${existing.repo || ""}" />
+        <label>Personal access token</label>
+        <input id="input-token" type="password" placeholder="github_pat_..." value="${existing.token || ""}" />
+        <div class="modal-status" id="modal-status"></div>
+        <div class="modal-actions">
+          <button class="btn-modal-cancel" id="btn-modal-cancel">Cancel</button>
+          <button class="btn-modal-save" id="btn-modal-save">Test &amp; Save</button>
+        </div>
+      </div>
+    </div>
+  `);
+  root.appendChild(overlay);
+
+  const statusEl = overlay.querySelector("#modal-status");
+  overlay.querySelector("#btn-modal-cancel").addEventListener("click", () => { root.innerHTML = ""; });
+  overlay.addEventListener("click", (e) => { if (e.target === overlay) root.innerHTML = ""; });
+
+  overlay.querySelector("#btn-modal-save").addEventListener("click", async (e) => {
+    const owner = overlay.querySelector("#input-owner").value.trim();
+    const repo = overlay.querySelector("#input-repo").value.trim();
+    const token = overlay.querySelector("#input-token").value.trim();
+    if (!owner || !repo || !token) {
+      statusEl.textContent = "Fill in all three fields.";
+      statusEl.className = "modal-status error";
+      return;
+    }
+    const config = { owner, repo, token };
+    e.target.disabled = true;
+    e.target.textContent = "Testing...";
+    statusEl.textContent = "";
+    try {
+      await testConnection(config);
+      saveGithubConfig(config);
+      statusEl.textContent = "Connected ✓";
+      statusEl.className = "modal-status ok";
+      setTimeout(() => { root.innerHTML = ""; }, 700);
+    } catch (err) {
+      statusEl.textContent = `Failed: ${err.message}`;
+      statusEl.className = "modal-status error";
+    } finally {
+      e.target.disabled = false;
+      e.target.textContent = "Test & Save";
+    }
+  });
+}
 
 function renderConcerts(recsData, plannedData) {
   deckQueue = [...recsData.concerts];
@@ -194,10 +327,6 @@ function renderConcertsShell(root, plannedData) {
 function renderDeck(body) {
   body.innerHTML = "";
 
-  if (lastDecision) {
-    body.appendChild(decisionBanner(lastDecision));
-  }
-
   if (deckQueue.length === 0) {
     body.appendChild(el(`<div class="empty-state">No more recommendations right now. The discovery job runs on a schedule — check back soon.</div>`));
     return;
@@ -210,34 +339,11 @@ function renderDeck(body) {
   }
 }
 
-function decisionBanner(decision) {
-  const { action, concert } = decision;
-  const actionLabel = action === "plan" ? "Plan concert" : "Dismiss concert";
-  const verb = action === "plan" ? "Planned" : "Dismissed";
-  const banner = el(`
-    <div class="card" style="border-color:var(--accent-orange);margin-bottom:16px">
-      <div style="font-weight:700;margin-bottom:6px">${verb} (locally) — one step left</div>
-      <div class="section-sub" style="margin-bottom:10px">
-        This won't be permanent until you run the <strong>"${actionLabel}"</strong> GitHub Action with this id:
-      </div>
-      <div style="background:var(--card-2);border-radius:8px;padding:10px;font-family:monospace;font-size:13px;word-break:break-all;margin-bottom:10px">${concert.id}</div>
-      <button class="btn-copy-id" style="width:100%;border:none;border-radius:10px;padding:10px;font-weight:700;background:#253044;color:var(--text);cursor:pointer">Copy id</button>
-    </div>
-  `);
-  banner.querySelector(".btn-copy-id").addEventListener("click", async (e) => {
-    try {
-      await navigator.clipboard.writeText(concert.id);
-      e.target.textContent = "Copied ✓";
-    } catch {
-      e.target.textContent = concert.id;
-    }
-  });
-  return banner;
-}
-
 function recommendationCard(c, body) {
   const card = el(`
-    <div class="concert-card">
+    <div class="concert-card swipe-card" style="position:relative">
+      <div class="swipe-hint plan">Plan</div>
+      <div class="swipe-hint dismiss">Nope</div>
       ${c.image ? `<div class="image" style="background-image:url('${c.image}')"></div>` : ""}
       <div class="body">
         <div class="artist">${c.artist}${c.supportingArtists?.length ? ` + ${c.supportingArtists.join(" + ")}` : ""}</div>
@@ -254,23 +360,90 @@ function recommendationCard(c, body) {
     </div>
   `);
 
+  const planHint = card.querySelector(".swipe-hint.plan");
+  const dismissHint = card.querySelector(".swipe-hint.dismiss");
+
+  let dragging = false;
+  let startX = 0;
+  let currentX = 0;
+  const threshold = 110;
+
+  function setHints(x) {
+    planHint.style.opacity = x > 20 ? String(Math.min(x / threshold, 1)) : "0";
+    dismissHint.style.opacity = x < -20 ? String(Math.min(-x / threshold, 1)) : "0";
+  }
+
+  function onPointerDown(e) {
+    if (e.target.closest("button")) return;
+    dragging = true;
+    startX = e.clientX;
+    card.style.transition = "none";
+    card.setPointerCapture(e.pointerId);
+  }
+  function onPointerMove(e) {
+    if (!dragging) return;
+    currentX = e.clientX - startX;
+    card.style.transform = `translateX(${currentX}px) rotate(${currentX / 20}deg)`;
+    setHints(currentX);
+  }
+  function onPointerUp() {
+    if (!dragging) return;
+    dragging = false;
+    card.style.transition = "transform 0.25s ease, opacity 0.25s ease";
+    if (currentX > threshold) {
+      resolveSwipe("plan");
+    } else if (currentX < -threshold) {
+      resolveSwipe("dismiss");
+    } else {
+      card.style.transform = "translateX(0) rotate(0)";
+      setHints(0);
+    }
+    currentX = 0;
+  }
+
+  card.addEventListener("pointerdown", onPointerDown);
+  card.addEventListener("pointermove", onPointerMove);
+  card.addEventListener("pointerup", onPointerUp);
+  card.addEventListener("pointercancel", onPointerUp);
+
+  async function resolveSwipe(action) {
+    if (!getGithubConfig()) {
+      card.style.transform = "translateX(0) rotate(0)";
+      setHints(0);
+      openSettingsModal();
+      return;
+    }
+
+    const flyX = action === "plan" ? 700 : -700;
+    card.style.transform = `translateX(${flyX}px) rotate(${flyX / 20}deg)`;
+    card.style.opacity = "0";
+
+    const overlay = el(`<div class="card-loading-overlay">${action === "plan" ? "Planning…" : "Dismissing…"}</div>`);
+    card.appendChild(overlay);
+
+    try {
+      if (action === "plan") await planConcertRemote(c);
+      else await dismissConcertRemote(c);
+      deckQueue.shift();
+      renderDeck(body);
+    } catch (err) {
+      console.error(err);
+      card.style.transition = "none";
+      card.style.transform = "translateX(0) rotate(0)";
+      card.style.opacity = "1";
+      overlay.remove();
+      setHints(0);
+      const banner = el(`<div class="error-banner">Couldn't save: ${err.message}</div>`);
+      body.insertBefore(banner, card);
+    }
+  }
+
   card.querySelector(".btn-skip").addEventListener("click", () => {
     deckQueue.push(deckQueue.shift());
-    lastDecision = null;
     renderDeck(body);
   });
-
-  card.querySelector(".btn-hide").addEventListener("click", () => {
-    deckQueue.shift();
-    lastDecision = { action: "dismiss", concert: c };
-    renderDeck(body);
-  });
-
-  card.querySelector(".btn-plan").addEventListener("click", () => {
-    deckQueue.shift();
-    lastDecision = { action: "plan", concert: c };
-    renderDeck(body);
-  });
+  card.querySelector(".btn-hide").addEventListener("click", () => resolveSwipe("dismiss"));
+  card.querySelector(".btn-plan").addEventListener("click", () => resolveSwipe("plan"));
 
   const ticketsBtn = card.querySelector(".btn-tickets");
   if (ticketsBtn) ticketsBtn.addEventListener("click", () => window.open(c.ticketUrl, "_blank"));
@@ -281,7 +454,7 @@ function recommendationCard(c, body) {
 function renderPlannedList(body, plannedData) {
   body.innerHTML = "";
   if (plannedData.concerts.length === 0) {
-    body.appendChild(el(`<div class="empty-state">Nothing planned yet. Swipe "Plan" on a recommendation and run the GitHub Action to add it here.</div>`));
+    body.appendChild(el(`<div class="empty-state">Nothing planned yet. Swipe right (or tap Plan) on a recommendation to add it here.</div>`));
     return;
   }
   [...plannedData.concerts]
@@ -302,6 +475,7 @@ async function init() {
   TABS.forEach((t) => {
     document.getElementById(`nav-${t}`).addEventListener("click", () => setActiveTab(t));
   });
+  document.getElementById("btn-settings").addEventListener("click", () => openSettingsModal());
   setActiveTab("archive");
 
   try {
