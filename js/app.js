@@ -1,13 +1,16 @@
-import { buildArchiveView, filterConcerts } from "./archive-stats.js";
+import { buildArchiveView } from "./archive-stats.js";
 import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection } from "./github-api.js";
 
 const TABS = ["mirror", "realm", "concerts", "identity", "archive"];
-// Session-only deck order. The COMMITTED outcome of a swipe (Plan/Dismiss)
-// is a direct GitHub API write (see planConcertRemote/dismissConcertRemote
-// below) — the browser holds a fine-grained Personal Access Token in
-// localStorage and calls api.github.com directly, so swiping is
-// immediately permanent, no manual Action step needed.
+
+// Deck state. Swipes are OPTIMISTIC: the card leaves immediately and the
+// GitHub commit runs in the background, because waiting ~2s per swipe for
+// three sequential API round-trips made the deck feel broken. If a commit
+// fails we surface it and push the card back onto the deck.
 let deckQueue = [];
+let plannedConcerts = [];
+let pendingWrites = 0;
+let syncError = null;
 
 async function loadJSON(path) {
   const res = await fetch(path, { cache: "no-store" });
@@ -21,9 +24,20 @@ function el(html) {
   return t.content.firstElementChild;
 }
 
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g, (m) => (
+    { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]
+  ));
+}
+
 function formatDate(iso) {
   const d = new Date(iso + "T00:00:00");
   return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+}
+
+function formatDateShort(iso) {
+  const d = new Date(iso + "T00:00:00");
+  return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
 }
 
 // ---------- Archive tab ----------
@@ -71,22 +85,10 @@ function renderArchive(archiveData) {
 
   if (view.onThisDay.length > 0) {
     root.appendChild(el(`<div class="section-heading">On this day</div>`));
-    const onThisDayWrap = el(`<div></div>`);
-    view.onThisDay.forEach((c) => onThisDayWrap.appendChild(timelineCard(c)));
-    root.appendChild(onThisDayWrap);
+    const wrap = el(`<div></div>`);
+    view.onThisDay.forEach((c) => wrap.appendChild(timelineCard(c)));
+    root.appendChild(wrap);
   }
-
-  root.appendChild(el(`<div class="section-heading">Explore archive</div>`));
-  const filterPills = el(`
-    <div class="pill-row">
-      <div class="pill active" data-filter="all">All</div>
-      <div class="pill" data-filter="year">Year</div>
-      <div class="pill" data-filter="artist">Artist</div>
-      <div class="pill" data-filter="city">City</div>
-      <div class="pill" data-filter="venue">Venue</div>
-    </div>
-  `);
-  root.appendChild(filterPills);
 
   root.appendChild(el(`<div class="section-heading">Archive timeline</div>`));
   const timelineWrap = el(`<div></div>`);
@@ -97,8 +99,8 @@ function renderArchive(archiveData) {
 function statCard(value, label) {
   return el(`
     <div class="card stat-card">
-      <div class="stat-value">${value}</div>
-      <div class="stat-label">${label}</div>
+      <div class="stat-value">${esc(value)}</div>
+      <div class="stat-label">${esc(label)}</div>
     </div>
   `);
 }
@@ -106,34 +108,36 @@ function statCard(value, label) {
 function signatureCard(title, sub, tag) {
   return el(`
     <div class="card stat-card">
-      <div class="stat-label" style="font-size:20px;font-weight:700;color:var(--text)">${title}</div>
-      <div class="stat-label">${sub}</div>
-      <div class="stat-tag">${tag}</div>
+      <div class="stat-label" style="font-size:20px;font-weight:700;color:var(--text)">${esc(title)}</div>
+      <div class="stat-label">${esc(sub)}</div>
+      <div class="stat-tag">${esc(tag)}</div>
     </div>
   `);
 }
 
 function milestoneCard(kicker, concert) {
-  const bg = concert.image ? `background-image:linear-gradient(0deg, rgba(5,7,10,.85), rgba(5,7,10,.4)), url('${concert.image}')` : "";
+  const bg = concert.image
+    ? `background-image:linear-gradient(0deg, rgba(5,7,10,.85), rgba(5,7,10,.4)), url('${esc(concert.image)}')`
+    : "";
   return el(`
     <div class="milestone-card" style="${bg}">
-      <div class="kicker">${kicker}</div>
-      <div class="title">${concert.festivalName || concert.artist}</div>
-      <div class="meta">${formatDate(concert.date)} · ${concert.city}</div>
-      <div class="meta">${concert.venue}</div>
+      <div class="kicker">${esc(kicker)}</div>
+      <div class="title">${esc(concert.festivalName || concert.artist)}</div>
+      <div class="meta">${formatDate(concert.date)} · ${esc(concert.city)}</div>
+      <div class="meta">${esc(concert.venue)}</div>
       <div class="badge">${concert.isFestival ? "FESTIVAL CONCERT" : "OPEN CONCERT"}</div>
     </div>
   `);
 }
 
 function rankedList(title, items) {
-  const card = el(`<div class="list-card"><div class="section-heading" style="margin:0 0 8px">${title}</div></div>`);
+  const card = el(`<div class="list-card"><div class="section-heading" style="margin:0 0 8px">${esc(title)}</div></div>`);
   items.forEach((item, i) => {
     card.appendChild(el(`
       <div class="list-row">
         <div class="rank">${i + 1}.</div>
-        <div class="name">${item.name}</div>
-        <div class="count">${item.count}</div>
+        <div class="name">${esc(item.name)}</div>
+        <div class="count">${esc(item.count)}</div>
       </div>
     `));
   });
@@ -145,18 +149,40 @@ function timelineCard(c) {
   const support = c.supportingArtists?.length ? ` + ${c.supportingArtists.join(" + ")}` : "";
   return el(`
     <div class="timeline-card">
-      <div class="artist">${title}${support}</div>
-      <div class="meta">${formatDate(c.date)} · ${c.city}</div>
-      <div class="venue">${c.venue}</div>
+      <div class="artist">${esc(title + support)}</div>
+      <div class="meta">${formatDate(c.date)} · ${esc(c.city)}</div>
+      <div class="venue">${esc(c.venue)}</div>
     </div>
   `);
 }
 
-// ---------- Remote plan/dismiss (mirrors scripts/plan-concert.mjs and scripts/dismiss-concert.mjs) ----------
+// ---------- Remote writes ----------
+
+function plannedRecordFrom(rec) {
+  return {
+    id: `planned-${String(rec.id).replace(/^rec-/, "")}`,
+    source: rec.source || "podiuminfo",
+    sourceId: rec.sourceId ?? null,
+    artist: rec.artist,
+    lineup: rec.lineup || [],
+    supportingArtists: rec.supportingArtists || [],
+    date: rec.date,
+    time: rec.time || null,
+    venue: rec.venue,
+    city: rec.city,
+    country: rec.country,
+    isFestival: rec.isFestival || false,
+    image: rec.image || null,
+    ticketUrl: rec.ticketUrl || null,
+    sourceUrl: rec.sourceUrl || null,
+    recommendationId: rec.id,
+    planning: { plannedAt: new Date().toISOString(), originalScore: rec.match?.score ?? null },
+  };
+}
 
 async function planConcertRemote(rec) {
   const config = getGithubConfig();
-  if (!config) throw new Error("not-configured");
+  if (!config) throw new Error("GitHub not connected — open ⚙ to set it up.");
 
   const [recs, planned, history] = await Promise.all([
     getFile(config, "data/recommendations.json"),
@@ -165,45 +191,29 @@ async function planConcertRemote(rec) {
   ]);
 
   const idx = recs.json.concerts.findIndex((c) => c.id === rec.id);
-  if (idx === -1) throw new Error("This recommendation no longer exists (maybe already handled elsewhere).");
-  const r = recs.json.concerts[idx];
+  if (idx !== -1) {
+    recs.json.concerts.splice(idx, 1);
+    recs.json.meta.lastUpdated = new Date().toISOString();
+  }
 
-  const plannedRecord = {
-    id: `planned-${r.id.replace(/^rec-/, "")}`,
-    artist: r.artist,
-    supportingArtists: r.supportingArtists || [],
-    date: r.date,
-    time: r.time || null,
-    venue: r.venue,
-    city: r.city,
-    country: r.country,
-    isFestival: r.isFestival || false,
-    image: r.image || null,
-    ticketUrl: r.ticketUrl || null,
-    sourceApis: r.sourceApis || [],
-    recommendationId: r.id,
-    planning: { plannedAt: new Date().toISOString(), originalScore: r.match?.score ?? null },
-  };
-
+  const record = plannedRecordFrom(rec);
   const dup = planned.json.concerts.some(
-    (c) => c.artist === plannedRecord.artist && c.date === plannedRecord.date && c.venue === plannedRecord.venue
+    (c) => (c.sourceId && rec.sourceId && String(c.sourceId) === String(rec.sourceId)) ||
+           (c.artist === record.artist && c.date === record.date && c.venue === record.venue)
   );
-  if (!dup) planned.json.concerts.push(plannedRecord);
+  if (!dup) planned.json.concerts.push(record);
   planned.json.meta.lastUpdated = new Date().toISOString();
 
-  recs.json.concerts.splice(idx, 1);
-  recs.json.meta.lastUpdated = new Date().toISOString();
+  if (!history.json.plannedIds.includes(rec.id)) history.json.plannedIds.push(rec.id);
 
-  if (!history.json.plannedIds.includes(r.id)) history.json.plannedIds.push(r.id);
-
-  await putFile(config, "data/planned.json", planned.json, planned.sha, `chore: plan ${r.id} (via app)`);
-  await putFile(config, "data/recommendations.json", recs.json, recs.sha, `chore: remove planned ${r.id} from recommendations (via app)`);
-  await putFile(config, "data/recommendation-history.json", history.json, history.sha, `chore: mark ${r.id} planned (via app)`);
+  await putFile(config, "data/planned.json", planned.json, planned.sha, `chore: plan ${rec.id} (app)`);
+  await putFile(config, "data/recommendations.json", recs.json, recs.sha, `chore: drop planned ${rec.id} (app)`);
+  await putFile(config, "data/recommendation-history.json", history.json, history.sha, `chore: mark ${rec.id} planned (app)`);
 }
 
 async function dismissConcertRemote(rec) {
   const config = getGithubConfig();
-  if (!config) throw new Error("not-configured");
+  if (!config) throw new Error("GitHub not connected — open ⚙ to set it up.");
 
   const [recs, history] = await Promise.all([
     getFile(config, "data/recommendations.json"),
@@ -217,11 +227,30 @@ async function dismissConcertRemote(rec) {
   }
   if (!history.json.dismissedIds.includes(rec.id)) history.json.dismissedIds.push(rec.id);
 
-  await putFile(config, "data/recommendations.json", recs.json, recs.sha, `chore: dismiss ${rec.id} (via app)`);
-  await putFile(config, "data/recommendation-history.json", history.json, history.sha, `chore: mark ${rec.id} dismissed (via app)`);
+  await putFile(config, "data/recommendations.json", recs.json, recs.sha, `chore: dismiss ${rec.id} (app)`);
+  await putFile(config, "data/recommendation-history.json", history.json, history.sha, `chore: mark ${rec.id} dismissed (app)`);
 }
 
-// ---------- Settings modal (GitHub connection) ----------
+// ---------- Sync status chip ----------
+
+function renderSyncChip() {
+  document.getElementById("sync-chip")?.remove();
+  if (pendingWrites === 0 && !syncError) return;
+
+  const chip = syncError
+    ? el(`<div class="sync-chip error" id="sync-chip">${esc(syncError)}</div>`)
+    : el(`<div class="sync-chip" id="sync-chip">Saving ${pendingWrites}…</div>`);
+  document.body.appendChild(chip);
+
+  if (syncError) {
+    setTimeout(() => {
+      syncError = null;
+      renderSyncChip();
+    }, 6000);
+  }
+}
+
+// ---------- Settings modal ----------
 
 function openSettingsModal() {
   const existing = getGithubConfig() || { owner: "", repo: "", token: "" };
@@ -232,19 +261,17 @@ function openSettingsModal() {
       <div class="modal-sheet">
         <h3>Connect GitHub</h3>
         <p class="hint">
-          Lets swipes commit directly to your repo — no manual Action step.
-          Create a <strong>fine-grained Personal Access Token</strong> at
-          github.com → Settings → Developer settings → Personal access
-          tokens → Fine-grained tokens, scoped to <strong>only this repo</strong>,
-          with <strong>Contents: Read and write</strong> permission. It's
-          stored only in this browser's local storage.
+          Lets swipes save straight to your repo. Create a
+          <strong>fine-grained token</strong> at github.com/settings/tokens?type=beta,
+          scoped to <strong>only this repo</strong>, with
+          <strong>Contents: Read and write</strong>. Stored only in this browser.
         </p>
-        <label>Repo owner (username)</label>
-        <input id="input-owner" type="text" placeholder="mr-tanq" value="${existing.owner || ""}" />
+        <label>Repo owner</label>
+        <input id="input-owner" type="text" placeholder="mr-tanq" value="${esc(existing.owner)}" />
         <label>Repo name</label>
-        <input id="input-repo" type="text" placeholder="concerts" value="${existing.repo || ""}" />
-        <label>Personal access token</label>
-        <input id="input-token" type="password" placeholder="github_pat_..." value="${existing.token || ""}" />
+        <input id="input-repo" type="text" placeholder="concerts" value="${esc(existing.repo)}" />
+        <label>Access token</label>
+        <input id="input-token" type="password" placeholder="github_pat_..." value="${esc(existing.token)}" />
         <div class="modal-status" id="modal-status"></div>
         <div class="modal-actions">
           <button class="btn-modal-cancel" id="btn-modal-cancel">Cancel</button>
@@ -270,7 +297,7 @@ function openSettingsModal() {
     }
     const config = { owner, repo, token };
     e.target.disabled = true;
-    e.target.textContent = "Testing...";
+    e.target.textContent = "Testing…";
     statusEl.textContent = "";
     try {
       await testConnection(config);
@@ -288,23 +315,23 @@ function openSettingsModal() {
   });
 }
 
+// ---------- Concerts tab ----------
+
 function renderConcerts(recsData, plannedData) {
-  deckQueue = [...recsData.concerts];
-  const root = document.getElementById("panel-concerts");
-  renderConcertsShell(root, plannedData);
+  deckQueue = [...(recsData.concerts || [])];
+  plannedConcerts = [...(plannedData.concerts || [])];
+  renderConcertsShell();
 }
 
-function renderConcertsShell(root, plannedData) {
+function renderConcertsShell(activeView = "discover") {
+  const root = document.getElementById("panel-concerts");
   root.innerHTML = "";
-  root.appendChild(el(`
-    <h2 class="section-title">Concerts</h2>
-    <p class="section-sub">Recommendations from your listening — nothing is planned automatically. You decide.</p>
-  `));
+  root.appendChild(el(`<h2 class="section-title">Concerts</h2>`));
 
   const pills = el(`
     <div class="pill-row">
-      <div class="pill active" data-view="discover">Discover</div>
-      <div class="pill" data-view="planned">Planned (${plannedData.concerts.length})</div>
+      <div class="pill ${activeView === "discover" ? "active" : ""}" data-view="discover">Discover</div>
+      <div class="pill ${activeView === "planned" ? "active" : ""}" data-view="planned">Planned (${plannedConcerts.length})</div>
     </div>
   `);
   root.appendChild(pills);
@@ -313,49 +340,53 @@ function renderConcertsShell(root, plannedData) {
   root.appendChild(body);
 
   pills.querySelectorAll(".pill").forEach((p) => {
-    p.addEventListener("click", () => {
-      pills.querySelectorAll(".pill").forEach((x) => x.classList.remove("active"));
-      p.classList.add("active");
-      if (p.dataset.view === "discover") renderDeck(body);
-      else renderPlannedList(body, plannedData);
-    });
+    p.addEventListener("click", () => renderConcertsShell(p.dataset.view));
   });
 
-  renderDeck(body);
+  if (activeView === "discover") renderDeck(body);
+  else renderPlannedList(body);
 }
 
 function renderDeck(body) {
   body.innerHTML = "";
 
   if (deckQueue.length === 0) {
-    body.appendChild(el(`<div class="empty-state">No more recommendations right now. The discovery job runs on a schedule — check back soon.</div>`));
+    body.appendChild(el(`<div class="empty-state">Nothing left to swipe. New recommendations arrive when the discovery job next runs.</div>`));
     return;
   }
 
-  const current = deckQueue[0];
-  body.appendChild(recommendationCard(current, body));
-  if (deckQueue.length > 1) {
-    body.appendChild(el(`<p style="text-align:center;color:var(--text-faint);font-size:13px;margin-top:8px">${deckQueue.length - 1} more after this</p>`));
-  }
+  const stage = el(`<div class="deck-stage"></div>`);
+  stage.appendChild(recommendationCard(deckQueue[0], body));
+  body.appendChild(stage);
+  body.appendChild(el(`<div class="deck-counter">${deckQueue.length} to review</div>`));
 }
 
 function recommendationCard(c, body) {
+  const bg = c.image ? `background-image:url('${esc(c.image)}')` : "";
+  const support = (c.supportingArtists || []).length
+    ? `<div class="support">with ${esc(c.supportingArtists.join(" · "))}</div>`
+    : "";
+  const timePart = c.time ? ` · ${esc(c.time)}` : "";
+
   const card = el(`
-    <div class="concert-card swipe-card" style="position:relative">
+    <div class="concert-card swipe-card" style="${bg}">
       <div class="swipe-hint plan">Plan</div>
       <div class="swipe-hint dismiss">Nope</div>
-      ${c.image ? `<div class="image" style="background-image:url('${c.image}')"></div>` : ""}
+      <div class="card-badges">
+        <span class="badge-pill">${esc(c.match.label)}</span>
+        <span class="badge-pill badge-score">${esc(c.match.score)}</span>
+        <span class="badge-pill">${esc(c.city)}</span>
+      </div>
       <div class="body">
-        <div class="artist">${c.artist}${c.supportingArtists?.length ? ` + ${c.supportingArtists.join(" + ")}` : ""}</div>
-        <div class="meta">${c.venue} · ${c.city} · ${formatDate(c.date)}${c.time ? " · " + c.time : ""}</div>
-        <div class="why">Why this: ${c.match.reason}</div>
-        <div class="match-line">${c.match.label} · Score ${c.match.score}</div>
+        <div class="artist">${esc(c.artist)}</div>
+        ${support}
+        <div class="meta">${esc(c.venue)} · ${formatDateShort(c.date)}${timePart}</div>
+        <div class="why">${esc(c.match.reason)}</div>
         <div class="actions">
-          <button class="btn-hide">Dismiss</button>
-          <button class="btn-skip">Skip</button>
-          <button class="btn-plan">Plan</button>
+          <button class="btn-hide" aria-label="Dismiss">✕</button>
+          <button class="btn-skip">${c.ticketUrl ? "Tickets" : "Skip"}</button>
+          <button class="btn-plan" aria-label="Plan">✓</button>
         </div>
-        ${c.ticketUrl ? `<button class="btn-tickets" style="width:100%;margin-top:10px;border:none;border-radius:10px;padding:12px;font-weight:700;background:#1f3350;color:#8ec1ff;cursor:pointer">Tickets</button>` : ""}
       </div>
     </div>
   `);
@@ -363,50 +394,51 @@ function recommendationCard(c, body) {
   const planHint = card.querySelector(".swipe-hint.plan");
   const dismissHint = card.querySelector(".swipe-hint.dismiss");
 
-  let dragging = false;
-  let startX = 0;
-  let currentX = 0;
-  const threshold = 110;
+  let dragging = false, startX = 0, startY = 0, dx = 0, locked = null;
+  const threshold = 100;
 
   function setHints(x) {
     planHint.style.opacity = x > 20 ? String(Math.min(x / threshold, 1)) : "0";
     dismissHint.style.opacity = x < -20 ? String(Math.min(-x / threshold, 1)) : "0";
   }
 
-  function onPointerDown(e) {
+  card.addEventListener("pointerdown", (e) => {
     if (e.target.closest("button")) return;
-    dragging = true;
-    startX = e.clientX;
+    dragging = true; locked = null;
+    startX = e.clientX; startY = e.clientY;
     card.style.transition = "none";
     card.setPointerCapture(e.pointerId);
-  }
-  function onPointerMove(e) {
+  });
+
+  card.addEventListener("pointermove", (e) => {
     if (!dragging) return;
-    currentX = e.clientX - startX;
-    card.style.transform = `translateX(${currentX}px) rotate(${currentX / 20}deg)`;
-    setHints(currentX);
-  }
-  function onPointerUp() {
+    const mx = e.clientX - startX;
+    const my = e.clientY - startY;
+    // Decide once whether this gesture is a horizontal swipe or a vertical
+    // scroll, so swiping never fights the page scroll.
+    if (locked === null && (Math.abs(mx) > 8 || Math.abs(my) > 8)) {
+      locked = Math.abs(mx) > Math.abs(my) ? "x" : "y";
+    }
+    if (locked !== "x") return;
+    dx = mx;
+    card.style.transform = `translateX(${dx}px) rotate(${dx / 22}deg)`;
+    setHints(dx);
+  });
+
+  function endDrag() {
     if (!dragging) return;
     dragging = false;
-    card.style.transition = "transform 0.25s ease, opacity 0.25s ease";
-    if (currentX > threshold) {
-      resolveSwipe("plan");
-    } else if (currentX < -threshold) {
-      resolveSwipe("dismiss");
-    } else {
-      card.style.transform = "translateX(0) rotate(0)";
-      setHints(0);
-    }
-    currentX = 0;
+    card.style.transition = "transform 0.28s ease, opacity 0.28s ease";
+    if (dx > threshold) commit("plan");
+    else if (dx < -threshold) commit("dismiss");
+    else { card.style.transform = "translateX(0) rotate(0)"; setHints(0); }
+    dx = 0;
   }
+  card.addEventListener("pointerup", endDrag);
+  card.addEventListener("pointercancel", endDrag);
 
-  card.addEventListener("pointerdown", onPointerDown);
-  card.addEventListener("pointermove", onPointerMove);
-  card.addEventListener("pointerup", onPointerUp);
-  card.addEventListener("pointercancel", onPointerUp);
-
-  async function resolveSwipe(action) {
+  // Optimistic: advance the deck right away, persist in the background.
+  function commit(action) {
     if (!getGithubConfig()) {
       card.style.transform = "translateX(0) rotate(0)";
       setHints(0);
@@ -414,55 +446,60 @@ function recommendationCard(c, body) {
       return;
     }
 
-    const flyX = action === "plan" ? 700 : -700;
-    card.style.transform = `translateX(${flyX}px) rotate(${flyX / 20}deg)`;
+    const flyX = action === "plan" ? 800 : -800;
+    card.style.transform = `translateX(${flyX}px) rotate(${flyX / 22}deg)`;
     card.style.opacity = "0";
 
-    const overlay = el(`<div class="card-loading-overlay">${action === "plan" ? "Planning…" : "Dismissing…"}</div>`);
-    card.appendChild(overlay);
+    deckQueue.shift();
+    if (action === "plan") plannedConcerts.push(plannedRecordFrom(c));
 
-    try {
-      if (action === "plan") await planConcertRemote(c);
-      else await dismissConcertRemote(c);
-      deckQueue.shift();
-      renderDeck(body);
-    } catch (err) {
-      console.error(err);
-      card.style.transition = "none";
-      card.style.transform = "translateX(0) rotate(0)";
-      card.style.opacity = "1";
-      overlay.remove();
-      setHints(0);
-      const banner = el(`<div class="error-banner">Couldn't save: ${err.message}</div>`);
-      body.insertBefore(banner, card);
-    }
+    pendingWrites++;
+    renderSyncChip();
+
+    const task = action === "plan" ? planConcertRemote(c) : dismissConcertRemote(c);
+    task
+      .catch((err) => {
+        console.error(err);
+        syncError = `Couldn't save ${c.artist} — put back in deck`;
+        // Undo the optimistic local change so the UI can't drift from the repo.
+        deckQueue.push(c);
+        if (action === "plan") {
+          const i = plannedConcerts.findIndex((p) => p.recommendationId === c.id);
+          if (i !== -1) plannedConcerts.splice(i, 1);
+        }
+        renderConcertsShell("discover");
+      })
+      .finally(() => {
+        pendingWrites--;
+        renderSyncChip();
+      });
+
+    setTimeout(() => renderConcertsShell("discover"), 180);
   }
 
+  card.querySelector(".btn-hide").addEventListener("click", () => commit("dismiss"));
+  card.querySelector(".btn-plan").addEventListener("click", () => commit("plan"));
   card.querySelector(".btn-skip").addEventListener("click", () => {
+    if (c.ticketUrl) { window.open(c.ticketUrl, "_blank"); return; }
     deckQueue.push(deckQueue.shift());
-    renderDeck(body);
+    renderConcertsShell("discover");
   });
-  card.querySelector(".btn-hide").addEventListener("click", () => resolveSwipe("dismiss"));
-  card.querySelector(".btn-plan").addEventListener("click", () => resolveSwipe("plan"));
-
-  const ticketsBtn = card.querySelector(".btn-tickets");
-  if (ticketsBtn) ticketsBtn.addEventListener("click", () => window.open(c.ticketUrl, "_blank"));
 
   return card;
 }
 
-function renderPlannedList(body, plannedData) {
+function renderPlannedList(body) {
   body.innerHTML = "";
-  if (plannedData.concerts.length === 0) {
-    body.appendChild(el(`<div class="empty-state">Nothing planned yet. Swipe right (or tap Plan) on a recommendation to add it here.</div>`));
+  if (plannedConcerts.length === 0) {
+    body.appendChild(el(`<div class="empty-state">Nothing planned yet. Swipe right on a recommendation to add it here.</div>`));
     return;
   }
-  [...plannedData.concerts]
+  [...plannedConcerts]
     .sort((a, b) => a.date.localeCompare(b.date))
     .forEach((c) => body.appendChild(timelineCard(c)));
 }
 
-// ---------- Tab switching ----------
+// ---------- Tabs ----------
 
 function setActiveTab(name) {
   TABS.forEach((t) => {
@@ -476,7 +513,7 @@ async function init() {
     document.getElementById(`nav-${t}`).addEventListener("click", () => setActiveTab(t));
   });
   document.getElementById("btn-settings").addEventListener("click", () => openSettingsModal());
-  setActiveTab("archive");
+  setActiveTab("concerts");
 
   try {
     const [archiveData, recsData, plannedData] = await Promise.all([
@@ -488,8 +525,8 @@ async function init() {
     renderConcerts(recsData, plannedData);
   } catch (err) {
     console.error(err);
-    document.getElementById("panel-archive").innerHTML =
-      `<div class="empty-state">Could not load data: ${err.message}</div>`;
+    document.getElementById("panel-concerts").innerHTML =
+      `<div class="empty-state">Could not load data: ${esc(err.message)}</div>`;
   }
 }
 
