@@ -3,33 +3,32 @@
 //
 // This is a RECOMMENDATION engine, not an auto-planner. It never touches
 // data/planned.json. It:
-//   1. Reads your Last.fm listening signal
-//   2. Builds a ranked, weighted list of artists you actually listen to
-//   3. Searches Podiuminfo's event database for each artist (NL/BE only)
+//   1. Reads your Last.fm listening signal (top 200 artists, all-time)
+//   2. Crawls Podiuminfo's per-day agenda pages across the lookahead
+//      window (cached per day — see scripts/sources/podiuminfo.mjs for why
+//      this replaced the old per-artist search after Podiuminfo's 24 July
+//      2026 relaunch broke free-text search)
+//   3. Checks every event found against ALL 200 tracked artists at once
+//      (in-memory, free) — cost no longer scales with how many artists
+//      you track, only with how many days the lookahead window covers
 //   4. Scores the results
 //   5. Excludes anything you've already dismissed or planned before
-//   6. Merges the refreshed results into data/recommendations.json
+//   6. Writes data/recommendations.json
 //
-// TIERED DISCOVERY:
-//   - DISCOVERY_TIER=top  (default, frequent schedule) checks your top N
-//     artists by listening score.
-//   - DISCOVERY_TIER=full (weekly) checks the long tail (everyone past
-//     rank N). Over a week, ALL tracked artists get checked.
-// Each run only re-searches ITS OWN tier's artists and merges the result
-// back into recommendations.json, leaving the other tier's entries alone.
-//
-// CACHING: data/podiuminfo-cache.json remembers the parsed result of every
-// concert page we've already opened (keyed by Podiuminfo's concert id), so
-// a re-run doesn't re-fetch an unchanged concert page. This only helps
-// from the SECOND run onward.
+// The only way a concert leaves "recommendation" and becomes real is you
+// explicitly running the "Plan concert" GitHub Action on it.
 //
 // Required secrets (set in repo Settings > Secrets and variables > Actions):
 //   LASTFM_API_KEY   - https://www.last.fm/api/account/create
 //   LASTFM_USER      - your Last.fm username
+//
+// Set FORCE_REFRESH_DAYS=true to bypass the day-cache and re-crawl every
+// day fresh (useful for the weekly deep-refresh workflow, or if you
+// suspect the cache is stale/wrong).
 
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { queryPodiuminfo } from "./sources/podiuminfo.mjs";
+import { queryPodiuminfoForArtists } from "./sources/podiuminfo.mjs";
 
 async function fetchWithRetry(url, options = {}, retries = 2) {
   for (let attempt = 0; ; attempt++) {
@@ -49,16 +48,26 @@ const CONFIG = JSON.parse(await readFile(path.join(ROOT, "data/config.json"), "u
 const ARCHIVE = JSON.parse(await readFile(path.join(ROOT, "data/archive.json"), "utf8"));
 const HISTORY = JSON.parse(await readFile(path.join(ROOT, "data/recommendation-history.json"), "utf8"));
 
-const CACHE_PATH = path.join(ROOT, "data/podiuminfo-cache.json");
-let CACHE;
-try {
-  CACHE = JSON.parse(await readFile(CACHE_PATH, "utf8"));
-} catch {
-  CACHE = { $schema: "Listening Mirror Podiuminfo Cache v1", entries: {} };
-}
-if (!CACHE.entries) CACHE.entries = {};
+const DAY_CACHE_PATH = path.join(ROOT, "data/podiuminfo-day-cache.json");
+const CONCERT_CACHE_PATH = path.join(ROOT, "data/podiuminfo-cache.json");
 
-const TIER = (process.env.DISCOVERY_TIER || "top").toLowerCase(); // "top" | "full"
+async function loadJsonSafe(filePath, fallback) {
+  try {
+    return JSON.parse(await readFile(filePath, "utf8"));
+  } catch {
+    return fallback;
+  }
+}
+
+let DAY_CACHE = await loadJsonSafe(DAY_CACHE_PATH, { entries: {} });
+if (!DAY_CACHE.entries) DAY_CACHE.entries = {};
+if (process.env.FORCE_REFRESH_DAYS === "true") {
+  console.log("FORCE_REFRESH_DAYS=true — ignoring day cache, re-crawling every day fresh.");
+  DAY_CACHE.entries = {};
+}
+
+let CONCERT_CACHE = await loadJsonSafe(CONCERT_CACHE_PATH, { entries: {} });
+if (!CONCERT_CACHE.entries) CONCERT_CACHE.entries = {};
 
 // ---------- 1. Listening signal ----------
 
@@ -105,13 +114,7 @@ async function getLastfmWeightedArtists() {
   }));
 }
 
-// ---------- 2. Concert sources ----------
-
-const SOURCE_ADAPTERS = {
-  podiuminfo: (artist) => queryPodiuminfo(artist, CACHE.entries),
-};
-
-// ---------- 3. Scoring ----------
+// ---------- 2. Scoring ----------
 
 function scoreEvent(event, artistSignal, cfg) {
   const w = cfg.scoring.weights;
@@ -156,19 +159,7 @@ function makeId(event) {
   return `rec-${slug(event.artist)}-${slug(event.venue)}-${event.date}`;
 }
 
-async function runWithConcurrency(items, limit, worker) {
-  let index = 0;
-  async function next() {
-    while (index < items.length) {
-      const i = index++;
-      await worker(items[i], i);
-    }
-  }
-  const lanes = Array.from({ length: Math.min(limit, items.length) }, () => next());
-  await Promise.all(lanes);
-}
-
-// ---------- 4. Main ----------
+// ---------- 3. Main ----------
 
 async function main() {
   let signals = [];
@@ -176,55 +167,36 @@ async function main() {
     signals = await getLastfmWeightedArtists();
   } catch (err) {
     console.error(`Last.fm fetch failed after retries: ${err.message}`);
-    console.warn("Continuing with no listening signal — this tier's results will end up empty this run.");
+    console.warn("Continuing with no listening signal — recommendations.json will end up empty this run.");
   }
   const signalByName = new Map(signals.map((s) => [s.name.toLowerCase(), s]));
+  const trackedArtistNames = signals.map((s) => s.name);
 
-  const rankedNames = signals
-    .sort((a, b) => (b.frequencyScore + b.recencyScore) - (a.frequencyScore + a.recencyScore))
-    .map((s) => s.name);
-
-  const topTierSize = CONFIG.discovery.topTierSize ?? 30;
-  const candidateArtists = TIER === "full"
-    ? rankedNames.slice(topTierSize, 200)
-    : rankedNames.slice(0, topTierSize);
-
-  console.log(`Tier: ${TIER} — querying concert sources for ${candidateArtists.length} artists...`);
-  console.log(`Candidate artists: ${candidateArtists.join(", ")}`);
-
-  const activeSources = CONFIG.discovery.concertApis.filter((s) => SOURCE_ADAPTERS[s]);
-  const rawEvents = [];
-  // IMPORTANT: concurrency must stay at 1. We tried 4 and 6 — both caused
-  // a storm of 429s (near every single request), even with the shared
-  // throttledFetch() minimum-gap gate in place. Real-world evidence from
-  // an actual run: Podiuminfo appears to rate-limit based on CONCURRENT
-  // connections, not just requests-per-second. Running artists one at a
-  // time (fully sequential) is what actually avoids 429s. Speed now comes
-  // from the cache (skipping already-seen concert pages) and from tiering
-  // (fewer artists per run), not from parallelism.
-  await runWithConcurrency(candidateArtists, 1, async (artist) => {
-    const startedAt = Date.now();
-    for (const source of activeSources) {
-      try {
-        const events = await SOURCE_ADAPTERS[source](artist);
-        rawEvents.push(...events);
-      } catch (err) {
-        console.warn(`Skipping "${artist}" on ${source}: ${err.message}`);
-      }
-    }
-    console.log(`  "${artist}" done in ${((Date.now() - startedAt) / 1000).toFixed(1)}s`);
-  });
-
-  const excludedIds = new Set([...HISTORY.dismissedIds, ...HISTORY.plannedIds]);
-  const seen = new Set();
-  const freshResults = [];
   const today = new Date().toISOString().slice(0, 10);
-  const lookaheadCutoff = new Date(Date.now() + CONFIG.discovery.lookaheadDays * 86400000)
+  const lookaheadEnd = new Date(Date.now() + CONFIG.discovery.lookaheadDays * 86400000)
     .toISOString()
     .slice(0, 10);
 
+  console.log(`Tracking ${trackedArtistNames.length} artists. Crawling Podiuminfo day agenda from ${today} to ${lookaheadEnd}...`);
+
+  let rawEvents = [];
+  try {
+    rawEvents = await queryPodiuminfoForArtists(trackedArtistNames, {
+      startDate: today,
+      endDate: lookaheadEnd,
+      dayCacheEntries: DAY_CACHE.entries,
+      concertCacheEntries: CONCERT_CACHE.entries,
+    });
+  } catch (err) {
+    console.error(`Podiuminfo discovery failed: ${err.message}`);
+  }
+
+  const excludedIds = new Set([...HISTORY.dismissedIds, ...HISTORY.plannedIds]);
+  const seen = new Set();
+  const results = [];
+
   for (const event of rawEvents) {
-    if (!event.date || event.date < today || event.date > lookaheadCutoff) continue;
+    if (!event.date || event.date < today || event.date > lookaheadEnd) continue;
     if (!CONFIG.location.searchCountries.includes(event.country)) continue;
     if (alreadyInArchive(event, ARCHIVE.concerts)) continue;
 
@@ -236,7 +208,7 @@ async function main() {
     const match = scoreEvent(event, signalByName.get(event.artist.toLowerCase()), CONFIG);
     if (match.score < CONFIG.discovery.minScoreToShow) continue;
 
-    freshResults.push({
+    results.push({
       id,
       artist: event.artist,
       supportingArtists: event.supportingArtists || [],
@@ -254,29 +226,19 @@ async function main() {
     });
   }
 
-  let existing = { concerts: [] };
-  try {
-    existing = JSON.parse(await readFile(path.join(ROOT, "data/recommendations.json"), "utf8"));
-  } catch {
-    // no existing file yet — fine, starts empty
-  }
-  const refreshedArtistSet = new Set(candidateArtists.map((a) => a.toLowerCase()));
-  const keptFromOtherTier = (existing.concerts || []).filter(
-    (c) => !refreshedArtistSet.has((c.artist || "").toLowerCase())
-  );
-  const merged = [...keptFromOtherTier, ...freshResults];
-  merged.sort((a, b) => b.match.score - a.match.score);
+  results.sort((a, b) => b.match.score - a.match.score);
 
   const output = {
     $schema: "Listening Mirror Recommendations Schema v1",
-    meta: { lastUpdated: new Date().toISOString(), generatedBy: "discover-concerts.mjs", lastTierRun: TIER },
-    concerts: merged,
+    meta: { lastUpdated: new Date().toISOString(), generatedBy: "discover-concerts.mjs" },
+    concerts: results,
   };
 
   await writeFile(path.join(ROOT, "data/recommendations.json"), JSON.stringify(output, null, 2) + "\n");
-  await writeFile(CACHE_PATH, JSON.stringify(CACHE, null, 2) + "\n");
+  await writeFile(DAY_CACHE_PATH, JSON.stringify(DAY_CACHE, null, 2) + "\n");
+  await writeFile(CONCERT_CACHE_PATH, JSON.stringify(CONCERT_CACHE, null, 2) + "\n");
 
-  console.log(`Tier "${TIER}": ${freshResults.length} fresh matches, ${merged.length} total after merge.`);
+  console.log(`Wrote ${results.length} recommendations to data/recommendations.json`);
 }
 
 main().catch((err) => {
