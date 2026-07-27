@@ -145,13 +145,18 @@ async function getDayCandidates(dateStr, dayCacheEntries) {
 
 // ---------- Individual concert pages (authoritative data) ----------
 
-// Expected <title>: "Concert {Artist(s)} in {Venue}, {City} op {weekday} {day} {month} {year}"
+// Expected <title>: "Concert {Artist(s)} in {Venue}, {City} op [weekday] {day} {month} {year}"
+// NOTE: the weekday is OPTIONAL — the real <title> tag often omits it
+// ("... op 17 februari 2027"), even though the meta-description usually
+// includes it ("... op woensdag 17 februari 2027"). An earlier version of
+// this regex required the weekday and silently failed to parse every
+// single real concert page as a result.
 function parseConcertPageTitle(html) {
   const $ = cheerio.load(html);
   const titleText = ($("head title").first().text() || $("title").first().text() || "").trim();
 
   const m = titleText.match(
-    /^Concert\s+(.+?)\s+in\s+(.+?)\s+op\s+\S+\s+(\d{1,2})\s+(januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december)\s+(\d{4})/i
+    /^Concert\s+(.+?)\s+in\s+(.+?)\s+op\s+(?:\S+\s+)?(\d{1,2})\s+(januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december)\s+(\d{4})/i
   );
   if (!m) return null;
 
