@@ -48,7 +48,7 @@ function isArtistMatch(candidate, wanted) {
   return norm(candidate) === norm(wanted);
 }
 
-const MIN_GAP_MS = 700;
+const MIN_GAP_MS = 1200;
 let lastRequestAt = 0;
 
 async function sleep(ms) {
@@ -61,7 +61,7 @@ async function throttledFetch(url) {
   lastRequestAt = Date.now();
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 15000);
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
   try {
     return await fetch(url, {
       headers: { "User-Agent": "Mozilla/5.0 (listening-mirror discovery bot; personal use)" },
