@@ -160,7 +160,7 @@ async function main() {
 
   const activeSources = CONFIG.discovery.concertApis.filter((s) => SOURCE_ADAPTERS[s]);
   const rawEvents = [];
-  for (const artist of candidateArtists) {
+  await runWithConcurrency(candidateArtists, 4, async (artist) => {
     for (const source of activeSources) {
       try {
         const events = await SOURCE_ADAPTERS[source](artist);
@@ -169,7 +169,7 @@ async function main() {
         console.warn(`Skipping "${artist}" on ${source}: ${err.message}`);
       }
     }
-  }
+  });
 
   const excludedIds = new Set([...HISTORY.dismissedIds, ...HISTORY.plannedIds]);
   const seen = new Set();
