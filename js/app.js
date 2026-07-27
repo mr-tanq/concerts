@@ -9,6 +9,8 @@ const TABS = ["mirror", "realm", "concerts", "identity", "archive"];
 // fails we surface it and push the card back onto the deck.
 let deckQueue = [];
 let plannedConcerts = [];
+let dismissedConcerts = [];   // full snapshots, newest first
+let legacyDismissedIds = [];  // ids dismissed before snapshots existed
 let pendingWrites = 0;
 let syncError = null;
 
@@ -227,8 +229,45 @@ async function dismissConcertRemote(rec) {
   }
   if (!history.json.dismissedIds.includes(rec.id)) history.json.dismissedIds.push(rec.id);
 
+  // Keep a full snapshot, not just the id — otherwise a dismissed concert
+  // is unreviewable and unrestorable, which is exactly the dead end the
+  // id-only history created.
+  if (!Array.isArray(history.json.dismissed)) history.json.dismissed = [];
+  if (!history.json.dismissed.some((d) => d.id === rec.id)) {
+    history.json.dismissed.unshift({ ...rec, dismissedAt: new Date().toISOString() });
+  }
+
   await putFile(config, "data/recommendations.json", recs.json, recs.sha, `chore: dismiss ${rec.id} (app)`);
   await putFile(config, "data/recommendation-history.json", history.json, history.sha, `chore: mark ${rec.id} dismissed (app)`);
+}
+
+// Restore = un-dismiss. Removes the id from history AND puts the concert
+// straight back into recommendations.json, so it returns to the deck now
+// rather than only after the next scheduled discovery run.
+async function restoreConcertsRemote(recsToRestore, legacyIdsToRestore = []) {
+  const config = getGithubConfig();
+  if (!config) throw new Error("GitHub not connected — open ⚙ to set it up.");
+
+  const [recs, history] = await Promise.all([
+    getFile(config, "data/recommendations.json"),
+    getFile(config, "data/recommendation-history.json"),
+  ]);
+
+  const restoringIds = new Set([...recsToRestore.map((r) => r.id), ...legacyIdsToRestore]);
+
+  history.json.dismissedIds = (history.json.dismissedIds || []).filter((id) => !restoringIds.has(id));
+  history.json.dismissed = (history.json.dismissed || []).filter((d) => !restoringIds.has(d.id));
+
+  for (const rec of recsToRestore) {
+    if (recs.json.concerts.some((c) => c.id === rec.id)) continue;
+    const { dismissedAt, ...clean } = rec;
+    recs.json.concerts.push(clean);
+  }
+  recs.json.concerts.sort((a, b) => (b.match?.score ?? 0) - (a.match?.score ?? 0));
+  recs.json.meta.lastUpdated = new Date().toISOString();
+
+  await putFile(config, "data/recommendations.json", recs.json, recs.sha, `chore: restore ${restoringIds.size} concert(s) (app)`);
+  await putFile(config, "data/recommendation-history.json", history.json, history.sha, `chore: un-dismiss ${restoringIds.size} (app)`);
 }
 
 // ---------- Sync status chip ----------
@@ -317,9 +356,16 @@ function openSettingsModal() {
 
 // ---------- Concerts tab ----------
 
-function renderConcerts(recsData, plannedData) {
+function renderConcerts(recsData, plannedData, historyData) {
   deckQueue = [...(recsData.concerts || [])];
   plannedConcerts = [...(plannedData.concerts || [])];
+  dismissedConcerts = [...(historyData?.dismissed || [])];
+
+  // Ids dismissed before snapshots existed can still be restored, we just
+  // can't render them as full cards — show them as a compact list.
+  const snapshotIds = new Set(dismissedConcerts.map((d) => d.id));
+  legacyDismissedIds = (historyData?.dismissedIds || []).filter((id) => !snapshotIds.has(id));
+
   renderConcertsShell();
 }
 
@@ -328,10 +374,12 @@ function renderConcertsShell(activeView = "discover") {
   root.innerHTML = "";
   root.appendChild(el(`<h2 class="section-title">Concerts</h2>`));
 
+  const dismissedCount = dismissedConcerts.length + legacyDismissedIds.length;
   const pills = el(`
     <div class="pill-row">
-      <div class="pill ${activeView === "discover" ? "active" : ""}" data-view="discover">Discover</div>
+      <div class="pill ${activeView === "discover" ? "active" : ""}" data-view="discover">Discover (${deckQueue.length})</div>
       <div class="pill ${activeView === "planned" ? "active" : ""}" data-view="planned">Planned (${plannedConcerts.length})</div>
+      <div class="pill ${activeView === "dismissed" ? "active" : ""}" data-view="dismissed">Dismissed (${dismissedCount})</div>
     </div>
   `);
   root.appendChild(pills);
@@ -344,7 +392,8 @@ function renderConcertsShell(activeView = "discover") {
   });
 
   if (activeView === "discover") renderDeck(body);
-  else renderPlannedList(body);
+  else if (activeView === "planned") renderPlannedList(body);
+  else renderDismissedList(body);
 }
 
 function renderDeck(body) {
@@ -452,6 +501,7 @@ function recommendationCard(c, body) {
 
     deckQueue.shift();
     if (action === "plan") plannedConcerts.push(plannedRecordFrom(c));
+    else dismissedConcerts.unshift({ ...c, dismissedAt: new Date().toISOString() });
 
     pendingWrites++;
     renderSyncChip();
@@ -466,6 +516,9 @@ function recommendationCard(c, body) {
         if (action === "plan") {
           const i = plannedConcerts.findIndex((p) => p.recommendationId === c.id);
           if (i !== -1) plannedConcerts.splice(i, 1);
+        } else {
+          const i = dismissedConcerts.findIndex((d) => d.id === c.id);
+          if (i !== -1) dismissedConcerts.splice(i, 1);
         }
         renderConcertsShell("discover");
       })
@@ -499,6 +552,94 @@ function renderPlannedList(body) {
     .forEach((c) => body.appendChild(timelineCard(c)));
 }
 
+function renderDismissedList(body) {
+  body.innerHTML = "";
+
+  const total = dismissedConcerts.length + legacyDismissedIds.length;
+  if (total === 0) {
+    body.appendChild(el(`<div class="empty-state">Nothing dismissed. Swipe left on a recommendation and it lands here — never permanently gone.</div>`));
+    return;
+  }
+
+  const restoreAll = el(`
+    <button class="btn-restore-all">Restore all ${total} — start a fresh deck</button>
+  `);
+  restoreAll.addEventListener("click", async () => {
+    if (!confirm(`Bring back all ${total} dismissed concerts?`)) return;
+    restoreAll.disabled = true;
+    restoreAll.textContent = "Restoring…";
+    await doRestore([...dismissedConcerts], [...legacyDismissedIds]);
+  });
+  body.appendChild(restoreAll);
+
+  for (const rec of dismissedConcerts) {
+    const row = el(`
+      <div class="dismissed-row">
+        <div class="dismissed-info">
+          <div class="artist">${esc(rec.artist)}</div>
+          <div class="meta">${esc(rec.venue)} · ${esc(rec.city)} · ${rec.date ? formatDate(rec.date) : "?"}</div>
+        </div>
+        <button class="btn-restore">Restore</button>
+      </div>
+    `);
+    row.querySelector(".btn-restore").addEventListener("click", async (e) => {
+      e.target.disabled = true;
+      e.target.textContent = "…";
+      await doRestore([rec], []);
+    });
+    body.appendChild(row);
+  }
+
+  if (legacyDismissedIds.length > 0) {
+    body.appendChild(el(`<div class="section-heading">Dismissed before details were kept</div>`));
+    body.appendChild(el(`
+      <p class="section-sub" style="font-size:13px">
+        These were dismissed by an older version that only stored ids, so there's
+        nothing to preview. Restoring one brings it back on the next discovery run.
+      </p>
+    `));
+    for (const id of legacyDismissedIds) {
+      const pretty = id.replace(/^rec-(podiuminfo-)?/, "").replace(/-/g, " ");
+      const row = el(`
+        <div class="dismissed-row">
+          <div class="dismissed-info"><div class="meta">${esc(pretty)}</div></div>
+          <button class="btn-restore">Restore</button>
+        </div>
+      `);
+      row.querySelector(".btn-restore").addEventListener("click", async (e) => {
+        e.target.disabled = true;
+        e.target.textContent = "…";
+        await doRestore([], [id]);
+      });
+      body.appendChild(row);
+    }
+  }
+}
+
+async function doRestore(recs, legacyIds) {
+  pendingWrites++;
+  renderSyncChip();
+  try {
+    await restoreConcertsRemote(recs, legacyIds);
+    const restoredIds = new Set([...recs.map((r) => r.id), ...legacyIds]);
+    dismissedConcerts = dismissedConcerts.filter((d) => !restoredIds.has(d.id));
+    legacyDismissedIds = legacyDismissedIds.filter((id) => !restoredIds.has(id));
+    for (const r of recs) {
+      const { dismissedAt, ...clean } = r;
+      deckQueue.push(clean);
+    }
+    deckQueue.sort((a, b) => (b.match?.score ?? 0) - (a.match?.score ?? 0));
+    renderConcertsShell("dismissed");
+  } catch (err) {
+    console.error(err);
+    syncError = `Restore failed: ${err.message}`;
+    renderConcertsShell("dismissed");
+  } finally {
+    pendingWrites--;
+    renderSyncChip();
+  }
+}
+
 // ---------- Tabs ----------
 
 function setActiveTab(name) {
@@ -516,13 +657,14 @@ async function init() {
   setActiveTab("concerts");
 
   try {
-    const [archiveData, recsData, plannedData] = await Promise.all([
+    const [archiveData, recsData, plannedData, historyData] = await Promise.all([
       loadJSON("data/archive.json"),
       loadJSON("data/recommendations.json"),
       loadJSON("data/planned.json"),
+      loadJSON("data/recommendation-history.json").catch(() => ({ dismissed: [], dismissedIds: [] })),
     ]);
     renderArchive(archiveData);
-    renderConcerts(recsData, plannedData);
+    renderConcerts(recsData, plannedData, historyData);
   } catch (err) {
     console.error(err);
     document.getElementById("panel-concerts").innerHTML =
