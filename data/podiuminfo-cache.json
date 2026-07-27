@@ -1,0 +1,5 @@
+{
+  "$schema": "Listening Mirror Podiuminfo Cache v1",
+  "note": "Caches parsed concert-page data by Podiuminfo concert id, so a re-run doesn't re-fetch a concert page we already opened and confirmed recently. Entries older than the freshness window get refreshed anyway (in case a show's date/venue changed).",
+  "entries": {}
+}
