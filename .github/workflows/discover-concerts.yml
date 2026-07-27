@@ -2,8 +2,8 @@ name: Discover concerts
 
 on:
   schedule:
-    - cron: "0 6,18 * * *"
-  workflow_dispatch: {}
+    - cron: "0 6,18 * * *"   # twice a day — adjust as you like
+  workflow_dispatch: {}       # lets you trigger it manually from the Actions tab
 
 permissions:
   contents: write
@@ -20,16 +20,17 @@ jobs:
 
       - run: npm install
 
-      - name: Run discovery script
+      - name: Run discovery script (top tier)
         env:
           LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
           LASTFM_USER: ${{ secrets.LASTFM_USER }}
+          DISCOVERY_TIER: top
         run: node scripts/discover-concerts.mjs
 
       - name: Commit updated recommendations.json
         run: |
           git config user.name "listening-mirror-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add data/recommendations.json
-          git diff --cached --quiet && echo "No changes" || git commit -m "chore: refresh recommendations"
+          git add data/recommendations.json data/podiuminfo-cache.json
+          git diff --cached --quiet && echo "No changes" || git commit -m "chore: refresh top-tier recommendations"
           git push
