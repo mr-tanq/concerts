@@ -1,5 +1,5 @@
 import { buildArchiveView } from "./archive-stats.js";
-import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection } from "./github-api.js";
+import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, isConflictError } from "./github-api.js";
 
 const TABS = ["mirror", "realm", "concerts", "identity", "archive"];
 
@@ -158,6 +158,51 @@ function timelineCard(c) {
   `);
 }
 
+// ---------- Serialized, conflict-safe repo writes ----------
+//
+// Swipes are optimistic, so several writes can be triggered within a second
+// of each other. Running them concurrently meant they all read the same
+// file sha, the first PUT won and the rest failed — which is exactly the
+// "some dismisses bounce back into the deck" symptom. Every mutation now
+// goes through one serial queue, and each attempt re-reads state and
+// re-applies its change, so a conflict (from another tab, or the scheduled
+// discovery Action) is resolved by rebasing rather than overwriting.
+
+let writeChain = Promise.resolve();
+
+function enqueue(task) {
+  const run = writeChain.then(task, task);
+  writeChain = run.catch(() => {});
+  return run;
+}
+
+async function mutate(paths, applyFn, message, attempts = 4) {
+  const config = getGithubConfig();
+  if (!config) throw new Error("GitHub not connected — open ⚙ to set it up.");
+
+  for (let attempt = 0; ; attempt++) {
+    const files = {};
+    for (const p of paths) files[p] = await getFile(config, p);
+
+    const jsons = {};
+    for (const p of paths) jsons[p] = files[p].json;
+    const touched = applyFn(jsons) || paths;
+
+    try {
+      for (const p of touched) {
+        await putFile(config, p, jsons[p], files[p].sha, message);
+      }
+      return;
+    } catch (err) {
+      if (isConflictError(err) && attempt < attempts - 1) {
+        await new Promise((r) => setTimeout(r, 250 * (attempt + 1)));
+        continue; // re-read, re-apply
+      }
+      throw err;
+    }
+  }
+}
+
 // ---------- Remote writes ----------
 
 function plannedRecordFrom(rec) {
@@ -183,91 +228,76 @@ function plannedRecordFrom(rec) {
 }
 
 async function planConcertRemote(rec) {
-  const config = getGithubConfig();
-  if (!config) throw new Error("GitHub not connected — open ⚙ to set it up.");
+  const RECS = "data/recommendations.json";
+  const PLANNED = "data/planned.json";
+  const HIST = "data/recommendation-history.json";
 
-  const [recs, planned, history] = await Promise.all([
-    getFile(config, "data/recommendations.json"),
-    getFile(config, "data/planned.json"),
-    getFile(config, "data/recommendation-history.json"),
-  ]);
+  await mutate([RECS, PLANNED, HIST], (f) => {
+    const recs = f[RECS], planned = f[PLANNED], history = f[HIST];
 
-  const idx = recs.json.concerts.findIndex((c) => c.id === rec.id);
-  if (idx !== -1) {
-    recs.json.concerts.splice(idx, 1);
-    recs.json.meta.lastUpdated = new Date().toISOString();
-  }
+    const idx = recs.concerts.findIndex((c) => c.id === rec.id);
+    if (idx !== -1) {
+      recs.concerts.splice(idx, 1);
+      recs.meta.lastUpdated = new Date().toISOString();
+    }
 
-  const record = plannedRecordFrom(rec);
-  const dup = planned.json.concerts.some(
-    (c) => (c.sourceId && rec.sourceId && String(c.sourceId) === String(rec.sourceId)) ||
-           (c.artist === record.artist && c.date === record.date && c.venue === record.venue)
-  );
-  if (!dup) planned.json.concerts.push(record);
-  planned.json.meta.lastUpdated = new Date().toISOString();
+    const record = plannedRecordFrom(rec);
+    const dup = planned.concerts.some(
+      (c) => (c.sourceId && rec.sourceId && String(c.sourceId) === String(rec.sourceId)) ||
+             (c.artist === record.artist && c.date === record.date && c.venue === record.venue)
+    );
+    if (!dup) planned.concerts.push(record);
+    planned.meta.lastUpdated = new Date().toISOString();
 
-  if (!history.json.plannedIds.includes(rec.id)) history.json.plannedIds.push(rec.id);
-
-  await putFile(config, "data/planned.json", planned.json, planned.sha, `chore: plan ${rec.id} (app)`);
-  await putFile(config, "data/recommendations.json", recs.json, recs.sha, `chore: drop planned ${rec.id} (app)`);
-  await putFile(config, "data/recommendation-history.json", history.json, history.sha, `chore: mark ${rec.id} planned (app)`);
+    if (!history.plannedIds.includes(rec.id)) history.plannedIds.push(rec.id);
+  }, `chore: plan ${rec.id} (app)`);
 }
 
 async function dismissConcertRemote(rec) {
-  const config = getGithubConfig();
-  if (!config) throw new Error("GitHub not connected — open ⚙ to set it up.");
+  const RECS = "data/recommendations.json";
+  const HIST = "data/recommendation-history.json";
 
-  const [recs, history] = await Promise.all([
-    getFile(config, "data/recommendations.json"),
-    getFile(config, "data/recommendation-history.json"),
-  ]);
+  await mutate([RECS, HIST], (f) => {
+    const recs = f[RECS], history = f[HIST];
 
-  const idx = recs.json.concerts.findIndex((c) => c.id === rec.id);
-  if (idx !== -1) {
-    recs.json.concerts.splice(idx, 1);
-    recs.json.meta.lastUpdated = new Date().toISOString();
-  }
-  if (!history.json.dismissedIds.includes(rec.id)) history.json.dismissedIds.push(rec.id);
+    const idx = recs.concerts.findIndex((c) => c.id === rec.id);
+    if (idx !== -1) {
+      recs.concerts.splice(idx, 1);
+      recs.meta.lastUpdated = new Date().toISOString();
+    }
+    if (!history.dismissedIds.includes(rec.id)) history.dismissedIds.push(rec.id);
 
-  // Keep a full snapshot, not just the id — otherwise a dismissed concert
-  // is unreviewable and unrestorable, which is exactly the dead end the
-  // id-only history created.
-  if (!Array.isArray(history.json.dismissed)) history.json.dismissed = [];
-  if (!history.json.dismissed.some((d) => d.id === rec.id)) {
-    history.json.dismissed.unshift({ ...rec, dismissedAt: new Date().toISOString() });
-  }
-
-  await putFile(config, "data/recommendations.json", recs.json, recs.sha, `chore: dismiss ${rec.id} (app)`);
-  await putFile(config, "data/recommendation-history.json", history.json, history.sha, `chore: mark ${rec.id} dismissed (app)`);
+    // Keep a full snapshot, not just the id — otherwise a dismissed concert
+    // is unreviewable and unrestorable.
+    if (!Array.isArray(history.dismissed)) history.dismissed = [];
+    if (!history.dismissed.some((d) => d.id === rec.id)) {
+      history.dismissed.unshift({ ...rec, dismissedAt: new Date().toISOString() });
+    }
+  }, `chore: dismiss ${rec.id} (app)`);
 }
 
 // Restore = un-dismiss. Removes the id from history AND puts the concert
 // straight back into recommendations.json, so it returns to the deck now
 // rather than only after the next scheduled discovery run.
 async function restoreConcertsRemote(recsToRestore, legacyIdsToRestore = []) {
-  const config = getGithubConfig();
-  if (!config) throw new Error("GitHub not connected — open ⚙ to set it up.");
-
-  const [recs, history] = await Promise.all([
-    getFile(config, "data/recommendations.json"),
-    getFile(config, "data/recommendation-history.json"),
-  ]);
-
+  const RECS = "data/recommendations.json";
+  const HIST = "data/recommendation-history.json";
   const restoringIds = new Set([...recsToRestore.map((r) => r.id), ...legacyIdsToRestore]);
 
-  history.json.dismissedIds = (history.json.dismissedIds || []).filter((id) => !restoringIds.has(id));
-  history.json.dismissed = (history.json.dismissed || []).filter((d) => !restoringIds.has(d.id));
+  await mutate([RECS, HIST], (f) => {
+    const recs = f[RECS], history = f[HIST];
 
-  for (const rec of recsToRestore) {
-    if (recs.json.concerts.some((c) => c.id === rec.id)) continue;
-    const { dismissedAt, ...clean } = rec;
-    recs.json.concerts.push(clean);
-  }
-  recs.json.concerts.sort((a, b) => (b.match?.score ?? 0) - (a.match?.score ?? 0));
-  recs.json.meta.lastUpdated = new Date().toISOString();
+    history.dismissedIds = (history.dismissedIds || []).filter((id) => !restoringIds.has(id));
+    history.dismissed = (history.dismissed || []).filter((d) => !restoringIds.has(d.id));
 
-  await putFile(config, "data/recommendations.json", recs.json, recs.sha, `chore: restore ${restoringIds.size} concert(s) (app)`);
-  await putFile(config, "data/recommendation-history.json", history.json, history.sha, `chore: un-dismiss ${restoringIds.size} (app)`);
+    for (const rec of recsToRestore) {
+      if (recs.concerts.some((c) => c.id === rec.id)) continue;
+      const { dismissedAt, ...clean } = rec;
+      recs.concerts.push(clean);
+    }
+    recs.concerts.sort((a, b) => (b.match?.score ?? 0) - (a.match?.score ?? 0));
+    recs.meta.lastUpdated = new Date().toISOString();
+  }, `chore: restore ${restoringIds.size} concert(s) (app)`);
 }
 
 // ---------- Sync status chip ----------
@@ -411,14 +441,17 @@ function renderDeck(body) {
 }
 
 function recommendationCard(c, body) {
-  const bg = c.image ? `background-image:url('${esc(c.image)}')` : "";
+  const bgLayer = c.image
+    ? `<div class="card-bg" style="background-image:url('${esc(c.image)}')"></div>`
+    : "";
   const support = (c.supportingArtists || []).length
     ? `<div class="support">with ${esc(c.supportingArtists.join(" · "))}</div>`
     : "";
   const timePart = c.time ? ` · ${esc(c.time)}` : "";
 
   const card = el(`
-    <div class="concert-card swipe-card" style="${bg}">
+    <div class="concert-card swipe-card">
+      ${bgLayer}
       <div class="swipe-hint plan">Plan</div>
       <div class="swipe-hint dismiss">Nope</div>
       <div class="card-badges">
@@ -506,7 +539,7 @@ function recommendationCard(c, body) {
     pendingWrites++;
     renderSyncChip();
 
-    const task = action === "plan" ? planConcertRemote(c) : dismissConcertRemote(c);
+    const task = enqueue(() => (action === "plan" ? planConcertRemote(c) : dismissConcertRemote(c)));
     task
       .catch((err) => {
         console.error(err);
@@ -620,7 +653,7 @@ async function doRestore(recs, legacyIds) {
   pendingWrites++;
   renderSyncChip();
   try {
-    await restoreConcertsRemote(recs, legacyIds);
+    await enqueue(() => restoreConcertsRemote(recs, legacyIds));
     const restoredIds = new Set([...recs.map((r) => r.id), ...legacyIds]);
     dismissedConcerts = dismissedConcerts.filter((d) => !restoredIds.has(d.id));
     legacyDismissedIds = legacyDismissedIds.filter((id) => !restoredIds.has(id));
