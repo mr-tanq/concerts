@@ -86,3 +86,4 @@ export async function putFile(config, path, obj, sha, message) {
 export async function testConnection(config) {
   await getFile(config, "data/config.json");
 }
+ 
