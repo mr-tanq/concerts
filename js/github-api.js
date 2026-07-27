@@ -69,6 +69,9 @@ export async function putFile(config, path, obj, sha, message) {
       body: JSON.stringify({ message, content, sha }),
     });
   } catch (err) {
+    // Someone else committed (e.g. the scheduled discovery Action) between
+    // our GET and PUT. Refetch the current sha and retry once with the
+    // same content — good enough for a low-concurrency personal tool.
     if (err.status === 409) {
       const fresh = await getFile(config, path);
       return await ghRequest(config, path, {
