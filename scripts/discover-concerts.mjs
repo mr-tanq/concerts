@@ -138,7 +138,26 @@ function makeId(event) {
   return `rec-${slug(event.artist)}-${slug(event.venue)}-${event.date}`;
 }
 
+// Runs `worker` over `items` with at most `limit` in flight at once. This
+// overlaps network round-trip latency across different artists — the
+// shared throttledFetch() rate gate in podiuminfo.mjs still enforces the
+// global minimum gap between actual HTTP requests, so this doesn't hit
+// Podiuminfo any harder; it just stops us wastefully waiting on one
+// artist's full request chain before even starting the next one.
+async function runWithConcurrency(items, limit, worker) {
+  let index = 0;
+  async function next() {
+    while (index < items.length) {
+      const i = index++;
+      await worker(items[i], i);
+    }
+  }
+  const lanes = Array.from({ length: Math.min(limit, items.length) }, () => next());
+  await Promise.all(lanes);
+}
+
 // ---------- 4. Main ----------
+
 
 async function main() {
   let signals = [];
