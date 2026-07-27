@@ -53,7 +53,7 @@ function isArtistMatch(candidate, wanted) {
   return norm(candidate) === norm(wanted);
 }
 
-const MIN_GAP_MS = 1200;
+const MIN_GAP_MS = 700;
 let lastRequestAt = 0;
 
 async function sleep(ms) {
