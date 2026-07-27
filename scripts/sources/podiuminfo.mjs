@@ -362,6 +362,7 @@ export async function discoverEvents({
     `${stats.daysStale} stale, ${stats.daysMissing} missing) → ${toOpen.size} candidate concerts.`
   );
 
+  let rejectedByLineup = 0;
   const events = [];
   for (const [concertId, href] of toOpen.entries()) {
     const cached = concertCacheEntries[concertId];
@@ -401,7 +402,17 @@ export async function discoverEvents({
     }
 
     const matchedTracked = parsed.lineup.filter((name) => trackedSet.has(normalizeArtistName(name)));
-    if (matchedTracked.length === 0) continue;
+    if (matchedTracked.length === 0) {
+      // The coarse day-page title said this was relevant but the
+      // authoritative lineup disagrees. A handful is normal; a flood means
+      // the two stages are reading names differently (e.g. a stale cache
+      // written by an older parser).
+      if (rejectedByLineup < 5) {
+        console.warn(`Rejected ${concertId}: authoritative lineup [${parsed.lineup.join(" | ")}] has no tracked artist.`);
+      }
+      rejectedByLineup++;
+      continue;
+    }
 
     events.push({
       concertId,
@@ -416,6 +427,12 @@ export async function discoverEvents({
       ticketUrl: parsed.ticketUrl || null,
     });
   }
+
+  console.log(
+    `Confirmed ${events.length} events from ${toOpen.size} candidates ` +
+    `(${rejectedByLineup} rejected on authoritative lineup, ${stats.concertsFailed} unreadable).`
+  );
+  stats.rejectedByLineup = rejectedByLineup;
 
   return { events, stats };
 }
