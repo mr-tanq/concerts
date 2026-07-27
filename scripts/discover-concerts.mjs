@@ -381,26 +381,37 @@ async function main() {
   const nowIso = new Date().toISOString();
   const results = [];
 
+  // Funnel counters — when the output is unexpectedly empty, these say
+  // exactly which stage ate the events instead of leaving us guessing.
+  const dropped = {
+    outOfDateRange: 0,
+    unknownCountryRejected: 0,
+    alreadyInArchive: 0,
+    previouslyHandled: 0,
+    belowMinScore: 0,
+    countryNotAllowed: 0,
+  };
+
   for (const event of events) {
-    if (!event.date || event.date < today || event.date > lookaheadEnd) continue;
+    if (!event.date || event.date < today || event.date > lookaheadEnd) { dropped.outOfDateRange++; continue; }
 
     // Country rule: NL always; BE only for high scores. An UNKNOWN country
     // is not silently promoted to NL — it's only kept if unknowns are
     // explicitly allowed in config.
-    if (event.country === null && !CONFIG.location.allowUnknownCountry) continue;
+    if (event.country === null && !CONFIG.location.allowUnknownCountry) { dropped.unknownCountryRejected++; continue; }
 
-    if (alreadyInArchive(event, ARCHIVE.concerts)) continue;
-    if (isExcluded(event, excludedIds)) continue;
+    if (alreadyInArchive(event, ARCHIVE.concerts)) { dropped.alreadyInArchive++; continue; }
+    if (isExcluded(event, excludedIds)) { dropped.previouslyHandled++; continue; }
 
     const { displayArtist, match } = scoreEvent(event, signalByName, CONFIG);
-    if (match.score < CONFIG.discovery.minScoreToShow) continue;
+    if (match.score < CONFIG.discovery.minScoreToShow) { dropped.belowMinScore++; continue; }
 
     const highScoreThreshold = CONFIG.location.highScoreThreshold ?? Infinity;
     const allowedCountries =
       match.score >= highScoreThreshold
         ? CONFIG.location.highScoreSearchCountries || CONFIG.location.searchCountries
         : CONFIG.location.searchCountries;
-    if (event.country !== null && !allowedCountries.includes(event.country)) continue;
+    if (event.country !== null && !allowedCountries.includes(event.country)) { dropped.countryNotAllowed++; continue; }
 
     const id = makeRecId(event.concertId);
     const prior = previousBySourceId.get(String(event.concertId)) || previousById.get(id);
@@ -461,6 +472,20 @@ async function main() {
   await writeJsonAtomic(CONCERT_CACHE_PATH, CONCERT_CACHE);
 
   console.log(`${status}: wrote ${results.length} recommendations (one per concert).`);
+  console.log(
+    `Funnel: ${events.length} confirmed events → ` +
+    `-${dropped.outOfDateRange} out of range, ` +
+    `-${dropped.unknownCountryRejected} unknown country, ` +
+    `-${dropped.alreadyInArchive} already attended, ` +
+    `-${dropped.previouslyHandled} already dismissed/planned, ` +
+    `-${dropped.belowMinScore} below min score, ` +
+    `-${dropped.countryNotAllowed} country not allowed ` +
+    `= ${results.length} published.`
+  );
+  console.log(
+    `History holds ${(HISTORY.dismissedIds || []).length} dismissed and ` +
+    `${(HISTORY.plannedIds || []).length} planned id(s).`
+  );
   if (status === "DEGRADED") {
     console.warn(
       `DEGRADED — ${stats.daysStale} stale day(s), ${stats.daysMissing} missing day(s), ` +
