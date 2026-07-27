@@ -177,13 +177,25 @@ p.section-sub {
   border-radius: 22px;
   overflow: hidden;
   background: linear-gradient(160deg, #1c2230, #0b0e14);
-  background-size: cover;
-  background-position: center;
   min-height: 68vh;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   box-shadow: 0 18px 40px rgba(0,0,0,0.45);
+}
+
+/* Podiuminfo only exposes a small (~100px) artist photo, so it's rendered
+   as its own scaled + blurred layer. Blowing it up sharp would just look
+   broken; blurred it reads as an intentional backdrop, and keeps the
+   overlaid text crisp since the blur doesn't apply to siblings. */
+.card-bg {
+  position: absolute;
+  inset: -8%;
+  background-size: cover;
+  background-position: center;
+  filter: blur(14px) saturate(1.15);
+  transform: scale(1.08);
+  opacity: 0.85;
 }
 
 /* Dark scrim so text stays readable over any poster */
