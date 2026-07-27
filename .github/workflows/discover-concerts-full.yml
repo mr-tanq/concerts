@@ -1,4 +1,4 @@
-name: Discover concerts (full tier, weekly)
+name: Discover concerts (weekly deep refresh)
 
 on:
   schedule:
@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  discover-full:
+  discover-refresh:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,17 +20,17 @@ jobs:
 
       - run: npm install
 
-      - name: Run discovery script (full tier)
+      - name: Run discovery script (force-refresh every day, ignoring cache)
         env:
           LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
           LASTFM_USER: ${{ secrets.LASTFM_USER }}
-          DISCOVERY_TIER: full
+          FORCE_REFRESH_DAYS: "true"
         run: node scripts/discover-concerts.mjs
 
-      - name: Commit updated recommendations.json
+      - name: Commit updated recommendations + caches
         run: |
           git config user.name "listening-mirror-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add data/recommendations.json data/podiuminfo-cache.json
-          git diff --cached --quiet && echo "No changes" || git commit -m "chore: refresh full-tier recommendations"
+          git add data/recommendations.json data/podiuminfo-day-cache.json data/podiuminfo-cache.json
+          git diff --cached --quiet && echo "No changes" || git commit -m "chore: weekly deep refresh of recommendations"
           git push
