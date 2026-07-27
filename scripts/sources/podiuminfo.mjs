@@ -1,38 +1,44 @@
 // sources/podiuminfo.mjs
 //
-// Two-phase approach:
-//   Phase 1: search the concertagenda (?input_zoek=<artist>) to find which
-//            concert PAGES mention this artist at all (coarse match on the
-//            listing's anchor title attribute).
-//   Phase 2: fetch each matched concert's OWN page and parse its <title>
-//            tag, which follows a highly reliable format:
-//              "Concert {Artist(s)} in {Venue}, {City} op {weekday} {day} {month} {year}"
-//            This is the authoritative source for date/venue/city — NOT the
-//            search-results listing DOM.
+// ARCHITECTURE (rewritten after Podiuminfo's 24 July 2026 relaunch):
+//
+// The old approach searched per-artist via ?input_zoek=<artist>. We
+// verified directly (fetching that exact URL) that the server now IGNORES
+// this query param entirely and just returns the generic, unfiltered
+// agenda — the relaunch moved free-text search to client-side JavaScript.
+// This explained a cluster of earlier bugs (missing real matches, huge
+// numbers of unrelated "candidates" for popular artist names) — none of
+// it was ever really filtered by artist at all.
+//
+// The new approach crawls Podiuminfo's per-DAY agenda pages instead:
+//   https://www.podiuminfo.nl/concertagenda/YYYY/MM/DD/
+// These are still plain server-rendered pages (confirmed working), and
+// each one is unambiguous — every event on it belongs to exactly that one
+// date, so there's no cross-day date-parsing ambiguity like the old
+// listing-climbing approach had.
+//
+// Flow:
+//   1. For each day in the lookahead window, fetch that day's agenda page
+//      (cached — see dayCacheEntries) and extract every event's concert id
+//      + a COARSE lineup guess from the anchor's title attribute
+//      ("Concert X in Y" — same reliable prefix format as before).
+//   2. Check that coarse lineup against ALL tracked artist names (cheap,
+//      in-memory, no network cost — this is the big win: cost no longer
+//      scales with how many artists you track).
+//   3. Only for actual coarse matches, fetch that concert's OWN page
+//      (cached — concertCacheEntries) and parse its authoritative <title>
+//      tag for confirmed lineup/venue/city/date, exactly as before.
+//
+// This keeps every correctness guarantee from before (authoritative
+// per-page data, exact matching, concert-id dedup) while cutting total
+// requests from "per artist" to "per day + per actual match".
 
 import * as cheerio from "cheerio";
 
-const BASE = "https://www.podiuminfo.nl/concertagenda/";
 const MONTHS = {
   januari: "01", februari: "02", maart: "03", april: "04", mei: "05", juni: "06",
   juli: "07", augustus: "08", september: "09", oktober: "10", november: "11", december: "12",
 };
-
-function buildSearchUrl(artist, page = 1) {
-  const params = new URLSearchParams({
-    input_zoek: artist,
-    input_datum: "",
-    input_genre: "",
-    input_livestream: "",
-    input_not_cancelled: "1",
-    input_plaats: "",
-    input_podium: "",
-    input_provincie: "",
-    sort: "event_date_time_asc",
-    page: String(page),
-  });
-  return `${BASE}?${params.toString()}`;
-}
 
 function splitLineup(title) {
   const cleaned = title.replace(/^Concert\s+/i, "");
@@ -88,9 +94,16 @@ async function fetchPage(url, retries = 3) {
   }
 }
 
-function findCandidateConcertLinks(html) {
+// ---------- Day agenda pages (candidate discovery) ----------
+
+function buildDayUrl(dateStr) {
+  const [year, month, day] = dateStr.split("-");
+  return `https://www.podiuminfo.nl/concertagenda/${year}/${month}/${day}/`;
+}
+
+function findCandidatesOnDayPage(html) {
   const $ = cheerio.load(html);
-  const candidates = new Map();
+  const candidates = new Map(); // concertId -> { href, lineup }
 
   $('a[href*="/concert/"]').each((_, node) => {
     const $a = $(node);
@@ -100,16 +113,39 @@ function findCandidateConcertLinks(html) {
     const [, concertId] = m;
 
     const titleAttr = $a.attr("title") || "";
-    if (!/^Concert\s+/i.test(titleAttr)) return;
+    const tm = titleAttr.match(/^Concert\s+(.+?)\s+in\s+/i);
+    if (!tm) return;
 
     if (!candidates.has(concertId)) {
-      candidates.set(concertId, { concertId, href });
+      candidates.set(concertId, { href, lineup: splitLineup(tm[1]) });
     }
   });
 
-  return [...candidates.values()];
+  return candidates;
 }
 
+const DAY_CACHE_MAX_AGE_MS = 20 * 60 * 60 * 1000; // 20 hours
+
+async function getDayCandidates(dateStr, dayCacheEntries) {
+  const cached = dayCacheEntries[dateStr];
+  if (cached && Date.now() - new Date(cached.checkedAt).getTime() < DAY_CACHE_MAX_AGE_MS) {
+    return new Map(cached.candidates.map((c) => [c.concertId, { href: c.href, lineup: c.lineup }]));
+  }
+
+  const html = await fetchPage(buildDayUrl(dateStr));
+  const candidates = findCandidatesOnDayPage(html);
+
+  dayCacheEntries[dateStr] = {
+    checkedAt: new Date().toISOString(),
+    candidates: [...candidates.entries()].map(([concertId, v]) => ({ concertId, href: v.href, lineup: v.lineup })),
+  };
+
+  return candidates;
+}
+
+// ---------- Individual concert pages (authoritative data) ----------
+
+// Expected <title>: "Concert {Artist(s)} in {Venue}, {City} op {weekday} {day} {month} {year}"
 function parseConcertPageTitle(html) {
   const $ = cheerio.load(html);
   const titleText = ($("head title").first().text() || $("title").first().text() || "").trim();
@@ -144,32 +180,39 @@ function parseConcertPageTitle(html) {
   };
 }
 
-const CACHE_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+const CONCERT_CACHE_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 
-export async function searchPodiuminfo(artistName, { maxPages = 3, cacheEntries = {} } = {}) {
-  const candidateMap = new Map();
+export async function discoverEvents({ trackedArtistNames, startDate, endDate, dayCacheEntries, concertCacheEntries }) {
+  const trackedSet = new Set(trackedArtistNames.map((n) => n.toLowerCase().trim()));
+  const toOpen = new Map(); // concertId -> href
 
-  for (let page = 1; page <= maxPages; page++) {
-    const html = await fetchPage(buildSearchUrl(artistName, page));
-    const candidates = findCandidateConcertLinks(html);
-    if (candidates.length === 0) break;
+  const cursor = new Date(startDate + "T00:00:00Z");
+  const end = new Date(endDate + "T00:00:00Z");
 
-    let newOnThisPage = 0;
-    for (const c of candidates) {
-      if (!candidateMap.has(c.concertId)) {
-        candidateMap.set(c.concertId, c.href);
-        newOnThisPage++;
+  while (cursor <= end) {
+    const dateStr = cursor.toISOString().slice(0, 10);
+    try {
+      const candidates = await getDayCandidates(dateStr, dayCacheEntries);
+      for (const [concertId, { href, lineup }] of candidates.entries()) {
+        const isRelevant = lineup.some((name) => trackedSet.has(name.toLowerCase().trim()));
+        if (isRelevant && !toOpen.has(concertId)) {
+          toOpen.set(concertId, href);
+        }
       }
+    } catch (err) {
+      console.warn(`Skipping day ${dateStr}: ${err.message}`);
     }
-    if (newOnThisPage === 0) break;
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
   }
 
-  const results = [];
-  for (const [concertId, href] of candidateMap.entries()) {
-    const cached = cacheEntries[concertId];
+  console.log(`Day crawl found ${toOpen.size} candidate concerts matching tracked artists.`);
+
+  const events = [];
+  for (const [concertId, href] of toOpen.entries()) {
+    const cached = concertCacheEntries[concertId];
     let parsed;
 
-    if (cached && Date.now() - new Date(cached.cachedAt).getTime() < CACHE_MAX_AGE_MS) {
+    if (cached && Date.now() - new Date(cached.cachedAt).getTime() < CONCERT_CACHE_MAX_AGE_MS) {
       parsed = cached;
     } else {
       const url = href.startsWith("http") ? href : `https://www.podiuminfo.nl${href}`;
@@ -184,26 +227,27 @@ export async function searchPodiuminfo(artistName, { maxPages = 3, cacheEntries 
       if (!parsed) continue;
       parsed.url = url;
       parsed.cachedAt = new Date().toISOString();
-      cacheEntries[concertId] = parsed;
+      concertCacheEntries[concertId] = parsed;
     }
 
-    const matches = parsed.lineup.some((name) => isArtistMatch(name, artistName));
-    if (!matches) continue;
+    const matchedTracked = parsed.lineup.filter((name) => trackedSet.has(name.toLowerCase().trim()));
+    if (matchedTracked.length === 0) continue;
 
-    results.push({ concertId, ...parsed });
+    events.push({ concertId, ...parsed, matchedTracked });
   }
 
-  return results;
+  return events;
 }
 
-export async function queryPodiuminfo(artistName, cacheEntries = {}) {
-  const events = await searchPodiuminfo(artistName, { cacheEntries });
-  return events
-    .filter((e) => e.date)
-    .map((e) => {
-      const mainArtist = e.lineup.find((name) => isArtistMatch(name, artistName)) || e.lineup[0];
+export async function queryPodiuminfoForArtists(trackedArtistNames, { startDate, endDate, dayCacheEntries, concertCacheEntries }) {
+  const events = await discoverEvents({ trackedArtistNames, startDate, endDate, dayCacheEntries, concertCacheEntries });
+
+  const results = [];
+  for (const e of events) {
+    if (!e.date) continue;
+    for (const mainArtist of e.matchedTracked) {
       const supporting = e.lineup.filter((name) => name !== mainArtist);
-      return {
+      results.push({
         artist: mainArtist,
         supportingArtists: supporting,
         date: e.date,
@@ -215,12 +259,8 @@ export async function queryPodiuminfo(artistName, cacheEntries = {}) {
         image: e.image,
         source: "podiuminfo",
         podiuminfoUrl: e.url,
-      };
-    });
-}
-
-if (import.meta.url === `file://${process.argv[1]}`) {
-  const artist = process.argv[2] || "Mono";
-  const results = await queryPodiuminfo(artist, {});
-  console.log(JSON.stringify(results, null, 2));
+      });
+    }
+  }
+  return results;
 }
