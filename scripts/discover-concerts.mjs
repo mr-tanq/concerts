@@ -3,28 +3,27 @@
 //
 // This is a RECOMMENDATION engine, not an auto-planner. It never touches
 // data/planned.json. It:
-//   1. Reads your Last.fm listening signal (top 200 artists, all-time)
+//   1. Reads your Last.fm listening signal (all artists with playcount
+//      above minPlaycountToTrack — up to 1000 fetched from Last.fm)
 //   2. Crawls Podiuminfo's per-day agenda pages across the lookahead
-//      window (cached per day — see scripts/sources/podiuminfo.mjs for why
-//      this replaced the old per-artist search after Podiuminfo's 24 July
-//      2026 relaunch broke free-text search)
-//   3. Checks every event found against ALL 200 tracked artists at once
+//      window (cached per day)
+//   3. Checks every event found against ALL tracked artists at once
 //      (in-memory, free) — cost no longer scales with how many artists
 //      you track, only with how many days the lookahead window covers
 //   4. Scores the results
 //   5. Excludes anything you've already dismissed or planned before
 //   6. Writes data/recommendations.json
 //
-// The only way a concert leaves "recommendation" and becomes real is you
-// explicitly running the "Plan concert" GitHub Action on it.
+// Country rule: NL is always in scope. BE is only included for events
+// whose score is above highScoreThreshold — i.e. only your biggest
+// favorites are worth crossing the border for.
 //
 // Required secrets (set in repo Settings > Secrets and variables > Actions):
 //   LASTFM_API_KEY   - https://www.last.fm/api/account/create
 //   LASTFM_USER      - your Last.fm username
 //
 // Set FORCE_REFRESH_DAYS=true to bypass the day-cache and re-crawl every
-// day fresh (useful for the weekly deep-refresh workflow, or if you
-// suspect the cache is stale/wrong).
+// day fresh (useful for the weekly deep-refresh workflow).
 
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -79,7 +78,7 @@ async function getLastfmWeightedArtists() {
     return [];
   }
 
-  const topUrl = `https://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=${user}&api_key=${key}&format=json&period=overall&limit=200`;
+  const topUrl = `https://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=${user}&api_key=${key}&format=json&period=overall&limit=1000`;
   const recentUrl = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${user}&api_key=${key}&format=json&limit=200`;
 
   const [topRes, recentRes] = await Promise.all([fetchWithRetry(topUrl), fetchWithRetry(recentUrl)]);
@@ -170,7 +169,8 @@ async function main() {
     console.warn("Continuing with no listening signal — recommendations.json will end up empty this run.");
   }
   const signalByName = new Map(signals.map((s) => [s.name.toLowerCase(), s]));
-  const trackedArtistNames = signals.map((s) => s.name);
+  const minPlaycount = CONFIG.discovery.minPlaycountToTrack ?? 0;
+  const trackedArtistNames = signals.filter((s) => s.playcount > minPlaycount).map((s) => s.name);
 
   const today = new Date().toISOString().slice(0, 10);
   const lookaheadEnd = new Date(Date.now() + CONFIG.discovery.lookaheadDays * 86400000)
@@ -197,16 +197,22 @@ async function main() {
 
   for (const event of rawEvents) {
     if (!event.date || event.date < today || event.date > lookaheadEnd) continue;
-    if (!CONFIG.location.searchCountries.includes(event.country)) continue;
     if (alreadyInArchive(event, ARCHIVE.concerts)) continue;
 
     const id = makeId(event);
     if (seen.has(id)) continue;
-    if (excludedIds.has(id)) continue;
+    if (excludedIds.has(id)) continue; // already dismissed or planned before — don't resurrect
     seen.add(id);
 
     const match = scoreEvent(event, signalByName.get(event.artist.toLowerCase()), CONFIG);
     if (match.score < CONFIG.discovery.minScoreToShow) continue;
+
+    const highScoreThreshold = CONFIG.location.highScoreThreshold ?? Infinity;
+    const allowedCountries =
+      match.score >= highScoreThreshold
+        ? CONFIG.location.highScoreSearchCountries || CONFIG.location.searchCountries
+        : CONFIG.location.searchCountries;
+    if (!allowedCountries.includes(event.country)) continue;
 
     results.push({
       id,
