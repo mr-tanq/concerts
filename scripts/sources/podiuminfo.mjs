@@ -8,12 +8,7 @@
 //            tag, which follows a highly reliable format:
 //              "Concert {Artist(s)} in {Venue}, {City} op {weekday} {day} {month} {year}"
 //            This is the authoritative source for date/venue/city — NOT the
-//            search-results listing DOM. An earlier version tried to infer
-//            the date by climbing the listing page's DOM looking for a
-//            nearby day heading; that produced systematically wrong dates
-//            (multiple unrelated venues all collapsing onto one date) once
-//            tested against real data. Fetching the concert's own page
-//            costs one extra request per match, but is unambiguous.
+//            search-results listing DOM.
 
 import * as cheerio from "cheerio";
 
@@ -93,11 +88,9 @@ async function fetchPage(url, retries = 3) {
   }
 }
 
-// ---------- Phase 1: find candidate concert URLs from the search listing ----------
-
 function findCandidateConcertLinks(html) {
   const $ = cheerio.load(html);
-  const candidates = new Map(); // concertId -> { href }
+  const candidates = new Map();
 
   $('a[href*="/concert/"]').each((_, node) => {
     const $a = $(node);
@@ -117,9 +110,6 @@ function findCandidateConcertLinks(html) {
   return [...candidates.values()];
 }
 
-// ---------- Phase 2: fetch a concert's own page for authoritative data ----------
-
-// Expected <title>: "Concert {Artist(s)} in {Venue}, {City} op {weekday} {day} {month} {year}"
 function parseConcertPageTitle(html) {
   const $ = cheerio.load(html);
   const titleText = ($("head title").first().text() || $("title").first().text() || "").trim();
@@ -154,7 +144,9 @@ function parseConcertPageTitle(html) {
   };
 }
 
-export async function searchPodiuminfo(artistName, { maxPages = 3 } = {}) {
+const CACHE_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+
+export async function searchPodiuminfo(artistName, { maxPages = 3, cacheEntries = {} } = {}) {
   const candidateMap = new Map();
 
   for (let page = 1; page <= maxPages; page++) {
@@ -174,28 +166,38 @@ export async function searchPodiuminfo(artistName, { maxPages = 3 } = {}) {
 
   const results = [];
   for (const [concertId, href] of candidateMap.entries()) {
-    const url = href.startsWith("http") ? href : `https://www.podiuminfo.nl${href}`;
-    let html;
-    try {
-      html = await fetchPage(url);
-    } catch (err) {
-      console.warn(`Failed to fetch concert page ${url}: ${err.message}`);
-      continue;
+    const cached = cacheEntries[concertId];
+    let parsed;
+
+    if (cached && Date.now() - new Date(cached.cachedAt).getTime() < CACHE_MAX_AGE_MS) {
+      parsed = cached;
+    } else {
+      const url = href.startsWith("http") ? href : `https://www.podiuminfo.nl${href}`;
+      let html;
+      try {
+        html = await fetchPage(url);
+      } catch (err) {
+        console.warn(`Failed to fetch concert page ${url}: ${err.message}`);
+        continue;
+      }
+      parsed = parseConcertPageTitle(html);
+      if (!parsed) continue;
+      parsed.url = url;
+      parsed.cachedAt = new Date().toISOString();
+      cacheEntries[concertId] = parsed;
     }
-    const parsed = parseConcertPageTitle(html);
-    if (!parsed) continue;
 
     const matches = parsed.lineup.some((name) => isArtistMatch(name, artistName));
     if (!matches) continue;
 
-    results.push({ concertId, url, ...parsed });
+    results.push({ concertId, ...parsed });
   }
 
   return results;
 }
 
-export async function queryPodiuminfo(artistName) {
-  const events = await searchPodiuminfo(artistName);
+export async function queryPodiuminfo(artistName, cacheEntries = {}) {
+  const events = await searchPodiuminfo(artistName, { cacheEntries });
   return events
     .filter((e) => e.date)
     .map((e) => {
@@ -219,6 +221,6 @@ export async function queryPodiuminfo(artistName) {
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const artist = process.argv[2] || "Mono";
-  const results = await queryPodiuminfo(artist);
+  const results = await queryPodiuminfo(artist, {});
   console.log(JSON.stringify(results, null, 2));
 }
