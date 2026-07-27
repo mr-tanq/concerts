@@ -2,7 +2,9 @@
   "location": {
     "homeCity": "Nieuwegein",
     "homeCountry": "NL",
-    "searchCountries": ["NL", "BE"],
+    "searchCountries": ["NL"],
+    "highScoreSearchCountries": ["NL", "BE"],
+    "highScoreThreshold": 70,
     "searchRadiusKm": 150
   },
   "discovery": {
@@ -10,7 +12,8 @@
     "concertApis": ["podiuminfo"],
     "lookbackDays": 180,
     "lookaheadDays": 365,
-    "minScoreToShow": 30
+    "minScoreToShow": 30,
+    "minPlaycountToTrack": 5
   },
   "scoring": {
     "weights": {
