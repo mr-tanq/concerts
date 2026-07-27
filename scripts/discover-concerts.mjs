@@ -10,27 +10,18 @@
 //   5. Excludes anything you've already dismissed or planned before
 //   6. Merges the refreshed results into data/recommendations.json
 //
-// TIERED DISCOVERY (architecture decision, not a shortcut):
-// We never trust Podiuminfo's search-results listing — every candidate
-// concert's own page gets fetched and parsed for the authoritative date/
-// venue/city (see scripts/sources/podiuminfo.mjs for why). That's correct,
-// but doing it for all 200 tracked artists on every run is slow. Instead:
-//   - DISCOVERY_TIER=top  (default, runs on the frequent schedule) checks
-//     only your top N artists by listening score — these are the ones
-//     most likely to have something new, so they're worth checking often.
-//   - DISCOVERY_TIER=full (runs weekly) checks the long tail (everyone
-//     past rank N) — lower priority, doesn't need daily freshness.
+// TIERED DISCOVERY:
+//   - DISCOVERY_TIER=top  (default, frequent schedule) checks your top N
+//     artists by listening score.
+//   - DISCOVERY_TIER=full (weekly) checks the long tail (everyone past
+//     rank N). Over a week, ALL tracked artists get checked.
 // Each run only re-searches ITS OWN tier's artists and merges the result
-// back into recommendations.json, leaving the other tier's entries
-// untouched — so the daily "top" run can never wipe out what the weekly
-// "full" run found, and vice versa.
+// back into recommendations.json, leaving the other tier's entries alone.
 //
 // CACHING: data/podiuminfo-cache.json remembers the parsed result of every
-// concert page we've already opened (keyed by Podiuminfo's concert id). If
-// we encounter the same concert id again within the freshness window, we
-// skip fetching it a second time — same authoritative source, we just
-// don't ask twice. This is the single biggest speed win, since most
-// concerts appear across many artist searches unchanged run after run.
+// concert page we've already opened (keyed by Podiuminfo's concert id), so
+// a re-run doesn't re-fetch an unchanged concert page. This only helps
+// from the SECOND run onward.
 //
 // Required secrets (set in repo Settings > Secrets and variables > Actions):
 //   LASTFM_API_KEY   - https://www.last.fm/api/account/create
@@ -203,7 +194,16 @@ async function main() {
 
   const activeSources = CONFIG.discovery.concertApis.filter((s) => SOURCE_ADAPTERS[s]);
   const rawEvents = [];
-  await runWithConcurrency(candidateArtists, 4, async (artist) => {
+  // IMPORTANT: concurrency must stay at 1. We tried 4 and 6 — both caused
+  // a storm of 429s (near every single request), even with the shared
+  // throttledFetch() minimum-gap gate in place. Real-world evidence from
+  // an actual run: Podiuminfo appears to rate-limit based on CONCURRENT
+  // connections, not just requests-per-second. Running artists one at a
+  // time (fully sequential) is what actually avoids 429s. Speed now comes
+  // from the cache (skipping already-seen concert pages) and from tiering
+  // (fewer artists per run), not from parallelism.
+  await runWithConcurrency(candidateArtists, 1, async (artist) => {
+    const startedAt = Date.now();
     for (const source of activeSources) {
       try {
         const events = await SOURCE_ADAPTERS[source](artist);
@@ -212,6 +212,7 @@ async function main() {
         console.warn(`Skipping "${artist}" on ${source}: ${err.message}`);
       }
     }
+    console.log(`  "${artist}" done in ${((Date.now() - startedAt) / 1000).toFixed(1)}s`);
   });
 
   const excludedIds = new Set([...HISTORY.dismissedIds, ...HISTORY.plannedIds]);
