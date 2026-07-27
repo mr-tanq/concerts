@@ -224,14 +224,22 @@ export async function discoverEvents({ trackedArtistNames, startDate, endDate, d
         continue;
       }
       parsed = parseConcertPageTitle(html);
-      if (!parsed) continue;
+      if (!parsed) {
+        const $ = cheerio.load(html);
+        const rawTitle = ($("head title").first().text() || $("title").first().text() || "(no title found)").trim();
+        console.warn(`Could not parse title for ${url} — raw title was: "${rawTitle}"`);
+        continue;
+      }
       parsed.url = url;
       parsed.cachedAt = new Date().toISOString();
       concertCacheEntries[concertId] = parsed;
     }
 
     const matchedTracked = parsed.lineup.filter((name) => trackedSet.has(name.toLowerCase().trim()));
-    if (matchedTracked.length === 0) continue;
+    if (matchedTracked.length === 0) {
+      console.warn(`Parsed OK but no tracked-artist match. Lineup was: [${parsed.lineup.join(", ")}]`);
+      continue;
+    }
 
     events.push({ concertId, ...parsed, matchedTracked });
   }
