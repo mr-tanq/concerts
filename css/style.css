@@ -165,30 +165,125 @@ p.section-sub {
 .timeline-card .meta { color: var(--text-dim); font-size: 14px; margin-top: 4px; }
 .timeline-card .venue { color: var(--text-faint); font-size: 13px; margin-top: 2px; }
 
+/* ---------- Swipe deck: full-bleed poster card ---------- */
+
+.deck-stage {
+  position: relative;
+  min-height: 68vh;
+}
+
 .concert-card {
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
+  position: relative;
+  border-radius: 22px;
   overflow: hidden;
-  margin-bottom: 16px;
-  background: var(--card);
+  background: linear-gradient(160deg, #1c2230, #0b0e14);
+  background-size: cover;
+  background-position: center;
+  min-height: 68vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.45);
 }
-.concert-card .image { height: 200px; background-size: cover; background-position: center; background-color: #1a1e26; }
-.concert-card .body { padding: 18px; }
-.concert-card .artist { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
-.concert-card .meta { color: var(--text-dim); margin-bottom: 10px; }
-.concert-card .why { color: var(--text-dim); font-size: 14px; margin: 10px 0 4px; }
-.concert-card .match-line { color: var(--text-faint); font-size: 13px; margin-bottom: 14px; }
-.concert-card .actions { display: flex; gap: 10px; }
-.concert-card .actions button {
-  flex: 1;
-  border: none;
-  border-radius: 10px;
-  padding: 12px;
+
+/* Dark scrim so text stays readable over any poster */
+.concert-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom,
+    rgba(5,7,10,0.55) 0%,
+    rgba(5,7,10,0.15) 32%,
+    rgba(5,7,10,0.82) 72%,
+    rgba(5,7,10,0.96) 100%);
+  pointer-events: none;
+}
+
+.card-badges {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  z-index: 2;
+}
+.card-badges .badge-pill {
+  background: rgba(20,24,32,0.72);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 999px;
+  padding: 7px 15px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+.card-badges .badge-score {
+  background: var(--accent-orange);
+  color: #1a1200;
+  border-color: transparent;
+  font-weight: 800;
+  min-width: 46px;
+  text-align: center;
+}
+
+.concert-card .body {
+  position: relative;
+  z-index: 2;
+  padding: 20px 20px 22px;
+}
+.concert-card .artist {
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 8px;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+}
+.concert-card .support {
+  color: var(--text-dim);
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+.concert-card .meta {
+  font-size: 16px;
   font-weight: 700;
-  cursor: pointer;
+  color: var(--text);
+  margin-bottom: 8px;
 }
-.btn-plan { background: #1f4d3a; color: #6fe3ab; }
-.btn-hide { background: #4d1f24; color: #ff9aa2; }
+.concert-card .why {
+  color: var(--text-dim);
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.concert-card .actions {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: center;
+}
+.concert-card .actions button {
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  border-radius: 999px;
+  height: 58px;
+  font-size: 20px;
+}
+.concert-card .actions .btn-hide,
+.concert-card .actions .btn-plan {
+  width: 58px;
+  flex: 0 0 58px;
+}
+.concert-card .actions .btn-skip {
+  flex: 1;
+  font-size: 16px;
+}
+.btn-plan { background: #14523a; color: #6fe3ab; }
+.btn-hide { background: #52181d; color: #ff9aa2; }
+.btn-skip { background: #22304a; color: #b9d4ff; }
 .btn-tickets { background: #1f3350; color: #8ec1ff; }
 
 nav.tab-bar {
@@ -212,42 +307,55 @@ nav.tab-bar button.active { color: var(--accent-orange); }
 
 .empty-state { color: var(--text-faint); padding: 24px 0; text-align: center; }
 
-/* Swipe deck */
+/* Swipe mechanics */
 .swipe-card {
-  touch-action: none;
+  touch-action: pan-y;
   cursor: grab;
   will-change: transform, opacity;
   user-select: none;
+  -webkit-user-select: none;
 }
 .swipe-card:active { cursor: grabbing; }
 
 .swipe-hint {
   position: absolute;
-  top: 20px;
-  font-weight: 800;
-  font-size: 22px;
-  letter-spacing: 0.05em;
-  padding: 6px 14px;
-  border-radius: 8px;
-  border: 3px solid currentColor;
+  top: 72px;
+  z-index: 3;
+  font-weight: 900;
+  font-size: 30px;
+  letter-spacing: 0.06em;
+  padding: 8px 18px;
+  border-radius: 12px;
+  border: 4px solid currentColor;
   opacity: 0;
   pointer-events: none;
   text-transform: uppercase;
+  background: rgba(5,7,10,0.35);
 }
-.swipe-hint.plan { right: 20px; color: var(--accent-green); transform: rotate(12deg); }
-.swipe-hint.dismiss { left: 20px; color: var(--accent-red); transform: rotate(-12deg); }
+.swipe-hint.plan { right: 22px; color: var(--accent-green); transform: rotate(14deg); }
+.swipe-hint.dismiss { left: 22px; color: var(--accent-red); transform: rotate(-14deg); }
 
-.card-loading-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(5,7,10,0.6);
-  border-radius: var(--radius);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-dim);
-  font-size: 14px;
+.deck-counter {
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 13px;
+  margin-top: 12px;
 }
+
+.sync-chip {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 92px;
+  background: rgba(20,24,32,0.94);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-size: 13px;
+  z-index: 50;
+}
+.sync-chip.error { border-color: var(--accent-red); color: #ffb4b8; }
 
 .error-banner {
   background: #3a1e1e;
