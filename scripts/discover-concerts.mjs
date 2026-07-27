@@ -152,7 +152,7 @@ async function main() {
 
   const candidateArtists = signals
     .sort((a, b) => (b.frequencyScore + b.recencyScore) - (a.frequencyScore + a.recencyScore))
-    .slice(0, 200)
+    .slice(0, 50)
     .map((s) => s.name);
 
   console.log(`Querying concert sources for ${candidateArtists.length} artists...`);
