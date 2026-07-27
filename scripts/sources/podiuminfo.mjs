@@ -64,9 +64,17 @@ async function throttledFetch(url) {
   const wait = lastRequestAt + MIN_GAP_MS - Date.now();
   if (wait > 0) await sleep(wait);
   lastRequestAt = Date.now();
-  return fetch(url, {
-    headers: { "User-Agent": "Mozilla/5.0 (listening-mirror discovery bot; personal use)" },
-  });
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
+  try {
+    return await fetch(url, {
+      headers: { "User-Agent": "Mozilla/5.0 (listening-mirror discovery bot; personal use)" },
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
 
 async function fetchPage(url, retries = 3) {
