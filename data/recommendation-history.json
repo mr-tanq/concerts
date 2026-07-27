@@ -2,7 +2,8 @@
   "$schema": "Listening Mirror Recommendation History Schema v1",
   "note": "Durable exclude-list so re-running discovery never resurrects a concert you already dismissed or planned. dismissedIds are hidden forever; plannedIds are excluded because they now live in data/planned.json.",
   "dismissedIds": [
-    "rec-podiuminfo-459758"
+    "rec-podiuminfo-459758",
+    "rec-podiuminfo-450139"
   ],
   "plannedIds": [
     "rec-mono-botanique-2027-02-18",
@@ -32,6 +33,43 @@
     "rec-tindersticks-tivolivredenburg-2027-04-22"
   ],
   "dismissed": [
+    {
+      "id": "rec-podiuminfo-450139",
+      "source": "podiuminfo",
+      "sourceId": "450139",
+      "artist": "Ólafur Arnalds",
+      "lineup": [
+        "Ólafur Arnalds"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Ólafur Arnalds"
+      ],
+      "date": "2026-10-14",
+      "time": null,
+      "venue": "Concertgebouw",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": null,
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/128963/cd/Olafur-Arnalds/Concertgebouw/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/450139/Olafur-Arnalds/Concertgebouw/",
+      "match": {
+        "score": 56,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Ólafur Arnalds",
+        "matchedArtists": [
+          "Ólafur Arnalds"
+        ]
+      },
+      "discoveredAt": "2026-07-27T20:52:26.545Z",
+      "lastSeenAt": "2026-07-27T20:52:26.545Z",
+      "dismissedAt": "2026-07-27T20:54:29.627Z"
+    },
     {
       "id": "rec-podiuminfo-459758",
       "source": "podiuminfo",
