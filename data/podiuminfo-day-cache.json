@@ -1,0 +1,5 @@
+{
+  "$schema": "Listening Mirror Podiuminfo Day Cache v1",
+  "note": "Caches the list of candidate concert ids found on each day's agenda page (podiuminfo.nl/concertagenda/YYYY/MM/DD/), so repeat runs don't re-fetch a day we already scanned recently. This replaced per-artist search after Podiuminfo's 24 July 2026 relaunch moved free-text search to client-side JS, breaking the old ?input_zoek= approach entirely.",
+  "entries": {}
+}
