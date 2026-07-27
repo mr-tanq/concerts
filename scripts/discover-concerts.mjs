@@ -162,8 +162,12 @@ async function main() {
   const rawEvents = [];
   for (const artist of candidateArtists) {
     for (const source of activeSources) {
-      const events = await SOURCE_ADAPTERS[source](artist);
-      rawEvents.push(...events);
+      try {
+        const events = await SOURCE_ADAPTERS[source](artist);
+        rawEvents.push(...events);
+      } catch (err) {
+        console.warn(`Skipping "${artist}" on ${source}: ${err.message}`);
+      }
     }
   }
 
