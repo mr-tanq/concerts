@@ -257,7 +257,6 @@ function parseConcertPageTitle(html, trackedSet) {
   }
 
   const date = `${year}-${MONTHS[monthName.toLowerCase()]}-${day.padStart(2, "0")}`;
-  const image = $('meta[property="og:image"]').attr("content") || null;
   const ticketHref = $('a[href*="/ticket/"]').first().attr("href") || null;
 
   return {
@@ -265,11 +264,36 @@ function parseConcertPageTitle(html, trackedSet) {
     venue,
     city,
     date,
-    image,
+    image: extractArtistImage($, html),
     ticketUrl: ticketHref ? (ticketHref.startsWith("http") ? ticketHref : `https://www.podiuminfo.nl${ticketHref}`) : null,
+    parserVersion: CONCERT_PARSER_VERSION,
   };
 }
 
+// Podiuminfo concert pages carry NO og:image — verified directly against a
+// live page. The artist photo does exist though, in a couple of places:
+// an <img> inside the artist link, and a markerimage= parameter on the
+// embedded map. We try both, then fall back to any artist image URL in the
+// markup. Note these are small (the ~100px "100_NAME_1.jpg" variant), so
+// they're deliberately used as a blurred backdrop rather than sharp art.
+function extractArtistImage($, html) {
+  const fromImgTag = $('a[href*="/artist/"] img').map((_, n) => $(n).attr("src")).get()
+    .find((src) => src && /\/img\/artist\//.test(src));
+  if (fromImgTag) {
+    return fromImgTag.startsWith("http") ? fromImgTag : `https://www.podiuminfo.nl${fromImgTag}`;
+  }
+
+  const marker = html.match(/markerimage=(https?:\/\/[^&"'\s]+\.(?:jpg|jpeg|png))/i);
+  if (marker) return marker[1];
+
+  const any = html.match(/https?:\/\/[^"'\s)]*\/img\/artist\/\d+\/[^"'\s)]+\.(?:jpg|jpeg|png)/i);
+  return any ? any[0] : null;
+}
+
+// Bumping this invalidates cached concert details so a parser improvement
+// actually reaches existing entries instead of being masked by the cache.
+// v2 added artist-image extraction.
+const CONCERT_PARSER_VERSION = 2;
 const CONCERT_CACHE_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 
 // ---------- Country detection ----------
@@ -366,7 +390,8 @@ export async function discoverEvents({
   const events = [];
   for (const [concertId, href] of toOpen.entries()) {
     const cached = concertCacheEntries[concertId];
-    const cacheUsable = cached && Array.isArray(cached.lineup) && cached.date;
+    const cacheUsable = cached && Array.isArray(cached.lineup) && cached.date &&
+      cached.parserVersion === CONCERT_PARSER_VERSION;
     let parsed;
 
     if (cacheUsable && Date.now() - new Date(cached.cachedAt).getTime() < CONCERT_CACHE_MAX_AGE_MS) {
