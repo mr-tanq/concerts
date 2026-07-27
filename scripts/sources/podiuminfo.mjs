@@ -166,7 +166,7 @@ export async function searchPodiuminfo(artistName, { maxPages = 3 } = {}) {
 
   const results = [];
   for (const [concertId, href] of candidateMap.entries()) {
-    const url = `https://www.podiuminfo.nl${href}`;
+    const url = href.startsWith("http") ? href : `https://www.podiuminfo.nl${href}`;
     let html;
     try {
       html = await fetchPage(url);
