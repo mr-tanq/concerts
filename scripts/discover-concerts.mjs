@@ -1,54 +1,48 @@
 #!/usr/bin/env node
 // discover-concerts.mjs
 //
-// This is a RECOMMENDATION engine, not an auto-planner. It never touches
-// data/planned.json. It:
-//   1. Reads your Last.fm listening signal (all artists with playcount
-//      above minPlaycountToTrack — up to 1000 fetched from Last.fm)
-//   2. Crawls Podiuminfo's per-day agenda pages across the lookahead
-//      window (cached per day)
-//   3. Checks every event found against ALL tracked artists at once
-//      (in-memory, free) — cost no longer scales with how many artists
-//      you track, only with how many days the lookahead window covers
-//   4. Scores the results
-//   5. Excludes anything you've already dismissed or planned before
-//   6. Writes data/recommendations.json
+// A RECOMMENDATION engine, not an auto-planner. It never writes
+// data/planned.json — the only path from "recommendation" to "planned" is
+// an explicit user decision (swipe in the app, or the Plan concert Action).
 //
-// Country rule: NL is always in scope. BE is only included for events
-// whose score is above highScoreThreshold — i.e. only your biggest
-// favorites are worth crossing the border for.
+// Pipeline:
+//   1. Last.fm listening signal (artists above minPlaycountToTrack)
+//   2. Crawl Podiuminfo per-day agenda pages over the lookahead window
+//   3. One recommendation per Podiuminfo concert id, matched against ALL
+//      tracked artists at once
+//   4. Score, exclude previously dismissed/planned/attended, publish
 //
-// Required secrets (set in repo Settings > Secrets and variables > Actions):
-//   LASTFM_API_KEY   - https://www.last.fm/api/account/create
-//   LASTFM_USER      - your Last.fm username
+// PUBLICATION SAFETY — the run ends in one of three states:
+//   SUCCESS  — crawl essentially complete; publish.
+//   DEGRADED — some days served stale or a few concerts failed; publish,
+//              but say so loudly in the log.
+//   FAILED   — the listening signal is unavailable, or too much of the
+//              crawl is missing to trust the result. DO NOT publish; the
+//              previous recommendations.json is left untouched.
+// The guiding rule: an upstream outage must never be silently recorded as
+// "you have no recommendations".
 //
-// Set FORCE_REFRESH_DAYS=true to bypass the day-cache and re-crawl every
-// day fresh (useful for the weekly deep-refresh workflow).
+// Required secrets:
+//   LASTFM_API_KEY, LASTFM_USER
+//
+// FORCE_REFRESH_DAYS=true bypasses day-cache freshness checks (without
+// discarding the cache — entries are replaced only on successful fetch).
 
-import { readFile, writeFile } from "node:fs/promises";
+import { readFile, writeFile, rename } from "node:fs/promises";
 import path from "node:path";
-import { queryPodiuminfoForArtists } from "./sources/podiuminfo.mjs";
-
-async function fetchWithRetry(url, options = {}, retries = 2) {
-  for (let attempt = 0; ; attempt++) {
-    try {
-      return await fetch(url, options);
-    } catch (err) {
-      if (attempt >= retries) throw err;
-      const delayMs = 500 * 2 ** attempt;
-      console.warn(`fetch failed (${err.message}), retrying in ${delayMs}ms... (${attempt + 1}/${retries})`);
-      await new Promise((r) => setTimeout(r, delayMs));
-    }
-  }
-}
+import {
+  discoverEvents,
+  normalizeArtistName,
+} from "./sources/podiuminfo.mjs";
 
 const ROOT = path.resolve(new URL(".", import.meta.url).pathname, "..");
-const CONFIG = JSON.parse(await readFile(path.join(ROOT, "data/config.json"), "utf8"));
-const ARCHIVE = JSON.parse(await readFile(path.join(ROOT, "data/archive.json"), "utf8"));
-const HISTORY = JSON.parse(await readFile(path.join(ROOT, "data/recommendation-history.json"), "utf8"));
-
 const DAY_CACHE_PATH = path.join(ROOT, "data/podiuminfo-day-cache.json");
 const CONCERT_CACHE_PATH = path.join(ROOT, "data/podiuminfo-cache.json");
+const RECS_PATH = path.join(ROOT, "data/recommendations.json");
+
+// Publish thresholds — a crawl missing more than this fraction of days is
+// too incomplete to overwrite a known-good file with.
+const MAX_MISSING_DAY_FRACTION = 0.15;
 
 async function loadJsonSafe(filePath, fallback) {
   try {
@@ -58,37 +52,110 @@ async function loadJsonSafe(filePath, fallback) {
   }
 }
 
-let DAY_CACHE = await loadJsonSafe(DAY_CACHE_PATH, { entries: {} });
-if (!DAY_CACHE.entries) DAY_CACHE.entries = {};
-if (process.env.FORCE_REFRESH_DAYS === "true") {
-  console.log("FORCE_REFRESH_DAYS=true — ignoring day cache, re-crawling every day fresh.");
-  DAY_CACHE.entries = {};
+// Write via temp file + rename so a crash mid-write can't leave a
+// half-written JSON file behind.
+async function writeJsonAtomic(filePath, obj) {
+  const tmp = `${filePath}.tmp`;
+  await writeFile(tmp, JSON.stringify(obj, null, 2) + "\n");
+  await rename(tmp, filePath);
 }
 
+const CONFIG = JSON.parse(await readFile(path.join(ROOT, "data/config.json"), "utf8"));
+const ARCHIVE = JSON.parse(await readFile(path.join(ROOT, "data/archive.json"), "utf8"));
+const HISTORY = JSON.parse(await readFile(path.join(ROOT, "data/recommendation-history.json"), "utf8"));
+
+let DAY_CACHE = await loadJsonSafe(DAY_CACHE_PATH, { entries: {} });
+if (!DAY_CACHE.entries) DAY_CACHE.entries = {};
 let CONCERT_CACHE = await loadJsonSafe(CONCERT_CACHE_PATH, { entries: {} });
 if (!CONCERT_CACHE.entries) CONCERT_CACHE.entries = {};
+const EXISTING_RECS = await loadJsonSafe(RECS_PATH, { concerts: [] });
+
+const FORCE_REFRESH = process.env.FORCE_REFRESH_DAYS === "true";
+if (FORCE_REFRESH) {
+  // NOTE: we deliberately do NOT clear the cache here. Clearing it up-front
+  // meant a failing refresh left us with nothing at all; instead each entry
+  // is replaced only once a fresh fetch succeeds.
+  console.log("FORCE_REFRESH_DAYS=true — bypassing freshness checks (cache retained as fallback).");
+}
 
 // ---------- 1. Listening signal ----------
+
+function backoffWithJitter(attempt, baseMs = 1000) {
+  return Math.round(baseMs * 2 ** attempt * (0.7 + Math.random() * 0.6));
+}
+
+function parseRetryAfter(headerValue) {
+  if (!headerValue) return null;
+  const secs = Number(headerValue);
+  if (Number.isFinite(secs) && secs > 0) return secs * 1000;
+  const date = Date.parse(headerValue);
+  if (!Number.isNaN(date)) {
+    const delta = date - Date.now();
+    return delta > 0 ? delta : null;
+  }
+  return null;
+}
+
+const RETRYABLE_STATUS = new Set([429, 500, 502, 503, 504]);
+
+// Retries transport errors AND retryable HTTP statuses, validates res.ok
+// before parsing, and surfaces Last.fm's own JSON error payloads.
+async function lastfmFetchJson(url, maxAttempts = 4) {
+  let lastError;
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      let res;
+      try {
+        res = await fetch(url, { signal: controller.signal });
+      } finally {
+        clearTimeout(timeoutId);
+      }
+
+      if (!res.ok) {
+        if (RETRYABLE_STATUS.has(res.status) && attempt < maxAttempts - 1) {
+          const delay = parseRetryAfter(res.headers.get("retry-after")) ?? backoffWithJitter(attempt);
+          console.warn(`Last.fm HTTP ${res.status}, retrying in ${delay}ms (${attempt + 1}/${maxAttempts})`);
+          await new Promise((r) => setTimeout(r, delay));
+          continue;
+        }
+        throw new Error(`Last.fm HTTP ${res.status}`);
+      }
+
+      const json = await res.json();
+      if (json && json.error) {
+        throw new Error(`Last.fm API error ${json.error}: ${json.message || "unknown"}`);
+      }
+      return json;
+    } catch (err) {
+      lastError = err;
+      const transient = err.name === "AbortError" || err.name === "TypeError" || /HTTP 5|HTTP 429|fetch failed|network/i.test(err.message);
+      if (transient && attempt < maxAttempts - 1) {
+        const delay = backoffWithJitter(attempt);
+        console.warn(`Last.fm request failed (${err.message}), retrying in ${delay}ms (${attempt + 1}/${maxAttempts})`);
+        await new Promise((r) => setTimeout(r, delay));
+        continue;
+      }
+      break;
+    }
+  }
+  throw new Error(`Last.fm request failed after ${maxAttempts} attempts: ${lastError?.message || "unknown"}`);
+}
 
 async function getLastfmWeightedArtists() {
   const key = process.env.LASTFM_API_KEY;
   const user = process.env.LASTFM_USER;
-  if (!key || !user) {
-    console.warn("Last.fm not configured — skipping (set LASTFM_API_KEY, LASTFM_USER)");
-    return [];
-  }
+  if (!key || !user) throw new Error("Last.fm not configured (set LASTFM_API_KEY and LASTFM_USER)");
 
   const topUrl = `https://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=${user}&api_key=${key}&format=json&period=overall&limit=1000`;
   const recentUrl = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${user}&api_key=${key}&format=json&limit=200`;
 
-  const [topRes, recentRes] = await Promise.all([fetchWithRetry(topUrl), fetchWithRetry(recentUrl)]);
-  const top = await topRes.json();
-  const recent = await recentRes.json();
+  const [top, recent] = await Promise.all([lastfmFetchJson(topUrl), lastfmFetchJson(recentUrl)]);
 
   const weighted = new Map();
-
   for (const a of top?.topartists?.artist || []) {
-    weighted.set(a.name.toLowerCase(), {
+    weighted.set(normalizeArtistName(a.name), {
       name: a.name,
       playcount: Number(a.playcount) || 0,
       recentPlays: 0,
@@ -97,13 +164,15 @@ async function getLastfmWeightedArtists() {
   for (const t of recent?.recenttracks?.track || []) {
     const name = t.artist?.["#text"];
     if (!name) continue;
-    const key2 = name.toLowerCase();
-    const entry = weighted.get(key2) || { name, playcount: 0, recentPlays: 0 };
+    const k = normalizeArtistName(name);
+    const entry = weighted.get(k) || { name, playcount: 0, recentPlays: 0 };
     entry.recentPlays += 1;
-    weighted.set(key2, entry);
+    weighted.set(k, entry);
   }
 
   const list = [...weighted.values()];
+  if (list.length === 0) throw new Error("Last.fm returned no artists — refusing to treat that as a real empty library");
+
   const maxPlay = Math.max(1, ...list.map((a) => a.playcount));
   const maxRecent = Math.max(1, ...list.map((a) => a.recentPlays));
   return list.map((a) => ({
@@ -113,98 +182,217 @@ async function getLastfmWeightedArtists() {
   }));
 }
 
-// ---------- 2. Scoring ----------
+// ---------- 2. Identity & migration ----------
 
-function scoreEvent(event, artistSignal, cfg) {
+const slug = (s) => (s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
+// Canonical id, stable across artist/venue/date text changes.
+function makeRecId(concertId) {
+  return `rec-podiuminfo-${concertId}`;
+}
+
+// The pre-migration id scheme was per-matched-artist, so one concert could
+// have produced several. We regenerate all of them to check history, so a
+// concert you already dismissed or planned under the old scheme stays gone.
+function legacyRecIds(event) {
+  return event.matchedTracked.map((artist) => `rec-${slug(artist)}-${slug(event.venue)}-${event.date}`);
+}
+
+function isExcluded(event, excludedIds) {
+  if (excludedIds.has(makeRecId(event.concertId))) return true;
+  return legacyRecIds(event).some((id) => excludedIds.has(id));
+}
+
+// Primary archive identity is source + sourceId; artist/date/venue is kept
+// only as a fallback for records added before sourceId existed.
+function alreadyInArchive(event, archiveConcerts) {
+  return archiveConcerts.some((c) => {
+    if (c.source === "podiuminfo" && c.sourceId && String(c.sourceId) === String(event.concertId)) return true;
+    if (c.date !== event.date) return false;
+    if (normalizeArtistName(c.venue) !== normalizeArtistName(event.venue)) return false;
+    return event.matchedTracked.some((a) => normalizeArtistName(a) === normalizeArtistName(c.artist));
+  });
+}
+
+// ---------- 3. Scoring ----------
+
+function scoreEvent(event, signalByName, cfg) {
   const w = cfg.scoring.weights;
-  let score = 0;
-  let reasons = [];
+  const reasons = [];
 
-  score += w.directArtistMatch;
-  reasons.push(`Known artist: ${event.artist}`);
+  // Rank the tracked artists on this bill and score off the strongest one.
+  const ranked = event.matchedTracked
+    .map((name) => ({ name, signal: signalByName.get(normalizeArtistName(name)) || null }))
+    .sort((a, b) => {
+      const as = (a.signal?.frequencyScore ?? 0) + (a.signal?.recencyScore ?? 0);
+      const bs = (b.signal?.frequencyScore ?? 0) + (b.signal?.recencyScore ?? 0);
+      if (bs !== as) return bs - as;
+      return a.name.localeCompare(b.name); // deterministic tie-break
+    });
 
-  if (artistSignal) {
-    score += w.listeningFrequency * artistSignal.frequencyScore;
-    score += w.listeningRecency * artistSignal.recencyScore;
-    if (artistSignal.recencyScore > 0.3) reasons.push("Recently in rotation");
+  const primary = ranked[0];
+  let score = w.directArtistMatch;
+  reasons.push(`Known artist: ${primary.name}`);
+
+  if (primary.signal) {
+    score += w.listeningFrequency * primary.signal.frequencyScore;
+    score += w.listeningRecency * primary.signal.recencyScore;
+    if (primary.signal.recencyScore > 0.3) reasons.push("Recently in rotation");
   }
 
-  const homeCountry = cfg.location.homeCountry;
-  if (event.country === homeCountry) score += w.distanceBonus;
+  // A bill with several artists you track is genuinely more interesting
+  // than one with a single match — small, capped bonus.
+  if (ranked.length > 1) {
+    score += Math.min((ranked.length - 1) * 4, 12);
+    reasons.push(`${ranked.length} tracked artists on this bill`);
+  }
+
+  if (event.country === cfg.location.homeCountry) score += w.distanceBonus;
 
   score = Math.round(Math.min(100, score));
-  const label = score >= 70 ? "Excellent match" : score >= 45 ? "Strong match" : score >= 25 ? "Possible match" : "Weak match";
+  const label =
+    score >= 70 ? "Excellent match" : score >= 45 ? "Strong match" : score >= 25 ? "Possible match" : "Weak match";
 
   return {
-    score,
-    label,
-    matchedBy: "direct",
-    reason: reasons.join(" · "),
-    matchedArtists: [event.artist],
+    displayArtist: primary.name,
+    match: {
+      score,
+      label,
+      matchedBy: "direct",
+      reason: reasons.join(" · "),
+      matchedArtists: ranked.map((r) => r.name),
+    },
   };
 }
 
-function alreadyInArchive(event, archiveConcerts) {
-  return archiveConcerts.some(
-    (c) =>
-      c.artist.toLowerCase() === event.artist.toLowerCase() &&
-      c.date === event.date &&
-      c.venue?.toLowerCase() === event.venue?.toLowerCase()
-  );
+// ---------- 4. Cache pruning ----------
+
+function pruneCaches({ today, lookaheadEnd, protectedConcertIds }) {
+  const dayFloor = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
+  const dayCeil = new Date(new Date(lookaheadEnd + "T00:00:00Z").getTime() + 30 * 86400000)
+    .toISOString()
+    .slice(0, 10);
+
+  let removedDays = 0;
+  for (const [dateStr, entry] of Object.entries(DAY_CACHE.entries)) {
+    const malformed = !entry || !Array.isArray(entry.candidates) || !entry.checkedAt;
+    if (malformed || dateStr < dayFloor || dateStr > dayCeil) {
+      delete DAY_CACHE.entries[dateStr];
+      removedDays++;
+    }
+  }
+
+  const concertFloor = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
+  let removedConcerts = 0;
+  for (const [concertId, entry] of Object.entries(CONCERT_CACHE.entries)) {
+    if (protectedConcertIds.has(String(concertId))) continue;
+    const malformed = !entry || !entry.date || !Array.isArray(entry.lineup);
+    if (malformed || entry.date < concertFloor) {
+      delete CONCERT_CACHE.entries[concertId];
+      removedConcerts++;
+    }
+  }
+
+  if (removedDays || removedConcerts) {
+    console.log(`Pruned ${removedDays} day entries and ${removedConcerts} concert entries from caches.`);
+  }
 }
 
-function makeId(event) {
-  const slug = (s) => (s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-  return `rec-${slug(event.artist)}-${slug(event.venue)}-${event.date}`;
-}
-
-// ---------- 3. Main ----------
+// ---------- 5. Main ----------
 
 async function main() {
-  let signals = [];
-  try {
-    signals = await getLastfmWeightedArtists();
-  } catch (err) {
-    console.error(`Last.fm fetch failed after retries: ${err.message}`);
-    console.warn("Continuing with no listening signal — recommendations.json will end up empty this run.");
-  }
-  const signalByName = new Map(signals.map((s) => [s.name.toLowerCase(), s]));
-  const minPlaycount = CONFIG.discovery.minPlaycountToTrack ?? 0;
-  const trackedArtistNames = signals.filter((s) => s.playcount > minPlaycount).map((s) => s.name);
-
   const today = new Date().toISOString().slice(0, 10);
   const lookaheadEnd = new Date(Date.now() + CONFIG.discovery.lookaheadDays * 86400000)
     .toISOString()
     .slice(0, 10);
 
-  console.log(`Tracking ${trackedArtistNames.length} artists. Crawling Podiuminfo day agenda from ${today} to ${lookaheadEnd}...`);
-
-  let rawEvents = [];
+  // --- Listening signal: a failure here is fatal, never "no artists" ---
+  let signals;
   try {
-    rawEvents = await queryPodiuminfoForArtists(trackedArtistNames, {
+    signals = await getLastfmWeightedArtists();
+  } catch (err) {
+    console.error(`FAILED: could not load the listening signal — ${err.message}`);
+    console.error("Refusing to publish: an upstream Last.fm outage must not be recorded as an empty library.");
+    console.error("data/recommendations.json left untouched.");
+    process.exit(1);
+  }
+
+  const signalByName = new Map(signals.map((s) => [normalizeArtistName(s.name), s]));
+  const minPlaycount = CONFIG.discovery.minPlaycountToTrack ?? 0;
+  const trackedArtistNames = signals.filter((s) => s.playcount > minPlaycount).map((s) => s.name);
+
+  console.log(`Tracking ${trackedArtistNames.length} artists (playcount > ${minPlaycount}).`);
+  console.log(`Crawling Podiuminfo day agenda ${today} → ${lookaheadEnd}...`);
+
+  // --- Crawl ---
+  let events = [];
+  let stats;
+  try {
+    const result = await discoverEvents({
+      trackedArtistNames,
       startDate: today,
       endDate: lookaheadEnd,
       dayCacheEntries: DAY_CACHE.entries,
       concertCacheEntries: CONCERT_CACHE.entries,
+      forceRefresh: FORCE_REFRESH,
+      // Checkpoint caches every ~30 days of crawling so a crash doesn't
+      // throw away all the work, without writing after every request.
+      onProgress: async () => {
+        await writeJsonAtomic(DAY_CACHE_PATH, DAY_CACHE);
+        await writeJsonAtomic(CONCERT_CACHE_PATH, CONCERT_CACHE);
+      },
     });
+    events = result.events;
+    stats = result.stats;
   } catch (err) {
-    console.error(`Podiuminfo discovery failed: ${err.message}`);
+    console.error(`FAILED: crawl aborted — ${err.message}`);
+    await writeJsonAtomic(DAY_CACHE_PATH, DAY_CACHE);
+    await writeJsonAtomic(CONCERT_CACHE_PATH, CONCERT_CACHE);
+    process.exit(1);
   }
 
-  const excludedIds = new Set([...HISTORY.dismissedIds, ...HISTORY.plannedIds]);
-  const seen = new Set();
+  // --- Decide run status ---
+  const missingFraction = stats.daysTotal ? stats.daysMissing / stats.daysTotal : 1;
+  let status = "SUCCESS";
+  if (missingFraction > MAX_MISSING_DAY_FRACTION) {
+    status = "FAILED";
+  } else if (stats.daysMissing > 0 || stats.daysStale > 0 || stats.concertsFailed > 0) {
+    status = "DEGRADED";
+  }
+
+  if (status === "FAILED") {
+    console.error(
+      `FAILED: ${stats.daysMissing}/${stats.daysTotal} days unavailable ` +
+      `(${Math.round(missingFraction * 100)}% > ${Math.round(MAX_MISSING_DAY_FRACTION * 100)}% limit).`
+    );
+    console.error("Refusing to publish a partial crawl over known-good data. Caches saved; recommendations untouched.");
+    await writeJsonAtomic(DAY_CACHE_PATH, DAY_CACHE);
+    await writeJsonAtomic(CONCERT_CACHE_PATH, CONCERT_CACHE);
+    process.exit(1);
+  }
+
+  // --- Build recommendations: exactly one per concert id ---
+  const excludedIds = new Set([...(HISTORY.dismissedIds || []), ...(HISTORY.plannedIds || [])]);
+  const previousById = new Map((EXISTING_RECS.concerts || []).map((c) => [c.id, c]));
+  const previousBySourceId = new Map(
+    (EXISTING_RECS.concerts || []).filter((c) => c.sourceId).map((c) => [String(c.sourceId), c])
+  );
+
+  const nowIso = new Date().toISOString();
   const results = [];
 
-  for (const event of rawEvents) {
+  for (const event of events) {
     if (!event.date || event.date < today || event.date > lookaheadEnd) continue;
+
+    // Country rule: NL always; BE only for high scores. An UNKNOWN country
+    // is not silently promoted to NL — it's only kept if unknowns are
+    // explicitly allowed in config.
+    if (event.country === null && !CONFIG.location.allowUnknownCountry) continue;
+
     if (alreadyInArchive(event, ARCHIVE.concerts)) continue;
+    if (isExcluded(event, excludedIds)) continue;
 
-    const id = makeId(event);
-    if (seen.has(id)) continue;
-    if (excludedIds.has(id)) continue; // already dismissed or planned before — don't resurrect
-    seen.add(id);
-
-    const match = scoreEvent(event, signalByName.get(event.artist.toLowerCase()), CONFIG);
+    const { displayArtist, match } = scoreEvent(event, signalByName, CONFIG);
     if (match.score < CONFIG.discovery.minScoreToShow) continue;
 
     const highScoreThreshold = CONFIG.location.highScoreThreshold ?? Infinity;
@@ -212,42 +400,76 @@ async function main() {
       match.score >= highScoreThreshold
         ? CONFIG.location.highScoreSearchCountries || CONFIG.location.searchCountries
         : CONFIG.location.searchCountries;
-    if (!allowedCountries.includes(event.country)) continue;
+    if (event.country !== null && !allowedCountries.includes(event.country)) continue;
+
+    const id = makeRecId(event.concertId);
+    const prior = previousBySourceId.get(String(event.concertId)) || previousById.get(id);
 
     results.push({
       id,
-      artist: event.artist,
-      supportingArtists: event.supportingArtists || [],
+      source: "podiuminfo",
+      sourceId: event.concertId,
+      artist: displayArtist,
+      lineup: event.lineup,
+      supportingArtists: event.lineup.filter((n) => normalizeArtistName(n) !== normalizeArtistName(displayArtist)),
+      matchedArtists: event.matchedTracked,
       date: event.date,
-      time: event.time || null,
+      time: null,
       venue: event.venue || "Unknown venue",
       city: event.city || "Unknown city",
       country: event.country || "??",
       isFestival: false,
       image: event.image,
       ticketUrl: event.ticketUrl || null,
-      sourceApis: [event.source],
+      sourceApis: ["podiuminfo"],
+      sourceUrl: event.url,
       match,
-      discoveredAt: new Date().toISOString(),
+      // discoveredAt is when we FIRST saw it — preserved across runs so
+      // "new this week" stays meaningful. lastSeenAt is this crawl.
+      discoveredAt: prior?.discoveredAt || nowIso,
+      lastSeenAt: nowIso,
     });
   }
 
-  results.sort((a, b) => b.match.score - a.match.score);
+  results.sort((a, b) => b.match.score - a.match.score || a.date.localeCompare(b.date));
 
+  // --- Prune caches (never drop anything still referenced) ---
+  const protectedConcertIds = new Set(results.map((r) => String(r.sourceId)));
+  for (const id of [...(HISTORY.dismissedIds || []), ...(HISTORY.plannedIds || [])]) {
+    const m = String(id).match(/^rec-podiuminfo-(\d+)$/);
+    if (m) protectedConcertIds.add(m[1]);
+  }
+  for (const c of ARCHIVE.concerts || []) {
+    if (c.sourceId) protectedConcertIds.add(String(c.sourceId));
+  }
+  pruneCaches({ today, lookaheadEnd, protectedConcertIds });
+
+  // --- Publish ---
   const output = {
-    $schema: "Listening Mirror Recommendations Schema v1",
-    meta: { lastUpdated: new Date().toISOString(), generatedBy: "discover-concerts.mjs" },
+    $schema: "Listening Mirror Recommendations Schema v2",
+    meta: {
+      lastUpdated: nowIso,
+      generatedBy: "discover-concerts.mjs",
+      runStatus: status,
+      crawl: stats,
+    },
     concerts: results,
   };
 
-  await writeFile(path.join(ROOT, "data/recommendations.json"), JSON.stringify(output, null, 2) + "\n");
-  await writeFile(DAY_CACHE_PATH, JSON.stringify(DAY_CACHE, null, 2) + "\n");
-  await writeFile(CONCERT_CACHE_PATH, JSON.stringify(CONCERT_CACHE, null, 2) + "\n");
+  await writeJsonAtomic(RECS_PATH, output);
+  await writeJsonAtomic(DAY_CACHE_PATH, DAY_CACHE);
+  await writeJsonAtomic(CONCERT_CACHE_PATH, CONCERT_CACHE);
 
-  console.log(`Wrote ${results.length} recommendations to data/recommendations.json`);
+  console.log(`${status}: wrote ${results.length} recommendations (one per concert).`);
+  if (status === "DEGRADED") {
+    console.warn(
+      `DEGRADED — ${stats.daysStale} stale day(s), ${stats.daysMissing} missing day(s), ` +
+      `${stats.concertsFailed} concert page(s) failed. Published anyway; results may be incomplete.`
+    );
+  }
 }
 
 main().catch((err) => {
-  console.error(err);
+  console.error("FAILED with unhandled error:", err);
   process.exit(1);
 });
