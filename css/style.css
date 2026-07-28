@@ -530,3 +530,32 @@ nav.tab-bar button.active { color: var(--accent-orange); }
   font-size: 13px;
   font-weight: 700;
 }
+
+/* Floating action on a poster card (Tickets on planned, Restore on
+   dismissed). Sits above the scrim, top-right, so it never fights the
+   artist name for space. */
+.btn-planned-tickets {
+  position: absolute;
+  z-index: 3;
+  top: 14px;
+  right: 14px;
+  border: 1px solid rgba(255,255,255,0.20);
+  background: rgba(20,24,32,0.78);
+  backdrop-filter: blur(8px);
+  color: #8ec1ff;
+  border-radius: 999px;
+  padding: 9px 18px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+}
+.btn-planned-tickets:disabled { opacity: 0.6; }
+.btn-restore-card { color: #6fe3ab; }
+
+/* Restore button overlaid on a dismissed poster card. */
+.btn-restore-overlay {
+  color: #b9d4ff !important;
+}
+.dismissed-card .artist,
+.dismissed-card .meta,
+.dismissed-card .when { opacity: 0.9; }
