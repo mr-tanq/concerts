@@ -61,29 +61,23 @@ export async function getFile(config, path) {
   return { json: JSON.parse(content), sha: data.sha };
 }
 
+export function isConflictError(err) {
+  // GitHub answers a stale-sha write with 409, and sometimes 422.
+  return !!err && (err.status === 409 || err.status === 422);
+}
+
 export async function putFile(config, path, obj, sha, message) {
   const content = b64EncodeUtf8(JSON.stringify(obj, null, 2) + "\n");
-  try {
-    return await ghRequest(config, path, {
-      method: "PUT",
-      body: JSON.stringify({ message, content, sha }),
-    });
-  } catch (err) {
-    // Someone else committed (e.g. the scheduled discovery Action) between
-    // our GET and PUT. Refetch the current sha and retry once with the
-    // same content — good enough for a low-concurrency personal tool.
-    if (err.status === 409) {
-      const fresh = await getFile(config, path);
-      return await ghRequest(config, path, {
-        method: "PUT",
-        body: JSON.stringify({ message, content, sha: fresh.sha }),
-      });
-    }
-    throw err;
-  }
+  // No blind retry here on purpose. Re-PUTting the same body against a
+  // fresh sha would silently clobber whatever the other writer just did.
+  // Conflicts are surfaced so the caller can re-read and re-apply its
+  // change on top of the new state (see mutate() in app.js).
+  return ghRequest(config, path, {
+    method: "PUT",
+    body: JSON.stringify({ message, content, sha }),
+  });
 }
 
 export async function testConnection(config) {
   await getFile(config, "data/config.json");
 }
- 
