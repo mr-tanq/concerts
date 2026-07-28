@@ -42,34 +42,6 @@ function formatDateShort(iso) {
   return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
 }
 
-// Podiuminfo serves artist photos as "<width>_Name_1.jpg" and links the
-// small 100px variant. Bigger variants usually exist at the same path, so
-// we optimistically probe for one and swap it in only if it really loads
-// at a larger size — some hosts answer a missing size with a placeholder
-// rather than a 404, hence the naturalWidth check. Failure is silent: the
-// original small image stays.
-const IMAGE_SIZE_CANDIDATES = [800, 600, 400, 300, 200];
-
-function upgradeImage(url, apply) {
-  if (!url) return;
-  const m = url.match(/^(.*\/)(\d+)(_.*\.(?:jpe?g|png))$/i);
-  if (!m) return;
-  const [, base, size, tail] = m;
-  const bigger = IMAGE_SIZE_CANDIDATES.filter((s) => s > Number(size));
-  let i = 0;
-  const tryNext = () => {
-    if (i >= bigger.length) return;
-    const candidate = `${base}${bigger[i++]}${tail}`;
-    const probe = new Image();
-    probe.onload = () => {
-      if (probe.naturalWidth > Number(size) + 20) apply(candidate);
-      else tryNext();
-    };
-    probe.onerror = tryNext;
-    probe.src = candidate;
-  };
-  tryNext();
-}
 
 // ---------- Archive tab ----------
 
@@ -458,7 +430,7 @@ function imageFor(rec) {
   return null;
 }
 
-function applyArtistImage(layerEl, url, { blur = 2 } = {}) {
+function applyArtistImage(layerEl, url, { blur = 2, dim = 1 } = {}) {
   if (!layerEl || !url) return;
 
   // Critical geometry is set inline rather than left to a stylesheet class.
@@ -472,7 +444,7 @@ function applyArtistImage(layerEl, url, { blur = 2 } = {}) {
     backgroundPosition: "center",
     filter: `blur(${blur}px) saturate(1.1)`,
     transform: "scale(1.04)",
-    opacity: "0.95",
+    opacity: String(0.95 * dim),
     zIndex: "0",
     pointerEvents: "none",
   });
@@ -721,6 +693,44 @@ function plannedCard(c) {
   return card;
 }
 
+function dismissedCard(rec, onRestore) {
+  // Same poster treatment as planned, so a dismissed concert is still
+  // recognisable at a glance — the whole point of keeping snapshots.
+  const cardImage = imageFor(rec);
+  const support = (rec.supportingArtists || []).length
+    ? `<div class="support">with ${esc(rec.supportingArtists.join(" · "))}</div>`
+    : "";
+
+  const card = el(`
+    <div class="planned-card dismissed-card" style="position:relative;border-radius:18px;overflow:hidden;min-height:200px;margin-bottom:12px;background:linear-gradient(160deg,#1c2230,#0b0e14);display:flex;flex-direction:column;justify-content:flex-end">
+      ${cardImage ? `<div class="card-bg"></div>` : ""}
+      <div style="position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to bottom,rgba(5,7,10,0) 0%,rgba(5,7,10,0) 42%,rgba(5,7,10,0.70) 78%,rgba(5,7,10,0.94) 100%)"></div>
+      <div class="planned-body" style="position:relative;z-index:2;padding:14px 16px 16px">
+        <div class="artist">${esc(rec.artist)}</div>
+        ${support}
+        <div class="meta">${esc(rec.venue)} · ${esc(rec.city)}</div>
+        <div class="when">${rec.date ? formatDate(rec.date) : ""}${rec.time ? " · " + esc(rec.time) : ""}</div>
+      </div>
+      <button class="btn-planned-tickets btn-restore-overlay">Restore</button>
+    </div>
+  `);
+
+  // Dismissed cards are shown desaturated so the two lists never get
+  // confused at a glance; restoring brings the colour back with it.
+  const bg = card.querySelector(".card-bg");
+  applyArtistImage(bg, cardImage, { blur: 1 });
+  if (bg) bg.style.filter = "blur(1px) saturate(0.35) brightness(0.8)";
+
+  const btn = card.querySelector(".btn-restore-overlay");
+  btn.addEventListener("click", async (e) => {
+    e.stopPropagation();
+    btn.disabled = true;
+    btn.textContent = "…";
+    await onRestore();
+  });
+  return card;
+}
+
 function renderDismissedList(body) {
   body.innerHTML = "";
 
@@ -730,9 +740,7 @@ function renderDismissedList(body) {
     return;
   }
 
-  const restoreAll = el(`
-    <button class="btn-restore-all">Restore all ${total} — start a fresh deck</button>
-  `);
+  const restoreAll = el(`<button class="btn-restore-all">Restore all ${total} — start a fresh deck</button>`);
   restoreAll.addEventListener("click", async () => {
     if (!confirm(`Bring back all ${total} dismissed concerts?`)) return;
     restoreAll.disabled = true;
@@ -742,21 +750,7 @@ function renderDismissedList(body) {
   body.appendChild(restoreAll);
 
   for (const rec of dismissedConcerts) {
-    const row = el(`
-      <div class="dismissed-row">
-        <div class="dismissed-info">
-          <div class="artist">${esc(rec.artist)}</div>
-          <div class="meta">${esc(rec.venue)} · ${esc(rec.city)} · ${rec.date ? formatDate(rec.date) : "?"}</div>
-        </div>
-        <button class="btn-restore">Restore</button>
-      </div>
-    `);
-    row.querySelector(".btn-restore").addEventListener("click", async (e) => {
-      e.target.disabled = true;
-      e.target.textContent = "…";
-      await doRestore([rec], []);
-    });
-    body.appendChild(row);
+    body.appendChild(dismissedCard(rec, () => doRestore([rec], [])));
   }
 
   if (legacyDismissedIds.length > 0) {
@@ -764,7 +758,7 @@ function renderDismissedList(body) {
     body.appendChild(el(`
       <p class="section-sub" style="font-size:13px">
         These were dismissed by an older version that only stored ids, so there's
-        nothing to preview. Restoring one brings it back on the next discovery run.
+        no artwork to show. Restoring one brings it back on the next discovery run.
       </p>
     `));
     for (const id of legacyDismissedIds) {
