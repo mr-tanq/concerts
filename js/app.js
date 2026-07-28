@@ -424,6 +424,9 @@ function openSettingsModal() {
 let concertImageBySourceId = new Map();
 let concertImageByVenueDate = new Map();
 let concertImageByArtist = new Map();
+// Populated at startup purely so the UI can explain itself when a photo is
+// missing, instead of failing silently and leaving us guessing.
+let imageDiagnostics = { cacheLoaded: false, entries: 0, withImage: 0, artists: 0, error: null };
 
 function normalizeKey(s) {
   return (s || "").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim();
@@ -681,6 +684,26 @@ function recommendationCard(c, body) {
 
 function renderPlannedList(body) {
   body.innerHTML = "";
+
+  const withPhoto = plannedConcerts.filter((c) => imageFor(c)).length;
+  const d = imageDiagnostics;
+  const diag = el(`
+    <div class="diag-strip">
+      photos ${withPhoto}/${plannedConcerts.length} ·
+      cache ${d.cacheLoaded ? "loaded" : "FAILED"} ·
+      ${d.entries} entries, ${d.withImage} with image, ${d.artists} artists indexed
+      ${d.error ? ` · ${esc(d.error)}` : ""}
+    </div>
+  `);
+  diag.addEventListener("click", () => {
+    const names = [...concertImageByArtist.keys()].slice(0, 12).join(", ");
+    alert(
+      `Planned artists: ${plannedConcerts.map((c) => c.artist).join(", ")}\n\n` +
+      `Indexed artists (first 12): ${names || "(none)"}`
+    );
+  });
+  body.appendChild(diag);
+
   if (plannedConcerts.length === 0) {
     body.appendChild(el(`<div class="empty-state">Nothing planned yet. Swipe right on a recommendation to add it here.</div>`));
     return;
@@ -826,12 +849,15 @@ async function init() {
       loadJSON("data/recommendations.json"),
       loadJSON("data/planned.json"),
       loadJSON("data/recommendation-history.json").catch(() => ({ dismissed: [], dismissedIds: [] })),
-      loadJSON("data/podiuminfo-cache.json").catch(() => ({ entries: {} })),
+      loadJSON("data/podiuminfo-cache.json").catch((e) => ({ entries: {}, __loadFailed: e.message })),
     ]);
 
     concertImageBySourceId = new Map();
     concertImageByVenueDate = new Map();
     concertImageByArtist = new Map();
+    imageDiagnostics.cacheLoaded = !concertCache.__loadFailed;
+    imageDiagnostics.error = concertCache.__loadFailed || null;
+    imageDiagnostics.entries = Object.keys(concertCache.entries || {}).length;
     for (const [id, v] of Object.entries(concertCache.entries || {})) {
       if (!v || !v.image) continue;
       concertImageBySourceId.set(String(id), v.image);
@@ -845,7 +871,9 @@ async function init() {
         const k = normalizeKey(headliner);
         if (!concertImageByArtist.has(k)) concertImageByArtist.set(k, v.image);
       }
+      imageDiagnostics.withImage++;
     }
+    imageDiagnostics.artists = concertImageByArtist.size;
     renderArchive(archiveData);
     renderConcerts(recsData, plannedData, historyData);
   } catch (err) {
