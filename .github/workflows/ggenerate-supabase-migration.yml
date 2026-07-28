@@ -1,0 +1,32 @@
+name: Generate Supabase migration
+
+# Reads the current JSON data files and writes supabase/migration.sql into
+# the repo, so the SQL can be reviewed and copied from a phone without
+# running anything locally. It never contacts Supabase — generating and
+# applying are deliberately separate steps.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: node scripts/generate-supabase-migration.mjs
+
+      - name: Commit migration.sql
+        run: |
+          git config user.name "listening-mirror-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add supabase/migration.sql
+          git diff --cached --quiet && echo "No changes" || git commit -m "chore: regenerate supabase migration"
+          git push
