@@ -185,16 +185,14 @@ p.section-sub {
 }
 
 /* Podiuminfo only exposes a small (~100px) artist photo, so it's rendered
-   as its own scaled + blurred layer. Blowing it up sharp would just look
-   broken; blurred it reads as an intentional backdrop, and keeps the
-   overlaid text crisp since the blur doesn't apply to siblings. */
+   as its own scaled layer. A touch of blur takes the edge off upscaling
+   without hiding who's on it, and keeps overlaid text crisp since the
+   blur doesn't apply to siblings. */
 .card-bg {
   position: absolute;
   inset: 0;
   background-size: cover;
   background-position: center;
-  /* Only a touch of blur — enough to take the edge off an upscaled photo,
-     not so much that you can't tell who's on it. */
   filter: blur(2px) saturate(1.1);
   transform: scale(1.04);
   opacity: 0.95;
@@ -487,14 +485,13 @@ nav.tab-bar button.active { color: var(--accent-orange); }
 }
 .btn-restore:disabled { opacity: 0.6; }
 
-
-/* ---------- Planned card (same poster treatment, compact) ---------- */
+/* ---------- Planned / dismissed poster cards ---------- */
 
 .planned-card {
   position: relative;
   border-radius: 18px;
   overflow: hidden;
-  min-height: 150px;
+  min-height: 200px;
   margin-bottom: 12px;
   background: linear-gradient(160deg, #1c2230, #0b0e14);
   display: flex;
@@ -502,8 +499,8 @@ nav.tab-bar button.active { color: var(--accent-orange); }
   justify-content: flex-end;
 }
 .planned-card .card-bg {
-  filter: blur(2px) saturate(1.1);
-  opacity: 0.9;
+  filter: blur(1px) saturate(1.1);
+  opacity: 0.92;
 }
 .planned-card .planned-body {
   position: relative;
@@ -511,9 +508,14 @@ nav.tab-bar button.active { color: var(--accent-orange); }
   padding: 14px 16px 16px;
 }
 .planned-card .artist {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 800;
   text-shadow: 0 2px 10px rgba(0,0,0,0.7);
+}
+.planned-card .support {
+  color: var(--text-dim);
+  font-size: 14px;
+  margin-top: 2px;
 }
 .planned-card .meta {
   color: var(--text-dim);
@@ -531,7 +533,7 @@ nav.tab-bar button.active { color: var(--accent-orange); }
   font-weight: 700;
 }
 
-/* Floating action on a poster card (Tickets on planned, Restore on
+/* Floating action on a poster card (Unplan on planned, Restore on
    dismissed). Sits above the scrim, top-right, so it never fights the
    artist name for space. */
 .btn-planned-tickets {
@@ -550,17 +552,12 @@ nav.tab-bar button.active { color: var(--accent-orange); }
   cursor: pointer;
 }
 .btn-planned-tickets:disabled { opacity: 0.6; }
-.btn-restore-card { color: #6fe3ab; }
 
-/* Restore button overlaid on a dismissed poster card. */
-.btn-restore-overlay {
-  color: #b9d4ff !important;
-}
+.btn-restore-overlay { color: #b9d4ff !important; }
 .dismissed-card .artist,
 .dismissed-card .meta,
 .dismissed-card .when { opacity: 0.9; }
 
-/* Unplan / inline tickets on planned cards */
 .btn-unplan {
   color: #ff9aa2 !important;
   border-color: rgba(255,154,162,0.35) !important;
@@ -574,5 +571,31 @@ nav.tab-bar button.active { color: var(--accent-orange); }
   padding: 8px 16px;
   font-weight: 700;
   font-size: 13px;
+  cursor: pointer;
+}
+
+/* "Did you go?" confirmation */
+.past-concert {
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 14px;
+}
+.past-concert .artist { font-size: 22px; font-weight: 800; margin-bottom: 6px; text-shadow: 0 2px 10px rgba(0,0,0,0.7); }
+.past-concert .meta { color: var(--text-dim); font-size: 15px; }
+.past-concert .lineup {
+  color: var(--text-faint);
+  font-size: 13px;
+  margin-top: 10px;
+  line-height: 1.5;
+}
+.btn-later {
+  width: 100%;
+  margin-top: 10px;
+  background: none;
+  border: none;
+  color: var(--text-faint);
+  font-size: 14px;
+  padding: 10px;
   cursor: pointer;
 }
