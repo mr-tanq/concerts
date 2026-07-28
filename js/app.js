@@ -528,10 +528,43 @@ function applyArtistImage(layerEl, url, { blur = 2, dim = 1 } = {}) {
   probe.src = bigger;
 }
 
+// GitHub Pages serves data/*.json through a CDN that can keep returning the
+// previous version for a few minutes after a commit. That made freshly
+// dismissed concerts reappear on refresh. Two defences: filter the loaded
+// deck against the history lists, and keep a short-lived local record of
+// what we just acted on, since the history file can be stale too.
+const RECENT_KEY = "lm_recently_handled";
+const RECENT_TTL_MS = 30 * 60 * 1000;
+
+function loadRecentlyHandled() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(RECENT_KEY) || "{}");
+    const now = Date.now();
+    return Object.fromEntries(Object.entries(raw).filter(([, t]) => now - t < RECENT_TTL_MS));
+  } catch {
+    return {};
+  }
+}
+
+function markRecentlyHandled(id) {
+  const map = loadRecentlyHandled();
+  map[id] = Date.now();
+  try { localStorage.setItem(RECENT_KEY, JSON.stringify(map)); } catch {}
+}
+
+function filterStaleRecommendations(concerts, historyData) {
+  const excluded = new Set([
+    ...(historyData?.dismissedIds || []),
+    ...(historyData?.plannedIds || []),
+    ...Object.keys(loadRecentlyHandled()),
+  ]);
+  return concerts.filter((c) => !excluded.has(c.id));
+}
+
 // ---------- Concerts tab ----------
 
 function renderConcerts(recsData, plannedData, historyData) {
-  deckQueue = [...(recsData.concerts || [])];
+  deckQueue = filterStaleRecommendations(recsData.concerts || [], historyData);
   plannedConcerts = [...(plannedData.concerts || [])];
   dismissedConcerts = [...(historyData?.dismissed || [])];
 
@@ -678,6 +711,7 @@ function recommendationCard(c, body) {
     card.style.opacity = "0";
 
     deckQueue.shift();
+    markRecentlyHandled(c.id);
     if (action === "plan") plannedConcerts.push(plannedRecordFrom(c));
     else dismissedConcerts.unshift({ ...c, dismissedAt: new Date().toISOString() });
 
@@ -895,6 +929,165 @@ async function doRestore(recs, legacyIds) {
   }
 }
 
+// ---------- Past-concert reconciliation ----------
+//
+// A planned date passing is only a prompt to ask, never proof of
+// attendance — so nothing is archived without an explicit "Yes".
+// Both answers remove it from Planned; only "Yes" writes to the Archive,
+// and the Archive write happens FIRST so a failure mid-way leaves the
+// concert safely in Planned rather than losing it entirely.
+
+function archiveRecordFrom(p) {
+  return {
+    id: `archived-${String(p.id || "").replace(/^planned-/, "")}` || `archived-${Date.now()}`,
+    artist: p.artist,
+    supportingArtists: p.supportingArtists || [],
+    date: p.date,
+    venue: p.venue,
+    city: p.city,
+    country: p.country || null,
+    isFestival: p.isFestival || false,
+    festivalName: p.festivalName || null,
+    image: p.image || imageFor(p) || null,
+    urls: [p.sourceUrl, p.ticketUrl].filter(Boolean),
+    genreHints: p.genreHints || [],
+    notes: null,
+    lineup: p.lineup || [],
+    source: p.source || "podiuminfo",
+    sourceId: p.sourceId ?? null,
+    importedFromPlannedId: p.id || null,
+    addedAt: new Date().toISOString(),
+  };
+}
+
+async function attendedConcertRemote(plannedRec) {
+  const ARCH = "data/archive.json";
+  const PLANNED = "data/planned.json";
+  // Archive first, planned second: mutate() writes in the order given, so a
+  // failure can only ever leave a duplicate-safe extra copy, never a gap.
+  await mutate([ARCH, PLANNED], (f) => {
+    const archive = f[ARCH], planned = f[PLANNED];
+    const rec = archiveRecordFrom(plannedRec);
+
+    const dup = archive.concerts.some(
+      (c) => (c.sourceId && rec.sourceId && String(c.sourceId) === String(rec.sourceId)) ||
+             (c.artist === rec.artist && c.date === rec.date && c.venue === rec.venue)
+    );
+    if (!dup) archive.concerts.push(rec);
+    archive.concerts.sort((a, b) => String(a.date).localeCompare(String(b.date)));
+    if (archive.meta) {
+      archive.meta.totalConcerts = archive.concerts.length;
+      archive.meta.lastUpdated = new Date().toISOString();
+    }
+
+    const i = planned.concerts.findIndex((c) => c.id === plannedRec.id);
+    if (i !== -1) {
+      planned.concerts.splice(i, 1);
+      planned.meta.lastUpdated = new Date().toISOString();
+    }
+  }, `chore: archive attended ${plannedRec.id} (app)`);
+}
+
+async function notAttendedConcertRemote(plannedRec) {
+  const PLANNED = "data/planned.json";
+  const HIST = "data/recommendation-history.json";
+  await mutate([PLANNED, HIST], (f) => {
+    const planned = f[PLANNED], history = f[HIST];
+
+    const i = planned.concerts.findIndex((c) => c.id === plannedRec.id);
+    if (i !== -1) {
+      planned.concerts.splice(i, 1);
+      planned.meta.lastUpdated = new Date().toISOString();
+    }
+
+    // Recorded so it can never be raised as a pending past concert again.
+    if (!Array.isArray(history.notAttendedIds)) history.notAttendedIds = [];
+    if (!history.notAttendedIds.includes(plannedRec.id)) history.notAttendedIds.push(plannedRec.id);
+
+    const recId = plannedRec.recommendationId || String(plannedRec.id || "").replace(/^planned-/, "rec-");
+    history.plannedIds = (history.plannedIds || []).filter((id) => id !== recId);
+    if (!Array.isArray(history.dismissedIds)) history.dismissedIds = [];
+    if (!history.dismissedIds.includes(recId)) history.dismissedIds.push(recId);
+  }, `chore: mark not attended ${plannedRec.id} (app)`);
+}
+
+function pastPlannedConcerts(historyData) {
+  const today = new Date().toISOString().slice(0, 10);
+  const settled = new Set(historyData?.notAttendedIds || []);
+  return plannedConcerts
+    .filter((c) => c.date && c.date < today && !settled.has(c.id))
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
+
+function askAboutPastConcerts(queue) {
+  if (queue.length === 0) return;
+  const root = document.getElementById("settings-modal-root");
+  const rec = queue[0];
+  const lineup = (rec.lineup && rec.lineup.length ? rec.lineup : [rec.artist, ...(rec.supportingArtists || [])])
+    .filter(Boolean);
+  const pastImage = imageFor(rec);
+
+  root.innerHTML = "";
+  const overlay = el(`
+    <div class="modal-overlay">
+      <div class="modal-sheet">
+        <h3>Did you go?</h3>
+        <p class="hint">${queue.length > 1 ? `${queue.length} past concerts to confirm — one at a time.` : "One past concert to confirm."}</p>
+        <div class="past-concert" style="position:relative;overflow:hidden;min-height:190px;display:flex;flex-direction:column;justify-content:flex-end;padding:0">
+          ${pastImage ? `<div class="card-bg"></div>` : ""}
+          <div style="position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to bottom,rgba(5,7,10,0) 0%,rgba(5,7,10,0) 38%,rgba(5,7,10,0.72) 74%,rgba(5,7,10,0.95) 100%)"></div>
+          <div style="position:relative;z-index:2;padding:16px">
+            <div class="artist">${esc(rec.artist)}</div>
+            <div class="meta">${rec.date ? formatDate(rec.date) : ""}</div>
+            <div class="meta">${esc(rec.venue)} · ${esc(rec.city)}</div>
+            ${lineup.length > 1 ? `<div class="lineup">Lineup: ${esc(lineup.join(" · "))}</div>` : ""}
+          </div>
+        </div>
+        <div class="modal-status" id="past-status"></div>
+        <div class="modal-actions">
+          <button class="btn-modal-cancel" id="btn-no">No, I didn't</button>
+          <button class="btn-modal-save" id="btn-yes">Yes, I went</button>
+        </div>
+        <button class="btn-later" id="btn-later">Ask me later</button>
+      </div>
+    </div>
+  `);
+  root.appendChild(overlay);
+
+  applyArtistImage(overlay.querySelector(".card-bg"), pastImage, { blur: 1 });
+
+  const statusEl = overlay.querySelector("#past-status");
+  const yes = overlay.querySelector("#btn-yes");
+  const no = overlay.querySelector("#btn-no");
+
+  function next() {
+    root.innerHTML = "";
+    askAboutPastConcerts(queue.slice(1));
+  }
+
+  async function answer(went) {
+    yes.disabled = no.disabled = true;
+    statusEl.textContent = went ? "Adding to archive…" : "Removing…";
+    statusEl.className = "modal-status";
+    try {
+      await enqueue(() => (went ? attendedConcertRemote(rec) : notAttendedConcertRemote(rec)));
+      plannedConcerts = plannedConcerts.filter((c) => c.id !== rec.id);
+      renderConcertsShell("planned");
+      next();
+    } catch (err) {
+      console.error(err);
+      // Left in Planned on purpose — better a repeated question than a lost concert.
+      statusEl.textContent = `Couldn't save: ${err.message}. Still in Planned, so nothing is lost.`;
+      statusEl.className = "modal-status error";
+      yes.disabled = no.disabled = false;
+    }
+  }
+
+  yes.addEventListener("click", () => answer(true));
+  no.addEventListener("click", () => answer(false));
+  overlay.querySelector("#btn-later").addEventListener("click", next);
+}
+
 // ---------- Tabs ----------
 
 function setActiveTab(name) {
@@ -981,6 +1174,10 @@ async function init() {
     imageDiagnostics.artists = concertImageByArtist.size;
     renderArchive(archiveData);
     renderConcerts(recsData, plannedData, historyData);
+
+    if (getGithubConfig()) {
+      askAboutPastConcerts(pastPlannedConcerts(historyData));
+    }
   } catch (err) {
     console.error(err);
     document.getElementById("panel-concerts").innerHTML =
