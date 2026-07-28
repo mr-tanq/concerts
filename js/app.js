@@ -455,8 +455,24 @@ function imageFor(rec) {
   return null;
 }
 
-function applyArtistImage(layerEl, url) {
+function applyArtistImage(layerEl, url, { blur = 2 } = {}) {
   if (!layerEl || !url) return;
+
+  // Critical geometry is set inline rather than left to a stylesheet class.
+  // A stale css/style.css previously meant the layer rendered with no size
+  // and the photo silently never appeared — inline styles make the element
+  // self-sufficient.
+  Object.assign(layerEl.style, {
+    position: "absolute",
+    inset: "0",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    filter: `blur(${blur}px) saturate(1.1)`,
+    transform: "scale(1.04)",
+    opacity: "0.95",
+    zIndex: "0",
+    pointerEvents: "none",
+  });
   layerEl.style.backgroundImage = `url('${url}')`;
 
   const bigger = url.replace(/\/(\d+)_([^/]+)$/, "/500_$2");
