@@ -559,3 +559,20 @@ nav.tab-bar button.active { color: var(--accent-orange); }
 .dismissed-card .artist,
 .dismissed-card .meta,
 .dismissed-card .when { opacity: 0.9; }
+
+/* Unplan / inline tickets on planned cards */
+.btn-unplan {
+  color: #ff9aa2 !important;
+  border-color: rgba(255,154,162,0.35) !important;
+}
+.btn-tickets-inline {
+  margin-top: 10px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(20,24,32,0.75);
+  color: #8ec1ff;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+}
