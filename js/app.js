@@ -423,19 +423,22 @@ function openSettingsModal() {
 // concert cache by the Podiuminfo id we already store on each record.
 let concertImageBySourceId = new Map();
 let concertImageByVenueDate = new Map();
+let concertImageByArtist = new Map();
 
 function normalizeKey(s) {
   return (s || "").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim();
 }
 
-// Records saved before the schema carried sourceId still need a photo, so
-// we try three routes, cheapest first:
-//   1. the image stored on the record itself
-//   2. the Podiuminfo id — either the sourceId field, or dug out of the
-//      id/recommendationId string ("planned-podiuminfo-459758")
-//   3. venue + date, which uniquely identifies a concert in practice
+// The image Podiuminfo exposes is the ARTIST's photo, not concert artwork
+// (the URL is literally /img/artist/<id>/...). So the artist name is the
+// natural key, and any cached concert featuring that artist yields it —
+// which is what rescues records saved before the schema carried sourceId.
+// The id/venue routes stay as extra safety nets.
 function imageFor(rec) {
   if (rec.image) return rec.image;
+
+  const byArtist = concertImageByArtist.get(normalizeKey(rec.artist));
+  if (byArtist) return byArtist;
 
   let sid = rec.sourceId ? String(rec.sourceId) : null;
   if (!sid) {
@@ -812,11 +815,19 @@ async function init() {
 
     concertImageBySourceId = new Map();
     concertImageByVenueDate = new Map();
+    concertImageByArtist = new Map();
     for (const [id, v] of Object.entries(concertCache.entries || {})) {
       if (!v || !v.image) continue;
       concertImageBySourceId.set(String(id), v.image);
       if (v.venue && v.date) {
         concertImageByVenueDate.set(`${normalizeKey(v.venue)}|${v.date}`, v.image);
+      }
+      // The extractor picks the first artist link on the page, i.e. the
+      // headliner — so map the photo to lineup[0], not the whole bill.
+      const headliner = Array.isArray(v.lineup) ? v.lineup[0] : null;
+      if (headliner) {
+        const k = normalizeKey(headliner);
+        if (!concertImageByArtist.has(k)) concertImageByArtist.set(k, v.image);
       }
     }
     renderArchive(archiveData);
