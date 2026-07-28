@@ -4,6 +4,29 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 // seed.js
 var seed_default = [
   {
+  "event_key": "2026-05-10-blaze-bayley-musicon-den-haag",
+  "kind": "normal",
+  "title": "Blaze Bayley",
+  "status": "attended",
+  "start_date": "2026-05-10",
+  "end_date": "2026-05-10",
+  "venue": {
+    "raw_name": "Musicon",
+    "family_name": "Musicon"
+  },
+  "city": "Den Haag",
+  "region": null,
+  "country": "Netherlands",
+  "festival_name": null,
+  "artists": [
+    {
+      "name": "Blaze Bayley",
+      "role": "headliner",
+      "sort_order": 1
+    }
+  ]
+},
+  {
     "event_key": "2026-03-27-acu-birthday-party-acu-utrecht",
     "kind": "festival",
     "title": "ACU Birthday Party",
