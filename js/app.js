@@ -422,10 +422,33 @@ function openSettingsModal() {
 // Rather than leave them permanently photo-less, look the image up from the
 // concert cache by the Podiuminfo id we already store on each record.
 let concertImageBySourceId = new Map();
+let concertImageByVenueDate = new Map();
 
+function normalizeKey(s) {
+  return (s || "").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim();
+}
+
+// Records saved before the schema carried sourceId still need a photo, so
+// we try three routes, cheapest first:
+//   1. the image stored on the record itself
+//   2. the Podiuminfo id — either the sourceId field, or dug out of the
+//      id/recommendationId string ("planned-podiuminfo-459758")
+//   3. venue + date, which uniquely identifies a concert in practice
 function imageFor(rec) {
   if (rec.image) return rec.image;
-  if (rec.sourceId) return concertImageBySourceId.get(String(rec.sourceId)) || null;
+
+  let sid = rec.sourceId ? String(rec.sourceId) : null;
+  if (!sid) {
+    const m = String(rec.id || "").match(/podiuminfo-(\d+)/) ||
+              String(rec.recommendationId || "").match(/podiuminfo-(\d+)/);
+    if (m) sid = m[1];
+  }
+  if (sid && concertImageBySourceId.has(sid)) return concertImageBySourceId.get(sid);
+
+  if (rec.venue && rec.date) {
+    const hit = concertImageByVenueDate.get(`${normalizeKey(rec.venue)}|${rec.date}`);
+    if (hit) return hit;
+  }
   return null;
 }
 
@@ -787,11 +810,15 @@ async function init() {
       loadJSON("data/podiuminfo-cache.json").catch(() => ({ entries: {} })),
     ]);
 
-    concertImageBySourceId = new Map(
-      Object.entries(concertCache.entries || {})
-        .filter(([, v]) => v && v.image)
-        .map(([id, v]) => [String(id), v.image])
-    );
+    concertImageBySourceId = new Map();
+    concertImageByVenueDate = new Map();
+    for (const [id, v] of Object.entries(concertCache.entries || {})) {
+      if (!v || !v.image) continue;
+      concertImageBySourceId.set(String(id), v.image);
+      if (v.venue && v.date) {
+        concertImageByVenueDate.set(`${normalizeKey(v.venue)}|${v.date}`, v.image);
+      }
+    }
     renderArchive(archiveData);
     renderConcerts(recsData, plannedData, historyData);
   } catch (err) {
