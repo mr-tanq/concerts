@@ -685,25 +685,6 @@ function recommendationCard(c, body) {
 function renderPlannedList(body) {
   body.innerHTML = "";
 
-  const withPhoto = plannedConcerts.filter((c) => imageFor(c)).length;
-  const d = imageDiagnostics;
-  const diag = el(`
-    <div class="diag-strip">
-      photos ${withPhoto}/${plannedConcerts.length} ·
-      cache ${d.cacheLoaded ? "loaded" : "FAILED"} ·
-      ${d.entries} entries, ${d.withImage} with image, ${d.artists} artists indexed
-      ${d.error ? ` · ${esc(d.error)}` : ""}
-    </div>
-  `);
-  diag.addEventListener("click", () => {
-    const names = [...concertImageByArtist.keys()].slice(0, 12).join(", ");
-    alert(
-      `Planned artists: ${plannedConcerts.map((c) => c.artist).join(", ")}\n\n` +
-      `Indexed artists (first 12): ${names || "(none)"}`
-    );
-  });
-  body.appendChild(diag);
-
   if (plannedConcerts.length === 0) {
     body.appendChild(el(`<div class="empty-state">Nothing planned yet. Swipe right on a recommendation to add it here.</div>`));
     return;
