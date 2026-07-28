@@ -1,7 +1,9 @@
 {
   "$schema": "Listening Mirror Recommendation History Schema v1",
   "note": "Durable exclude-list so re-running discovery never resurrects a concert you already dismissed or planned. dismissedIds are hidden forever; plannedIds are excluded because they now live in data/planned.json.",
-  "dismissedIds": [],
+  "dismissedIds": [
+    "rec-podiuminfo-450140"
+  ],
   "plannedIds": [
     "rec-mono-botanique-2027-02-18",
     "rec-hermanos-guti-rrez-paradiso-2026-12-13",
@@ -31,5 +33,43 @@
     "rec-podiuminfo-445724",
     "rec-podiuminfo-459758"
   ],
-  "dismissed": []
+  "dismissed": [
+    {
+      "id": "rec-podiuminfo-450140",
+      "source": "podiuminfo",
+      "sourceId": "450140",
+      "artist": "Ólafur Arnalds",
+      "lineup": [
+        "Ólafur Arnalds"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Ólafur Arnalds"
+      ],
+      "date": "2026-10-15",
+      "time": null,
+      "venue": "Concertgebouw",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": null,
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/128964/cd/Olafur-Arnalds/Concertgebouw/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/450140/Olafur-Arnalds/Concertgebouw/",
+      "match": {
+        "score": 56,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Ólafur Arnalds",
+        "matchedArtists": [
+          "Ólafur Arnalds"
+        ]
+      },
+      "discoveredAt": "2026-07-27T20:52:26.545Z",
+      "lastSeenAt": "2026-07-27T20:52:26.545Z",
+      "dismissedAt": "2026-07-28T14:59:52.374Z"
+    }
+  ]
 }
