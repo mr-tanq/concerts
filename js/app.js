@@ -42,6 +42,35 @@ function formatDateShort(iso) {
   return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
 }
 
+// Podiuminfo serves artist photos as "<width>_Name_1.jpg" and links the
+// small 100px variant. Bigger variants usually exist at the same path, so
+// we optimistically probe for one and swap it in only if it really loads
+// at a larger size — some hosts answer a missing size with a placeholder
+// rather than a 404, hence the naturalWidth check. Failure is silent: the
+// original small image stays.
+const IMAGE_SIZE_CANDIDATES = [800, 600, 400, 300, 200];
+
+function upgradeImage(url, apply) {
+  if (!url) return;
+  const m = url.match(/^(.*\/)(\d+)(_.*\.(?:jpe?g|png))$/i);
+  if (!m) return;
+  const [, base, size, tail] = m;
+  const bigger = IMAGE_SIZE_CANDIDATES.filter((s) => s > Number(size));
+  let i = 0;
+  const tryNext = () => {
+    if (i >= bigger.length) return;
+    const candidate = `${base}${bigger[i++]}${tail}`;
+    const probe = new Image();
+    probe.onload = () => {
+      if (probe.naturalWidth > Number(size) + 20) apply(candidate);
+      else tryNext();
+    };
+    probe.onerror = tryNext;
+    probe.src = candidate;
+  };
+  tryNext();
+}
+
 // ---------- Archive tab ----------
 
 function renderArchive(archiveData) {
@@ -384,6 +413,36 @@ function openSettingsModal() {
   });
 }
 
+// Festivalinfo serves the artist photo at a small size (the "100_NAME_1.jpg"
+// variant). Larger variants MAY exist under the same path with a different
+// numeric prefix, but that's an inference about their URL scheme, not
+// something documented — so we never rely on it: the small image is applied
+// immediately and a bigger one only swaps in if it actually loads.
+// Records planned/dismissed before image extraction existed have image:null.
+// Rather than leave them permanently photo-less, look the image up from the
+// concert cache by the Podiuminfo id we already store on each record.
+let concertImageBySourceId = new Map();
+
+function imageFor(rec) {
+  if (rec.image) return rec.image;
+  if (rec.sourceId) return concertImageBySourceId.get(String(rec.sourceId)) || null;
+  return null;
+}
+
+function applyArtistImage(layerEl, url) {
+  if (!layerEl || !url) return;
+  layerEl.style.backgroundImage = `url('${url}')`;
+
+  const bigger = url.replace(/\/(\d+)_([^/]+)$/, "/500_$2");
+  if (bigger === url) return;
+
+  const probe = new Image();
+  probe.onload = () => {
+    if (probe.naturalWidth > 120) layerEl.style.backgroundImage = `url('${bigger}')`;
+  };
+  probe.src = bigger;
+}
+
 // ---------- Concerts tab ----------
 
 function renderConcerts(recsData, plannedData, historyData) {
@@ -441,9 +500,8 @@ function renderDeck(body) {
 }
 
 function recommendationCard(c, body) {
-  const bgLayer = c.image
-    ? `<div class="card-bg" style="background-image:url('${esc(c.image)}')"></div>`
-    : "";
+  const cardImage = imageFor(c);
+  const bgLayer = cardImage ? `<div class="card-bg"></div>` : "";
   const support = (c.supportingArtists || []).length
     ? `<div class="support">with ${esc(c.supportingArtists.join(" · "))}</div>`
     : "";
@@ -472,6 +530,11 @@ function recommendationCard(c, body) {
       </div>
     </div>
   `);
+
+  const bgEl = card.querySelector(".card-bg");
+  if (bgEl) upgradeImage(c.image, (better) => { bgEl.style.backgroundImage = `url('${better}')`; });
+
+  applyArtistImage(card.querySelector(".card-bg"), cardImage);
 
   const planHint = card.querySelector(".swipe-hint.plan");
   const dismissHint = card.querySelector(".swipe-hint.dismiss");
@@ -582,7 +645,33 @@ function renderPlannedList(body) {
   }
   [...plannedConcerts]
     .sort((a, b) => a.date.localeCompare(b.date))
-    .forEach((c) => body.appendChild(timelineCard(c)));
+    .forEach((c) => body.appendChild(plannedCard(c)));
+}
+
+function plannedCard(c) {
+  const cardImage = imageFor(c);
+  const support = (c.supportingArtists || []).length
+    ? `<div class="support">with ${esc(c.supportingArtists.join(" · "))}</div>`
+    : "";
+  const card = el(`
+    <div class="planned-card">
+      ${c.image ? `<div class="card-bg" style="background-image:url('${esc(c.image)}')"></div>` : ""}
+      <div class="planned-body">
+        <div class="artist">${esc(c.artist)}</div>
+        ${support}
+        <div class="meta">${esc(c.venue)} · ${esc(c.city)}</div>
+        <div class="when">${c.date ? formatDate(c.date) : ""}${c.time ? " · " + esc(c.time) : ""}</div>
+      </div>
+      ${c.ticketUrl ? `<button class="btn-planned-tickets">Tickets</button>` : ""}
+    </div>
+  `);
+
+  const bgEl = card.querySelector(".card-bg");
+  if (bgEl) upgradeImage(c.image, (better) => { bgEl.style.backgroundImage = `url('${better}')`; });
+
+  const t = card.querySelector(".btn-planned-tickets");
+  if (t) t.addEventListener("click", () => window.open(c.ticketUrl, "_blank"));
+  return card;
 }
 
 function renderDismissedList(body) {
@@ -690,12 +779,19 @@ async function init() {
   setActiveTab("concerts");
 
   try {
-    const [archiveData, recsData, plannedData, historyData] = await Promise.all([
+    const [archiveData, recsData, plannedData, historyData, concertCache] = await Promise.all([
       loadJSON("data/archive.json"),
       loadJSON("data/recommendations.json"),
       loadJSON("data/planned.json"),
       loadJSON("data/recommendation-history.json").catch(() => ({ dismissed: [], dismissedIds: [] })),
+      loadJSON("data/podiuminfo-cache.json").catch(() => ({ entries: {} })),
     ]);
+
+    concertImageBySourceId = new Map(
+      Object.entries(concertCache.entries || {})
+        .filter(([, v]) => v && v.image)
+        .map(([id, v]) => [String(id), v.image])
+    );
     renderArchive(archiveData);
     renderConcerts(recsData, plannedData, historyData);
   } catch (err) {
