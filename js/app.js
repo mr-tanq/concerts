@@ -301,6 +301,64 @@ async function restoreConcertsRemote(recsToRestore, legacyIdsToRestore = []) {
   }, `chore: restore ${restoringIds.size} concert(s) (app)`);
 }
 
+async function unplanConcertRemote(plannedRec) {
+  const RECS = "data/recommendations.json";
+  const PLANNED = "data/planned.json";
+  const HIST = "data/recommendation-history.json";
+  const recId = plannedRec.recommendationId || String(plannedRec.id || "").replace(/^planned-/, "rec-");
+
+  await mutate([RECS, PLANNED, HIST], (f) => {
+    const recs = f[RECS], planned = f[PLANNED], history = f[HIST];
+
+    const idx = planned.concerts.findIndex((c) => c.id === plannedRec.id);
+    if (idx !== -1) {
+      planned.concerts.splice(idx, 1);
+      planned.meta.lastUpdated = new Date().toISOString();
+    }
+
+    // Drop it from the exclude-list, otherwise discovery would keep
+    // filtering it out and it could never come back.
+    history.plannedIds = (history.plannedIds || []).filter((id) => id !== recId);
+
+    // Put it back in the deck straight away rather than making the user
+    // wait for the next scheduled crawl.
+    if (!recs.concerts.some((c) => c.id === recId)) {
+      recs.concerts.push({
+        id: recId,
+        source: plannedRec.source || "podiuminfo",
+        sourceId: plannedRec.sourceId ?? null,
+        artist: plannedRec.artist,
+        lineup: plannedRec.lineup || [],
+        supportingArtists: plannedRec.supportingArtists || [],
+        matchedArtists: [plannedRec.artist],
+        date: plannedRec.date,
+        time: plannedRec.time || null,
+        venue: plannedRec.venue,
+        city: plannedRec.city,
+        country: plannedRec.country || "??",
+        isFestival: plannedRec.isFestival || false,
+        image: plannedRec.image || null,
+        ticketUrl: plannedRec.ticketUrl || null,
+        sourceApis: plannedRec.sourceApis || ["podiuminfo"],
+        sourceUrl: plannedRec.sourceUrl || null,
+        match: {
+          score: plannedRec.planning?.originalScore ?? 50,
+          label: "Strong match",
+          matchedBy: "direct",
+          reason: `Known artist: ${plannedRec.artist}`,
+          matchedArtists: [plannedRec.artist],
+        },
+        discoveredAt: new Date().toISOString(),
+        lastSeenAt: new Date().toISOString(),
+      });
+      recs.concerts.sort((a, b) => (b.match?.score ?? 0) - (a.match?.score ?? 0));
+      recs.meta.lastUpdated = new Date().toISOString();
+    }
+  }, `chore: unplan ${plannedRec.id} (app)`);
+
+  return recId;
+}
+
 // ---------- Sync status chip ----------
 
 function renderSyncChip() {
@@ -336,6 +394,7 @@ function openSettingsModal() {
           scoped to <strong>only this repo</strong>, with
           <strong>Contents: Read and write</strong>. Stored only in this browser.
         </p>
+        ${storageIsPersistent() ? "" : `<div class="modal-status error">This browser isn't keeping local storage — private/incognito windows clear it when the tab closes, which is why the token keeps disappearing. Use a normal tab, or add the site to your home screen.</div>`}
         <label>Repo owner</label>
         <input id="input-owner" type="text" placeholder="mr-tanq" value="${esc(existing.owner)}" />
         <label>Repo name</label>
@@ -372,9 +431,18 @@ function openSettingsModal() {
     try {
       await testConnection(config);
       saveGithubConfig(config);
-      statusEl.textContent = "Connected ✓";
+      statusEl.innerHTML = `Connected ✓ — <a href="#" id="lnk-bookmark" style="color:var(--accent-blue)">copy a setup link</a> to restore this instantly later.`;
       statusEl.className = "modal-status ok";
-      setTimeout(() => { root.innerHTML = ""; }, 700);
+      overlay.querySelector("#lnk-bookmark").addEventListener("click", async (ev) => {
+        ev.preventDefault();
+        const url = `${location.origin}${location.pathname}?gh=${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/${token}`;
+        try {
+          await navigator.clipboard.writeText(url);
+          ev.target.textContent = "copied — bookmark it";
+        } catch {
+          prompt("Copy this link:", url);
+        }
+      });
     } catch (err) {
       statusEl.textContent = `Failed: ${err.message}`;
       statusEl.className = "modal-status error";
@@ -664,9 +732,6 @@ function renderPlannedList(body) {
 }
 
 function plannedCard(c) {
-  // imageFor() covers records saved before images/sourceId existed, which is
-  // most of the existing planned list — using c.image directly here was why
-  // these cards stayed blank.
   const cardImage = imageFor(c);
   const support = (c.supportingArtists || []).length
     ? `<div class="support">with ${esc(c.supportingArtists.join(" · "))}</div>`
@@ -676,20 +741,47 @@ function plannedCard(c) {
     <div class="planned-card" style="position:relative;border-radius:18px;overflow:hidden;min-height:200px;margin-bottom:12px;background:linear-gradient(160deg,#1c2230,#0b0e14);display:flex;flex-direction:column;justify-content:flex-end">
       ${cardImage ? `<div class="card-bg"></div>` : ""}
       <div style="position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to bottom,rgba(5,7,10,0) 0%,rgba(5,7,10,0) 42%,rgba(5,7,10,0.70) 78%,rgba(5,7,10,0.94) 100%)"></div>
+      <button class="btn-planned-tickets btn-unplan">Unplan</button>
       <div class="planned-body" style="position:relative;z-index:2;padding:14px 16px 16px">
         <div class="artist">${esc(c.artist)}</div>
         ${support}
         <div class="meta">${esc(c.venue)} · ${esc(c.city)}</div>
         <div class="when">${c.date ? formatDate(c.date) : ""}${c.time ? " · " + esc(c.time) : ""}</div>
+        ${c.ticketUrl ? `<button class="btn-tickets-inline">Tickets</button>` : ""}
       </div>
-      ${c.ticketUrl ? `<button class="btn-planned-tickets">Tickets</button>` : ""}
     </div>
   `);
 
   applyArtistImage(card.querySelector(".card-bg"), cardImage, { blur: 1 });
 
-  const t = card.querySelector(".btn-planned-tickets");
-  if (t) t.addEventListener("click", (e) => { e.stopPropagation(); window.open(c.ticketUrl, "_blank"); });
+  const tickets = card.querySelector(".btn-tickets-inline");
+  if (tickets) tickets.addEventListener("click", (e) => { e.stopPropagation(); window.open(c.ticketUrl, "_blank"); });
+
+  const unplan = card.querySelector(".btn-unplan");
+  unplan.addEventListener("click", async (e) => {
+    e.stopPropagation();
+    if (!getGithubConfig()) { openSettingsModal(); return; }
+    unplan.disabled = true;
+    unplan.textContent = "…";
+    pendingWrites++; renderSyncChip();
+    try {
+      const recId = await enqueue(() => unplanConcertRemote(c));
+      plannedConcerts = plannedConcerts.filter((p) => p.id !== c.id);
+      if (!deckQueue.some((d) => d.id === recId)) {
+        deckQueue.push({ ...c, id: recId, match: { score: c.planning?.originalScore ?? 50, label: "Strong match", reason: `Known artist: ${c.artist}`, matchedArtists: [c.artist] } });
+      }
+      renderConcertsShell("planned");
+    } catch (err) {
+      console.error(err);
+      syncError = `Unplan failed: ${err.message}`;
+      unplan.disabled = false;
+      unplan.textContent = "Unplan";
+      renderSyncChip();
+    } finally {
+      pendingWrites--; renderSyncChip();
+    }
+  });
+
   return card;
 }
 
@@ -812,11 +904,48 @@ function setActiveTab(name) {
   });
 }
 
+// Config can arrive in the URL once — .../concerts/?gh=owner/repo/token —
+// which is then saved locally and stripped from the address bar, so a single
+// bookmark sets the app up permanently without retyping the token.
+// It deliberately isn't baked into the source: this repo is served publicly
+// by GitHub Pages, so a committed token would be readable by anyone and
+// GitHub's secret scanning would almost certainly revoke it within hours.
+function adoptConfigFromUrl() {
+  const params = new URLSearchParams(location.search);
+  const gh = params.get("gh");
+  if (!gh) return;
+  const [owner, repo, ...rest] = gh.split("/");
+  const token = rest.join("/");
+  if (owner && repo && token) {
+    saveGithubConfig({ owner, repo, token });
+  }
+  params.delete("gh");
+  const qs = params.toString();
+  history.replaceState(null, "", location.pathname + (qs ? `?${qs}` : ""));
+}
+
+// localStorage is wiped when the tab closes in private/incognito windows,
+// which looks exactly like "it keeps forgetting my token". Detect it so the
+// UI can say so instead of leaving the cause a mystery.
+function storageIsPersistent() {
+  try {
+    const k = "__lm_probe";
+    localStorage.setItem(k, "1");
+    localStorage.removeItem(k);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function init() {
   TABS.forEach((t) => {
     document.getElementById(`nav-${t}`).addEventListener("click", () => setActiveTab(t));
   });
   document.getElementById("btn-settings").addEventListener("click", () => openSettingsModal());
+  adoptConfigFromUrl();
+  const gear = document.getElementById("btn-settings");
+  if (gear) gear.style.color = getGithubConfig() ? "var(--accent-green)" : "var(--accent-red)";
   setActiveTab("concerts");
 
   try {
