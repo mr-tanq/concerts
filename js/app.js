@@ -576,9 +576,6 @@ function recommendationCard(c, body) {
     </div>
   `);
 
-  const bgEl = card.querySelector(".card-bg");
-  if (bgEl) upgradeImage(c.image, (better) => { bgEl.style.backgroundImage = `url('${better}')`; });
-
   applyArtistImage(card.querySelector(".card-bg"), cardImage);
 
   const planHint = card.querySelector(".swipe-hint.plan");
@@ -695,14 +692,19 @@ function renderPlannedList(body) {
 }
 
 function plannedCard(c) {
+  // imageFor() covers records saved before images/sourceId existed, which is
+  // most of the existing planned list — using c.image directly here was why
+  // these cards stayed blank.
   const cardImage = imageFor(c);
   const support = (c.supportingArtists || []).length
     ? `<div class="support">with ${esc(c.supportingArtists.join(" · "))}</div>`
     : "";
+
   const card = el(`
-    <div class="planned-card">
-      ${c.image ? `<div class="card-bg" style="background-image:url('${esc(c.image)}')"></div>` : ""}
-      <div class="planned-body">
+    <div class="planned-card" style="position:relative;border-radius:18px;overflow:hidden;min-height:200px;margin-bottom:12px;background:linear-gradient(160deg,#1c2230,#0b0e14);display:flex;flex-direction:column;justify-content:flex-end">
+      ${cardImage ? `<div class="card-bg"></div>` : ""}
+      <div style="position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to bottom,rgba(5,7,10,0) 0%,rgba(5,7,10,0) 42%,rgba(5,7,10,0.70) 78%,rgba(5,7,10,0.94) 100%)"></div>
+      <div class="planned-body" style="position:relative;z-index:2;padding:14px 16px 16px">
         <div class="artist">${esc(c.artist)}</div>
         ${support}
         <div class="meta">${esc(c.venue)} · ${esc(c.city)}</div>
@@ -712,11 +714,10 @@ function plannedCard(c) {
     </div>
   `);
 
-  const bgEl = card.querySelector(".card-bg");
-  if (bgEl) upgradeImage(c.image, (better) => { bgEl.style.backgroundImage = `url('${better}')`; });
+  applyArtistImage(card.querySelector(".card-bg"), cardImage, { blur: 1 });
 
   const t = card.querySelector(".btn-planned-tickets");
-  if (t) t.addEventListener("click", () => window.open(c.ticketUrl, "_blank"));
+  if (t) t.addEventListener("click", (e) => { e.stopPropagation(); window.open(c.ticketUrl, "_blank"); });
   return card;
 }
 
