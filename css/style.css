@@ -540,3 +540,16 @@ nav.tab-bar button.active { color: var(--accent-orange); }
   font-size: 13px;
   font-weight: 700;
 }
+
+/* Temporary self-diagnosis strip — tap it for detail. */
+.diag-strip {
+  background: #1b2330;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  margin-bottom: 12px;
+  cursor: pointer;
+}
