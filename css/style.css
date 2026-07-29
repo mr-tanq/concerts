@@ -184,17 +184,15 @@ p.section-sub {
   box-shadow: 0 18px 40px rgba(0,0,0,0.45);
 }
 
-/* Podiuminfo only exposes a small (~100px) artist photo, so it's rendered
-   as its own scaled layer. A touch of blur takes the edge off upscaling
-   without hiding who's on it, and keeps overlaid text crisp since the
-   blur doesn't apply to siblings. */
+/* Blur is decided per image in applyArtistImage(), not here: Deezer photos
+   are 1000px and shown sharp, while the small Podiuminfo fallbacks get a
+   light softening. Forcing it in CSS would blur the good ones too. */
 .card-bg {
   position: absolute;
   inset: 0;
   background-size: cover;
   background-position: center;
-  filter: blur(2px) saturate(1.1);
-  transform: scale(1.04);
+  transform: scale(1.02);
   opacity: 0.95;
 }
 
@@ -498,10 +496,7 @@ nav.tab-bar button.active { color: var(--accent-orange); }
   flex-direction: column;
   justify-content: flex-end;
 }
-.planned-card .card-bg {
-  filter: blur(1px) saturate(1.1);
-  opacity: 0.92;
-}
+.planned-card .card-bg { opacity: 0.95; }
 .planned-card .planned-body {
   position: relative;
   z-index: 2;
@@ -614,7 +609,7 @@ nav.tab-bar button.active { color: var(--accent-orange); }
   justify-content: flex-end;
   cursor: pointer;
 }
-.archive-card .card-bg { filter: blur(1px) saturate(1.05); opacity: 0.9; }
+.archive-card .card-bg { opacity: 0.95; }
 .archive-scrim {
   position: absolute;
   inset: 0;
@@ -712,4 +707,4 @@ nav.tab-bar button.active { color: var(--accent-orange); }
   font-weight: 700;
   font-size: 14px;
   cursor: pointer;
-                             }
+}
