@@ -708,3 +708,27 @@ nav.tab-bar button.active { color: var(--accent-orange); }
   font-size: 14px;
   cursor: pointer;
 }
+/* ---------- Setlist ---------- */
+
+.setlist-set { margin-bottom: 16px; }
+.setlist-set-name {
+  color: var(--text-faint);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.setlist-songs {
+  margin: 0;
+  padding-left: 26px;
+  color: var(--text);
+}
+.setlist-songs li {
+  padding: 5px 0;
+  font-size: 15px;
+  line-height: 1.4;
+}
+.setlist-songs li::marker {
+  color: var(--text-faint);
+  font-size: 13px;
+}
