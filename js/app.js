@@ -548,6 +548,8 @@ let concertImageByArtist = new Map();
 // rather than only the handful of artists the Podiuminfo crawler happened
 // to open. Built by scripts/enrich-artist-images.mjs.
 let artistImages = new Map();
+// data/setlists.json — what was actually played, keyed by archive concert id.
+let setlists = new Map();
 
 function normalizeKey(s) {
   return (s || "").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim();
