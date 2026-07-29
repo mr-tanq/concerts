@@ -3,7 +3,6 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 
 // seed.js
 var seed_default = [
-  
   {
     "event_key": "2026-03-27-acu-birthday-party-acu-utrecht",
     "kind": "festival",
