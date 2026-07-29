@@ -1,0 +1,48 @@
+name: Fetch setlists
+
+# Looks up what was actually played at each archived concert, from
+# setlist.fm, and writes data/setlists.json.
+#
+# Each run is capped (MAX_LOOKUPS) so a first pass over a large archive
+# can't hit the job timeout — just run it again to continue where it left
+# off. Concerts that already have a setlist are never re-fetched.
+#
+# Needs the SETLISTFM_API_KEY secret.
+
+on:
+  schedule:
+    - cron: "0 3 * * 2"   # weekly; setlists get added long after a show
+  workflow_dispatch:
+    inputs:
+      max_lookups:
+        description: "How many concerts to look up this run"
+        required: false
+        default: "120"
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  setlists:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Fetch setlists
+        env:
+          SETLISTFM_API_KEY: ${{ secrets.SETLISTFM_API_KEY }}
+          MAX_LOOKUPS: ${{ inputs.max_lookups || '120' }}
+        run: node scripts/fetch-setlists.mjs
+
+      - name: Commit setlists
+        run: |
+          git config user.name "listening-mirror-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/setlists.json
+          git diff --cached --quiet && echo "No changes" || git commit -m "chore: refresh setlists"
+          git push
