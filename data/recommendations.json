@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-07-29T13:18:05.490Z",
+    "lastUpdated": "2026-07-29T13:18:10.775Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
@@ -15,5 +15,42 @@
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-447796",
+      "source": "podiuminfo",
+      "sourceId": "447796",
+      "artist": "Deep Purple",
+      "lineup": [
+        "Deep Purple"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Deep Purple"
+      ],
+      "date": "2026-11-09",
+      "time": null,
+      "venue": "Ziggo Dome",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/4998/100_Deep_Purple_3.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/127089/cd/Deep-Purple-Vip-Package/Ziggo-Dome/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/447796/Deep-Purple/Ziggo-Dome/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Deep Purple",
+        "matchedArtists": [
+          "Deep Purple"
+        ]
+      },
+      "discoveredAt": "2026-07-28T19:14:12.464Z",
+      "lastSeenAt": "2026-07-28T19:14:12.464Z"
+    }
+  ]
 }
