@@ -45,6 +45,7 @@ function formatDateShort(iso) {
   return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
 }
 
+
 // ---------- Archive tab ----------
 
 function renderArchive(archiveData) {
@@ -590,11 +591,10 @@ function imageFor(rec) {
 function applyArtistImage(layerEl, url, { dim = 1 } = {}) {
   if (!layerEl || !url) return;
 
-  // Deezer images are 1000px and render sharp. The small Podiuminfo
-  // fallbacks (".../100_NAME_1.jpg") would show upscaling artefacts, so
-  // only those get a light softening — everything else stays crisp.
-  const isLowRes = /\/\d{2,3}_[^/]+\.(jpg|jpeg|png)$/i.test(url) && !/^https:\/\/(e-)?cdns?-images\.dzcdn\.net/.test(url);
-  const blur = isLowRes ? 1.5 : 0;
+  // No blur anywhere, by preference. Deezer photos are 1000px so they look
+  // sharp regardless; the small Podiuminfo fallbacks will read as pixelated
+  // until the artist-images enrichment replaces them — chosen over
+  // softening every image to hide a few.
 
   // Critical geometry is set inline rather than left to a stylesheet class.
   // A stale css/style.css previously meant the layer rendered with no size
@@ -605,15 +605,14 @@ function applyArtistImage(layerEl, url, { dim = 1 } = {}) {
     inset: "0",
     backgroundSize: "cover",
     backgroundPosition: "center",
-filter: "saturate(1.1)",    transform: "scale(1.04)",
+    filter: "saturate(1.1)",
+    transform: "scale(1.04)",
     opacity: String(0.95 * dim),
     zIndex: "0",
     pointerEvents: "none",
   });
   layerEl.style.backgroundImage = `url('${url}')`;
 
-  // Only meaningful for the sized Podiuminfo variants; Deezer URLs don't
-  // match the pattern so this is a no-op for them.
   const bigger = url.replace(/\/(\d+)_([^/]+)$/, "/500_$2");
   if (bigger === url) return;
 
@@ -736,6 +735,8 @@ function openConcertDetail(c) {
 
           <div class="section-heading">Notes</div>
           <div id="detail-notes"></div>
+
+          <div id="detail-setlist"></div>
         </div>
       </div>
     </div>
@@ -747,6 +748,45 @@ function openConcertDetail(c) {
   overlay.addEventListener("click", (e) => { if (e.target === overlay) root.innerHTML = ""; });
 
   renderNotes(overlay.querySelector("#detail-notes"), c);
+  renderSetlist(overlay.querySelector("#detail-setlist"), c);
+}
+
+// The setlist is only shown when one was actually matched. An empty
+// "Setlist" heading on every concert would imply data is missing rather
+// than simply not existing — most small shows are never submitted to
+// setlist.fm at all.
+function renderSetlist(host, c) {
+  if (!host) return;
+  const entry = setlists.get(c.id);
+  if (!entry || !entry.sets?.length) return;
+
+  const total = entry.songCount || entry.sets.reduce((n, s) => n + s.songs.length, 0);
+  const wrap = el(`
+    <div>
+      <div class="section-heading">Setlist</div>
+      <div class="pill-row">
+        <div class="pill">${total} songs</div>
+        ${entry.artist && entry.artist !== c.artist ? `<div class="pill">${esc(entry.artist)}</div>` : ""}
+      </div>
+    </div>
+  `);
+
+  for (const set of entry.sets) {
+    const block = el(`<div class="setlist-set"></div>`);
+    block.appendChild(el(`<div class="setlist-set-name">${esc(set.name)}</div>`));
+    const list = el(`<ol class="setlist-songs"></ol>`);
+    for (const song of set.songs) list.appendChild(el(`<li>${esc(song)}</li>`));
+    block.appendChild(list);
+    wrap.appendChild(block);
+  }
+
+  if (entry.sourceUrl) {
+    const link = el(`<button class="btn-note" style="margin-top:12px">View on setlist.fm</button>`);
+    link.addEventListener("click", () => window.open(entry.sourceUrl, "_blank"));
+    wrap.appendChild(link);
+  }
+
+  host.appendChild(wrap);
 }
 
 function renderNotes(host, c) {
@@ -1197,7 +1237,7 @@ function archiveRecordFrom(p) {
     country: p.country || null,
     isFestival: p.isFestival || false,
     festivalName: p.festivalName || null,
-    image: p.image || null,
+    image: p.image || imageFor(p) || null,
     urls: [p.sourceUrl, p.ticketUrl].filter(Boolean),
     genreHints: p.genreHints || [],
     notes: null,
@@ -1392,14 +1432,17 @@ async function init() {
   setActiveTab("concerts");
 
   try {
-    const [archiveData, recsData, plannedData, historyData, concertCache, artistImageData] = await Promise.all([
+    const [archiveData, recsData, plannedData, historyData, concertCache, artistImageData, setlistData] = await Promise.all([
       loadJSON("data/archive.json"),
       loadJSON("data/recommendations.json"),
       loadJSON("data/planned.json"),
       loadJSON("data/recommendation-history.json").catch(() => ({ dismissed: [], dismissedIds: [] })),
       loadJSON("data/podiuminfo-cache.json").catch(() => ({ entries: {} })),
       loadJSON("data/artist-images.json").catch(() => ({ artists: {} })),
+      loadJSON("data/setlists.json").catch(() => ({ setlists: {} })),
     ]);
+
+    setlists = new Map(Object.entries(setlistData.setlists || {}));
 
     // Deezer photos: one per artist, covering the whole archive.
     artistImages = new Map(
@@ -1425,7 +1468,6 @@ async function init() {
         if (!concertImageByArtist.has(k)) concertImageByArtist.set(k, v.image);
       }
     }
-
     renderArchive(archiveData);
     renderConcerts(recsData, plannedData, historyData);
 
