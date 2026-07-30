@@ -1,17 +1,17 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-07-30T16:20:53.559Z",
+    "lastUpdated": "2026-07-30T16:28:28.177Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 366,
-      "daysCached": 0,
+      "daysFresh": 0,
+      "daysCached": 366,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 50,
       "rejectedByLineup": 0
     }
   },
@@ -34,7 +34,7 @@
       "city": "Amsterdam",
       "country": "NL",
       "isFestival": false,
-      "image": null,
+      "image": "https://www.festivalinfo.nl/img/artist/37696/100___lafur_Arnalds_3.jpg",
       "ticketUrl": "https://www.podiuminfo.nl/ticket/128963/cd/Olafur-Arnalds/Concertgebouw/",
       "sourceApis": [
         "podiuminfo"
@@ -47,10 +47,11 @@
         "reason": "Known artist: Ólafur Arnalds",
         "matchedArtists": [
           "Ólafur Arnalds"
-        ]
+        ],
+        "similarVia": null
       },
       "discoveredAt": "2026-07-27T20:52:26.545Z",
-      "lastSeenAt": "2026-07-27T20:52:26.545Z"
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
     },
     {
       "id": "rec-podiuminfo-452004",
@@ -70,7 +71,7 @@
       "city": "Amsterdam",
       "country": "NL",
       "isFestival": false,
-      "image": null,
+      "image": "https://www.festivalinfo.nl/img/artist/7032/100_The_Black_Keys_3.jpg",
       "ticketUrl": "https://www.podiuminfo.nl/ticket/130278/cd/The-Black-Keys-Peaches-n-Kream/AFAS-Live/",
       "sourceApis": [
         "podiuminfo"
@@ -83,154 +84,11 @@
         "reason": "Known artist: The Black Keys",
         "matchedArtists": [
           "The Black Keys"
-        ]
+        ],
+        "similarVia": null
       },
       "discoveredAt": "2026-07-27T20:52:26.545Z",
-      "lastSeenAt": "2026-07-27T20:52:26.545Z"
-    },
-    {
-      "id": "rec-podiuminfo-453027",
-      "source": "podiuminfo",
-      "sourceId": "453027",
-      "artist": "Thievery Corporation",
-      "lineup": [
-        "Thievery Corporation"
-      ],
-      "supportingArtists": [],
-      "matchedArtists": [
-        "Thievery Corporation"
-      ],
-      "date": "2026-07-28",
-      "time": null,
-      "venue": "Paradiso",
-      "city": "Amsterdam",
-      "country": "NL",
-      "isFestival": false,
-      "image": null,
-      "ticketUrl": "https://www.podiuminfo.nl/ticket/130742/cd/Thievery-Corporation/Paradiso/",
-      "sourceApis": [
-        "podiuminfo"
-      ],
-      "sourceUrl": "https://www.podiuminfo.nl/concert/453027/Thievery-Corporation/Paradiso/",
-      "match": {
-        "score": 49,
-        "label": "Strong match",
-        "matchedBy": "direct",
-        "reason": "Known artist: Thievery Corporation",
-        "matchedArtists": [
-          "Thievery Corporation"
-        ]
-      },
-      "discoveredAt": "2026-07-27T20:52:26.545Z",
-      "lastSeenAt": "2026-07-27T20:52:26.545Z"
-    },
-    {
-      "id": "rec-podiuminfo-479011",
-      "source": "podiuminfo",
-      "sourceId": "479011",
-      "artist": "HAEVN",
-      "lineup": [
-        "HAEVN"
-      ],
-      "supportingArtists": [],
-      "matchedArtists": [
-        "HAEVN"
-      ],
-      "date": "2026-11-18",
-      "time": null,
-      "venue": "Muziekgebouw Eindhoven",
-      "city": "Eindhoven",
-      "country": "NL",
-      "isFestival": false,
-      "image": null,
-      "ticketUrl": "https://www.podiuminfo.nl/ticket/137479/cd/HAEVN/Muziekgebouw-Eindhoven/",
-      "sourceApis": [
-        "podiuminfo"
-      ],
-      "sourceUrl": "https://www.podiuminfo.nl/concert/479011/HAEVN/Muziekgebouw-Eindhoven/",
-      "match": {
-        "score": 47,
-        "label": "Strong match",
-        "matchedBy": "direct",
-        "reason": "Known artist: HAEVN",
-        "matchedArtists": [
-          "HAEVN"
-        ]
-      },
-      "discoveredAt": "2026-07-27T20:52:26.545Z",
-      "lastSeenAt": "2026-07-27T20:52:26.545Z"
-    },
-    {
-      "id": "rec-podiuminfo-479022",
-      "source": "podiuminfo",
-      "sourceId": "479022",
-      "artist": "HAEVN",
-      "lineup": [
-        "HAEVN"
-      ],
-      "supportingArtists": [],
-      "matchedArtists": [
-        "HAEVN"
-      ],
-      "date": "2026-12-03",
-      "time": null,
-      "venue": "SPOT / De Oosterpoort",
-      "city": "Groningen",
-      "country": "NL",
-      "isFestival": false,
-      "image": null,
-      "ticketUrl": "https://www.podiuminfo.nl/ticket/137447/cd/HAEVN/SPOT-De-Oosterpoort/",
-      "sourceApis": [
-        "podiuminfo"
-      ],
-      "sourceUrl": "https://www.podiuminfo.nl/concert/479022/HAEVN/SPOT-De-Oosterpoort/",
-      "match": {
-        "score": 47,
-        "label": "Strong match",
-        "matchedBy": "direct",
-        "reason": "Known artist: HAEVN",
-        "matchedArtists": [
-          "HAEVN"
-        ]
-      },
-      "discoveredAt": "2026-07-27T20:52:26.545Z",
-      "lastSeenAt": "2026-07-27T20:52:26.545Z"
-    },
-    {
-      "id": "rec-podiuminfo-455721",
-      "source": "podiuminfo",
-      "sourceId": "455721",
-      "artist": "HAEVN",
-      "lineup": [
-        "HAEVN"
-      ],
-      "supportingArtists": [],
-      "matchedArtists": [
-        "HAEVN"
-      ],
-      "date": "2026-12-04",
-      "time": null,
-      "venue": "SPOT / De Oosterpoort",
-      "city": "Groningen",
-      "country": "NL",
-      "isFestival": false,
-      "image": "https://www.festivalinfo.nl/img/artist/96210/100_HAEVN_1.jpg",
-      "ticketUrl": "https://www.podiuminfo.nl/ticket/131487/cd/HAEVN/SPOT-De-Oosterpoort/",
-      "sourceApis": [
-        "podiuminfo"
-      ],
-      "sourceUrl": "https://www.podiuminfo.nl/concert/455721/HAEVN/SPOT-De-Oosterpoort/",
-      "match": {
-        "score": 47,
-        "label": "Strong match",
-        "matchedBy": "direct",
-        "reason": "Known artist: HAEVN",
-        "matchedArtists": [
-          "HAEVN"
-        ]
-      },
-      "discoveredAt": "2026-07-27T21:15:25.916Z",
-      "lastSeenAt": "2026-07-28T08:22:22.947Z"
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
     },
     {
       "id": "rec-podiuminfo-455457",
@@ -263,262 +121,122 @@
         "reason": "Known artist: Korn",
         "matchedArtists": [
           "Korn"
-        ]
+        ],
+        "similarVia": null
       },
       "discoveredAt": "2026-07-27T20:52:26.545Z",
-      "lastSeenAt": "2026-07-28T08:22:22.947Z"
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
     },
     {
-      "id": "rec-podiuminfo-486708",
+      "id": "rec-podiuminfo-479011",
       "source": "podiuminfo",
-      "sourceId": "486708",
-      "artist": "Jordan Rakei",
+      "sourceId": "479011",
+      "artist": "HAEVN",
       "lineup": [
-        "Jordan Rakei"
+        "HAEVN"
       ],
       "supportingArtists": [],
       "matchedArtists": [
-        "Jordan Rakei"
+        "HAEVN"
       ],
-      "date": "2027-04-13",
+      "date": "2026-11-18",
       "time": null,
-      "venue": "Gashouder",
-      "city": "Amsterdam",
+      "venue": "Muziekgebouw Eindhoven",
+      "city": "Eindhoven",
       "country": "NL",
       "isFestival": false,
-      "image": "https://www.festivalinfo.nl/img/artist/102382/100_Jordan_Rakei_6.jpg",
-      "ticketUrl": "https://www.podiuminfo.nl/ticket/139830/cd/Jordan-Rakei/Gashouder/",
+      "image": "https://www.festivalinfo.nl/img/artist/96210/100_HAEVN_6.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/137479/cd/HAEVN/Muziekgebouw-Eindhoven/",
       "sourceApis": [
         "podiuminfo"
       ],
-      "sourceUrl": "https://www.podiuminfo.nl/concert/486708/Jordan-Rakei/Gashouder/",
+      "sourceUrl": "https://www.podiuminfo.nl/concert/479011/HAEVN/Muziekgebouw-Eindhoven/",
       "match": {
-        "score": 46,
+        "score": 47,
         "label": "Strong match",
         "matchedBy": "direct",
-        "reason": "Known artist: Jordan Rakei",
+        "reason": "Known artist: HAEVN",
         "matchedArtists": [
-          "Jordan Rakei"
-        ]
+          "HAEVN"
+        ],
+        "similarVia": null
       },
       "discoveredAt": "2026-07-27T20:52:26.545Z",
-      "lastSeenAt": "2026-07-28T15:03:07.613Z"
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
     },
     {
-      "id": "rec-podiuminfo-455047",
+      "id": "rec-podiuminfo-479022",
       "source": "podiuminfo",
-      "sourceId": "455047",
-      "artist": "James Blake",
+      "sourceId": "479022",
+      "artist": "HAEVN",
       "lineup": [
-        "James Blake"
+        "HAEVN"
       ],
       "supportingArtists": [],
       "matchedArtists": [
-        "James Blake"
+        "HAEVN"
       ],
-      "date": "2026-10-05",
+      "date": "2026-12-03",
       "time": null,
-      "venue": "TivoliVredenburg",
-      "city": "Utrecht",
+      "venue": "SPOT / De Oosterpoort",
+      "city": "Groningen",
       "country": "NL",
       "isFestival": false,
-      "image": "https://www.festivalinfo.nl/img/artist/49897/100_James_Blake_9.jpg",
-      "ticketUrl": "https://www.podiuminfo.nl/ticket/131518/cd/James-Blake/TivoliVredenburg/",
+      "image": "https://www.festivalinfo.nl/img/artist/96210/100_HAEVN_2.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/137447/cd/HAEVN/SPOT-De-Oosterpoort/",
       "sourceApis": [
         "podiuminfo"
       ],
-      "sourceUrl": "https://www.podiuminfo.nl/concert/455047/James-Blake/TivoliVredenburg/",
+      "sourceUrl": "https://www.podiuminfo.nl/concert/479022/HAEVN/SPOT-De-Oosterpoort/",
       "match": {
-        "score": 46,
+        "score": 47,
         "label": "Strong match",
         "matchedBy": "direct",
-        "reason": "Known artist: James Blake",
+        "reason": "Known artist: HAEVN",
         "matchedArtists": [
-          "James Blake"
-        ]
+          "HAEVN"
+        ],
+        "similarVia": null
       },
       "discoveredAt": "2026-07-27T20:52:26.545Z",
-      "lastSeenAt": "2026-07-28T11:27:21.715Z"
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
     },
     {
-      "id": "rec-podiuminfo-455499",
+      "id": "rec-podiuminfo-455721",
       "source": "podiuminfo",
-      "sourceId": "455499",
-      "artist": "Fink",
+      "sourceId": "455721",
+      "artist": "HAEVN",
       "lineup": [
-        "Fink"
+        "HAEVN"
       ],
       "supportingArtists": [],
       "matchedArtists": [
-        "Fink"
+        "HAEVN"
       ],
-      "date": "2026-11-04",
+      "date": "2026-12-04",
       "time": null,
-      "venue": "Paradiso",
-      "city": "Amsterdam",
+      "venue": "SPOT / De Oosterpoort",
+      "city": "Groningen",
       "country": "NL",
       "isFestival": false,
-      "image": "https://www.festivalinfo.nl/img/artist/19770/100_Fink_5.jpg",
-      "ticketUrl": "https://www.podiuminfo.nl/ticket/131448/cd/Fink/Paradiso/",
+      "image": "https://www.festivalinfo.nl/img/artist/96210/100_HAEVN_1.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/131487/cd/HAEVN/SPOT-De-Oosterpoort/",
       "sourceApis": [
         "podiuminfo"
       ],
-      "sourceUrl": "https://www.podiuminfo.nl/concert/455499/Fink/Paradiso/",
+      "sourceUrl": "https://www.podiuminfo.nl/concert/455721/HAEVN/SPOT-De-Oosterpoort/",
       "match": {
-        "score": 46,
+        "score": 47,
         "label": "Strong match",
         "matchedBy": "direct",
-        "reason": "Known artist: Fink",
+        "reason": "Known artist: HAEVN",
         "matchedArtists": [
-          "Fink"
-        ]
+          "HAEVN"
+        ],
+        "similarVia": null
       },
-      "discoveredAt": "2026-07-27T20:52:26.545Z",
-      "lastSeenAt": "2026-07-28T11:27:21.715Z"
-    },
-    {
-      "id": "rec-podiuminfo-482936",
-      "source": "podiuminfo",
-      "sourceId": "482936",
-      "artist": "Oi Va Voi",
-      "lineup": [
-        "Oi Va Voi"
-      ],
-      "supportingArtists": [],
-      "matchedArtists": [
-        "Oi Va Voi"
-      ],
-      "date": "2026-11-07",
-      "time": null,
-      "venue": "Melkweg",
-      "city": "Amsterdam",
-      "country": "NL",
-      "isFestival": false,
-      "image": "https://www.festivalinfo.nl/img/artist/8994/100_Oi_Va_Voi_1.jpg",
-      "ticketUrl": "https://www.podiuminfo.nl/ticket/139168/cd/Oi-Va-Voi/Melkweg/",
-      "sourceApis": [
-        "podiuminfo"
-      ],
-      "sourceUrl": "https://www.podiuminfo.nl/concert/482936/Oi-Va-Voi/Melkweg/",
-      "match": {
-        "score": 46,
-        "label": "Strong match",
-        "matchedBy": "direct",
-        "reason": "Known artist: Oi Va Voi",
-        "matchedArtists": [
-          "Oi Va Voi"
-        ]
-      },
-      "discoveredAt": "2026-07-27T20:52:26.545Z",
-      "lastSeenAt": "2026-07-28T11:27:21.715Z"
-    },
-    {
-      "id": "rec-podiuminfo-461372",
-      "source": "podiuminfo",
-      "sourceId": "461372",
-      "artist": "Eek-a-Mouse",
-      "lineup": [
-        "Eek-a-Mouse"
-      ],
-      "supportingArtists": [],
-      "matchedArtists": [
-        "Eek-a-Mouse"
-      ],
-      "date": "2026-11-07",
-      "time": null,
-      "venue": "Metropool Enschede",
-      "city": "Enschede",
-      "country": "NL",
-      "isFestival": false,
-      "image": "https://www.festivalinfo.nl/img/artist/12832/100_Eek-A-Mouse_2.jpg",
-      "ticketUrl": "https://www.podiuminfo.nl/ticket/132435/cd/Eek-a-Mouse/Metropool-Enschede/",
-      "sourceApis": [
-        "podiuminfo"
-      ],
-      "sourceUrl": "https://www.podiuminfo.nl/concert/461372/Eek-a-Mouse/Metropool-Enschede/",
-      "match": {
-        "score": 46,
-        "label": "Strong match",
-        "matchedBy": "direct",
-        "reason": "Known artist: Eek-a-Mouse",
-        "matchedArtists": [
-          "Eek-a-Mouse"
-        ]
-      },
-      "discoveredAt": "2026-07-27T20:52:26.545Z",
-      "lastSeenAt": "2026-07-28T11:27:21.715Z"
-    },
-    {
-      "id": "rec-podiuminfo-455501",
-      "source": "podiuminfo",
-      "sourceId": "455501",
-      "artist": "Fink",
-      "lineup": [
-        "Fink"
-      ],
-      "supportingArtists": [],
-      "matchedArtists": [
-        "Fink"
-      ],
-      "date": "2026-11-08",
-      "time": null,
-      "venue": "Hedon",
-      "city": "Zwolle",
-      "country": "NL",
-      "isFestival": false,
-      "image": "https://www.festivalinfo.nl/img/artist/19770/100_Fink_4.jpg",
-      "ticketUrl": "https://www.podiuminfo.nl/ticket/131450/cd/FINK/Hedon/",
-      "sourceApis": [
-        "podiuminfo"
-      ],
-      "sourceUrl": "https://www.podiuminfo.nl/concert/455501/Fink/Hedon/",
-      "match": {
-        "score": 46,
-        "label": "Strong match",
-        "matchedBy": "direct",
-        "reason": "Known artist: Fink",
-        "matchedArtists": [
-          "Fink"
-        ]
-      },
-      "discoveredAt": "2026-07-27T20:52:26.545Z",
-      "lastSeenAt": "2026-07-28T11:27:21.715Z"
-    },
-    {
-      "id": "rec-podiuminfo-456980",
-      "source": "podiuminfo",
-      "sourceId": "456980",
-      "artist": "Joan As Police Woman",
-      "lineup": [
-        "Joan As Police Woman"
-      ],
-      "supportingArtists": [],
-      "matchedArtists": [
-        "Joan As Police Woman"
-      ],
-      "date": "2026-11-12",
-      "time": null,
-      "venue": "Het Zonnehuis",
-      "city": "Amsterdam",
-      "country": "NL",
-      "isFestival": false,
-      "image": "https://www.festivalinfo.nl/img/artist/20842/100_Joan_As_Policewoman_1.jpg",
-      "ticketUrl": null,
-      "sourceApis": [
-        "podiuminfo"
-      ],
-      "sourceUrl": "https://www.podiuminfo.nl/concert/456980/Joan-As-Police-Woman/Het-Zonnehuis/",
-      "match": {
-        "score": 46,
-        "label": "Strong match",
-        "matchedBy": "direct",
-        "reason": "Known artist: Joan As Police Woman",
-        "matchedArtists": [
-          "Joan As Police Woman"
-        ]
-      },
-      "discoveredAt": "2026-07-27T20:52:26.545Z",
-      "lastSeenAt": "2026-07-28T11:27:21.715Z"
+      "discoveredAt": "2026-07-27T21:15:25.916Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
     },
     {
       "id": "rec-podiuminfo-454538",
@@ -551,10 +269,270 @@
         "reason": "Known artist: Joep Beving",
         "matchedArtists": [
           "Joep Beving"
-        ]
+        ],
+        "similarVia": null
       },
       "discoveredAt": "2026-07-27T21:15:25.916Z",
-      "lastSeenAt": "2026-07-28T15:03:07.613Z"
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-455047",
+      "source": "podiuminfo",
+      "sourceId": "455047",
+      "artist": "James Blake",
+      "lineup": [
+        "James Blake"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "James Blake"
+      ],
+      "date": "2026-10-05",
+      "time": null,
+      "venue": "TivoliVredenburg",
+      "city": "Utrecht",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/49897/100_James_Blake_9.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/131518/cd/James-Blake/TivoliVredenburg/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/455047/James-Blake/TivoliVredenburg/",
+      "match": {
+        "score": 46,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: James Blake",
+        "matchedArtists": [
+          "James Blake"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-07-27T20:52:26.545Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-455499",
+      "source": "podiuminfo",
+      "sourceId": "455499",
+      "artist": "Fink",
+      "lineup": [
+        "Fink"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Fink"
+      ],
+      "date": "2026-11-04",
+      "time": null,
+      "venue": "Paradiso",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/19770/100_Fink_5.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/131448/cd/Fink/Paradiso/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/455499/Fink/Paradiso/",
+      "match": {
+        "score": 46,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Fink",
+        "matchedArtists": [
+          "Fink"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-07-27T20:52:26.545Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-482936",
+      "source": "podiuminfo",
+      "sourceId": "482936",
+      "artist": "Oi Va Voi",
+      "lineup": [
+        "Oi Va Voi"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Oi Va Voi"
+      ],
+      "date": "2026-11-07",
+      "time": null,
+      "venue": "Melkweg",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/8994/100_Oi_Va_Voi_1.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/139168/cd/Oi-Va-Voi/Melkweg/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/482936/Oi-Va-Voi/Melkweg/",
+      "match": {
+        "score": 46,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Oi Va Voi",
+        "matchedArtists": [
+          "Oi Va Voi"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-07-27T20:52:26.545Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-461372",
+      "source": "podiuminfo",
+      "sourceId": "461372",
+      "artist": "Eek-a-Mouse",
+      "lineup": [
+        "Eek-a-Mouse"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Eek-a-Mouse"
+      ],
+      "date": "2026-11-07",
+      "time": null,
+      "venue": "Metropool Enschede",
+      "city": "Enschede",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/12832/100_Eek-A-Mouse_2.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/132435/cd/Eek-a-Mouse/Metropool-Enschede/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/461372/Eek-a-Mouse/Metropool-Enschede/",
+      "match": {
+        "score": 46,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Eek-a-Mouse",
+        "matchedArtists": [
+          "Eek-a-Mouse"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-07-27T20:52:26.545Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-455501",
+      "source": "podiuminfo",
+      "sourceId": "455501",
+      "artist": "Fink",
+      "lineup": [
+        "Fink"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Fink"
+      ],
+      "date": "2026-11-08",
+      "time": null,
+      "venue": "Hedon",
+      "city": "Zwolle",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/19770/100_Fink_4.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/131450/cd/FINK/Hedon/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/455501/Fink/Hedon/",
+      "match": {
+        "score": 46,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Fink",
+        "matchedArtists": [
+          "Fink"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-07-27T20:52:26.545Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-456980",
+      "source": "podiuminfo",
+      "sourceId": "456980",
+      "artist": "Joan As Police Woman",
+      "lineup": [
+        "Joan As Police Woman"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Joan As Police Woman"
+      ],
+      "date": "2026-11-12",
+      "time": null,
+      "venue": "Het Zonnehuis",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/20842/100_Joan_As_Policewoman_1.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/456980/Joan-As-Police-Woman/Het-Zonnehuis/",
+      "match": {
+        "score": 46,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Joan As Police Woman",
+        "matchedArtists": [
+          "Joan As Police Woman"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-07-27T20:52:26.545Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-486708",
+      "source": "podiuminfo",
+      "sourceId": "486708",
+      "artist": "Jordan Rakei",
+      "lineup": [
+        "Jordan Rakei"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Jordan Rakei"
+      ],
+      "date": "2027-04-13",
+      "time": null,
+      "venue": "Gashouder",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/102382/100_Jordan_Rakei_6.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/139830/cd/Jordan-Rakei/Gashouder/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/486708/Jordan-Rakei/Gashouder/",
+      "match": {
+        "score": 46,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Jordan Rakei",
+        "matchedArtists": [
+          "Jordan Rakei"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-07-27T20:52:26.545Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
     },
     {
       "id": "rec-podiuminfo-447796",
@@ -587,10 +565,1250 @@
         "reason": "Known artist: Deep Purple",
         "matchedArtists": [
           "Deep Purple"
-        ]
+        ],
+        "similarVia": null
       },
       "discoveredAt": "2026-07-28T19:14:12.464Z",
-      "lastSeenAt": "2026-07-30T08:19:50.071Z"
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-460016",
+      "source": "podiuminfo",
+      "sourceId": "460016",
+      "artist": "Lambert",
+      "lineup": [
+        "Lambert"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Lambert"
+      ],
+      "date": "2026-10-15",
+      "time": null,
+      "venue": "TivoliVredenburg",
+      "city": "Utrecht",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/160165/100_Lambert_2.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/139553/cd/Lambert/TivoliVredenburg/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/460016/Lambert/TivoliVredenburg/",
+      "match": {
+        "score": 42,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Gonzales",
+        "matchedArtists": [
+          "Lambert"
+        ],
+        "similarVia": "Gonzales"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-459963",
+      "source": "podiuminfo",
+      "sourceId": "459963",
+      "artist": "Lambert",
+      "lineup": [
+        "Lambert"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Lambert"
+      ],
+      "date": "2026-10-16",
+      "time": null,
+      "venue": "Lutherse Kerk",
+      "city": "Breda",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/160165/100_Lambert_1.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/459963/Lambert/Lutherse-Kerk/",
+      "match": {
+        "score": 42,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Gonzales",
+        "matchedArtists": [
+          "Lambert"
+        ],
+        "similarVia": "Gonzales"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-465374",
+      "source": "podiuminfo",
+      "sourceId": "465374",
+      "artist": "Valley of the Sun",
+      "lineup": [
+        "Valley of the Sun"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Valley of the Sun"
+      ],
+      "date": "2026-11-01",
+      "time": null,
+      "venue": "The Jack",
+      "city": "Eindhoven",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/83448/100_Valley_of_the_Sun_1.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/465374/Valley-of-the-Sun/The-Jack/",
+      "match": {
+        "score": 41,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Nightstalker",
+        "matchedArtists": [
+          "Valley of the Sun"
+        ],
+        "similarVia": "Nightstalker"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-460139",
+      "source": "podiuminfo",
+      "sourceId": "460139",
+      "artist": "Valley of the Sun",
+      "lineup": [
+        "Valley of the Sun"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Valley of the Sun"
+      ],
+      "date": "2026-11-02",
+      "time": null,
+      "venue": "Mezz",
+      "city": "Breda",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/83448/100_Valley_of_the_Sun_1.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/133808/cd/Valley-of-the-Sun/Mezz/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/460139/Valley-of-the-Sun/Mezz/",
+      "match": {
+        "score": 41,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Nightstalker",
+        "matchedArtists": [
+          "Valley of the Sun"
+        ],
+        "similarVia": "Nightstalker"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-465876",
+      "source": "podiuminfo",
+      "sourceId": "465876",
+      "artist": "Stars",
+      "lineup": [
+        "Stars"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Stars"
+      ],
+      "date": "2026-09-04",
+      "time": null,
+      "venue": "Concert in Concertgebouw",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.podiuminfo.nl/img/podiuminfo-rond.png",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/465876/Stars-in-Concert/Concertgebouw/",
+      "match": {
+        "score": 39,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to The Dears",
+        "matchedArtists": [
+          "Stars"
+        ],
+        "similarVia": "The Dears"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-459832",
+      "source": "podiuminfo",
+      "sourceId": "459832",
+      "artist": "Hippotraktor",
+      "lineup": [
+        "Hippotraktor",
+        "Hypno5e double-bill tour"
+      ],
+      "supportingArtists": [
+        "Hypno5e double-bill tour"
+      ],
+      "matchedArtists": [
+        "Hippotraktor"
+      ],
+      "date": "2026-11-01",
+      "time": null,
+      "venue": "Muziekgieterij",
+      "city": "Maastricht",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.podiuminfo.nl/img/podiuminfo-rond.png",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/133805/cd/Hippotraktor-Hypno5e/Muziekgieterij/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/459832/Hippotraktor-Hypno5e-double-bill-tour/Muziekgieterij/",
+      "match": {
+        "score": 39,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Psychonaut",
+        "matchedArtists": [
+          "Hippotraktor"
+        ],
+        "similarVia": "Psychonaut"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-469142",
+      "source": "podiuminfo",
+      "sourceId": "469142",
+      "artist": "Hippotraktor",
+      "lineup": [
+        "Hippotraktor"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Hippotraktor"
+      ],
+      "date": "2026-11-04",
+      "time": null,
+      "venue": "Vera",
+      "city": "Groningen",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.podiuminfo.nl/img/podiuminfo-rond.png",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/134502/cd/Hippotraktor-BEL-support/Vera/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/469142/Hippotraktor/Vera/",
+      "match": {
+        "score": 39,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Psychonaut",
+        "matchedArtists": [
+          "Hippotraktor"
+        ],
+        "similarVia": "Psychonaut"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-469090",
+      "source": "podiuminfo",
+      "sourceId": "469090",
+      "artist": "Hippotraktor",
+      "lineup": [
+        "Hippotraktor"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Hippotraktor"
+      ],
+      "date": "2026-11-05",
+      "time": null,
+      "venue": "Merleyn",
+      "city": "Nijmegen",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.podiuminfo.nl/img/podiuminfo-rond.png",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/134406/cd/Hippotraktor/Merleyn/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/469090/Hippotraktor/Merleyn/",
+      "match": {
+        "score": 39,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Psychonaut",
+        "matchedArtists": [
+          "Hippotraktor"
+        ],
+        "similarVia": "Psychonaut"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-474111",
+      "source": "podiuminfo",
+      "sourceId": "474111",
+      "artist": "Nothing But Thieves",
+      "lineup": [
+        "Nothing But Thieves"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Nothing But Thieves"
+      ],
+      "date": "2027-01-15",
+      "time": null,
+      "venue": "Ziggo Dome",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/85352/100_Nothing_But_Thieves_9.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/135505/cd/Nothing-But-Thieves-The-Stray-Dogs-World-Tour/Ziggo-Dome/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/474111/Nothing-But-Thieves/Ziggo-Dome/",
+      "match": {
+        "score": 38,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Muse",
+        "matchedArtists": [
+          "Nothing But Thieves"
+        ],
+        "similarVia": "Muse"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-474112",
+      "source": "podiuminfo",
+      "sourceId": "474112",
+      "artist": "Nothing But Thieves",
+      "lineup": [
+        "Nothing But Thieves"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Nothing But Thieves"
+      ],
+      "date": "2027-01-16",
+      "time": null,
+      "venue": "Ziggo Dome",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/85352/100_Nothing_But_Thieves_11.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/135506/cd/Nothing-But-Thieves-The-Stray-Dogs-World-Tour/Ziggo-Dome/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/474112/Nothing-But-Thieves/Ziggo-Dome/",
+      "match": {
+        "score": 38,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Muse",
+        "matchedArtists": [
+          "Nothing But Thieves"
+        ],
+        "similarVia": "Muse"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-463142",
+      "source": "podiuminfo",
+      "sourceId": "463142",
+      "artist": "Blanco White",
+      "lineup": [
+        "Blanco White"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Blanco White"
+      ],
+      "date": "2027-03-13",
+      "time": null,
+      "venue": "Koninklijk Theater Carré",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/111690/100_Blanco_White_3.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/132657/cd/Blanco-White/Koninklijk-Theater-Carre/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/463142/Blanco-White/Koninklijk-Theater-Carre/",
+      "match": {
+        "score": 38,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to RY X",
+        "matchedArtists": [
+          "Blanco White"
+        ],
+        "similarVia": "RY X"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-463143",
+      "source": "podiuminfo",
+      "sourceId": "463143",
+      "artist": "Blanco White",
+      "lineup": [
+        "Blanco White"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Blanco White"
+      ],
+      "date": "2027-03-16",
+      "time": null,
+      "venue": "Musis",
+      "city": "Arnhem",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/111690/100_Blanco_White_5.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/132662/cd/Blanco-White/Musis/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/463143/Blanco-White/Musis/",
+      "match": {
+        "score": 38,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to RY X",
+        "matchedArtists": [
+          "Blanco White"
+        ],
+        "similarVia": "RY X"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-478274",
+      "source": "podiuminfo",
+      "sourceId": "478274",
+      "artist": "Greenleaf",
+      "lineup": [
+        "Greenleaf"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Greenleaf"
+      ],
+      "date": "2026-12-17",
+      "time": null,
+      "venue": "Vera",
+      "city": "Groningen",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/69320/100_Greenleaf_1.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/137425/cd/Greenleaf-SWE-support/Vera/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/478274/Greenleaf/Vera/",
+      "match": {
+        "score": 37,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Nightstalker",
+        "matchedArtists": [
+          "Greenleaf"
+        ],
+        "similarVia": "Nightstalker"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-479499",
+      "source": "podiuminfo",
+      "sourceId": "479499",
+      "artist": "The Gathering",
+      "lineup": [
+        "The Gathering"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "The Gathering"
+      ],
+      "date": "2027-01-16",
+      "time": null,
+      "venue": "AFAS Live",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/28760/100_Anneke_van_Giersbergen_7.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/137807/cd/The-Gathering-Mandylion-Nighttime-Birds-Live/AFAS-Live/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/479499/The-Gathering/AFAS-Live/",
+      "match": {
+        "score": 37,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Anathema",
+        "matchedArtists": [
+          "The Gathering"
+        ],
+        "similarVia": "Anathema"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-474609",
+      "source": "podiuminfo",
+      "sourceId": "474609",
+      "artist": "MÚR",
+      "lineup": [
+        "MÚR"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "MÚR"
+      ],
+      "date": "2026-08-17",
+      "time": null,
+      "venue": "Merleyn",
+      "city": "Nijmegen",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/review/small/10701/h5iosestfda3stb77f.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/135804/cd/MUr/Merleyn/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/474609/MUR/Merleyn/",
+      "match": {
+        "score": 36,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Sólstafir",
+        "matchedArtists": [
+          "MÚR"
+        ],
+        "similarVia": "Sólstafir"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-464922",
+      "source": "podiuminfo",
+      "sourceId": "464922",
+      "artist": "Sigh",
+      "lineup": [
+        "Sigh",
+        "Devil Master"
+      ],
+      "supportingArtists": [
+        "Devil Master"
+      ],
+      "matchedArtists": [
+        "Sigh"
+      ],
+      "date": "2026-09-13",
+      "time": null,
+      "venue": "Neushoorn",
+      "city": "Leeuwarden",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/130639/100_Devil_Master_1.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/133965/cd/Sigh-Devil-Master/Neushoorn/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/464922/Sigh-Devil-Master/Neushoorn/",
+      "match": {
+        "score": 36,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Zeal & Ardor",
+        "matchedArtists": [
+          "Sigh"
+        ],
+        "similarVia": "Zeal & Ardor"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-465092",
+      "source": "podiuminfo",
+      "sourceId": "465092",
+      "artist": "SIGH",
+      "lineup": [
+        "SIGH",
+        "DEVIL MASTER"
+      ],
+      "supportingArtists": [
+        "DEVIL MASTER"
+      ],
+      "matchedArtists": [
+        "SIGH"
+      ],
+      "date": "2026-09-14",
+      "time": null,
+      "venue": "dB's",
+      "city": "Utrecht",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/130639/100_Devil_Master_1.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/137468/cd/SIGH-Japan-Devil-Master-USA-/dBs/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/465092/SIGH-DEVIL-MASTER/dBs/",
+      "match": {
+        "score": 36,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Zeal & Ardor",
+        "matchedArtists": [
+          "SIGH"
+        ],
+        "similarVia": "Zeal & Ardor"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-469672",
+      "source": "podiuminfo",
+      "sourceId": "469672",
+      "artist": "Deep Forest",
+      "lineup": [
+        "Deep Forest"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Deep Forest"
+      ],
+      "date": "2026-10-06",
+      "time": null,
+      "venue": "Cinetol",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.podiuminfo.nl/img/podiuminfo-rond.png",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/134545/cd/Deep-Forest/Cinetol/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/469672/Deep-Forest/Cinetol/",
+      "match": {
+        "score": 36,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Moby",
+        "matchedArtists": [
+          "Deep Forest"
+        ],
+        "similarVia": "Moby"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-460569",
+      "source": "podiuminfo",
+      "sourceId": "460569",
+      "artist": "Soen",
+      "lineup": [
+        "Soen"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Soen"
+      ],
+      "date": "2026-11-17",
+      "time": null,
+      "venue": "TivoliVredenburg",
+      "city": "Utrecht",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/65080/100_Soen_3.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/139594/cd/Soen/TivoliVredenburg/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/460569/Soen/TivoliVredenburg/",
+      "match": {
+        "score": 35,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Anathema",
+        "matchedArtists": [
+          "Soen"
+        ],
+        "similarVia": "Anathema"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-460643",
+      "source": "podiuminfo",
+      "sourceId": "460643",
+      "artist": "Steel Pulse",
+      "lineup": [
+        "Steel Pulse"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Steel Pulse"
+      ],
+      "date": "2026-08-21",
+      "time": null,
+      "venue": "Openluchttheater De Goffert",
+      "city": "Nijmegen",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/8070/100_Steel_Pulse_3.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/132269/cd/Steel-Pulse/Openluchttheater-De-Goffert/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/460643/Steel-Pulse/Openluchttheater-De-Goffert/",
+      "match": {
+        "score": 34,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Bob Marley & The Wailers",
+        "matchedArtists": [
+          "Steel Pulse"
+        ],
+        "similarVia": "Bob Marley & The Wailers"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-460645",
+      "source": "podiuminfo",
+      "sourceId": "460645",
+      "artist": "Steel Pulse",
+      "lineup": [
+        "Steel Pulse"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Steel Pulse"
+      ],
+      "date": "2026-08-22",
+      "time": null,
+      "venue": "SPOT / De Oosterpoort",
+      "city": "Groningen",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/8070/100_Steel_Pulse_2.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/132271/cd/Steel-Pulse/SPOT-De-Oosterpoort/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/460645/Steel-Pulse/SPOT-De-Oosterpoort/",
+      "match": {
+        "score": 34,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Bob Marley & The Wailers",
+        "matchedArtists": [
+          "Steel Pulse"
+        ],
+        "similarVia": "Bob Marley & The Wailers"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-480495",
+      "source": "podiuminfo",
+      "sourceId": "480495",
+      "artist": "Burning Spear",
+      "lineup": [
+        "Burning Spear"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Burning Spear"
+      ],
+      "date": "2026-09-03",
+      "time": null,
+      "venue": "TivoliVredenburg",
+      "city": "Utrecht",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/2240/100_Burning_Spear_1.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/137997/cd/Burning-Spear/TivoliVredenburg/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/480495/Burning-Spear/TivoliVredenburg/",
+      "match": {
+        "score": 34,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Bob Marley & The Wailers",
+        "matchedArtists": [
+          "Burning Spear"
+        ],
+        "similarVia": "Bob Marley & The Wailers"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-469433",
+      "source": "podiuminfo",
+      "sourceId": "469433",
+      "artist": "HIPPOTRAKTOR",
+      "lineup": [
+        "HIPPOTRAKTOR"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "HIPPOTRAKTOR"
+      ],
+      "date": "2026-11-13",
+      "time": null,
+      "venue": "Willem Twee poppodium",
+      "city": "Den Bosch",
+      "country": "??",
+      "isFestival": false,
+      "image": "https://www.podiuminfo.nl/img/podiuminfo-rond.png",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/134504/cd/HIPPOTRAKTOR/Willem-Twee-poppodium/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/469433/HIPPOTRAKTOR/Willem-Twee-poppodium/",
+      "match": {
+        "score": 34,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Psychonaut",
+        "matchedArtists": [
+          "HIPPOTRAKTOR"
+        ],
+        "similarVia": "Psychonaut"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-469154",
+      "source": "podiuminfo",
+      "sourceId": "469154",
+      "artist": "Hippotraktor",
+      "lineup": [
+        "Hippotraktor"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Hippotraktor"
+      ],
+      "date": "2026-12-18",
+      "time": null,
+      "venue": "Kroepoekfabriek",
+      "city": "Vlaardingen",
+      "country": "??",
+      "isFestival": false,
+      "image": "https://www.podiuminfo.nl/img/podiuminfo-rond.png",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/134444/cd/HIPPOTRAKTOR-TURPENTINE-VALLEY/Kroepoekfabriek/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/469154/Hippotraktor/Kroepoekfabriek/",
+      "match": {
+        "score": 34,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Psychonaut",
+        "matchedArtists": [
+          "Hippotraktor"
+        ],
+        "similarVia": "Psychonaut"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-452241",
+      "source": "podiuminfo",
+      "sourceId": "452241",
+      "artist": "Draconian",
+      "lineup": [
+        "Draconian"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Draconian"
+      ],
+      "date": "2027-03-04",
+      "time": null,
+      "venue": "TivoliVredenburg",
+      "city": "Utrecht",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/16671/100_Draconian_2.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/130375/cd/Draconian/TivoliVredenburg/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/452241/Draconian/TivoliVredenburg/",
+      "match": {
+        "score": 34,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Paradise Lost",
+        "matchedArtists": [
+          "Draconian"
+        ],
+        "similarVia": "Paradise Lost"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-457934",
+      "source": "podiuminfo",
+      "sourceId": "457934",
+      "artist": "Imperial Triumphant",
+      "lineup": [
+        "Imperial Triumphant"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Imperial Triumphant"
+      ],
+      "date": "2026-11-24",
+      "time": null,
+      "venue": "Doornroosje",
+      "city": "Nijmegen",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/122884/100_Imperial_Triumphant_1.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/457934/Imperial-Triumphant/Doornroosje/",
+      "match": {
+        "score": 33,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Zeal & Ardor",
+        "matchedArtists": [
+          "Imperial Triumphant"
+        ],
+        "similarVia": "Zeal & Ardor"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-469360",
+      "source": "podiuminfo",
+      "sourceId": "469360",
+      "artist": "Third World",
+      "lineup": [
+        "Third World"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Third World"
+      ],
+      "date": "2026-07-31",
+      "time": null,
+      "venue": "Paradiso",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/review/small/7948/r8qt5u4n9bzmwy817l.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/134497/cd/Third-World/Paradiso/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/469360/Third-World/Paradiso/",
+      "match": {
+        "score": 32,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Bob Marley & The Wailers",
+        "matchedArtists": [
+          "Third World"
+        ],
+        "similarVia": "Bob Marley & The Wailers"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-452746",
+      "source": "podiuminfo",
+      "sourceId": "452746",
+      "artist": "Accept",
+      "lineup": [
+        "Accept"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Accept"
+      ],
+      "date": "2026-12-16",
+      "time": null,
+      "venue": "013",
+      "city": "Tilburg",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/12481/100_Accept_3.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/130594/cd/Accept-50th-Anniversary-Tour-2026/013/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/452746/Accept/013/",
+      "match": {
+        "score": 32,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Iron Maiden",
+        "matchedArtists": [
+          "Accept"
+        ],
+        "similarVia": "Iron Maiden"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-482709",
+      "source": "podiuminfo",
+      "sourceId": "482709",
+      "artist": "Dead Poet Society",
+      "lineup": [
+        "Dead Poet Society"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Dead Poet Society"
+      ],
+      "date": "2027-02-10",
+      "time": null,
+      "venue": "TivoliVredenburg",
+      "city": "Utrecht",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/136203/100_Dead_Poet_Society_2.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/139305/cd/Dead-Poet-Society/TivoliVredenburg/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/482709/Dead-Poet-Society/TivoliVredenburg/",
+      "match": {
+        "score": 31,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Muse",
+        "matchedArtists": [
+          "Dead Poet Society"
+        ],
+        "similarVia": "Muse"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-475087",
+      "source": "podiuminfo",
+      "sourceId": "475087",
+      "artist": "HEMELBESTORMER",
+      "lineup": [
+        "WYATT. E",
+        "HEMELBESTORMER"
+      ],
+      "supportingArtists": [
+        "WYATT. E"
+      ],
+      "matchedArtists": [
+        "HEMELBESTORMER"
+      ],
+      "date": "2026-09-25",
+      "time": null,
+      "venue": "Hall Of Fame",
+      "city": "Tilburg",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.podiuminfo.nl/img/podiuminfo-rond.png",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/138494/cd/Wyatt-E-Hemelbestormer/Hall-Of-Fame/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/475087/WYATT-E-HEMELBESTORMER/Hall-Of-Fame/",
+      "match": {
+        "score": 30,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Psychonaut",
+        "matchedArtists": [
+          "HEMELBESTORMER"
+        ],
+        "similarVia": "Psychonaut"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-462837",
+      "source": "podiuminfo",
+      "sourceId": "462837",
+      "artist": "Hemelbestormer",
+      "lineup": [
+        "Hemelbestormer"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Hemelbestormer"
+      ],
+      "date": "2026-10-31",
+      "time": null,
+      "venue": "Nobel",
+      "city": "Leiden",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.podiuminfo.nl/img/podiuminfo-rond.png",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/462837/Hemelbestormer/Nobel/",
+      "match": {
+        "score": 30,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Psychonaut",
+        "matchedArtists": [
+          "Hemelbestormer"
+        ],
+        "similarVia": "Psychonaut"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-464815",
+      "source": "podiuminfo",
+      "sourceId": "464815",
+      "artist": "Hemelbestormer",
+      "lineup": [
+        "Hemelbestormer",
+        "The Fifth Alliance"
+      ],
+      "supportingArtists": [
+        "The Fifth Alliance"
+      ],
+      "matchedArtists": [
+        "Hemelbestormer"
+      ],
+      "date": "2026-11-07",
+      "time": null,
+      "venue": "ECI Cultuurfabriek",
+      "city": "Roermond",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.podiuminfo.nl/img/podiuminfo-rond.png",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/464815/Hemelbestormer-The-Fifth-Alliance/ECI-Cultuurfabriek/",
+      "match": {
+        "score": 30,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Psychonaut",
+        "matchedArtists": [
+          "Hemelbestormer"
+        ],
+        "similarVia": "Psychonaut"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
+    },
+    {
+      "id": "rec-podiuminfo-469143",
+      "source": "podiuminfo",
+      "sourceId": "469143",
+      "artist": "Hemelbestormer",
+      "lineup": [
+        "Hemelbestormer",
+        "The Fifth Alliance"
+      ],
+      "supportingArtists": [
+        "The Fifth Alliance"
+      ],
+      "matchedArtists": [
+        "Hemelbestormer"
+      ],
+      "date": "2026-11-07",
+      "time": null,
+      "venue": "De Azijnfabriek",
+      "city": "Roermond",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.podiuminfo.nl/img/podiuminfo-rond.png",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/469143/Hemelbestormer-The-Fifth-Alliance/De-Azijnfabriek/",
+      "match": {
+        "score": 30,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Psychonaut",
+        "matchedArtists": [
+          "Hemelbestormer"
+        ],
+        "similarVia": "Psychonaut"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-07-30T16:28:28.177Z"
     }
   ]
 }
