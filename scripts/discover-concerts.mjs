@@ -7,6 +7,8 @@
 //
 // Pipeline:
 //   1. Last.fm listening signal (artists above minPlaycountToTrack)
+//   1b. Optionally expand with artists Last.fm considers similar to your
+//      favourites, so discovery can surface bands you haven't found yet
 //   2. Crawl Podiuminfo per-day agenda pages over the lookahead window
 //   3. One recommendation per Podiuminfo concert id, matched against ALL
 //      tracked artists at once
@@ -182,6 +184,65 @@ async function getLastfmWeightedArtists() {
   }));
 }
 
+// ---------- 1b. Similar artists ----------
+//
+// Direct matching only ever surfaces artists already in the listening
+// history, which means discovery can never tell you about a band you'd love
+// but haven't found yet. Last.fm's artist.getSimilar closes that gap.
+//
+// These are kept strictly second-class: a similar-artist match scores from a
+// lower base than a direct one and carries the seed artist in its reason, so
+// a real favourite always outranks a suggestion and you can always see WHY
+// something was suggested. A name that is both listened-to and similar to
+// something else stays a direct match.
+
+async function getSimilarArtists(topArtists, cfg) {
+  const key = process.env.LASTFM_API_KEY;
+  const perSeed = cfg.discovery.similarArtistsPerSeed ?? 15;
+  const seedCount = cfg.discovery.similarSeedCount ?? 40;
+
+  // Seed from the strongest listening signal only. Going deeper adds a long
+  // tail of weak suggestions and one API call each for very little gain.
+  const seeds = [...topArtists]
+    .sort((a, b) => (b.frequencyScore + b.recencyScore) - (a.frequencyScore + a.recencyScore))
+    .slice(0, seedCount);
+
+  const similar = new Map(); // normalized name -> { name, similarity, via }
+  let failures = 0;
+
+  for (const seed of seeds) {
+    const url = `https://ws.audioscrobbler.com/2.0/?method=artist.getsimilar` +
+      `&artist=${encodeURIComponent(seed.name)}&api_key=${key}&format=json&limit=${perSeed}&autocorrect=1`;
+    try {
+      const json = await lastfmFetchJson(url, 2);
+      for (const a of json?.similarartists?.artist || []) {
+        if (!a?.name) continue;
+        const k = normalizeArtistName(a.name);
+        const match = Number(a.match) || 0;
+        const prev = similar.get(k);
+        // Keep the strongest link, and remember which favourite it came from.
+        if (!prev || match > prev.similarity) {
+          similar.set(k, { name: a.name, similarity: match, via: seed.name });
+        }
+      }
+    } catch (err) {
+      failures++;
+      console.warn(`similar-artists lookup failed for "${seed.name}": ${err.message}`);
+    }
+  }
+
+  if (failures === seeds.length && seeds.length > 0) {
+    // Every call failed — almost certainly an API problem, not a real absence.
+    // Discovery still works on direct matches alone, so this degrades rather
+    // than aborting.
+    console.warn("All similar-artist lookups failed — continuing with direct matches only.");
+    return new Map();
+  }
+
+  console.log(`Similar artists: ${similar.size} candidates from ${seeds.length} seeds (${failures} lookups failed).`);
+  return similar;
+}
+
 // ---------- 2. Identity & migration ----------
 
 const slug = (s) => (s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
@@ -216,40 +277,53 @@ function alreadyInArchive(event, archiveConcerts) {
 
 // ---------- 3. Scoring ----------
 
-function scoreEvent(event, signalByName, cfg) {
+function scoreEvent(event, signalByName, similarByName, cfg) {
   const w = cfg.scoring.weights;
   const reasons = [];
 
-  // Rank the tracked artists on this bill and score off the strongest one.
+  // Classify every tracked artist on this bill: directly listened to, or
+  // merely similar to something you listen to.
   const ranked = event.matchedTracked
-    .map((name) => ({ name, signal: signalByName.get(normalizeArtistName(name)) || null }))
-    .sort((a, b) => {
-      const as = (a.signal?.frequencyScore ?? 0) + (a.signal?.recencyScore ?? 0);
-      const bs = (b.signal?.frequencyScore ?? 0) + (b.signal?.recencyScore ?? 0);
-      if (bs !== as) return bs - as;
-      return a.name.localeCompare(b.name); // deterministic tie-break
-    });
+    .map((name) => {
+      const key = normalizeArtistName(name);
+      const signal = signalByName.get(key) || null;
+      const similar = signal ? null : similarByName.get(key) || null;
+      const strength = signal
+        ? 1 + signal.frequencyScore + signal.recencyScore   // direct always outranks similar
+        : (similar?.similarity ?? 0);
+      return { name, signal, similar, strength };
+    })
+    .sort((a, b) => (b.strength - a.strength) || a.name.localeCompare(b.name));
 
   const primary = ranked[0];
-  let score = w.directArtistMatch;
-  reasons.push(`Known artist: ${primary.name}`);
+  let score;
 
   if (primary.signal) {
+    score = w.directArtistMatch;
+    reasons.push(`Known artist: ${primary.name}`);
     score += w.listeningFrequency * primary.signal.frequencyScore;
     score += w.listeningRecency * primary.signal.recencyScore;
     if (primary.signal.recencyScore > 0.3) reasons.push("Recently in rotation");
+  } else {
+    // Lower base so a suggestion can't outrank a real favourite, and the
+    // seed artist is always named — an unexplained recommendation is
+    // impossible to trust or dismiss on purpose.
+    score = w.similarArtistMatch ?? 20;
+    score += (w.similarityStrength ?? 22) * (primary.similar?.similarity ?? 0);
+    reasons.push(`Similar to ${primary.similar?.via ?? "your listening"}`);
   }
 
-  // A bill with several artists you track is genuinely more interesting
-  // than one with a single match — small, capped bonus.
-  if (ranked.length > 1) {
-    score += Math.min((ranked.length - 1) * 4, 12);
-    reasons.push(`${ranked.length} tracked artists on this bill`);
+  // A bill carrying several artists you already follow is genuinely more
+  // interesting than one with a single match.
+  const directCount = ranked.filter((r) => r.signal).length;
+  if (directCount > 1) {
+    score += Math.min((directCount - 1) * 4, 12);
+    reasons.push(`${directCount} tracked artists on this bill`);
   }
 
   if (event.country === cfg.location.homeCountry) score += w.distanceBonus;
 
-  score = Math.round(Math.min(100, score));
+  score = Math.round(Math.min(100, Math.max(0, score)));
   const label =
     score >= 70 ? "Excellent match" : score >= 45 ? "Strong match" : score >= 25 ? "Possible match" : "Weak match";
 
@@ -258,9 +332,10 @@ function scoreEvent(event, signalByName, cfg) {
     match: {
       score,
       label,
-      matchedBy: "direct",
+      matchedBy: primary.signal ? "direct" : "similar",
       reason: reasons.join(" · "),
       matchedArtists: ranked.map((r) => r.name),
+      similarVia: primary.signal ? null : (primary.similar?.via ?? null),
     },
   };
 }
@@ -319,9 +394,36 @@ async function main() {
 
   const signalByName = new Map(signals.map((s) => [normalizeArtistName(s.name), s]));
   const minPlaycount = CONFIG.discovery.minPlaycountToTrack ?? 0;
-  const trackedArtistNames = signals.filter((s) => s.playcount > minPlaycount).map((s) => s.name);
+  const listenedNames = signals.filter((s) => s.playcount > minPlaycount).map((s) => s.name);
 
-  console.log(`Tracking ${trackedArtistNames.length} artists (playcount > ${minPlaycount}).`);
+  // Optional second layer: artists Last.fm considers similar to your
+  // favourites. Failure here is non-fatal — discovery still works on direct
+  // matches, so a Last.fm hiccup degrades the results rather than the run.
+  let similarByName = new Map();
+  if (CONFIG.discovery.includeSimilarArtists) {
+    try {
+      similarByName = await getSimilarArtists(
+        signals.filter((s) => s.playcount > minPlaycount),
+        CONFIG
+      );
+    } catch (err) {
+      console.warn(`Similar-artist expansion skipped: ${err.message}`);
+    }
+  }
+
+  // An artist you actually listen to is never demoted to "similar", so the
+  // direct signal always wins when a name appears in both.
+  for (const key of signalByName.keys()) similarByName.delete(key);
+
+  const trackedArtistNames = [
+    ...listenedNames,
+    ...[...similarByName.values()].map((v) => v.name),
+  ];
+
+  console.log(
+    `Tracking ${trackedArtistNames.length} artists: ` +
+    `${listenedNames.length} listened (playcount > ${minPlaycount}) + ${similarByName.size} similar.`
+  );
   console.log(`Crawling Podiuminfo day agenda ${today} → ${lookaheadEnd}...`);
 
   // --- Crawl ---
@@ -403,7 +505,7 @@ async function main() {
     if (alreadyInArchive(event, ARCHIVE.concerts)) { dropped.alreadyInArchive++; continue; }
     if (isExcluded(event, excludedIds)) { dropped.previouslyHandled++; continue; }
 
-    const { displayArtist, match } = scoreEvent(event, signalByName, CONFIG);
+    const { displayArtist, match } = scoreEvent(event, signalByName, similarByName, CONFIG);
     if (match.score < CONFIG.discovery.minScoreToShow) { dropped.belowMinScore++; continue; }
 
     const highScoreThreshold = CONFIG.location.highScoreThreshold ?? Infinity;
@@ -471,7 +573,10 @@ async function main() {
   await writeJsonAtomic(DAY_CACHE_PATH, DAY_CACHE);
   await writeJsonAtomic(CONCERT_CACHE_PATH, CONCERT_CACHE);
 
-  console.log(`${status}: wrote ${results.length} recommendations (one per concert).`);
+  const directCount = results.filter((r) => r.match.matchedBy === "direct").length;
+  const similarCount = results.length - directCount;
+
+  console.log(`${status}: wrote ${results.length} recommendations (${directCount} direct, ${similarCount} similar-artist).`);
   console.log(
     `Funnel: ${events.length} confirmed events → ` +
     `-${dropped.outOfDateRange} out of range, ` +
