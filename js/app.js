@@ -10,12 +10,20 @@ const TABS = ["mirror", "realm", "concerts", "identity", "archive"];
 let deckQueue = [];
 let plannedConcerts = [];
 let archiveConcerts = [];
+let archiveView = null;
 let exploreFilter = { mode: "all", value: null };
-let exploreExpanded = false;
-let dismissedConcerts = [];   // full snapshots, newest first
-let legacyDismissedIds = [];  // ids dismissed before snapshots existed
+let dismissedConcerts = [];
+let legacyDismissedIds = [];
 let pendingWrites = 0;
 let syncError = null;
+
+let concertImageBySourceId = new Map();
+let concertImageByVenueDate = new Map();
+let concertImageByArtist = new Map();
+let artistImages = new Map();
+let setlists = new Map();
+
+// ---------- tiny helpers ----------
 
 async function loadJSON(path) {
   const res = await fetch(path, { cache: "no-store" });
@@ -35,225 +43,130 @@ function esc(s) {
   ));
 }
 
-function formatDate(iso) {
-  const d = new Date(iso + "T00:00:00");
-  return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+function dayMonth(iso) {
+  const [, m, d] = String(iso || "").split("-");
+  return m ? `${d} ${MONTHS[Number(m) - 1]}` : "";
+}
+function fullDate(iso) {
+  const [y, m, d] = String(iso || "").split("-");
+  return y ? `${d} ${MONTHS[Number(m) - 1]} ${y}` : "";
+}
+function weekdayShort(iso) {
+  const dt = new Date(iso + "T00:00:00");
+  return dt.toLocaleDateString("en-GB", { weekday: "short" });
+}
+function yearOf(iso) { return String(iso || "").slice(0, 4); }
+
+function daysUntil(iso) {
+  const today = new Date().toISOString().slice(0, 10);
+  return Math.round((new Date(iso + "T00:00:00") - new Date(today + "T00:00:00")) / 86400000);
+}
+function countdownWord(iso) {
+  const d = daysUntil(iso);
+  if (d < 0) return "Passed";
+  if (d === 0) return "Tonight";
+  if (d === 1) return "Tomorrow";
+  if (d < 7) return `In ${d} days`;
+  if (d < 14) return "Next week";
+  if (d < 60) return `In ${Math.round(d / 7)} weeks`;
+  return `In ${Math.round(d / 30)} months`;
 }
 
-function formatDateShort(iso) {
-  const d = new Date(iso + "T00:00:00");
-  return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+// Spell small numbers out. "Twenty-five years" belongs in a sentence about a
+// life; "25 years" belongs in a spreadsheet.
+const WORDS = ["zero","one","two","three","four","five","six","seven","eight","nine","ten",
+  "eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen","twenty",
+  "twenty-one","twenty-two","twenty-three","twenty-four","twenty-five","twenty-six","twenty-seven",
+  "twenty-eight","twenty-nine","thirty"];
+function spell(n) { return WORDS[n] || String(n); }
+function titleCase(s) { return s ? s[0].toUpperCase() + s.slice(1) : s; }
+
+// ---------- images ----------
+
+function normalizeKey(s) {
+  return (s || "").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim();
 }
 
+// The image Podiuminfo exposes is the ARTIST's photo, not concert artwork
+// (the URL is literally /img/artist/<id>/...). So the artist name is the
+// natural key, and any cached concert featuring that artist yields it —
+// which is what rescues records saved before the schema carried sourceId.
+function imageFor(rec) {
+  if (!rec) return null;
+  if (rec.image) return rec.image;
 
-// ---------- Archive tab ----------
+  // Deezer first: 1000px and covers the whole archive. Podiuminfo's ~100px
+  // thumbnails are the fallback.
+  const byName = artistImages.get(normalizeKey(rec.artist));
+  if (byName) return byName;
 
-function renderArchive(archiveData) {
-  archiveConcerts = archiveData.concerts || [];
-  const view = buildArchiveView(archiveConcerts);
-  const root = document.getElementById("panel-archive");
-  root.innerHTML = "";
+  const cached = concertImageByArtist.get(normalizeKey(rec.artist));
+  if (cached) return cached;
 
-  root.appendChild(el(`
-    <h2 class="section-title">Archive</h2>
-    <p class="section-sub">Your live memory vault — concerts, patterns, and milestones across the years.</p>
-  `));
-
-  const overviewGrid = el(`<div class="grid-2"></div>`);
-  overviewGrid.appendChild(statCard(view.overview.totalConcerts, "Concerts"));
-  overviewGrid.appendChild(statCard(view.overview.festivals, "Festivals"));
-  overviewGrid.appendChild(statCard(view.overview.venues, "Venues"));
-  overviewGrid.appendChild(statCard(view.overview.cities, "Cities"));
-  root.appendChild(el(`<div class="section-heading">Overview</div>`));
-  root.appendChild(overviewGrid);
-
-  if (view.signature.topArtist || view.signature.topVenue) {
-    const sigGrid = el(`<div class="grid-2"></div>`);
-    if (view.signature.topArtist) {
-      sigGrid.appendChild(signatureCard(view.signature.topArtist.name,
-        `returned to ${view.signature.topArtist.count} times`, "Returning artist"));
-    }
-    if (view.signature.topVenue) {
-      sigGrid.appendChild(signatureCard(view.signature.topVenue.name,
-        `${view.signature.topVenue.count} visits`, "Recurring room"));
-    }
-    root.appendChild(el(`<div class="section-heading">Signature</div>`));
-    root.appendChild(sigGrid);
+  let sid = rec.sourceId ? String(rec.sourceId) : null;
+  if (!sid) {
+    const m = String(rec.id || "").match(/podiuminfo-(\d+)/) ||
+              String(rec.recommendationId || "").match(/podiuminfo-(\d+)/);
+    if (m) sid = m[1];
   }
+  if (sid && concertImageBySourceId.has(sid)) return concertImageBySourceId.get(sid);
 
-  root.appendChild(el(`<div class="section-heading">Milestones</div>`));
-  if (view.milestones.first) root.appendChild(milestoneCard("First concert", view.milestones.first));
-  if (view.milestones.latest) root.appendChild(milestoneCard("Latest concert", view.milestones.latest));
-  if (view.peakYear) {
-    root.appendChild(el(`
-      <div class="card stat-card">
-        <div class="stat-value">${esc(view.peakYear.name)}</div>
-        <div class="stat-label">${esc(view.peakYear.count)} concerts</div>
-        <div class="stat-tag">Peak year</div>
-      </div>
-    `));
+  if (rec.venue && rec.date) {
+    const hit = concertImageByVenueDate.get(`${normalizeKey(rec.venue)}|${rec.date}`);
+    if (hit) return hit;
   }
-
-  root.appendChild(el(`<div class="section-heading">Patterns</div>`));
-  root.appendChild(rankedList("Most seen artists", view.patterns.mostSeenArtists));
-  root.appendChild(rankedList("Recurring rooms", view.patterns.recurringRooms));
-  root.appendChild(rankedList("Top cities", view.patterns.topCities));
-
-  if (view.onThisDay.length > 0) {
-    root.appendChild(el(`<div class="section-heading">On this day</div>`));
-    const wrap = el(`<div></div>`);
-    view.onThisDay.forEach((c) => wrap.appendChild(archiveCard(c, `${c.yearsAgo} years ago`)));
-    root.appendChild(wrap);
-  }
-
-  root.appendChild(el(`<div class="section-heading">Explore archive</div>`));
-  root.appendChild(el(`<div id="explore-root"></div>`));
-  renderExplore(view.explore);
+  return null;
 }
 
-// Explore: pick a dimension, then a value, and the timeline below narrows.
-// Kept as one function so the mode pills, the value pills and the resulting
-// timeline can never disagree about what's currently selected.
-function renderExplore(options) {
-  const root = document.getElementById("explore-root");
-  if (!root) return;
-  root.innerHTML = "";
-
-  const MODES = [
-    ["all", "All"],
-    ["year", "Year"],
-    ["artist", "Artist"],
-    ["city", "City"],
-    ["venue", "Venue"],
-  ];
-
-  const modeRow = el(`<div class="pill-row"></div>`);
-  for (const [mode, label] of MODES) {
-    const pill = el(`<div class="pill ${exploreFilter.mode === mode ? "active" : ""}">${label}</div>`);
-    pill.addEventListener("click", () => {
-      exploreFilter = { mode, value: null };
-      renderExplore(options);
-    });
-    modeRow.appendChild(pill);
-  }
-  root.appendChild(modeRow);
-
-  if (exploreFilter.mode !== "all") {
-    const values = options[exploreFilter.mode] || [];
-    const valueRow = el(`<div class="pill-row"></div>`);
-    // Cap the list so a 400-artist archive doesn't render a wall of pills;
-    // "+N more" is there when you actually want the long tail.
-    const limit = exploreExpanded ? values.length : 10;
-    for (const { name, count } of values.slice(0, limit)) {
-      const pill = el(`<div class="pill ${exploreFilter.value === name ? "active" : ""}">${esc(name)} <span style="opacity:.55">${count}</span></div>`);
-      pill.addEventListener("click", () => {
-        exploreFilter = {
-          mode: exploreFilter.mode,
-          value: exploreFilter.value === name ? null : name,
-        };
-        renderExplore(options);
-      });
-      valueRow.appendChild(pill);
-    }
-    if (values.length > limit) {
-      const more = el(`<div class="pill">+${values.length - limit} more</div>`);
-      more.addEventListener("click", () => { exploreExpanded = true; renderExplore(options); });
-      valueRow.appendChild(more);
-    } else if (exploreExpanded && values.length > 10) {
-      const less = el(`<div class="pill">Show less</div>`);
-      less.addEventListener("click", () => { exploreExpanded = false; renderExplore(options); });
-      valueRow.appendChild(less);
-    }
-    root.appendChild(valueRow);
-  }
-
-  const filtered = filterConcerts(archiveConcerts, exploreFilter)
-    .sort((a, b) => String(b.date).localeCompare(String(a.date)));
-
-  root.appendChild(el(`
-    <div class="section-heading">
-      Archive timeline${exploreFilter.value ? ` · ${esc(exploreFilter.value)} (${filtered.length})` : ""}
-    </div>
-  `));
-
-  const wrap = el(`<div></div>`);
-  if (filtered.length === 0) {
-    wrap.appendChild(el(`<div class="empty-state">Nothing matches that filter.</div>`));
-  } else {
-    filtered.forEach((c) => wrap.appendChild(archiveCard(c)));
-  }
-  root.appendChild(wrap);
+// Photos are applied from JS rather than inlined into the markup so a URL
+// containing quotes can never break out of a style attribute.
+function setPhoto(node, url) {
+  if (!node) return false;
+  if (!url) { node.classList.add("is-empty"); return false; }
+  node.style.backgroundImage = `url("${url.replace(/"/g, "%22")}")`;
+  return true;
 }
 
-function statCard(value, label) {
-  return el(`
-    <div class="card stat-card">
-      <div class="stat-value">${esc(value)}</div>
-      <div class="stat-label">${esc(label)}</div>
-    </div>
-  `);
-}
-
-function signatureCard(title, sub, tag) {
-  return el(`
-    <div class="card stat-card">
-      <div class="stat-label" style="font-size:20px;font-weight:700;color:var(--text)">${esc(title)}</div>
-      <div class="stat-label">${esc(sub)}</div>
-      <div class="stat-tag">${esc(tag)}</div>
-    </div>
-  `);
-}
-
-function milestoneCard(kicker, concert) {
-  const bg = concert.image
-    ? `background-image:linear-gradient(0deg, rgba(5,7,10,.85), rgba(5,7,10,.4)), url('${esc(concert.image)}')`
-    : "";
-  return el(`
-    <div class="milestone-card" style="${bg}">
-      <div class="kicker">${esc(kicker)}</div>
-      <div class="title">${esc(concert.festivalName || concert.artist)}</div>
-      <div class="meta">${formatDate(concert.date)} · ${esc(concert.city)}</div>
-      <div class="meta">${esc(concert.venue)}</div>
-      <div class="badge">${concert.isFestival ? "FESTIVAL CONCERT" : "OPEN CONCERT"}</div>
-    </div>
-  `);
-}
-
-function rankedList(title, items) {
-  const card = el(`<div class="list-card"><div class="section-heading" style="margin:0 0 8px">${esc(title)}</div></div>`);
-  items.forEach((item, i) => {
-    card.appendChild(el(`
-      <div class="list-row">
-        <div class="rank">${i + 1}.</div>
-        <div class="name">${esc(item.name)}</div>
-        <div class="count">${esc(item.count)}</div>
-      </div>
-    `));
-  });
-  return card;
-}
-
-function timelineCard(c) {
-  const title = c.festivalName || c.artist;
-  const support = c.supportingArtists?.length ? ` + ${c.supportingArtists.join(" + ")}` : "";
-  return el(`
-    <div class="timeline-card">
-      <div class="artist">${esc(title + support)}</div>
-      <div class="meta">${formatDate(c.date)} · ${esc(c.city)}</div>
-      <div class="venue">${esc(c.venue)}</div>
-    </div>
-  `);
-}
-
-// ---------- Serialized, conflict-safe repo writes ----------
+// ---------- staleness shield ----------
 //
-// Swipes are optimistic, so several writes can be triggered within a second
-// of each other. Running them concurrently meant they all read the same
-// file sha, the first PUT won and the rest failed — which is exactly the
-// "some dismisses bounce back into the deck" symptom. Every mutation now
-// goes through one serial queue, and each attempt re-reads state and
-// re-applies its change, so a conflict (from another tab, or the scheduled
-// discovery Action) is resolved by rebasing rather than overwriting.
+// GitHub Pages serves data/*.json through a CDN that can keep returning the
+// previous version for minutes after a commit, which made freshly dismissed
+// concerts reappear on refresh. Filter against history AND a short local
+// record of what was just acted on, since the history file can be stale too.
+
+const RECENT_KEY = "lm_recently_handled";
+const RECENT_TTL_MS = 30 * 60 * 1000;
+
+function loadRecentlyHandled() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(RECENT_KEY) || "{}");
+    const now = Date.now();
+    return Object.fromEntries(Object.entries(raw).filter(([, t]) => now - t < RECENT_TTL_MS));
+  } catch { return {}; }
+}
+function markRecentlyHandled(id) {
+  const map = loadRecentlyHandled();
+  map[id] = Date.now();
+  try { localStorage.setItem(RECENT_KEY, JSON.stringify(map)); } catch {}
+}
+function filterStaleRecommendations(concerts, historyData) {
+  const excluded = new Set([
+    ...(historyData?.dismissedIds || []),
+    ...(historyData?.plannedIds || []),
+    ...Object.keys(loadRecentlyHandled()),
+  ]);
+  return concerts.filter((c) => !excluded.has(c.id));
+}
+
+// ---------- serialized, conflict-safe repo writes ----------
+//
+// Swipes are optimistic, so several writes can fire within a second. Running
+// them concurrently meant they all read the same file sha, the first PUT won
+// and the rest failed. Every mutation goes through one serial queue, and
+// each attempt re-reads state and re-applies its change, so a conflict is
+// resolved by rebasing rather than overwriting.
 
 let writeChain = Promise.resolve();
 
@@ -265,7 +178,7 @@ function enqueue(task) {
 
 async function mutate(paths, applyFn, message, attempts = 4) {
   const config = getGithubConfig();
-  if (!config) throw new Error("GitHub not connected — open ⚙ to set it up.");
+  if (!config) throw new Error("Not connected to GitHub");
 
   for (let attempt = 0; ; attempt++) {
     const files = {};
@@ -276,21 +189,19 @@ async function mutate(paths, applyFn, message, attempts = 4) {
     const touched = applyFn(jsons) || paths;
 
     try {
-      for (const p of touched) {
-        await putFile(config, p, jsons[p], files[p].sha, message);
-      }
+      for (const p of touched) await putFile(config, p, jsons[p], files[p].sha, message);
       return;
     } catch (err) {
       if (isConflictError(err) && attempt < attempts - 1) {
         await new Promise((r) => setTimeout(r, 250 * (attempt + 1)));
-        continue; // re-read, re-apply
+        continue;
       }
       throw err;
     }
   }
 }
 
-// ---------- Remote writes ----------
+// ---------- remote writes ----------
 
 function plannedRecordFrom(rec) {
   return {
@@ -354,8 +265,8 @@ async function dismissConcertRemote(rec) {
     }
     if (!history.dismissedIds.includes(rec.id)) history.dismissedIds.push(rec.id);
 
-    // Keep a full snapshot, not just the id — otherwise a dismissed concert
-    // is unreviewable and unrestorable.
+    // A full snapshot, not just the id — otherwise a set-aside concert is
+    // unreviewable and unrestorable.
     if (!Array.isArray(history.dismissed)) history.dismissed = [];
     if (!history.dismissed.some((d) => d.id === rec.id)) {
       history.dismissed.unshift({ ...rec, dismissedAt: new Date().toISOString() });
@@ -363,9 +274,6 @@ async function dismissConcertRemote(rec) {
   }, `chore: dismiss ${rec.id} (app)`);
 }
 
-// Restore = un-dismiss. Removes the id from history AND puts the concert
-// straight back into recommendations.json, so it returns to the deck now
-// rather than only after the next scheduled discovery run.
 async function restoreConcertsRemote(recsToRestore, legacyIdsToRestore = []) {
   const RECS = "data/recommendations.json";
   const HIST = "data/recommendation-history.json";
@@ -402,12 +310,10 @@ async function unplanConcertRemote(plannedRec) {
       planned.meta.lastUpdated = new Date().toISOString();
     }
 
-    // Drop it from the exclude-list, otherwise discovery would keep
-    // filtering it out and it could never come back.
+    // Drop it from the exclude-list, otherwise discovery keeps filtering it
+    // out and it can never come back.
     history.plannedIds = (history.plannedIds || []).filter((id) => id !== recId);
 
-    // Put it back in the deck straight away rather than making the user
-    // wait for the next scheduled crawl.
     if (!recs.concerts.some((c) => c.id === recId)) {
       recs.concerts.push({
         id: recId,
@@ -445,399 +351,6 @@ async function unplanConcertRemote(plannedRec) {
   return recId;
 }
 
-// ---------- Sync status chip ----------
-
-function renderSyncChip() {
-  document.getElementById("sync-chip")?.remove();
-  if (pendingWrites === 0 && !syncError) return;
-
-  const chip = syncError
-    ? el(`<div class="sync-chip error" id="sync-chip">${esc(syncError)}</div>`)
-    : el(`<div class="sync-chip" id="sync-chip">Saving ${pendingWrites}…</div>`);
-  document.body.appendChild(chip);
-
-  if (syncError) {
-    setTimeout(() => {
-      syncError = null;
-      renderSyncChip();
-    }, 6000);
-  }
-}
-
-// ---------- Settings modal ----------
-
-function openSettingsModal() {
-  const existing = getGithubConfig() || { owner: "", repo: "", token: "" };
-  const root = document.getElementById("settings-modal-root");
-  root.innerHTML = "";
-  const overlay = el(`
-    <div class="modal-overlay">
-      <div class="modal-sheet">
-        <h3>Connect GitHub</h3>
-        <p class="hint">
-          Lets swipes save straight to your repo. Create a
-          <strong>fine-grained token</strong> at github.com/settings/tokens?type=beta,
-          scoped to <strong>only this repo</strong>, with
-          <strong>Contents: Read and write</strong>. Stored only in this browser.
-        </p>
-        ${storageIsPersistent() ? "" : `<div class="modal-status error">This browser isn't keeping local storage — private/incognito windows clear it when the tab closes, which is why the token keeps disappearing. Use a normal tab, or add the site to your home screen.</div>`}
-        <label>Repo owner</label>
-        <input id="input-owner" type="text" placeholder="mr-tanq" value="${esc(existing.owner)}" />
-        <label>Repo name</label>
-        <input id="input-repo" type="text" placeholder="concerts" value="${esc(existing.repo)}" />
-        <label>Access token</label>
-        <input id="input-token" type="password" placeholder="github_pat_..." value="${esc(existing.token)}" />
-        <div class="modal-status" id="modal-status"></div>
-        <div class="modal-actions">
-          <button class="btn-modal-cancel" id="btn-modal-cancel">Cancel</button>
-          <button class="btn-modal-save" id="btn-modal-save">Test &amp; Save</button>
-        </div>
-      </div>
-    </div>
-  `);
-  root.appendChild(overlay);
-
-  const statusEl = overlay.querySelector("#modal-status");
-  overlay.querySelector("#btn-modal-cancel").addEventListener("click", () => { root.innerHTML = ""; });
-  overlay.addEventListener("click", (e) => { if (e.target === overlay) root.innerHTML = ""; });
-
-  overlay.querySelector("#btn-modal-save").addEventListener("click", async (e) => {
-    const owner = overlay.querySelector("#input-owner").value.trim();
-    const repo = overlay.querySelector("#input-repo").value.trim();
-    const token = overlay.querySelector("#input-token").value.trim();
-    if (!owner || !repo || !token) {
-      statusEl.textContent = "Fill in all three fields.";
-      statusEl.className = "modal-status error";
-      return;
-    }
-    const config = { owner, repo, token };
-    e.target.disabled = true;
-    e.target.textContent = "Testing…";
-    statusEl.textContent = "";
-    try {
-      await testConnection(config);
-      saveGithubConfig(config);
-      statusEl.innerHTML = `Connected ✓ — <a href="#" id="lnk-bookmark" style="color:var(--accent-blue)">copy a setup link</a> to restore this instantly later.`;
-      statusEl.className = "modal-status ok";
-      overlay.querySelector("#lnk-bookmark").addEventListener("click", async (ev) => {
-        ev.preventDefault();
-        const url = `${location.origin}${location.pathname}?gh=${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/${token}`;
-        try {
-          await navigator.clipboard.writeText(url);
-          ev.target.textContent = "copied — bookmark it";
-        } catch {
-          prompt("Copy this link:", url);
-        }
-      });
-    } catch (err) {
-      statusEl.textContent = `Failed: ${err.message}`;
-      statusEl.className = "modal-status error";
-    } finally {
-      e.target.disabled = false;
-      e.target.textContent = "Test & Save";
-    }
-  });
-}
-
-// Records planned/dismissed before image extraction existed have image:null.
-// Rather than leave them permanently photo-less, look the image up from the
-// concert cache by the Podiuminfo id we already store on each record.
-let concertImageBySourceId = new Map();
-let concertImageByVenueDate = new Map();
-let concertImageByArtist = new Map();
-// data/artist-images.json — a photo per artist, covering the whole archive
-// rather than only the handful of artists the Podiuminfo crawler happened
-// to open. Built by scripts/enrich-artist-images.mjs.
-let artistImages = new Map();
-// data/setlists.json — what was actually played, keyed by archive concert id.
-let setlists = new Map();
-
-function normalizeKey(s) {
-  return (s || "").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim();
-}
-
-// The image Podiuminfo exposes is the ARTIST's photo, not concert artwork
-// (the URL is literally /img/artist/<id>/...). So the artist name is the
-// natural key, and any cached concert featuring that artist yields it —
-// which is what rescues records saved before the schema carried sourceId.
-// The id/venue routes stay as extra safety nets.
-function imageFor(rec) {
-  if (rec.image) return rec.image;
-
-  // Deezer photos first: they're 1000px and cover every artist, so they can
-  // be shown sharp. The Podiuminfo ones are ~100px and only exist for
-  // recently-crawled artists, so they're the fallback, not the default.
-  const fromArtistImages = artistImages.get(normalizeKey(rec.artist));
-  if (fromArtistImages) return fromArtistImages;
-
-  const byArtist = concertImageByArtist.get(normalizeKey(rec.artist));
-  if (byArtist) return byArtist;
-
-  let sid = rec.sourceId ? String(rec.sourceId) : null;
-  if (!sid) {
-    const m = String(rec.id || "").match(/podiuminfo-(\d+)/) ||
-              String(rec.recommendationId || "").match(/podiuminfo-(\d+)/);
-    if (m) sid = m[1];
-  }
-  if (sid && concertImageBySourceId.has(sid)) return concertImageBySourceId.get(sid);
-
-  if (rec.venue && rec.date) {
-    const hit = concertImageByVenueDate.get(`${normalizeKey(rec.venue)}|${rec.date}`);
-    if (hit) return hit;
-  }
-  return null;
-}
-
-function applyArtistImage(layerEl, url, { dim = 1 } = {}) {
-  if (!layerEl || !url) return;
-
-  // No blur anywhere, by preference. Deezer photos are 1000px so they look
-  // sharp regardless; the small Podiuminfo fallbacks will read as pixelated
-  // until the artist-images enrichment replaces them — chosen over
-  // softening every image to hide a few.
-
-  // Critical geometry is set inline rather than left to a stylesheet class.
-  // A stale css/style.css previously meant the layer rendered with no size
-  // and the photo silently never appeared — inline styles make the element
-  // self-sufficient.
-  Object.assign(layerEl.style, {
-    position: "absolute",
-    inset: "0",
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-    filter: "saturate(1.1)",
-    transform: "scale(1.04)",
-    opacity: String(0.95 * dim),
-    zIndex: "0",
-    pointerEvents: "none",
-  });
-  layerEl.style.backgroundImage = `url('${url}')`;
-
-  const bigger = url.replace(/\/(\d+)_([^/]+)$/, "/500_$2");
-  if (bigger === url) return;
-
-  const probe = new Image();
-  probe.onload = () => {
-    if (probe.naturalWidth > 120) layerEl.style.backgroundImage = `url('${bigger}')`;
-  };
-  probe.src = bigger;
-}
-
-// GitHub Pages serves data/*.json through a CDN that can keep returning the
-// previous version for a few minutes after a commit. That made freshly
-// dismissed concerts reappear on refresh. Two defences: filter the loaded
-// deck against the history lists, and keep a short-lived local record of
-// what we just acted on, since the history file can be stale too.
-const RECENT_KEY = "lm_recently_handled";
-const RECENT_TTL_MS = 30 * 60 * 1000;
-
-function loadRecentlyHandled() {
-  try {
-    const raw = JSON.parse(localStorage.getItem(RECENT_KEY) || "{}");
-    const now = Date.now();
-    return Object.fromEntries(Object.entries(raw).filter(([, t]) => now - t < RECENT_TTL_MS));
-  } catch {
-    return {};
-  }
-}
-
-function markRecentlyHandled(id) {
-  const map = loadRecentlyHandled();
-  map[id] = Date.now();
-  try { localStorage.setItem(RECENT_KEY, JSON.stringify(map)); } catch {}
-}
-
-function filterStaleRecommendations(concerts, historyData) {
-  const excluded = new Set([
-    ...(historyData?.dismissedIds || []),
-    ...(historyData?.plannedIds || []),
-    ...Object.keys(loadRecentlyHandled()),
-  ]);
-  return concerts.filter((c) => !excluded.has(c.id));
-}
-
-// ---------- Archive concert card + detail ----------
-
-function archiveCard(c, badge = null) {
-  const cardImage = imageFor(c);
-  const support = (c.supportingArtists || []).length
-    ? `<div class="support">with ${esc(c.supportingArtists.join(" · "))}</div>`
-    : "";
-  const card = el(`
-    <div class="archive-card">
-      ${cardImage ? `<div class="card-bg"></div>` : ""}
-      <div class="archive-scrim"></div>
-      <div class="archive-body">
-        ${badge ? `<div class="archive-badge">${esc(badge)}</div>` : ""}
-        <div class="artist">${esc(c.festivalName || c.artist)}</div>
-        ${support}
-        <div class="meta">${c.date ? formatDate(c.date) : ""} · ${esc(c.city)}</div>
-        <div class="venue">${esc(c.venue)}</div>
-      </div>
-    </div>
-  `);
-  applyArtistImage(card.querySelector(".card-bg"), cardImage);
-  card.addEventListener("click", () => openConcertDetail(c));
-  return card;
-}
-
-function openConcertDetail(c) {
-  const root = document.getElementById("settings-modal-root");
-  const cardImage = imageFor(c);
-  const lineup = artistsOf(c);
-  const headliner = c.festivalName || c.artist;
-  const support = lineup.filter((n) => n !== c.artist);
-  const room = venueKey(c);
-
-  root.innerHTML = "";
-  const overlay = el(`
-    <div class="modal-overlay detail-overlay">
-      <div class="detail-sheet">
-        <div class="detail-hero">
-          ${cardImage ? `<div class="card-bg"></div>` : ""}
-          <div class="detail-hero-scrim"></div>
-          <button class="detail-close" aria-label="Close">✕</button>
-          <div class="detail-hero-text">
-            <div class="detail-title">${esc(headliner)}</div>
-            <div class="detail-sub">${c.date ? formatDate(c.date) : ""} · ${esc(c.city)} · ${esc(c.venue)}</div>
-          </div>
-        </div>
-
-        <div class="detail-body">
-          <div class="grid-2">
-            <div class="card stat-card">
-              <div class="stat-tag" style="margin:0 0 6px">Artist</div>
-              <div>${esc(c.artist)}</div>
-            </div>
-            <div class="card stat-card">
-              <div class="stat-tag" style="margin:0 0 6px">Venue</div>
-              <div>${esc(c.venue)}</div>
-            </div>
-            <div class="card stat-card">
-              <div class="stat-tag" style="margin:0 0 6px">City</div>
-              <div>${esc(c.city)}${c.country ? ` · ${esc(c.country)}` : ""}</div>
-            </div>
-            <div class="card stat-card">
-              <div class="stat-tag" style="margin:0 0 6px">Type</div>
-              <div>${c.isFestival ? "Festival" : "Concert"}</div>
-            </div>
-          </div>
-
-          ${room && room !== c.venue ? `
-            <div class="section-heading">Venue family</div>
-            <div class="pill-row"><div class="pill">${esc(room)}</div></div>
-          ` : ""}
-
-          ${support.length ? `
-            <div class="section-heading">${c.isFestival ? "Lineup" : "Support"}</div>
-            <div class="pill-row">${support.map((n) => `<div class="pill">${esc(n)}</div>`).join("")}</div>
-          ` : ""}
-
-          <div class="section-heading">Notes</div>
-          <div id="detail-notes"></div>
-
-          <div id="detail-setlist"></div>
-        </div>
-      </div>
-    </div>
-  `);
-  root.appendChild(overlay);
-
-  applyArtistImage(overlay.querySelector(".card-bg"), cardImage);
-  overlay.querySelector(".detail-close").addEventListener("click", () => { root.innerHTML = ""; });
-  overlay.addEventListener("click", (e) => { if (e.target === overlay) root.innerHTML = ""; });
-
-  renderNotes(overlay.querySelector("#detail-notes"), c);
-  renderSetlist(overlay.querySelector("#detail-setlist"), c);
-}
-
-// The setlist is only shown when one was actually matched. An empty
-// "Setlist" heading on every concert would imply data is missing rather
-// than simply not existing — most small shows are never submitted to
-// setlist.fm at all.
-function renderSetlist(host, c) {
-  if (!host) return;
-  const entry = setlists.get(c.id);
-  if (!entry || !entry.sets?.length) return;
-
-  const total = entry.songCount || entry.sets.reduce((n, s) => n + s.songs.length, 0);
-  const wrap = el(`
-    <div>
-      <div class="section-heading">Setlist</div>
-      <div class="pill-row">
-        <div class="pill">${total} songs</div>
-        ${entry.artist && entry.artist !== c.artist ? `<div class="pill">${esc(entry.artist)}</div>` : ""}
-      </div>
-    </div>
-  `);
-
-  for (const set of entry.sets) {
-    const block = el(`<div class="setlist-set"></div>`);
-    block.appendChild(el(`<div class="setlist-set-name">${esc(set.name)}</div>`));
-    const list = el(`<ol class="setlist-songs"></ol>`);
-    for (const song of set.songs) list.appendChild(el(`<li>${esc(song)}</li>`));
-    block.appendChild(list);
-    wrap.appendChild(block);
-  }
-
-  if (entry.sourceUrl) {
-    const link = el(`<button class="btn-note" style="margin-top:12px">View on setlist.fm</button>`);
-    link.addEventListener("click", () => window.open(entry.sourceUrl, "_blank"));
-    wrap.appendChild(link);
-  }
-
-  host.appendChild(wrap);
-}
-
-function renderNotes(host, c) {
-  host.innerHTML = "";
-  const hasNote = !!(c.notes && c.notes.trim());
-
-  const view = el(`
-    <div>
-      <p class="section-sub" style="margin-bottom:10px">${hasNote ? esc(c.notes) : "No notes yet."}</p>
-      <button class="btn-note">${hasNote ? "Edit note" : "Add note"}</button>
-    </div>
-  `);
-  view.querySelector(".btn-note").addEventListener("click", () => {
-    const editor = el(`
-      <div>
-        <textarea class="note-input" rows="4" placeholder="What do you remember?">${esc(c.notes || "")}</textarea>
-        <div class="modal-status" id="note-status"></div>
-        <div class="modal-actions">
-          <button class="btn-modal-cancel" id="note-cancel">Cancel</button>
-          <button class="btn-modal-save" id="note-save">Save</button>
-        </div>
-      </div>
-    `);
-    host.innerHTML = "";
-    host.appendChild(editor);
-
-    const status = editor.querySelector("#note-status");
-    editor.querySelector("#note-cancel").addEventListener("click", () => renderNotes(host, c));
-    editor.querySelector("#note-save").addEventListener("click", async (e) => {
-      if (!getGithubConfig()) { openSettingsModal(); return; }
-      const text = editor.querySelector(".note-input").value.trim();
-      e.target.disabled = true;
-      e.target.textContent = "Saving…";
-      try {
-        await enqueue(() => saveConcertNoteRemote(c, text));
-        c.notes = text;                        // keep the open sheet in sync
-        const local = archiveConcerts.find((x) => x.id === c.id);
-        if (local) local.notes = text;
-        renderNotes(host, c);
-      } catch (err) {
-        console.error(err);
-        status.textContent = `Couldn't save: ${err.message}`;
-        status.className = "modal-status error";
-        e.target.disabled = false;
-        e.target.textContent = "Save";
-      }
-    });
-  });
-  host.appendChild(view);
-}
-
 async function saveConcertNoteRemote(concert, text) {
   const ARCH = "data/archive.json";
   await mutate([ARCH], (f) => {
@@ -849,223 +362,463 @@ async function saveConcertNoteRemote(concert, text) {
   }, `chore: note on ${concert.id} (app)`);
 }
 
-// ---------- Concerts tab ----------
+// ---------- saving indicator ----------
+
+function renderSaving() {
+  document.getElementById("saving")?.remove();
+  if (pendingWrites === 0 && !syncError) return;
+  const node = syncError
+    ? el(`<div class="saving bad" id="saving">${esc(syncError)}</div>`)
+    : el(`<div class="saving" id="saving">Saving</div>`);
+  document.body.appendChild(node);
+  if (syncError) setTimeout(() => { syncError = null; renderSaving(); }, 6000);
+}
+
+// ==========================================================================
+// ARCHIVE — the spine
+// ==========================================================================
+
+function renderArchive(archiveData) {
+  archiveConcerts = archiveData.concerts || [];
+  archiveView = buildArchiveView(archiveConcerts);
+  const root = document.getElementById("panel-archive");
+  root.innerHTML = "";
+
+  root.appendChild(openingStatement(archiveView));
+
+  const anniversary = anniversaryLine(archiveView);
+  if (anniversary) root.appendChild(anniversary);
+
+  root.appendChild(el(`<div id="explore-root"></div>`));
+  root.appendChild(el(`<div id="spine-root"></div>`));
+  renderExplore();
+}
+
+// The archive's headline numbers written as a sentence. Four stat tiles say
+// "here is some data"; a sentence says "here is your life".
+function openingStatement(view) {
+  const { totalConcerts, festivals, venues, cities } = view.overview;
+  const firstYear = yearOf(view.milestones.first?.date);
+  const lastYear = yearOf(view.milestones.latest?.date);
+  const span = firstYear && lastYear ? Number(lastYear) - Number(firstYear) + 1 : 0;
+  const firstCity = view.milestones.first?.city;
+  const topCity = view.patterns.topCities[0]?.name;
+
+  const journey = firstCity && topCity && firstCity !== topCity
+    ? `From ${esc(firstCity)} to ${esc(topCity)}.`
+    : firstCity ? `It started in ${esc(firstCity)}.` : "";
+
+  const node = el(`
+    <div class="opening">
+      <p class="whisper">The Archive</p>
+      <p class="lede">
+        ${totalConcerts} nights.<br>
+        ${span ? `${titleCase(spell(span))} years.<br>` : ""}
+        <em>${journey}</em>
+      </p>
+      <p class="opening-figures">
+        <b>${festivals}</b> festivals ·
+        <b>${venues}</b> rooms ·
+        <b>${cities}</b> cities<br>
+        Most often: <b>${esc(view.signature.topArtist?.name ?? "—")}</b>, ${view.signature.topArtist?.count ?? 0} times<br>
+        Most familiar room: <b>${esc(view.signature.topVenue?.name ?? "—")}</b>, ${view.signature.topVenue?.count ?? 0} visits<br>
+        Busiest year: <b>${esc(view.peakYear?.name ?? "—")}</b>, ${view.peakYear?.count ?? 0} nights
+      </p>
+    </div>
+  `);
+  return node;
+}
+
+// The single most affecting thing the archive knows: that tonight is an
+// anniversary. Given its own line rather than buried under a heading.
+function anniversaryLine(view) {
+  const hits = view.onThisDay;
+  if (!hits.length) return null;
+  const c = hits[0];
+  const node = el(`
+    <div class="anniversary">
+      <p class="whisper">On this day</p>
+      <p class="anniversary-line">
+        ${titleCase(spell(c.yearsAgo))} year${c.yearsAgo === 1 ? "" : "s"} ago tonight —
+        ${esc(c.festivalName || c.artist)}<span>, ${esc(c.venue)}</span>
+      </p>
+    </div>
+  `);
+  node.addEventListener("click", () => openSheet(c));
+  return node;
+}
+
+function renderExplore() {
+  const host = document.getElementById("explore-root");
+  if (!host || !archiveView) return;
+  host.innerHTML = "";
+
+  const MODES = [["all","Everything"],["year","By year"],["artist","By artist"],["city","By city"],["venue","By room"]];
+  const bar = el(`<div class="explore"><div class="explore-modes"></div></div>`);
+  const modes = bar.querySelector(".explore-modes");
+
+  for (const [mode, label] of MODES) {
+    const b = el(`<button class="explore-mode ${exploreFilter.mode === mode ? "on" : ""}">${label}</button>`);
+    b.addEventListener("click", () => { exploreFilter = { mode, value: null }; renderExplore(); });
+    modes.appendChild(b);
+  }
+
+  if (exploreFilter.mode !== "all") {
+    const values = archiveView.explore[exploreFilter.mode] || [];
+    const row = el(`<div class="explore-values"></div>`);
+    // A horizontal scroll rather than a wall of wrapped pills: 400 artists
+    // should be a drawer you pull through, not a page you fall down.
+    for (const { name, count } of values.slice(0, 60)) {
+      const v = el(`<button class="explore-value ${exploreFilter.value === name ? "on" : ""}">${esc(name)}<i>${count}</i></button>`);
+      v.addEventListener("click", () => {
+        exploreFilter = { mode: exploreFilter.mode, value: exploreFilter.value === name ? null : name };
+        renderExplore();
+      });
+      row.appendChild(v);
+    }
+    bar.appendChild(row);
+  }
+
+  host.appendChild(bar);
+  renderSpine();
+}
+
+function renderSpine() {
+  const host = document.getElementById("spine-root");
+  if (!host) return;
+  host.innerHTML = "";
+
+  const list = filterConcerts(archiveConcerts, exploreFilter)
+    .slice()
+    .sort((a, b) => String(b.date).localeCompare(String(a.date)));
+
+  if (exploreFilter.value) {
+    host.appendChild(el(`<p class="filter-note">${list.length} night${list.length === 1 ? "" : "s"} · ${esc(exploreFilter.value)}</p>`));
+  }
+
+  if (!list.length) {
+    host.appendChild(el(`<p class="void">Nothing here.</p>`));
+    return;
+  }
+
+  const spine = el(`<div class="spine"></div>`);
+
+  // Group by year so the spine reads as chapters. Newest first: the archive
+  // is something you walk backwards into.
+  let currentYear = null;
+  let band = null;
+  for (const c of list) {
+    const y = yearOf(c.date);
+    if (y !== currentYear) {
+      currentYear = y;
+      const count = list.filter((x) => yearOf(x.date) === y).length;
+      band = el(`
+        <div class="year-band">
+          <div class="year-ghost">${esc(y)}</div>
+          <div class="year-mark"><b>${esc(y)}</b>${count} night${count === 1 ? "" : "s"}</div>
+        </div>
+      `);
+      spine.appendChild(band);
+    }
+    band.appendChild(archiveEntry(c));
+  }
+
+  host.appendChild(spine);
+}
+
+function archiveEntry(c) {
+  const support = (c.supportingArtists || []).filter(Boolean);
+  const withLine = support.length
+    ? `<div class="entry-with">with ${esc(support.slice(0, 3).join(", "))}${support.length > 3 ? ` +${support.length - 3}` : ""}</div>`
+    : "";
+
+  const node = el(`
+    <article class="entry ${c.isFestival ? "is-festival" : ""}">
+      <div class="entry-text">
+        <div class="entry-date">${weekdayShort(c.date)} · ${dayMonth(c.date)}</div>
+        <h3 class="entry-artist">${esc(c.festivalName || c.artist)}</h3>
+        ${withLine}
+        <div class="entry-place">${esc(c.venue)}<span class="dot">·</span>${esc(c.city)}</div>
+      </div>
+      <div class="entry-photo"></div>
+    </article>
+  `);
+  setPhoto(node.querySelector(".entry-photo"), imageFor(c));
+  node.addEventListener("click", () => openSheet(c));
+  return node;
+}
+
+// ==========================================================================
+// DETAIL — a full page for one night
+// ==========================================================================
+
+function openSheet(c) {
+  const root = document.getElementById("settings-modal-root");
+  const photo = imageFor(c);
+  const lineup = artistsOf(c);
+  const support = lineup.filter((n) => n !== c.artist);
+  const room = venueKey(c);
+
+  root.innerHTML = "";
+  const sheet = el(`
+    <div class="sheet-root">
+      <button class="sheet-close">Close</button>
+      <div class="sheet-inner">
+        <div class="sheet-photo ${photo ? "" : "is-empty"}"></div>
+        <div class="sheet-head">
+          <h2 class="sheet-artist">${esc(c.festivalName || c.artist)}</h2>
+          <div class="sheet-when">
+            ${weekdayShort(c.date)} ${fullDate(c.date)}<br>
+            ${esc(c.venue)}, ${esc(c.city)}
+          </div>
+        </div>
+
+        <dl class="facts">
+          <div class="fact"><dt>Billing</dt><dd>${c.isFestival ? "Festival" : "Own show"}</dd></div>
+          ${room && room !== c.venue ? `<div class="fact"><dt>Part of</dt><dd>${esc(room)}</dd></div>` : ""}
+          ${c.country ? `<div class="fact"><dt>Country</dt><dd>${esc(c.country)}</dd></div>` : ""}
+        </dl>
+
+        ${support.length ? `
+          <div class="sheet-section">
+            <p class="whisper">${c.isFestival ? "Who played" : "Also on"}</p>
+            <p class="names"><b>${esc(c.artist)}</b>, ${esc(support.join(", "))}</p>
+          </div>` : ""}
+
+        <div class="sheet-section">
+          <p class="whisper">Note to self</p>
+          <div id="sheet-note"></div>
+        </div>
+
+        <div id="sheet-setlist"></div>
+      </div>
+    </div>
+  `);
+  root.appendChild(sheet);
+
+  setPhoto(sheet.querySelector(".sheet-photo"), photo);
+  sheet.querySelector(".sheet-close").addEventListener("click", () => { root.innerHTML = ""; });
+
+  renderNote(sheet.querySelector("#sheet-note"), c);
+  renderSetlist(sheet.querySelector("#sheet-setlist"), c);
+}
+
+function renderNote(host, c) {
+  host.innerHTML = "";
+  const has = !!(c.notes && c.notes.trim());
+
+  const view = el(`
+    <div>
+      <p class="note-body ${has ? "" : "is-empty"}">${has ? esc(c.notes) : "Nothing written down."}</p>
+      <button class="plain-act">${has ? "Edit" : "Write something"}</button>
+    </div>
+  `);
+  view.querySelector(".plain-act").addEventListener("click", () => {
+    const editor = el(`
+      <div>
+        <textarea class="note-field" rows="3" placeholder="What do you remember?">${esc(c.notes || "")}</textarea>
+        <p class="status" id="note-status"></p>
+        <div style="display:flex;gap:26px;margin-top:6px">
+          <button class="plain-act" id="note-save">Save</button>
+          <button class="plain-act" id="note-cancel">Cancel</button>
+        </div>
+      </div>
+    `);
+    host.innerHTML = "";
+    host.appendChild(editor);
+
+    const status = editor.querySelector("#note-status");
+    editor.querySelector("#note-cancel").addEventListener("click", () => renderNote(host, c));
+    editor.querySelector("#note-save").addEventListener("click", async (e) => {
+      if (!getGithubConfig()) { openSettings(); return; }
+      const text = editor.querySelector(".note-field").value.trim();
+      e.target.disabled = true;
+      e.target.textContent = "Saving";
+      try {
+        await enqueue(() => saveConcertNoteRemote(c, text));
+        c.notes = text;
+        const local = archiveConcerts.find((x) => x.id === c.id);
+        if (local) local.notes = text;
+        renderNote(host, c);
+      } catch (err) {
+        console.error(err);
+        status.textContent = err.message;
+        status.className = "status bad";
+        e.target.disabled = false;
+        e.target.textContent = "Save";
+      }
+    });
+  });
+  host.appendChild(view);
+}
+
+// Only rendered when a setlist was actually matched. An empty "Setlist"
+// heading on every concert would imply data is missing rather than simply
+// not existing — most small shows are never submitted to setlist.fm.
+function renderSetlist(host, c) {
+  if (!host) return;
+  const entry = setlists.get(c.id);
+  if (!entry || !entry.sets?.length) return;
+
+  const total = entry.songCount || entry.sets.reduce((n, s) => n + s.songs.length, 0);
+  const wrap = el(`
+    <div class="sheet-section">
+      <p class="whisper">What they played · ${total} songs</p>
+    </div>
+  `);
+
+  for (const set of entry.sets) {
+    const block = el(`<div class="setlist-block"></div>`);
+    if (entry.sets.length > 1 || /encore/i.test(set.name)) {
+      block.appendChild(el(`<div class="setlist-name">${esc(set.name)}</div>`));
+    }
+    const ol = el(`<ol class="setlist-songs"></ol>`);
+    for (const song of set.songs) ol.appendChild(el(`<li>${esc(song)}</li>`));
+    block.appendChild(ol);
+    wrap.appendChild(block);
+  }
+
+  if (entry.sourceUrl) {
+    const link = el(`<button class="plain-act">Source: setlist.fm</button>`);
+    link.addEventListener("click", () => window.open(entry.sourceUrl, "_blank"));
+    wrap.appendChild(link);
+  }
+  host.appendChild(wrap);
+}
+
+// ==========================================================================
+// TONIGHT — stage, upcoming, set aside
+// ==========================================================================
 
 function renderConcerts(recsData, plannedData, historyData) {
   deckQueue = filterStaleRecommendations(recsData.concerts || [], historyData);
   plannedConcerts = [...(plannedData.concerts || [])];
   dismissedConcerts = [...(historyData?.dismissed || [])];
 
-  // Ids dismissed before snapshots existed can still be restored, we just
-  // can't render them as full cards — show them as a compact list.
   const snapshotIds = new Set(dismissedConcerts.map((d) => d.id));
   legacyDismissedIds = (historyData?.dismissedIds || []).filter((id) => !snapshotIds.has(id));
 
   renderConcertsShell();
 }
 
-function renderConcertsShell(activeView = "discover") {
+function renderConcertsShell(view = "stage") {
   const root = document.getElementById("panel-concerts");
   root.innerHTML = "";
-  root.appendChild(el(`<h2 class="section-title">Concerts</h2>`));
 
-  const dismissedCount = dismissedConcerts.length + legacyDismissedIds.length;
-  const pills = el(`
-    <div class="pill-row">
-      <div class="pill ${activeView === "discover" ? "active" : ""}" data-view="discover">Discover (${deckQueue.length})</div>
-      <div class="pill ${activeView === "planned" ? "active" : ""}" data-view="planned">Planned (${plannedConcerts.length})</div>
-      <div class="pill ${activeView === "dismissed" ? "active" : ""}" data-view="dismissed">Dismissed (${dismissedCount})</div>
+  const aside = dismissedConcerts.length + legacyDismissedIds.length;
+  const bar = el(`
+    <div class="switch">
+      <button data-v="stage" class="${view === "stage" ? "on" : ""}">Deciding<i>${deckQueue.length}</i></button>
+      <button data-v="going" class="${view === "going" ? "on" : ""}">Going<i>${plannedConcerts.length}</i></button>
+      <button data-v="aside" class="${view === "aside" ? "on" : ""}">Set aside<i>${aside}</i></button>
     </div>
   `);
-  root.appendChild(pills);
+  root.appendChild(bar);
 
-  const body = el(`<div id="concerts-body"></div>`);
+  const body = el(`<div></div>`);
   root.appendChild(body);
 
-  pills.querySelectorAll(".pill").forEach((p) => {
-    p.addEventListener("click", () => renderConcertsShell(p.dataset.view));
-  });
+  bar.querySelectorAll("button").forEach((b) =>
+    b.addEventListener("click", () => renderConcertsShell(b.dataset.v))
+  );
 
-  if (activeView === "discover") renderDeck(body);
-  else if (activeView === "planned") renderPlannedList(body);
-  else renderDismissedList(body);
+  if (view === "stage") renderStage(body);
+  else if (view === "going") renderUpcoming(body);
+  else renderAside(body);
 }
 
-// An empty deck is the normal state most days, so it shouldn't read as a
-// dead end. Whatever is genuinely next gets shown instead: the concert
-// you're going to, or — if nothing is planned — a count of what's waiting in
-// Dismissed, since that's the one action still available.
-function emptyDeckState() {
-  const today = new Date().toISOString().slice(0, 10);
-  const upcoming = plannedConcerts
-    .filter((c) => c.date && c.date >= today)
-    .sort((a, b) => a.date.localeCompare(b.date));
-
-  const wrap = el(`<div></div>`);
-
-  if (upcoming.length) {
-    const next = upcoming[0];
-    const days = Math.round((new Date(next.date + "T00:00:00") - new Date(today + "T00:00:00")) / 86400000);
-    const countdown = days === 0 ? "Tonight" : days === 1 ? "Tomorrow" : `In ${days} days`;
-
-    wrap.appendChild(el(`
-      <div class="deck-empty-head">
-        <div class="deck-empty-kicker">Deck clear</div>
-        <div class="deck-empty-line">You're all caught up. Next up:</div>
-      </div>
-    `));
-
-    const card = plannedCard(next);
-    // The countdown is the reason this card is here, so it goes on the card.
-    const when = card.querySelector(".when");
-    if (when) when.textContent = `${countdown} · ${formatDate(next.date)}`;
-    wrap.appendChild(card);
-
-    if (upcoming.length > 1) {
-      wrap.appendChild(el(`
-        <div class="deck-empty-more">${upcoming.length - 1} more concert${upcoming.length > 2 ? "s" : ""} planned after that.</div>
-      `));
-    }
-  } else {
-    wrap.appendChild(el(`
-      <div class="deck-empty-head">
-        <div class="deck-empty-kicker">Deck clear</div>
-        <div class="deck-empty-line">Nothing to swipe and nothing planned. New recommendations arrive when the discovery job next runs.</div>
-      </div>
-    `));
-  }
-
-  const dismissedTotal = dismissedConcerts.length + legacyDismissedIds.length;
-  if (dismissedTotal > 0) {
-    const back = el(`<button class="btn-restore-all">Look back through ${dismissedTotal} dismissed</button>`);
-    back.addEventListener("click", () => renderConcertsShell("dismissed"));
-    wrap.appendChild(back);
-  }
-
-  return wrap;
-}
-
-function renderDeck(body) {
+function renderStage(body) {
   body.innerHTML = "";
-
-  if (deckQueue.length === 0) {
-    body.appendChild(emptyDeckState());
-    return;
-  }
-
-  const stage = el(`<div class="deck-stage"></div>`);
-  stage.appendChild(recommendationCard(deckQueue[0], body));
-  body.appendChild(stage);
-  body.appendChild(el(`<div class="deck-counter">${deckQueue.length} to review</div>`));
+  if (deckQueue.length === 0) { body.appendChild(caughtUp()); return; }
+  body.appendChild(stageCard(deckQueue[0]));
+  body.appendChild(el(`<p class="remaining">${deckQueue.length} left</p>`));
 }
 
-function recommendationCard(c, body) {
-  const cardImage = imageFor(c);
-  const bgLayer = cardImage ? `<div class="card-bg"></div>` : "";
-  const support = (c.supportingArtists || []).length
-    ? `<div class="support">with ${esc(c.supportingArtists.join(" · "))}</div>`
-    : "";
-  const timePart = c.time ? ` · ${esc(c.time)}` : "";
+function stageCard(c) {
+  const support = (c.supportingArtists || []).filter(Boolean);
+  const time = c.time ? ` · ${esc(c.time)}` : "";
 
-  const card = el(`
-    <div class="concert-card swipe-card">
-      ${bgLayer}
-      <div class="swipe-hint plan">Plan</div>
-      <div class="swipe-hint dismiss">Nope</div>
-      <div class="card-badges">
-        <span class="badge-pill">${esc(c.match.label)}</span>
-        <span class="badge-pill badge-score">${esc(c.match.score)}</span>
-        <span class="badge-pill">${esc(c.city)}</span>
-      </div>
-      <div class="body">
-        <div class="artist">${esc(c.artist)}</div>
-        ${support}
-        <div class="why">${esc(c.match.reason)}</div>
-        <div class="meta">${esc(c.venue)} · ${formatDateShort(c.date)}${timePart}</div>
-        <div class="actions">
-          <button class="btn-hide" aria-label="Dismiss">✕</button>
-          <button class="btn-skip">${c.ticketUrl ? "Tickets" : "Skip"}</button>
-          <button class="btn-plan" aria-label="Plan">✓</button>
-        </div>
+  const stage = el(`
+    <div class="stage">
+      <div class="stage-photo"></div>
+      <div class="stage-veil"></div>
+      <div class="verdict yes">Going</div>
+      <div class="verdict no">Not this one</div>
+      <div class="stage-score"><b>${esc(c.match.score)}</b>${esc(c.match.label)}</div>
+      <div class="stage-copy">
+        <div class="stage-when">${weekdayShort(c.date)} ${dayMonth(c.date)} ${yearOf(c.date)}${time} · ${esc(c.city)}</div>
+        <h2 class="stage-artist">${esc(c.artist)}</h2>
+        ${support.length ? `<div class="stage-with">with ${esc(support.slice(0, 3).join(", "))}</div>` : ""}
+        <div class="stage-why">${esc(c.venue)} — ${esc(c.match.reason)}</div>
       </div>
     </div>
   `);
+  setPhoto(stage.querySelector(".stage-photo"), imageFor(c));
 
-  applyArtistImage(card.querySelector(".card-bg"), cardImage);
-
-  const planHint = card.querySelector(".swipe-hint.plan");
-  const dismissHint = card.querySelector(".swipe-hint.dismiss");
+  const yes = stage.querySelector(".verdict.yes");
+  const no = stage.querySelector(".verdict.no");
 
   let dragging = false, startX = 0, startY = 0, dx = 0, locked = null;
   const threshold = 100;
 
-  function setHints(x) {
-    planHint.style.opacity = x > 20 ? String(Math.min(x / threshold, 1)) : "0";
-    dismissHint.style.opacity = x < -20 ? String(Math.min(-x / threshold, 1)) : "0";
-  }
+  const hint = (x) => {
+    yes.style.opacity = x > 20 ? String(Math.min(x / threshold, 1)) : "0";
+    no.style.opacity = x < -20 ? String(Math.min(-x / threshold, 1)) : "0";
+  };
 
-  card.addEventListener("pointerdown", (e) => {
-    if (e.target.closest("button")) return;
+  stage.addEventListener("pointerdown", (e) => {
     dragging = true; locked = null;
     startX = e.clientX; startY = e.clientY;
-    card.style.transition = "none";
-    card.setPointerCapture(e.pointerId);
+    stage.style.transition = "none";
+    stage.setPointerCapture(e.pointerId);
   });
 
-  card.addEventListener("pointermove", (e) => {
+  stage.addEventListener("pointermove", (e) => {
     if (!dragging) return;
-    const mx = e.clientX - startX;
-    const my = e.clientY - startY;
-    // Decide once whether this gesture is a horizontal swipe or a vertical
-    // scroll, so swiping never fights the page scroll.
+    const mx = e.clientX - startX, my = e.clientY - startY;
+    // Decide once whether this is a horizontal swipe or a vertical scroll,
+    // so swiping never fights the page.
     if (locked === null && (Math.abs(mx) > 8 || Math.abs(my) > 8)) {
       locked = Math.abs(mx) > Math.abs(my) ? "x" : "y";
     }
     if (locked !== "x") return;
     dx = mx;
-    card.style.transform = `translateX(${dx}px) rotate(${dx / 22}deg)`;
-    setHints(dx);
+    stage.style.transform = `translateX(${dx}px) rotate(${dx / 40}deg)`;
+    hint(dx);
   });
 
-  function endDrag() {
+  const release = () => {
     if (!dragging) return;
     dragging = false;
-    card.style.transition = "transform 0.28s ease, opacity 0.28s ease";
+    stage.style.transition = "transform 0.4s var(--ease), opacity 0.4s var(--ease)";
     if (dx > threshold) commit("plan");
     else if (dx < -threshold) commit("dismiss");
-    else { card.style.transform = "translateX(0) rotate(0)"; setHints(0); }
+    else { stage.style.transform = ""; hint(0); }
     dx = 0;
-  }
-  card.addEventListener("pointerup", endDrag);
-  card.addEventListener("pointercancel", endDrag);
+  };
+  stage.addEventListener("pointerup", release);
+  stage.addEventListener("pointercancel", release);
 
-  // Optimistic: advance the deck right away, persist in the background.
+  // Optimistic: advance immediately, persist in the background.
   function commit(action) {
-    if (!getGithubConfig()) {
-      card.style.transform = "translateX(0) rotate(0)";
-      setHints(0);
-      openSettingsModal();
-      return;
-    }
+    if (!getGithubConfig()) { stage.style.transform = ""; hint(0); openSettings(); return; }
 
-    const flyX = action === "plan" ? 800 : -800;
-    card.style.transform = `translateX(${flyX}px) rotate(${flyX / 22}deg)`;
-    card.style.opacity = "0";
+    const fly = action === "plan" ? 700 : -700;
+    stage.style.transform = `translateX(${fly}px) rotate(${fly / 40}deg)`;
+    stage.style.opacity = "0";
 
     deckQueue.shift();
     markRecentlyHandled(c.id);
     if (action === "plan") plannedConcerts.push(plannedRecordFrom(c));
     else dismissedConcerts.unshift({ ...c, dismissedAt: new Date().toISOString() });
 
-    pendingWrites++;
-    renderSyncChip();
+    pendingWrites++; renderSaving();
 
-    const task = enqueue(() => (action === "plan" ? planConcertRemote(c) : dismissConcertRemote(c)));
-    task
+    enqueue(() => (action === "plan" ? planConcertRemote(c) : dismissConcertRemote(c)))
       .catch((err) => {
         console.error(err);
-        syncError = `Couldn't save ${c.artist} — put back in deck`;
-        // Undo the optimistic local change so the UI can't drift from the repo.
+        syncError = `Couldn't save ${c.artist}`;
+        // Undo the optimistic change so the UI can't drift from the repo.
         deckQueue.push(c);
         if (action === "plan") {
           const i = plannedConcerts.findIndex((p) => p.recommendationId === c.id);
@@ -1074,210 +827,257 @@ function recommendationCard(c, body) {
           const i = dismissedConcerts.findIndex((d) => d.id === c.id);
           if (i !== -1) dismissedConcerts.splice(i, 1);
         }
-        renderConcertsShell("discover");
+        renderConcertsShell("stage");
       })
-      .finally(() => {
-        pendingWrites--;
-        renderSyncChip();
-      });
+      .finally(() => { pendingWrites--; renderSaving(); });
 
-    setTimeout(() => renderConcertsShell("discover"), 180);
+    setTimeout(() => renderConcertsShell("stage"), 240);
   }
 
-  card.querySelector(".btn-hide").addEventListener("click", () => commit("dismiss"));
-  card.querySelector(".btn-plan").addEventListener("click", () => commit("plan"));
-  card.querySelector(".btn-skip").addEventListener("click", () => {
+  const acts = el(`
+    <div class="stage-acts">
+      <button class="act act-no">Pass</button>
+      <button class="act act-mid">${c.ticketUrl ? "Tickets" : "Later"}</button>
+      <button class="act act-yes">I'm going</button>
+    </div>
+  `);
+  acts.querySelector(".act-no").addEventListener("click", () => commit("dismiss"));
+  acts.querySelector(".act-yes").addEventListener("click", () => commit("plan"));
+  acts.querySelector(".act-mid").addEventListener("click", () => {
     if (c.ticketUrl) { window.open(c.ticketUrl, "_blank"); return; }
     deckQueue.push(deckQueue.shift());
-    renderConcertsShell("discover");
+    renderConcertsShell("stage");
   });
 
-  return card;
+  const wrap = el(`<div></div>`);
+  wrap.appendChild(stage);
+  wrap.appendChild(acts);
+  return wrap;
 }
 
-function renderPlannedList(body) {
-  body.innerHTML = "";
+// An empty deck is the normal state most days, so it shouldn't read as a
+// dead end. Show what's genuinely next instead.
+function caughtUp() {
+  const today = new Date().toISOString().slice(0, 10);
+  const upcoming = plannedConcerts
+    .filter((c) => c.date && c.date >= today)
+    .sort((a, b) => a.date.localeCompare(b.date));
 
-  if (plannedConcerts.length === 0) {
-    body.appendChild(el(`<div class="empty-state">Nothing planned yet. Swipe right on a recommendation to add it here.</div>`));
-    return;
+  const wrap = el(`<div class="caughtup"></div>`);
+
+  if (upcoming.length) {
+    const next = upcoming[0];
+    wrap.appendChild(el(`
+      <p class="whisper">Nothing left to decide</p>
+      <p class="lede">Next you'll be standing in front of<br><em>${esc(next.artist)}</em>.</p>
+    `));
+    wrap.appendChild(upcomingHero(next));
+  } else {
+    wrap.appendChild(el(`
+      <p class="whisper">Nothing left to decide</p>
+      <p class="lede">Quiet for now.</p>
+      <p class="footnote">New suggestions arrive when the discovery job next runs.</p>
+    `));
   }
-  [...plannedConcerts]
-    .sort((a, b) => a.date.localeCompare(b.date))
-    .forEach((c) => body.appendChild(plannedCard(c)));
+
+  const aside = dismissedConcerts.length + legacyDismissedIds.length;
+  if (aside) {
+    const row = el(`<div class="act-row"><button class="plain-act">Revisit ${aside} set aside</button></div>`);
+    row.querySelector("button").addEventListener("click", () => renderConcertsShell("aside"));
+    wrap.appendChild(row);
+  }
+  return wrap;
 }
 
-function plannedCard(c) {
-  const cardImage = imageFor(c);
-  const support = (c.supportingArtists || []).length
-    ? `<div class="support">with ${esc(c.supportingArtists.join(" · "))}</div>`
-    : "";
-
-  const card = el(`
-    <div class="planned-card" style="position:relative;border-radius:18px;overflow:hidden;min-height:200px;margin-bottom:12px;background:linear-gradient(160deg,#1c2230,#0b0e14);display:flex;flex-direction:column;justify-content:flex-end">
-      ${cardImage ? `<div class="card-bg"></div>` : ""}
-      <div style="position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to bottom,rgba(5,7,10,0) 0%,rgba(5,7,10,0) 42%,rgba(5,7,10,0.70) 78%,rgba(5,7,10,0.94) 100%)"></div>
-      <button class="btn-planned-tickets btn-unplan">Unplan</button>
-      <div class="planned-body" style="position:relative;z-index:2;padding:14px 16px 16px">
-        <div class="artist">${esc(c.artist)}</div>
-        ${support}
-        <div class="meta">${esc(c.venue)} · ${esc(c.city)}</div>
-        <div class="when">${c.date ? formatDate(c.date) : ""}${c.time ? " · " + esc(c.time) : ""}</div>
-        ${c.ticketUrl ? `<button class="btn-tickets-inline">Tickets</button>` : ""}
+function upcomingHero(c) {
+  const support = (c.supportingArtists || []).filter(Boolean);
+  const node = el(`
+    <div class="upcoming-hero">
+      <div class="upcoming-photo"></div>
+      <div class="countdown">${countdownWord(c.date)}</div>
+      <h3 class="entry-artist">${esc(c.artist)}</h3>
+      ${support.length ? `<div class="entry-with">with ${esc(support.slice(0, 3).join(", "))}</div>` : ""}
+      <div class="entry-place">${esc(c.venue)}<span class="dot">·</span>${esc(c.city)}<span class="dot">·</span>${fullDate(c.date)}</div>
+      <div class="act-row" style="padding-left:0;padding-right:0">
+        ${c.ticketUrl ? `<button class="plain-act" data-a="tickets">Tickets</button>` : ""}
+        <button class="plain-act" data-a="unplan">Not going after all</button>
       </div>
     </div>
   `);
+  setPhoto(node.querySelector(".upcoming-photo"), imageFor(c));
 
-  applyArtistImage(card.querySelector(".card-bg"), cardImage);
-
-  const tickets = card.querySelector(".btn-tickets-inline");
-  if (tickets) tickets.addEventListener("click", (e) => { e.stopPropagation(); window.open(c.ticketUrl, "_blank"); });
-
-  const unplan = card.querySelector(".btn-unplan");
-  unplan.addEventListener("click", async (e) => {
+  node.querySelector('[data-a="tickets"]')?.addEventListener("click", (e) => {
     e.stopPropagation();
-    if (!getGithubConfig()) { openSettingsModal(); return; }
-    unplan.disabled = true;
-    unplan.textContent = "…";
-    pendingWrites++; renderSyncChip();
+    window.open(c.ticketUrl, "_blank");
+  });
+
+  const un = node.querySelector('[data-a="unplan"]');
+  un.addEventListener("click", async (e) => {
+    e.stopPropagation();
+    if (!getGithubConfig()) { openSettings(); return; }
+    un.disabled = true; un.textContent = "Removing";
+    pendingWrites++; renderSaving();
     try {
       const recId = await enqueue(() => unplanConcertRemote(c));
       plannedConcerts = plannedConcerts.filter((p) => p.id !== c.id);
       if (!deckQueue.some((d) => d.id === recId)) {
-        deckQueue.push({ ...c, id: recId, match: { score: c.planning?.originalScore ?? 50, label: "Strong match", reason: `Known artist: ${c.artist}`, matchedArtists: [c.artist] } });
+        deckQueue.push({
+          ...c, id: recId,
+          match: { score: c.planning?.originalScore ?? 50, label: "Strong match",
+                   reason: `Known artist: ${c.artist}`, matchedArtists: [c.artist] },
+        });
       }
-      renderConcertsShell("planned");
+      renderConcertsShell("going");
     } catch (err) {
       console.error(err);
-      syncError = `Unplan failed: ${err.message}`;
-      unplan.disabled = false;
-      unplan.textContent = "Unplan";
-      renderSyncChip();
-    } finally {
-      pendingWrites--; renderSyncChip();
-    }
+      syncError = err.message;
+      un.disabled = false; un.textContent = "Not going after all";
+      renderSaving();
+    } finally { pendingWrites--; renderSaving(); }
   });
 
-  return card;
+  return node;
 }
 
-function dismissedCard(rec, onRestore) {
-  // Same poster treatment as planned, so a dismissed concert is still
-  // recognisable at a glance — the whole point of keeping snapshots.
-  const cardImage = imageFor(rec);
-  const support = (rec.supportingArtists || []).length
-    ? `<div class="support">with ${esc(rec.supportingArtists.join(" · "))}</div>`
-    : "";
-
-  const card = el(`
-    <div class="planned-card dismissed-card" style="position:relative;border-radius:18px;overflow:hidden;min-height:200px;margin-bottom:12px;background:linear-gradient(160deg,#1c2230,#0b0e14);display:flex;flex-direction:column;justify-content:flex-end">
-      ${cardImage ? `<div class="card-bg"></div>` : ""}
-      <div style="position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to bottom,rgba(5,7,10,0) 0%,rgba(5,7,10,0) 42%,rgba(5,7,10,0.70) 78%,rgba(5,7,10,0.94) 100%)"></div>
-      <div class="planned-body" style="position:relative;z-index:2;padding:14px 16px 16px">
-        <div class="artist">${esc(rec.artist)}</div>
-        ${support}
-        <div class="meta">${esc(rec.venue)} · ${esc(rec.city)}</div>
-        <div class="when">${rec.date ? formatDate(rec.date) : ""}${rec.time ? " · " + esc(rec.time) : ""}</div>
-      </div>
-      <button class="btn-planned-tickets btn-restore-overlay">Restore</button>
-    </div>
-  `);
-
-  // Dismissed cards are shown desaturated so the two lists never get
-  // confused at a glance; restoring brings the colour back with it.
-  const bg = card.querySelector(".card-bg");
-  applyArtistImage(bg, cardImage);
-  if (bg) bg.style.filter = "saturate(0.35) brightness(0.8)";
-
-  const btn = card.querySelector(".btn-restore-overlay");
-  btn.addEventListener("click", async (e) => {
-    e.stopPropagation();
-    btn.disabled = true;
-    btn.textContent = "…";
-    await onRestore();
-  });
-  return card;
-}
-
-function renderDismissedList(body) {
+function renderUpcoming(body) {
   body.innerHTML = "";
+  const today = new Date().toISOString().slice(0, 10);
+  const sorted = [...plannedConcerts].sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  const upcoming = sorted.filter((c) => c.date >= today);
+  const past = sorted.filter((c) => c.date < today);
 
-  const total = dismissedConcerts.length + legacyDismissedIds.length;
-  if (total === 0) {
-    body.appendChild(el(`<div class="empty-state">Nothing dismissed. Swipe left on a recommendation and it lands here — never permanently gone.</div>`));
+  if (!sorted.length) {
+    body.appendChild(el(`<p class="void">Nothing planned. Swipe right on something.</p>`));
     return;
   }
 
-  const restoreAll = el(`<button class="btn-restore-all">Restore all ${total} — start a fresh deck</button>`);
-  restoreAll.addEventListener("click", async () => {
-    if (!confirm(`Bring back all ${total} dismissed concerts?`)) return;
-    restoreAll.disabled = true;
-    restoreAll.textContent = "Restoring…";
-    await doRestore([...dismissedConcerts], [...legacyDismissedIds]);
-  });
-  body.appendChild(restoreAll);
-
-  for (const rec of dismissedConcerts) {
-    body.appendChild(dismissedCard(rec, () => doRestore([rec], [])));
+  // The next concert gets the whole stage; the rest are a quiet index.
+  // A flat list of equal cards hides the only thing that matters — what's soon.
+  if (upcoming.length) {
+    body.appendChild(el(`<div style="padding:0 var(--gutter)"><p class="whisper">Next</p></div>`));
+    body.appendChild(upcomingHero(upcoming[0]));
   }
 
-  if (legacyDismissedIds.length > 0) {
-    body.appendChild(el(`<div class="section-heading">Dismissed before details were kept</div>`));
-    body.appendChild(el(`
-      <p class="section-sub" style="font-size:13px">
-        These were dismissed by an older version that only stored ids, so there's
-        no artwork to show. Restoring one brings it back on the next discovery run.
-      </p>
+  const rest = [...upcoming.slice(1), ...past];
+  if (rest.length) {
+    const list = el(`<div class="upcoming-list"><div style="padding:0 var(--gutter) 8px"><p class="whisper">After that</p></div></div>`);
+    for (const c of rest) {
+      const row = el(`
+        <div class="upcoming-row">
+          <div class="when">${c.date < today ? "Passed" : countdownWord(c.date)}</div>
+          <div class="who">
+            <b>${esc(c.artist)}</b>
+            <span>${esc(c.venue)} · ${esc(c.city)} · ${fullDate(c.date)}</span>
+          </div>
+        </div>
+      `);
+      row.addEventListener("click", () => openSheet(c));
+      list.appendChild(row);
+    }
+    body.appendChild(list);
+  }
+}
+
+function renderAside(body) {
+  body.innerHTML = "";
+  const total = dismissedConcerts.length + legacyDismissedIds.length;
+  if (!total) {
+    body.appendChild(el(`<p class="void">Nothing set aside.</p>`));
+    return;
+  }
+
+  const head = el(`
+    <div style="padding:0 var(--gutter)">
+      <p class="lede">${total} you passed on.</p>
+      <p class="footnote">Nothing here is deleted. Bring any of them back.</p>
+      <div class="act-row" style="padding-left:0;padding-right:0">
+        <button class="plain-act" id="restore-all">Bring back all ${total}</button>
+      </div>
+    </div>
+  `);
+  head.querySelector("#restore-all").addEventListener("click", async (e) => {
+    if (!confirm(`Bring back all ${total}?`)) return;
+    e.target.disabled = true; e.target.textContent = "Restoring";
+    await doRestore([...dismissedConcerts], [...legacyDismissedIds]);
+  });
+  body.appendChild(head);
+
+  const list = el(`<div style="margin-top:34px"></div>`);
+  for (const rec of dismissedConcerts) {
+    const row = el(`
+      <div class="aside-row">
+        <div class="entry-photo"></div>
+        <div class="who">
+          <b>${esc(rec.artist)}</b>
+          <span>${esc(rec.venue)} · ${esc(rec.city)} · ${fullDate(rec.date)}</span>
+        </div>
+        <button class="plain-act">Back</button>
+      </div>
+    `);
+    setPhoto(row.querySelector(".entry-photo"), imageFor(rec));
+    const btn = row.querySelector("button");
+    btn.addEventListener("click", async () => {
+      btn.disabled = true; btn.textContent = "…";
+      await doRestore([rec], []);
+    });
+    list.appendChild(row);
+  }
+
+  if (legacyDismissedIds.length) {
+    list.appendChild(el(`
+      <div style="padding:34px var(--gutter) 0">
+        <p class="whisper">Passed on before details were kept</p>
+        <p class="footnote">Only ids were stored then, so there's nothing to show. Restoring brings them back on the next discovery run.</p>
+      </div>
     `));
     for (const id of legacyDismissedIds) {
       const pretty = id.replace(/^rec-(podiuminfo-)?/, "").replace(/-/g, " ");
       const row = el(`
-        <div class="dismissed-row">
-          <div class="dismissed-info"><div class="meta">${esc(pretty)}</div></div>
-          <button class="btn-restore">Restore</button>
+        <div class="aside-row">
+          <div class="who"><span>${esc(pretty)}</span></div>
+          <button class="plain-act">Back</button>
         </div>
       `);
-      row.querySelector(".btn-restore").addEventListener("click", async (e) => {
-        e.target.disabled = true;
-        e.target.textContent = "…";
+      const btn = row.querySelector("button");
+      btn.addEventListener("click", async () => {
+        btn.disabled = true; btn.textContent = "…";
         await doRestore([], [id]);
       });
-      body.appendChild(row);
+      list.appendChild(row);
     }
   }
+  body.appendChild(list);
 }
 
 async function doRestore(recs, legacyIds) {
-  pendingWrites++;
-  renderSyncChip();
+  pendingWrites++; renderSaving();
   try {
     await enqueue(() => restoreConcertsRemote(recs, legacyIds));
-    const restoredIds = new Set([...recs.map((r) => r.id), ...legacyIds]);
-    dismissedConcerts = dismissedConcerts.filter((d) => !restoredIds.has(d.id));
-    legacyDismissedIds = legacyDismissedIds.filter((id) => !restoredIds.has(id));
+    const ids = new Set([...recs.map((r) => r.id), ...legacyIds]);
+    dismissedConcerts = dismissedConcerts.filter((d) => !ids.has(d.id));
+    legacyDismissedIds = legacyDismissedIds.filter((id) => !ids.has(id));
     for (const r of recs) {
       const { dismissedAt, ...clean } = r;
       deckQueue.push(clean);
     }
     deckQueue.sort((a, b) => (b.match?.score ?? 0) - (a.match?.score ?? 0));
-    renderConcertsShell("dismissed");
+    renderConcertsShell("aside");
   } catch (err) {
     console.error(err);
-    syncError = `Restore failed: ${err.message}`;
-    renderConcertsShell("dismissed");
-  } finally {
-    pendingWrites--;
-    renderSyncChip();
-  }
+    syncError = err.message;
+    renderConcertsShell("aside");
+  } finally { pendingWrites--; renderSaving(); }
 }
 
-// ---------- Past-concert reconciliation ----------
+// ==========================================================================
+// PAST-CONCERT RECONCILIATION
+// ==========================================================================
 //
-// A planned date passing is only a prompt to ask, never proof of
-// attendance — so nothing is archived without an explicit "Yes".
-// Both answers remove it from Planned; only "Yes" writes to the Archive,
-// and the Archive write happens FIRST so a failure mid-way leaves the
-// concert safely in Planned rather than losing it entirely.
+// A planned date passing is only a prompt to ask, never proof of attendance —
+// nothing is archived without an explicit yes. Both answers remove it from
+// the going list; only yes writes to the Archive, and the Archive write
+// happens FIRST so a failure mid-way leaves the concert safely planned
+// rather than losing it entirely.
 
 function archiveRecordFrom(p) {
   return {
@@ -1307,8 +1107,6 @@ function archiveRecordFrom(p) {
 async function attendedConcertRemote(plannedRec) {
   const ARCH = "data/archive.json";
   const PLANNED = "data/planned.json";
-  // Archive first, planned second: mutate() writes in the order given, so a
-  // failure can only ever leave a duplicate-safe extra copy, never a gap.
   await mutate([ARCH, PLANNED], (f) => {
     const archive = f[ARCH], planned = f[PLANNED];
     const rec = archiveRecordFrom(plannedRec);
@@ -1344,7 +1142,6 @@ async function notAttendedConcertRemote(plannedRec) {
       planned.meta.lastUpdated = new Date().toISOString();
     }
 
-    // Recorded so it can never be raised as a pending past concert again.
     if (!Array.isArray(history.notAttendedIds)) history.notAttendedIds = [];
     if (!history.notAttendedIds.includes(plannedRec.id)) history.notAttendedIds.push(plannedRec.id);
 
@@ -1363,142 +1160,195 @@ function pastPlannedConcerts(historyData) {
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
-function askAboutPastConcerts(queue) {
-  if (queue.length === 0) return;
+function askAboutPast(queue) {
+  if (!queue.length) return;
   const root = document.getElementById("settings-modal-root");
   const rec = queue[0];
-  const lineup = (rec.lineup && rec.lineup.length ? rec.lineup : [rec.artist, ...(rec.supportingArtists || [])])
-    .filter(Boolean);
-  const pastImage = imageFor(rec);
+  const lineup = (rec.lineup?.length ? rec.lineup : [rec.artist, ...(rec.supportingArtists || [])]).filter(Boolean);
 
   root.innerHTML = "";
-  const overlay = el(`
-    <div class="modal-overlay">
-      <div class="modal-sheet">
-        <h3>Did you go?</h3>
-        <p class="hint">${queue.length > 1 ? `${queue.length} past concerts to confirm — one at a time.` : "One past concert to confirm."}</p>
-        <div class="past-concert" style="position:relative;overflow:hidden;min-height:190px;display:flex;flex-direction:column;justify-content:flex-end;padding:0">
-          ${pastImage ? `<div class="card-bg"></div>` : ""}
-          <div style="position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(to bottom,rgba(5,7,10,0) 0%,rgba(5,7,10,0) 38%,rgba(5,7,10,0.72) 74%,rgba(5,7,10,0.95) 100%)"></div>
-          <div style="position:relative;z-index:2;padding:16px">
-            <div class="artist">${esc(rec.artist)}</div>
-            <div class="meta">${rec.date ? formatDate(rec.date) : ""}</div>
-            <div class="meta">${esc(rec.venue)} · ${esc(rec.city)}</div>
-            ${lineup.length > 1 ? `<div class="lineup">Lineup: ${esc(lineup.join(" · "))}</div>` : ""}
-          </div>
+  const veil = el(`
+    <div class="veil">
+      <div class="panel">
+        <p class="whisper">${queue.length > 1 ? `${queue.length} nights to confirm` : "One night to confirm"}</p>
+        <p class="lede">Were you there?</p>
+        <div class="prompt-photo"></div>
+        <p class="lede" style="font-size:24px;margin-top:20px">${esc(rec.artist)}</p>
+        <p class="footnote" style="margin-top:8px">${weekdayShort(rec.date)} ${fullDate(rec.date)} · ${esc(rec.venue)}, ${esc(rec.city)}</p>
+        ${lineup.length > 1 ? `<p class="prompt-lineup">${esc(lineup.join(" · "))}</p>` : ""}
+        <p class="status" id="prompt-status"></p>
+        <div class="act-row" style="padding-left:0;padding-right:0;gap:28px">
+          <button class="plain-act" id="p-yes">Yes, I was</button>
+          <button class="plain-act" id="p-no">No, I missed it</button>
+          <button class="plain-act" id="p-later">Later</button>
         </div>
-        <div class="modal-status" id="past-status"></div>
-        <div class="modal-actions">
-          <button class="btn-modal-cancel" id="btn-no">No, I didn't</button>
-          <button class="btn-modal-save" id="btn-yes">Yes, I went</button>
-        </div>
-        <button class="btn-later" id="btn-later">Ask me later</button>
       </div>
     </div>
   `);
-  root.appendChild(overlay);
+  root.appendChild(veil);
+  setPhoto(veil.querySelector(".prompt-photo"), imageFor(rec));
 
-  applyArtistImage(overlay.querySelector(".card-bg"), pastImage);
+  const status = veil.querySelector("#prompt-status");
+  const yes = veil.querySelector("#p-yes");
+  const no = veil.querySelector("#p-no");
 
-  const statusEl = overlay.querySelector("#past-status");
-  const yes = overlay.querySelector("#btn-yes");
-  const no = overlay.querySelector("#btn-no");
-
-  function next() {
-    root.innerHTML = "";
-    askAboutPastConcerts(queue.slice(1));
-  }
+  const next = () => { root.innerHTML = ""; askAboutPast(queue.slice(1)); };
 
   async function answer(went) {
     yes.disabled = no.disabled = true;
-    statusEl.textContent = went ? "Adding to archive…" : "Removing…";
-    statusEl.className = "modal-status";
+    status.textContent = went ? "Adding to the archive…" : "Removing…";
+    status.className = "status";
     try {
       await enqueue(() => (went ? attendedConcertRemote(rec) : notAttendedConcertRemote(rec)));
       plannedConcerts = plannedConcerts.filter((c) => c.id !== rec.id);
-      renderConcertsShell("planned");
+      renderConcertsShell("going");
       next();
     } catch (err) {
       console.error(err);
-      // Left in Planned on purpose — better a repeated question than a lost concert.
-      statusEl.textContent = `Couldn't save: ${err.message}. Still in Planned, so nothing is lost.`;
-      statusEl.className = "modal-status error";
+      // Left planned on purpose — better a repeated question than a lost night.
+      status.textContent = `${err.message}. Still in your list, nothing lost.`;
+      status.className = "status bad";
       yes.disabled = no.disabled = false;
     }
   }
 
   yes.addEventListener("click", () => answer(true));
   no.addEventListener("click", () => answer(false));
-  overlay.querySelector("#btn-later").addEventListener("click", next);
+  veil.querySelector("#p-later").addEventListener("click", next);
 }
 
-// ---------- Tabs ----------
+// ==========================================================================
+// SETTINGS
+// ==========================================================================
 
-function setActiveTab(name) {
-  TABS.forEach((t) => {
-    document.getElementById(`panel-${t}`).classList.toggle("active", t === name);
-    document.getElementById(`nav-${t}`).classList.toggle("active", t === name);
+function openSettings() {
+  const existing = getGithubConfig() || { owner: "", repo: "", token: "" };
+  const root = document.getElementById("settings-modal-root");
+  root.innerHTML = "";
+
+  const veil = el(`
+    <div class="veil">
+      <div class="panel">
+        <p class="whisper">Connection</p>
+        <p class="lede">Where this diary lives.</p>
+        <p class="footnote">
+          A fine-grained token from github.com/settings/tokens?type=beta, scoped to
+          this repository only, with Contents: read and write. It is kept in this
+          browser and nowhere else.
+        </p>
+        ${storageIsPersistent() ? "" : `<p class="status bad">This browser isn't keeping local storage — private windows clear it on close, which is why the token keeps disappearing.</p>`}
+        <div class="field"><label>Owner</label><input id="in-owner" type="text" placeholder="mr-tanq" value="${esc(existing.owner)}" /></div>
+        <div class="field"><label>Repository</label><input id="in-repo" type="text" placeholder="concerts" value="${esc(existing.repo)}" /></div>
+        <div class="field"><label>Token</label><input id="in-token" type="password" placeholder="github_pat_…" value="${esc(existing.token)}" /></div>
+        <p class="status" id="set-status"></p>
+        <div class="act-row" style="padding-left:0;padding-right:0;gap:28px">
+          <button class="plain-act" id="set-save">Connect</button>
+          <button class="plain-act" id="set-close">Close</button>
+        </div>
+      </div>
+    </div>
+  `);
+  root.appendChild(veil);
+
+  const status = veil.querySelector("#set-status");
+  veil.querySelector("#set-close").addEventListener("click", () => { root.innerHTML = ""; });
+  veil.addEventListener("click", (e) => { if (e.target === veil) root.innerHTML = ""; });
+
+  veil.querySelector("#set-save").addEventListener("click", async (e) => {
+    const owner = veil.querySelector("#in-owner").value.trim();
+    const repo = veil.querySelector("#in-repo").value.trim();
+    const token = veil.querySelector("#in-token").value.trim();
+    if (!owner || !repo || !token) {
+      status.textContent = "All three are needed.";
+      status.className = "status bad";
+      return;
+    }
+    e.target.disabled = true; e.target.textContent = "Checking";
+    status.textContent = ""; status.className = "status";
+    try {
+      await testConnection({ owner, repo, token });
+      saveGithubConfig({ owner, repo, token });
+      markConnected();
+      status.innerHTML = `Connected. <a href="#" id="lnk">Copy a setup link</a> to restore this instantly later.`;
+      veil.querySelector("#lnk").addEventListener("click", async (ev) => {
+        ev.preventDefault();
+        const url = `${location.origin}${location.pathname}?gh=${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/${token}`;
+        try { await navigator.clipboard.writeText(url); ev.target.textContent = "Copied — bookmark it"; }
+        catch { prompt("Copy this link:", url); }
+      });
+    } catch (err) {
+      status.textContent = err.message;
+      status.className = "status bad";
+    } finally {
+      e.target.disabled = false; e.target.textContent = "Connect";
+    }
   });
 }
 
-// Config can arrive in the URL once — .../concerts/?gh=owner/repo/token —
-// which is then saved locally and stripped from the address bar, so a single
-// bookmark sets the app up permanently without retyping the token.
-// It deliberately isn't baked into the source: this repo is served publicly
-// by GitHub Pages, so a committed token would be readable by anyone and
-// GitHub's secret scanning would almost certainly revoke it within hours.
+function markConnected() {
+  document.getElementById("settings-dot")?.classList.toggle("live", !!getGithubConfig());
+}
+
+// Config can arrive in the URL once — ?gh=owner/repo/token — then it's saved
+// locally and stripped from the address bar, so one bookmark sets the app up
+// without retyping. It is deliberately never baked into the source: this repo
+// is public, so a committed token would be readable by anyone and GitHub's
+// secret scanning would revoke it within hours.
 function adoptConfigFromUrl() {
   const params = new URLSearchParams(location.search);
   const gh = params.get("gh");
   if (!gh) return;
   const [owner, repo, ...rest] = gh.split("/");
   const token = rest.join("/");
-  if (owner && repo && token) {
-    saveGithubConfig({ owner, repo, token });
-  }
+  if (owner && repo && token) saveGithubConfig({ owner, repo, token });
   params.delete("gh");
   const qs = params.toString();
   history.replaceState(null, "", location.pathname + (qs ? `?${qs}` : ""));
 }
 
-// localStorage is wiped when the tab closes in private/incognito windows,
-// which looks exactly like "it keeps forgetting my token". Detect it so the
-// UI can say so instead of leaving the cause a mystery.
 function storageIsPersistent() {
   try {
-    const k = "__lm_probe";
-    localStorage.setItem(k, "1");
-    localStorage.removeItem(k);
+    localStorage.setItem("__lm_probe", "1");
+    localStorage.removeItem("__lm_probe");
     return true;
-  } catch {
-    return false;
-  }
+  } catch { return false; }
+}
+
+// ==========================================================================
+// BOOT
+// ==========================================================================
+
+function setActiveTab(name) {
+  TABS.forEach((t) => {
+    document.getElementById(`panel-${t}`).classList.toggle("active", t === name);
+    document.getElementById(`nav-${t}`).classList.toggle("active", t === name);
+  });
+  window.scrollTo({ top: 0, behavior: "instant" });
 }
 
 async function init() {
   TABS.forEach((t) => {
     document.getElementById(`nav-${t}`).addEventListener("click", () => setActiveTab(t));
   });
-  document.getElementById("btn-settings").addEventListener("click", () => openSettingsModal());
+  document.getElementById("btn-settings").addEventListener("click", () => openSettings());
   adoptConfigFromUrl();
-  const gear = document.getElementById("btn-settings");
-  if (gear) gear.style.color = getGithubConfig() ? "var(--accent-green)" : "var(--accent-red)";
+  markConnected();
   setActiveTab("concerts");
 
   try {
-    const [archiveData, recsData, plannedData, historyData, concertCache, artistImageData, setlistData] = await Promise.all([
-      loadJSON("data/archive.json"),
-      loadJSON("data/recommendations.json"),
-      loadJSON("data/planned.json"),
-      loadJSON("data/recommendation-history.json").catch(() => ({ dismissed: [], dismissedIds: [] })),
-      loadJSON("data/podiuminfo-cache.json").catch(() => ({ entries: {} })),
-      loadJSON("data/artist-images.json").catch(() => ({ artists: {} })),
-      loadJSON("data/setlists.json").catch(() => ({ setlists: {} })),
-    ]);
+    const [archiveData, recsData, plannedData, historyData, concertCache, artistImageData, setlistData] =
+      await Promise.all([
+        loadJSON("data/archive.json"),
+        loadJSON("data/recommendations.json"),
+        loadJSON("data/planned.json"),
+        loadJSON("data/recommendation-history.json").catch(() => ({ dismissed: [], dismissedIds: [] })),
+        loadJSON("data/podiuminfo-cache.json").catch(() => ({ entries: {} })),
+        loadJSON("data/artist-images.json").catch(() => ({ artists: {} })),
+        loadJSON("data/setlists.json").catch(() => ({ setlists: {} })),
+      ]);
 
     setlists = new Map(Object.entries(setlistData.setlists || {}));
 
-    // Deezer photos: one per artist, covering the whole archive.
     artistImages = new Map(
       Object.entries(artistImageData.artists || {})
         .filter(([, v]) => v && v.image)
@@ -1511,9 +1361,7 @@ async function init() {
     for (const [id, v] of Object.entries(concertCache.entries || {})) {
       if (!v || !v.image) continue;
       concertImageBySourceId.set(String(id), v.image);
-      if (v.venue && v.date) {
-        concertImageByVenueDate.set(`${normalizeKey(v.venue)}|${v.date}`, v.image);
-      }
+      if (v.venue && v.date) concertImageByVenueDate.set(`${normalizeKey(v.venue)}|${v.date}`, v.image);
       // The extractor picks the first artist link on the page, i.e. the
       // headliner — so map the photo to lineup[0], not the whole bill.
       const headliner = Array.isArray(v.lineup) ? v.lineup[0] : null;
@@ -1522,16 +1370,15 @@ async function init() {
         if (!concertImageByArtist.has(k)) concertImageByArtist.set(k, v.image);
       }
     }
+
     renderArchive(archiveData);
     renderConcerts(recsData, plannedData, historyData);
 
-    if (getGithubConfig()) {
-      askAboutPastConcerts(pastPlannedConcerts(historyData));
-    }
+    if (getGithubConfig()) askAboutPast(pastPlannedConcerts(historyData));
   } catch (err) {
     console.error(err);
     document.getElementById("panel-concerts").innerHTML =
-      `<div class="empty-state">Could not load data: ${esc(err.message)}</div>`;
+      `<p class="void">Couldn't load: ${esc(err.message)}</p>`;
   }
 }
 
