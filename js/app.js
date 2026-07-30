@@ -891,11 +891,65 @@ function renderConcertsShell(activeView = "discover") {
   else renderDismissedList(body);
 }
 
+// An empty deck is the normal state most days, so it shouldn't read as a
+// dead end. Whatever is genuinely next gets shown instead: the concert
+// you're going to, or — if nothing is planned — a count of what's waiting in
+// Dismissed, since that's the one action still available.
+function emptyDeckState() {
+  const today = new Date().toISOString().slice(0, 10);
+  const upcoming = plannedConcerts
+    .filter((c) => c.date && c.date >= today)
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  const wrap = el(`<div></div>`);
+
+  if (upcoming.length) {
+    const next = upcoming[0];
+    const days = Math.round((new Date(next.date + "T00:00:00") - new Date(today + "T00:00:00")) / 86400000);
+    const countdown = days === 0 ? "Tonight" : days === 1 ? "Tomorrow" : `In ${days} days`;
+
+    wrap.appendChild(el(`
+      <div class="deck-empty-head">
+        <div class="deck-empty-kicker">Deck clear</div>
+        <div class="deck-empty-line">You're all caught up. Next up:</div>
+      </div>
+    `));
+
+    const card = plannedCard(next);
+    // The countdown is the reason this card is here, so it goes on the card.
+    const when = card.querySelector(".when");
+    if (when) when.textContent = `${countdown} · ${formatDate(next.date)}`;
+    wrap.appendChild(card);
+
+    if (upcoming.length > 1) {
+      wrap.appendChild(el(`
+        <div class="deck-empty-more">${upcoming.length - 1} more concert${upcoming.length > 2 ? "s" : ""} planned after that.</div>
+      `));
+    }
+  } else {
+    wrap.appendChild(el(`
+      <div class="deck-empty-head">
+        <div class="deck-empty-kicker">Deck clear</div>
+        <div class="deck-empty-line">Nothing to swipe and nothing planned. New recommendations arrive when the discovery job next runs.</div>
+      </div>
+    `));
+  }
+
+  const dismissedTotal = dismissedConcerts.length + legacyDismissedIds.length;
+  if (dismissedTotal > 0) {
+    const back = el(`<button class="btn-restore-all">Look back through ${dismissedTotal} dismissed</button>`);
+    back.addEventListener("click", () => renderConcertsShell("dismissed"));
+    wrap.appendChild(back);
+  }
+
+  return wrap;
+}
+
 function renderDeck(body) {
   body.innerHTML = "";
 
   if (deckQueue.length === 0) {
-    body.appendChild(el(`<div class="empty-state">Nothing left to swipe. New recommendations arrive when the discovery job next runs.</div>`));
+    body.appendChild(emptyDeckState());
     return;
   }
 
@@ -926,8 +980,8 @@ function recommendationCard(c, body) {
       <div class="body">
         <div class="artist">${esc(c.artist)}</div>
         ${support}
-        <div class="meta">${esc(c.venue)} · ${formatDateShort(c.date)}${timePart}</div>
         <div class="why">${esc(c.match.reason)}</div>
+        <div class="meta">${esc(c.venue)} · ${formatDateShort(c.date)}${timePart}</div>
         <div class="actions">
           <button class="btn-hide" aria-label="Dismiss">✕</button>
           <button class="btn-skip">${c.ticketUrl ? "Tickets" : "Skip"}</button>
