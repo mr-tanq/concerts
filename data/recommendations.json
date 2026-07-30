@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-07-30T05:22:34.297Z",
+    "lastUpdated": "2026-07-30T05:22:36.747Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
@@ -16,6 +16,42 @@
     }
   },
   "concerts": [
+    {
+      "id": "rec-podiuminfo-474447",
+      "source": "podiuminfo",
+      "sourceId": "474447",
+      "artist": "Hooverphonic",
+      "lineup": [
+        "Hooverphonic"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Hooverphonic"
+      ],
+      "date": "2027-04-19",
+      "time": null,
+      "venue": "Theater aan het Vrijthof",
+      "city": "Maastricht",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/116/100_Hooverphonic_9.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/474447/Hooverphonic/Theater-aan-het-Vrijthof/",
+      "match": {
+        "score": 46,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Hooverphonic",
+        "matchedArtists": [
+          "Hooverphonic"
+        ]
+      },
+      "discoveredAt": "2026-07-27T20:52:26.545Z",
+      "lastSeenAt": "2026-07-28T15:03:07.613Z"
+    },
     {
       "id": "rec-podiuminfo-457258",
       "source": "podiuminfo",
