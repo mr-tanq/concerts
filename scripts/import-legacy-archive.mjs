@@ -39,6 +39,19 @@ const LATE_ADDITIONS = [
     isFestival: false,
     artists: [{ name: "Iotunn", role: "headliner" }],
   },
+{
+    // City is deliberately "The Hague", not "Den Haag": the three existing
+    // archive entries for that city use the English form, and mixing the two
+    // would split it into two separate cities in the stats and Explore filter.
+    date: "2026-05-10",
+    title: "Blaze Bayley",
+    venue: "Musicon",
+    venueFamily: "Musicon",
+    city: "The Hague",
+    country: "Netherlands",
+    isFestival: false,
+    artists: [{ name: "Blaze Bayley", role: "headliner" }],
+  },
   {
     date: "2026-06-18",
     title: "Sólstafir + Oranssi Pazuzu + Hulder",
