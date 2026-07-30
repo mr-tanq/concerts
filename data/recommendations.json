@@ -1,13 +1,13 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-07-30T05:22:44.416Z",
+    "lastUpdated": "2026-07-30T08:19:50.071Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 0,
-      "daysCached": 366,
+      "daysFresh": 366,
+      "daysCached": 0,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
@@ -16,78 +16,6 @@
     }
   },
   "concerts": [
-    {
-      "id": "rec-podiuminfo-474447",
-      "source": "podiuminfo",
-      "sourceId": "474447",
-      "artist": "Hooverphonic",
-      "lineup": [
-        "Hooverphonic"
-      ],
-      "supportingArtists": [],
-      "matchedArtists": [
-        "Hooverphonic"
-      ],
-      "date": "2027-04-19",
-      "time": null,
-      "venue": "Theater aan het Vrijthof",
-      "city": "Maastricht",
-      "country": "NL",
-      "isFestival": false,
-      "image": "https://www.festivalinfo.nl/img/artist/116/100_Hooverphonic_9.jpg",
-      "ticketUrl": null,
-      "sourceApis": [
-        "podiuminfo"
-      ],
-      "sourceUrl": "https://www.podiuminfo.nl/concert/474447/Hooverphonic/Theater-aan-het-Vrijthof/",
-      "match": {
-        "score": 46,
-        "label": "Strong match",
-        "matchedBy": "direct",
-        "reason": "Known artist: Hooverphonic",
-        "matchedArtists": [
-          "Hooverphonic"
-        ]
-      },
-      "discoveredAt": "2026-07-27T20:52:26.545Z",
-      "lastSeenAt": "2026-07-28T15:03:07.613Z"
-    },
-    {
-      "id": "rec-podiuminfo-452954",
-      "source": "podiuminfo",
-      "sourceId": "452954",
-      "artist": "The Veils",
-      "lineup": [
-        "The Veils"
-      ],
-      "supportingArtists": [],
-      "matchedArtists": [
-        "The Veils"
-      ],
-      "date": "2026-11-27",
-      "time": null,
-      "venue": "Doornroosje",
-      "city": "Nijmegen",
-      "country": "NL",
-      "isFestival": false,
-      "image": "https://www.festivalinfo.nl/img/artist/8583/100_The_Veils_1.jpg",
-      "ticketUrl": "https://www.podiuminfo.nl/ticket/130699/cd/The-Veils/Doornroosje/",
-      "sourceApis": [
-        "podiuminfo"
-      ],
-      "sourceUrl": "https://www.podiuminfo.nl/concert/452954/The-Veils/Doornroosje/",
-      "match": {
-        "score": 46,
-        "label": "Strong match",
-        "matchedBy": "direct",
-        "reason": "Known artist: The Veils",
-        "matchedArtists": [
-          "The Veils"
-        ]
-      },
-      "discoveredAt": "2026-07-28T15:03:07.613Z",
-      "lastSeenAt": "2026-07-28T15:03:07.613Z"
-    },
     {
       "id": "rec-podiuminfo-459816",
       "source": "podiuminfo",
@@ -122,7 +50,7 @@
         ]
       },
       "discoveredAt": "2026-07-27T21:15:25.916Z",
-      "lastSeenAt": "2026-07-28T15:03:07.613Z"
+      "lastSeenAt": "2026-07-30T08:19:50.071Z"
     },
     {
       "id": "rec-podiuminfo-456831",
@@ -158,151 +86,79 @@
         ]
       },
       "discoveredAt": "2026-07-27T20:52:26.545Z",
-      "lastSeenAt": "2026-07-28T15:03:07.613Z"
+      "lastSeenAt": "2026-07-30T08:19:50.071Z"
     },
     {
-      "id": "rec-podiuminfo-457258",
+      "id": "rec-podiuminfo-452954",
       "source": "podiuminfo",
-      "sourceId": "457258",
-      "artist": "DeWolff",
+      "sourceId": "452954",
+      "artist": "The Veils",
       "lineup": [
-        "DeWolff"
+        "The Veils"
       ],
       "supportingArtists": [],
       "matchedArtists": [
-        "DeWolff"
-      ],
-      "date": "2027-01-16",
-      "time": null,
-      "venue": "De Spot",
-      "city": "Middelburg",
-      "country": "NL",
-      "isFestival": false,
-      "image": "https://www.festivalinfo.nl/img/artist/38730/100_DeWolff_2.jpg",
-      "ticketUrl": "https://www.podiuminfo.nl/ticket/133643/cd/DeWolff-Schouwburg/De-Spot/",
-      "sourceApis": [
-        "podiuminfo"
-      ],
-      "sourceUrl": "https://www.podiuminfo.nl/concert/457258/DeWolff/De-Spot/",
-      "match": {
-        "score": 45,
-        "label": "Strong match",
-        "matchedBy": "direct",
-        "reason": "Known artist: DeWolff",
-        "matchedArtists": [
-          "DeWolff"
-        ]
-      },
-      "discoveredAt": "2026-07-28T19:14:12.464Z",
-      "lastSeenAt": "2026-07-28T19:14:12.464Z"
-    },
-    {
-      "id": "rec-podiuminfo-447796",
-      "source": "podiuminfo",
-      "sourceId": "447796",
-      "artist": "Deep Purple",
-      "lineup": [
-        "Deep Purple"
-      ],
-      "supportingArtists": [],
-      "matchedArtists": [
-        "Deep Purple"
-      ],
-      "date": "2026-11-09",
-      "time": null,
-      "venue": "Ziggo Dome",
-      "city": "Amsterdam",
-      "country": "NL",
-      "isFestival": false,
-      "image": "https://www.festivalinfo.nl/img/artist/4998/100_Deep_Purple_3.jpg",
-      "ticketUrl": "https://www.podiuminfo.nl/ticket/127089/cd/Deep-Purple-Vip-Package/Ziggo-Dome/",
-      "sourceApis": [
-        "podiuminfo"
-      ],
-      "sourceUrl": "https://www.podiuminfo.nl/concert/447796/Deep-Purple/Ziggo-Dome/",
-      "match": {
-        "score": 45,
-        "label": "Strong match",
-        "matchedBy": "direct",
-        "reason": "Known artist: Deep Purple",
-        "matchedArtists": [
-          "Deep Purple"
-        ]
-      },
-      "discoveredAt": "2026-07-28T19:14:12.464Z",
-      "lastSeenAt": "2026-07-28T19:14:12.464Z"
-    },
-    {
-      "id": "rec-podiuminfo-486943",
-      "source": "podiuminfo",
-      "sourceId": "486943",
-      "artist": "Weval",
-      "lineup": [
-        "Weval"
-      ],
-      "supportingArtists": [],
-      "matchedArtists": [
-        "Weval"
+        "The Veils"
       ],
       "date": "2026-11-27",
       "time": null,
-      "venue": "Mezz",
-      "city": "Breda",
+      "venue": "Doornroosje",
+      "city": "Nijmegen",
       "country": "NL",
       "isFestival": false,
-      "image": "https://www.festivalinfo.nl/img/artist/76708/100_Weval_5.jpg",
-      "ticketUrl": "https://www.podiuminfo.nl/ticket/139944/cd/WEVAL-x-TURF/Mezz/",
+      "image": "https://www.festivalinfo.nl/img/artist/8583/100_The_Veils_1.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/130699/cd/The-Veils/Doornroosje/",
       "sourceApis": [
         "podiuminfo"
       ],
-      "sourceUrl": "https://www.podiuminfo.nl/concert/486943/Weval/Mezz/",
+      "sourceUrl": "https://www.podiuminfo.nl/concert/452954/The-Veils/Doornroosje/",
       "match": {
-        "score": 45,
+        "score": 46,
         "label": "Strong match",
         "matchedBy": "direct",
-        "reason": "Known artist: Weval",
+        "reason": "Known artist: The Veils",
         "matchedArtists": [
-          "Weval"
+          "The Veils"
         ]
       },
-      "discoveredAt": "2026-07-27T20:52:26.545Z",
-      "lastSeenAt": "2026-07-28T15:03:07.613Z"
+      "discoveredAt": "2026-07-28T15:03:07.613Z",
+      "lastSeenAt": "2026-07-30T08:19:50.071Z"
     },
     {
-      "id": "rec-podiuminfo-461869",
+      "id": "rec-podiuminfo-474447",
       "source": "podiuminfo",
-      "sourceId": "461869",
-      "artist": "Marble Sounds",
+      "sourceId": "474447",
+      "artist": "Hooverphonic",
       "lineup": [
-        "Marble Sounds"
+        "Hooverphonic"
       ],
       "supportingArtists": [],
       "matchedArtists": [
-        "Marble Sounds"
+        "Hooverphonic"
       ],
-      "date": "2026-10-15",
+      "date": "2027-04-19",
       "time": null,
-      "venue": "Gebouw-T",
-      "city": "Bergen op Zoom",
+      "venue": "Theater aan het Vrijthof",
+      "city": "Maastricht",
       "country": "NL",
       "isFestival": false,
-      "image": "https://www.festivalinfo.nl/img/artist/50450/100_Marble_Sounds_1.jpg",
-      "ticketUrl": "https://www.podiuminfo.nl/ticket/134844/cd/Marble-Sounds/Gebouw-T/",
+      "image": "https://www.festivalinfo.nl/img/artist/116/100_Hooverphonic_9.jpg",
+      "ticketUrl": null,
       "sourceApis": [
         "podiuminfo"
       ],
-      "sourceUrl": "https://www.podiuminfo.nl/concert/461869/Marble-Sounds/Gebouw-T/",
+      "sourceUrl": "https://www.podiuminfo.nl/concert/474447/Hooverphonic/Theater-aan-het-Vrijthof/",
       "match": {
-        "score": 45,
+        "score": 46,
         "label": "Strong match",
         "matchedBy": "direct",
-        "reason": "Known artist: Marble Sounds",
+        "reason": "Known artist: Hooverphonic",
         "matchedArtists": [
-          "Marble Sounds"
+          "Hooverphonic"
         ]
       },
       "discoveredAt": "2026-07-27T20:52:26.545Z",
-      "lastSeenAt": "2026-07-28T15:03:07.613Z"
+      "lastSeenAt": "2026-07-30T08:19:50.071Z"
     },
     {
       "id": "rec-podiuminfo-455052",
@@ -338,43 +194,151 @@
         ]
       },
       "discoveredAt": "2026-07-27T21:15:25.916Z",
-      "lastSeenAt": "2026-07-28T15:03:07.613Z"
+      "lastSeenAt": "2026-07-30T08:19:50.071Z"
     },
     {
-      "id": "rec-podiuminfo-453443",
+      "id": "rec-podiuminfo-461869",
       "source": "podiuminfo",
-      "sourceId": "453443",
-      "artist": "Sons Of The East",
+      "sourceId": "461869",
+      "artist": "Marble Sounds",
       "lineup": [
-        "Sons Of The East"
+        "Marble Sounds"
       ],
       "supportingArtists": [],
       "matchedArtists": [
-        "Sons Of The East"
+        "Marble Sounds"
       ],
-      "date": "2026-07-29",
+      "date": "2026-10-15",
       "time": null,
-      "venue": "Openluchttheater Caprera",
-      "city": "Bloemendaal",
-      "country": "??",
+      "venue": "Gebouw-T",
+      "city": "Bergen op Zoom",
+      "country": "NL",
       "isFestival": false,
-      "image": "https://www.festivalinfo.nl/img/artist/119527/100_Sons_Of_The_East_3.jpg",
-      "ticketUrl": "https://www.podiuminfo.nl/ticket/130896/cd/Sons-Of-The-East-Caprera-X-Patronaat/Openluchttheater-Caprera/",
+      "image": "https://www.festivalinfo.nl/img/artist/50450/100_Marble_Sounds_1.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/134844/cd/Marble-Sounds/Gebouw-T/",
       "sourceApis": [
         "podiuminfo"
       ],
-      "sourceUrl": "https://www.podiuminfo.nl/concert/453443/Sons-Of-The-East/Openluchttheater-Caprera/",
+      "sourceUrl": "https://www.podiuminfo.nl/concert/461869/Marble-Sounds/Gebouw-T/",
       "match": {
-        "score": 40,
-        "label": "Possible match",
+        "score": 45,
+        "label": "Strong match",
         "matchedBy": "direct",
-        "reason": "Known artist: Sons Of The East",
+        "reason": "Known artist: Marble Sounds",
         "matchedArtists": [
-          "Sons Of The East"
+          "Marble Sounds"
         ]
       },
       "discoveredAt": "2026-07-27T20:52:26.545Z",
-      "lastSeenAt": "2026-07-28T15:03:07.613Z"
+      "lastSeenAt": "2026-07-30T08:19:50.071Z"
+    },
+    {
+      "id": "rec-podiuminfo-447796",
+      "source": "podiuminfo",
+      "sourceId": "447796",
+      "artist": "Deep Purple",
+      "lineup": [
+        "Deep Purple"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Deep Purple"
+      ],
+      "date": "2026-11-09",
+      "time": null,
+      "venue": "Ziggo Dome",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/4998/100_Deep_Purple_3.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/127089/cd/Deep-Purple-Vip-Package/Ziggo-Dome/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/447796/Deep-Purple/Ziggo-Dome/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Deep Purple",
+        "matchedArtists": [
+          "Deep Purple"
+        ]
+      },
+      "discoveredAt": "2026-07-28T19:14:12.464Z",
+      "lastSeenAt": "2026-07-30T08:19:50.071Z"
+    },
+    {
+      "id": "rec-podiuminfo-486943",
+      "source": "podiuminfo",
+      "sourceId": "486943",
+      "artist": "Weval",
+      "lineup": [
+        "Weval"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Weval"
+      ],
+      "date": "2026-11-27",
+      "time": null,
+      "venue": "Mezz",
+      "city": "Breda",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/76708/100_Weval_5.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/139944/cd/WEVAL-x-TURF/Mezz/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/486943/Weval/Mezz/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Weval",
+        "matchedArtists": [
+          "Weval"
+        ]
+      },
+      "discoveredAt": "2026-07-27T20:52:26.545Z",
+      "lastSeenAt": "2026-07-30T08:19:50.071Z"
+    },
+    {
+      "id": "rec-podiuminfo-457258",
+      "source": "podiuminfo",
+      "sourceId": "457258",
+      "artist": "DeWolff",
+      "lineup": [
+        "DeWolff"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "DeWolff"
+      ],
+      "date": "2027-01-16",
+      "time": null,
+      "venue": "De Spot",
+      "city": "Middelburg",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/38730/100_DeWolff_2.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/133643/cd/DeWolff-Schouwburg/De-Spot/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/457258/DeWolff/De-Spot/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: DeWolff",
+        "matchedArtists": [
+          "DeWolff"
+        ]
+      },
+      "discoveredAt": "2026-07-28T19:14:12.464Z",
+      "lastSeenAt": "2026-07-30T08:19:50.071Z"
     }
   ]
 }
