@@ -978,3 +978,29 @@ nav.tab-bar button:active { transform: scale(0.94); }
   .concert-card .artist { font-size: 32px; }
   h2.section-title { font-size: 29px; }
 }
+
+/* ================================================== empty deck (caught up) */
+
+.deck-empty-head { margin-bottom: 16px; }
+.deck-empty-kicker {
+  color: var(--teal);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.deck-empty-line {
+  font-family: var(--font-display);
+  font-size: 24px;
+  letter-spacing: 0.01em;
+  color: var(--text-1);
+  line-height: 1.15;
+}
+.deck-empty-more {
+  color: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-align: center;
+  margin: 4px 0 16px;
+}
