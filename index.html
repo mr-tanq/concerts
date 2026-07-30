@@ -3,55 +3,65 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#0B0C10" />
+  <meta name="theme-color" content="#08080a" />
   <title>Listening Mirror</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <header class="top-bar">
-    <div class="top-bar-inner">
-      <div class="brand">
-        <span class="brand-mark" aria-hidden="true"></span>
-        <h1>Listening Mirror</h1>
-      </div>
-      <button class="header-gear" id="btn-settings" aria-label="Settings">⚙</button>
-    </div>
+  <!-- A single hairline masthead. The app name is small on purpose: the
+       content is the subject, not the product. -->
+  <header class="masthead">
+    <span class="masthead-name">Listening Mirror</span>
+    <button class="masthead-settings" id="btn-settings" aria-label="Settings">
+      <span class="settings-dot" id="settings-dot"></span>
+    </button>
   </header>
 
   <div id="settings-modal-root"></div>
 
   <main>
     <section id="panel-mirror" class="tab-panel">
-      <h2 class="section-title">Mirror</h2>
-      <p class="section-sub">Live listening analytics (heat / flux / focus / depth). Coming next — this tab keeps its existing Last.fm/Spotify "now playing" behaviour.</p>
+      <div class="stage-empty">
+        <p class="whisper">Mirror</p>
+        <p class="lede">Listening analytics — heat, flux, focus, depth.</p>
+        <p class="footnote">Not built yet.</p>
+      </div>
     </section>
 
     <section id="panel-realm" class="tab-panel">
-      <h2 class="section-title">Realm</h2>
-      <p class="section-sub">Recommendations and discovery. Coming next.</p>
+      <div class="stage-empty">
+        <p class="whisper">Realm</p>
+        <p class="lede">A wider map of what you listen to.</p>
+        <p class="footnote">Not built yet.</p>
+      </div>
     </section>
 
     <section id="panel-concerts" class="tab-panel"></section>
 
     <section id="panel-identity" class="tab-panel">
-      <h2 class="section-title">Identity</h2>
-      <p class="section-sub">Recent and top listening containers. Coming next.</p>
+      <div class="stage-empty">
+        <p class="whisper">Identity</p>
+        <p class="lede">Who you are, according to what you play.</p>
+        <p class="footnote">Not built yet.</p>
+      </div>
     </section>
 
     <section id="panel-archive" class="tab-panel"></section>
   </main>
 
-  <nav class="tab-bar">
-    <button id="nav-mirror"><span class="nav-icon" aria-hidden="true">◐</span><span class="nav-label">Mirror</span></button>
-    <button id="nav-realm"><span class="nav-icon" aria-hidden="true">✦</span><span class="nav-label">Realm</span></button>
-    <button id="nav-concerts"><span class="nav-icon" aria-hidden="true">▤</span><span class="nav-label">Concerts</span></button>
-    <button id="nav-identity"><span class="nav-icon" aria-hidden="true">◈</span><span class="nav-label">Identity</span></button>
-    <button id="nav-archive"><span class="nav-icon" aria-hidden="true">▥</span><span class="nav-label">Archive</span></button>
+  <!-- Navigation as quiet type, not icons. The active item is marked by a
+       single dot — the smallest possible signal that still reads. -->
+  <nav class="rail">
+    <button id="nav-mirror"><span>Mirror</span></button>
+    <button id="nav-realm"><span>Realm</span></button>
+    <button id="nav-concerts"><span>Tonight</span></button>
+    <button id="nav-identity"><span>Self</span></button>
+    <button id="nav-archive"><span>Archive</span></button>
   </nav>
 
   <script type="module" src="js/app.js"></script>
