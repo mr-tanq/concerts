@@ -14,7 +14,10 @@
     "lookbackDays": 180,
     "lookaheadDays": 365,
     "minScoreToShow": 30,
-    "minPlaycountToTrack": 5
+    "minPlaycountToTrack": 5,
+    "includeSimilarArtists": true,
+    "similarSeedCount": 40,
+    "similarArtistsPerSeed": 15
   },
   "scoring": {
     "weights": {
@@ -22,7 +25,9 @@
       "listeningRecency": 20,
       "listeningFrequency": 25,
       "genreOverlap": 10,
-      "distanceBonus": 5
+      "distanceBonus": 5,
+      "similarArtistMatch": 18,
+      "similarityStrength": 22
     }
   }
 }
