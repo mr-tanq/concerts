@@ -1,192 +1,347 @@
+/* ============================================================================
+   LISTENING MIRROR — design system
+   ----------------------------------------------------------------------------
+   Grounded in the object at the center of the app: the concert ticket. The
+   swipe deck (the one screen you touch constantly) is built as an actual
+   ticket stub — perforated tear, punched notches, a printed-mono info line —
+   because that's the one moment worth spending the design's boldness on.
+   Everything else (lists, stats, modals) stays quiet and consistent: dark
+   stage-void surfaces, one warm stage-light accent, one cool spot accent,
+   mono numerals for anything that counts or dates something.
+   ========================================================================= */
+
 :root {
-  --bg: #05070a;
-  --card: #12151b;
-  --card-2: #1a1e26;
-  --border: rgba(255, 255, 255, 0.08);
-  --text: #f2f3f5;
-  --text-dim: #9aa0ac;
-  --text-faint: #666c78;
-  --accent-orange: #f5a623;
-  --accent-blue: #4da3ff;
-  --accent-green: #3ecf8e;
-  --accent-red: #e5484d;
+  /* -- palette -------------------------------------------------------- */
+  --void:      #0b0c10;   /* page background — backstage dark, cool undertone */
+  --stub:      #16171d;   /* card surface */
+  --stub-2:    #1e2028;   /* raised surface: inputs, secondary chips */
+  --stub-3:    #262933;   /* hover/active surface */
+  --paper:     #ede6d3;   /* aged ticket paper — used sparingly, signature only */
+  --paper-ink: #1a1508;   /* dark text set on paper */
+  --line:      rgba(255,255,255,0.09);
+  --line-2:    rgba(255,255,255,0.15);
+
+  --amber:     #e8a33d;   /* stage light — primary accent, Plan, scores */
+  --amber-ink: #1a1200;
+  --teal:      #45c9b8;   /* spotlight — secondary accent, links, info */
+  --teal-ink:  #04211d;
+  --blood:     #d1483f;   /* exit-sign red — Dismiss, destructive */
+
+  --text-1:    #f4f2ea;   /* warm off-white, keyed to the paper accent */
+  --text-2:    #a3a7b3;
+  --text-3:    #6d707a;
+
+  /* -- type ------------------------------------------------------------ */
+  --font-display: 'Bebas Neue', 'Arial Narrow', sans-serif;
+  --font-body: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  /* -- shape / motion --------------------------------------------------- */
+  --radius-lg: 20px;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  /* legacy aliases some inline styles in app.js still reference */
+  --bg: var(--void);
+  --card: var(--stub);
+  --card-2: var(--stub-2);
+  --border: var(--line);
+  --text: var(--text-1);
+  --text-dim: var(--text-2);
+  --text-faint: var(--text-3);
+  --accent-orange: var(--amber);
+  --accent-blue: var(--teal);
+  --accent-green: #6fe3ab;
+  --accent-red: var(--blood);
   --radius: 16px;
 }
 
 * { box-sizing: border-box; }
 
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+::selection { background: var(--amber); color: var(--amber-ink); }
+
 body {
   margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  padding-bottom: 84px;
+  background: var(--void);
+  color: var(--text-1);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  padding-bottom: 92px;
+  -webkit-tap-highlight-color: transparent;
 }
+
+button, input, textarea { font-family: inherit; }
+
+:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ============================================================ header ==== */
 
 header.top-bar {
-  text-align: center;
-  padding: 24px 16px 8px;
+  padding: 22px 18px 10px;
+  border-bottom: 1px solid var(--line);
 }
-
+.top-bar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  max-width: 640px;
+  margin: 0 auto;
+}
+.brand { display: flex; align-items: center; gap: 9px; }
+.brand-mark {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 0 0 3px rgba(232,163,61,0.18);
+  flex-shrink: 0;
+}
 header.top-bar h1 {
-  font-size: 22px;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   margin: 0;
+  color: var(--text-1);
 }
+.header-gear {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 19px;
+  cursor: pointer;
+  padding: 6px 8px;
+  color: var(--text-3);
+  transition: color 0.2s var(--ease), transform 0.2s var(--ease);
+}
+.header-gear:active { transform: translateY(-50%) scale(0.9); }
+
+/* ============================================================= layout === */
 
 main {
   max-width: 640px;
   margin: 0 auto;
-  padding: 12px 16px 32px;
+  padding: 18px 16px 32px;
 }
 
 .tab-panel { display: none; }
-.tab-panel.active { display: block; }
+.tab-panel.active { display: block; animation: rise 0.35s var(--ease) both; }
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
 h2.section-title {
-  font-size: 26px;
-  font-weight: 700;
-  margin: 8px 0 4px;
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  margin: 4px 0 6px;
+  color: var(--text-1);
 }
 
 p.section-sub {
-  color: var(--text-dim);
-  margin: 0 0 20px;
-  line-height: 1.5;
+  color: var(--text-2);
+  margin: 0 0 22px;
+  line-height: 1.55;
+  font-size: 14.5px;
 }
+
+.section-heading {
+  color: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin: 28px 0 12px;
+}
+
+/* ======================================================= stat surfaces == */
 
 .grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: 10px;
+  margin-bottom: 22px;
 }
 
 .card {
-  background: var(--card);
-  border: 1px solid var(--border);
+  background: var(--stub);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 18px;
 }
 
 .stat-card .stat-value {
-  font-size: 32px;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: 40px;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: var(--text-1);
 }
 .stat-card .stat-label {
-  color: var(--text-dim);
-  font-size: 14px;
-  margin-top: 4px;
+  color: var(--text-2);
+  font-size: 13.5px;
+  margin-top: 6px;
 }
 .stat-card .stat-tag {
-  color: var(--text-faint);
-  font-size: 11px;
-  letter-spacing: 0.06em;
+  color: var(--amber);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  margin-top: 10px;
-}
-
-.section-heading {
-  color: var(--text-faint);
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  margin: 24px 0 10px;
+  margin-top: 12px;
 }
 
 .milestone-card {
-  background: var(--card);
-  border: 1px solid var(--border);
+  position: relative;
+  background: var(--stub);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 18px;
+  padding: 20px;
   margin-bottom: 12px;
   background-size: cover;
   background-position: center;
+  overflow: hidden;
 }
 .milestone-card .kicker {
-  color: var(--text-faint);
-  font-size: 11px;
-  letter-spacing: 0.06em;
+  color: var(--amber);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
-.milestone-card .title { font-size: 20px; font-weight: 700; margin: 6px 0 4px; }
-.milestone-card .meta { color: var(--text-dim); font-size: 14px; }
+.milestone-card .title {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  margin: 6px 0 6px;
+  color: var(--text-1);
+}
+.milestone-card .meta { color: var(--text-2); font-size: 14px; }
 .milestone-card .badge {
   display: inline-block;
-  margin-top: 8px;
-  font-size: 11px;
-  color: var(--text-faint);
-  letter-spacing: 0.06em;
+  margin-top: 10px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-3);
+  letter-spacing: 0.1em;
 }
+
+/* ================================================================ pills = */
 
 .pill-row {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 .pill {
-  background: var(--card-2);
-  border: 1px solid var(--border);
+  background: var(--stub-2);
+  border: 1px solid var(--line);
   border-radius: 999px;
-  padding: 8px 16px;
-  font-size: 14px;
-  color: var(--text-dim);
+  padding: 8px 15px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-2);
   cursor: pointer;
+  transition: background 0.15s var(--ease), color 0.15s var(--ease), border-color 0.15s var(--ease);
 }
-.pill.active { background: #253044; color: var(--text); border-color: #3a4a68; }
-.pill.score { background: var(--accent-orange); color: #1a1200; font-weight: 700; }
+.pill:active { transform: scale(0.96); }
+.pill.active {
+  background: var(--amber);
+  color: var(--amber-ink);
+  border-color: var(--amber);
+  font-weight: 700;
+}
+.pill.score { background: var(--amber); color: var(--amber-ink); font-weight: 700; }
+
+/* ============================================================= lists ==== */
 
 .list-card {
-  background: var(--card);
+  background: var(--stub);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: 16px 18px;
   margin-bottom: 12px;
 }
 .list-row {
   display: flex;
+  align-items: baseline;
   justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--border);
+  padding: 9px 0;
+  border-bottom: 1px dashed var(--line);
+  gap: 10px;
 }
 .list-row:last-child { border-bottom: none; }
-.list-row .rank { color: var(--text-faint); width: 22px; }
-.list-row .name { flex: 1; }
-.list-row .count { color: var(--text-dim); }
+.list-row .rank {
+  font-family: var(--font-mono);
+  color: var(--text-3);
+  font-size: 12.5px;
+  width: 20px;
+  flex-shrink: 0;
+}
+.list-row .name { flex: 1; color: var(--text-1); }
+.list-row .count {
+  font-family: var(--font-mono);
+  color: var(--amber);
+  font-size: 13px;
+  font-weight: 600;
+}
 
 .timeline-card {
   border-radius: var(--radius);
-  border: 1px solid var(--border);
-  padding: 16px 18px;
-  margin-bottom: 10px;
-  background: var(--card);
+  border: 1px solid var(--line);
+  padding: 15px 18px;
+  margin-bottom: 9px;
+  background: var(--stub);
 }
-.timeline-card .artist { font-weight: 700; font-size: 17px; }
-.timeline-card .meta { color: var(--text-dim); font-size: 14px; margin-top: 4px; }
-.timeline-card .venue { color: var(--text-faint); font-size: 13px; margin-top: 2px; }
+.timeline-card .artist { font-weight: 700; font-size: 16.5px; color: var(--text-1); }
+.timeline-card .meta { color: var(--text-2); font-size: 13.5px; margin-top: 4px; }
+.timeline-card .venue { color: var(--text-3); font-size: 12.5px; margin-top: 2px; }
 
-/* ---------- Swipe deck: full-bleed poster card ---------- */
+/* ==================================================================================
+   SIGNATURE — the swipe deck as a ticket stub.
+   A dashed tear with punched half-circle notches separates the poster half
+   from a mono-set "stub" strip. This is the one place the design gets bold;
+   everything else stays quiet by comparison.
+   ================================================================================== */
 
-.deck-stage {
-  position: relative;
-  min-height: 68vh;
-}
+.deck-stage { position: relative; min-height: 68vh; }
 
 .concert-card {
   position: relative;
-  border-radius: 22px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
   background: linear-gradient(160deg, #1c2230, #0b0e14);
   min-height: 68vh;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  box-shadow: 0 18px 40px rgba(0,0,0,0.45);
+  box-shadow: 0 22px 48px rgba(0,0,0,0.5);
 }
 
-/* Blur is decided per image in applyArtistImage(), not here: Deezer photos
-   are 1000px and shown sharp, while the small Podiuminfo fallbacks get a
-   light softening. Forcing it in CSS would blur the good ones too. */
 .card-bg {
   position: absolute;
   inset: 0;
@@ -196,17 +351,16 @@ p.section-sub {
   opacity: 0.95;
 }
 
-/* Dark scrim so text stays readable over any poster */
 .concert-card::after {
   content: "";
   position: absolute;
   inset: 0;
   background: linear-gradient(to bottom,
-    rgba(5,7,10,0.45) 0%,
-    rgba(5,7,10,0.05) 30%,
-    rgba(5,7,10,0.55) 62%,
-    rgba(5,7,10,0.93) 88%,
-    rgba(5,7,10,0.98) 100%);
+    rgba(11,12,16,0.5) 0%,
+    rgba(11,12,16,0.08) 30%,
+    rgba(11,12,16,0.6) 60%,
+    rgba(11,12,16,0.95) 86%,
+    rgba(11,12,16,0.99) 100%);
   pointer-events: none;
 }
 
@@ -222,58 +376,86 @@ p.section-sub {
   z-index: 2;
 }
 .card-badges .badge-pill {
-  background: rgba(20,24,32,0.72);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(22,23,29,0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.16);
   border-radius: 999px;
-  padding: 7px 15px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text);
+  padding: 7px 14px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-1);
 }
 .card-badges .badge-score {
-  background: var(--accent-orange);
-  color: #1a1200;
+  background: var(--amber);
+  color: var(--amber-ink);
   border-color: transparent;
-  font-weight: 800;
-  min-width: 46px;
+  font-weight: 700;
+  min-width: 42px;
   text-align: center;
 }
 
-.concert-card .body {
-  position: relative;
-  z-index: 2;
-  padding: 20px 20px 22px;
-}
+.concert-card .body { position: relative; z-index: 2; padding: 22px 20px 0; }
+
 .concert-card .artist {
-  font-size: 30px;
-  font-weight: 800;
-  line-height: 1.1;
+  font-family: var(--font-display);
+  font-size: 38px;
+  line-height: 1;
+  letter-spacing: 0.005em;
   margin-bottom: 8px;
-  text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+  color: var(--text-1);
+  text-shadow: 0 2px 16px rgba(0,0,0,0.5);
 }
 .concert-card .support {
-  color: var(--text-dim);
-  font-size: 15px;
-  margin-bottom: 8px;
-}
-.concert-card .meta {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text);
-  margin-bottom: 8px;
+  color: var(--text-2);
+  font-size: 14.5px;
+  font-style: italic;
+  margin-bottom: 4px;
 }
 .concert-card .why {
-  color: var(--text-dim);
-  font-size: 14px;
-  margin-bottom: 16px;
+  color: var(--text-2);
+  font-size: 13.5px;
+  margin: 8px 0 16px;
+  line-height: 1.5;
 }
 
+/* The stub strip: printed ticket data on aged paper, torn from the poster
+   above by a dashed line with punched notch circles at either end. */
+.concert-card .meta {
+  position: relative;
+  display: block;
+  background: var(--paper);
+  color: var(--paper-ink);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  padding: 12px 20px;
+  margin: 0 -20px;
+  border-top: 2px dashed rgba(26,21,8,0.28);
+}
+.concert-card .meta::before,
+.concert-card .meta::after {
+  content: "";
+  position: absolute;
+  top: -9px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #0b0e14; /* punches through to the card's own base gradient */
+}
+.concert-card .meta::before { left: -9px; }
+.concert-card .meta::after { right: -9px; }
+
 .concert-card .actions {
+  position: relative;
+  z-index: 2;
   display: flex;
   gap: 14px;
   align-items: center;
   justify-content: center;
+  padding: 16px 20px 22px;
 }
 .concert-card .actions button {
   border: none;
@@ -281,8 +463,10 @@ p.section-sub {
   font-weight: 700;
   border-radius: 999px;
   height: 58px;
-  font-size: 20px;
+  font-size: 21px;
+  transition: transform 0.12s var(--ease), filter 0.12s var(--ease);
 }
+.concert-card .actions button:active { transform: scale(0.92); }
 .concert-card .actions .btn-hide,
 .concert-card .actions .btn-plan {
   width: 58px;
@@ -290,35 +474,46 @@ p.section-sub {
 }
 .concert-card .actions .btn-skip {
   flex: 1;
-  font-size: 16px;
+  font-size: 14.5px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
-.btn-plan { background: #14523a; color: #6fe3ab; }
-.btn-hide { background: #52181d; color: #ff9aa2; }
-.btn-skip { background: #22304a; color: #b9d4ff; }
-.btn-tickets { background: #1f3350; color: #8ec1ff; }
+.btn-plan  { background: var(--teal); color: var(--teal-ink); }
+.btn-hide  { background: var(--blood); color: #fff0ee; }
+.btn-skip  { background: var(--stub-3); color: var(--text-1); }
+.btn-tickets { background: var(--stub-3); color: var(--teal); }
 
-nav.tab-bar {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  background: #0a0d12;
-  border-top: 1px solid var(--border);
-  display: flex;
-  padding: 10px 0 16px;
+/* Rubber-stamp swipe indicators — inked, rotated, slightly worn. */
+.swipe-hint {
+  position: absolute;
+  top: 78px;
+  z-index: 3;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 32px;
+  letter-spacing: 0.08em;
+  padding: 6px 20px;
+  border-radius: 8px;
+  border: 3px solid currentColor;
+  opacity: 0;
+  pointer-events: none;
+  text-transform: uppercase;
+  mix-blend-mode: screen;
 }
-nav.tab-bar button {
-  flex: 1;
-  background: none;
-  border: none;
-  color: var(--text-faint);
-  font-size: 12px;
-  padding: 6px 0;
-  cursor: pointer;
+.swipe-hint.plan { right: 20px; color: var(--teal); transform: rotate(-10deg); }
+.swipe-hint.dismiss { left: 20px; color: var(--blood); transform: rotate(10deg); }
+
+.deck-counter {
+  text-align: center;
+  color: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  letter-spacing: 0.04em;
+  margin-top: 14px;
 }
-nav.tab-bar button.active { color: var(--accent-orange); }
 
-.empty-state { color: var(--text-faint); padding: 24px 0; text-align: center; }
-
-/* Swipe mechanics */
+/* Swipe mechanics (unchanged behaviour, just the visual layer above) */
 .swipe-card {
   touch-action: pan-y;
   cursor: grab;
@@ -328,128 +523,167 @@ nav.tab-bar button.active { color: var(--accent-orange); }
 }
 .swipe-card:active { cursor: grabbing; }
 
-.swipe-hint {
-  position: absolute;
-  top: 72px;
-  z-index: 3;
-  font-weight: 900;
-  font-size: 30px;
-  letter-spacing: 0.06em;
-  padding: 8px 18px;
-  border-radius: 12px;
-  border: 4px solid currentColor;
-  opacity: 0;
-  pointer-events: none;
-  text-transform: uppercase;
-  background: rgba(5,7,10,0.35);
-}
-.swipe-hint.plan { right: 22px; color: var(--accent-green); transform: rotate(14deg); }
-.swipe-hint.dismiss { left: 22px; color: var(--accent-red); transform: rotate(-14deg); }
+/* ============================================================ nav / bar = */
 
-.deck-counter {
+nav.tab-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(11,12,16,0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-top: 1px solid var(--line);
+  display: flex;
+  padding: 8px 0 calc(10px + env(safe-area-inset-bottom));
+  z-index: 40;
+}
+nav.tab-bar button {
+  flex: 1;
+  background: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  color: var(--text-3);
+  padding: 6px 0 4px;
+  cursor: pointer;
+  transition: color 0.15s var(--ease);
+}
+nav.tab-bar .nav-icon { font-size: 18px; line-height: 1; }
+nav.tab-bar .nav-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+nav.tab-bar button.active { color: var(--amber); }
+nav.tab-bar button:active { transform: scale(0.94); }
+
+.empty-state {
+  color: var(--text-3);
+  padding: 40px 20px;
   text-align: center;
-  color: var(--text-faint);
-  font-size: 13px;
-  margin-top: 12px;
+  font-size: 14px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
 }
 
 .sync-chip {
   position: fixed;
   left: 50%;
   transform: translateX(-50%);
-  bottom: 92px;
-  background: rgba(20,24,32,0.94);
-  border: 1px solid var(--border);
-  color: var(--text-dim);
+  bottom: 96px;
+  background: var(--stub-3);
+  border: 1px solid var(--line-2);
+  color: var(--text-2);
   border-radius: 999px;
-  padding: 8px 18px;
-  font-size: 13px;
+  padding: 9px 18px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
   z-index: 50;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.4);
 }
-.sync-chip.error { border-color: var(--accent-red); color: #ffb4b8; }
+.sync-chip.error { border-color: var(--blood); color: #ffb4b0; }
 
 .error-banner {
-  background: #3a1e1e;
-  border: 1px solid var(--accent-red);
-  color: #ffb4b8;
-  border-radius: 10px;
+  background: rgba(209,72,63,0.12);
+  border: 1px solid var(--blood);
+  color: #ffb4b0;
+  border-radius: var(--radius-sm);
   padding: 12px 14px;
-  font-size: 14px;
+  font-size: 13.5px;
   margin-bottom: 14px;
 }
 
-/* Settings modal */
+/* ========================================================= modal sheets = */
+
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: rgba(4,5,7,0.72);
   display: flex;
   align-items: flex-end;
   justify-content: center;
   z-index: 100;
+  animation: fade-in 0.2s var(--ease) both;
 }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+
 .modal-sheet {
-  background: var(--card);
-  border-radius: 20px 20px 0 0;
-  padding: 24px 20px 32px;
+  background: var(--stub);
+  border: 1px solid var(--line);
+  border-bottom: none;
+  border-radius: 22px 22px 0 0;
+  padding: 26px 20px calc(28px + env(safe-area-inset-bottom));
   width: 100%;
   max-width: 640px;
   max-height: 85vh;
   overflow-y: auto;
+  animation: sheet-up 0.28s var(--ease) both;
 }
-.modal-sheet h3 { margin: 0 0 6px; font-size: 20px; }
-.modal-sheet p.hint { color: var(--text-dim); font-size: 14px; margin: 0 0 16px; line-height: 1.5; }
-.modal-sheet label { display: block; font-size: 13px; color: var(--text-faint); margin: 14px 0 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+@keyframes sheet-up { from { transform: translateY(24px); opacity: 0.4; } to { transform: translateY(0); opacity: 1; } }
+
+.modal-sheet h3 {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  margin: 0 0 8px;
+  color: var(--text-1);
+}
+.modal-sheet p.hint { color: var(--text-2); font-size: 13.5px; margin: 0 0 18px; line-height: 1.55; }
+.modal-sheet label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-3);
+  margin: 16px 0 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
 .modal-sheet input {
   width: 100%;
-  background: var(--card-2);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 12px;
-  color: var(--text);
+  background: var(--stub-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 13px;
+  color: var(--text-1);
   font-size: 15px;
   box-sizing: border-box;
 }
-.modal-sheet .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+.modal-sheet input:focus { border-color: var(--teal); }
+.modal-sheet .modal-actions { display: flex; gap: 10px; margin-top: 22px; }
 .modal-sheet .modal-actions button {
   flex: 1;
   border: none;
-  border-radius: 10px;
-  padding: 13px;
+  border-radius: var(--radius-sm);
+  padding: 14px;
   font-weight: 700;
   cursor: pointer;
+  font-size: 14.5px;
+  transition: transform 0.12s var(--ease);
 }
-.btn-modal-save { background: var(--accent-orange); color: #1a1200; }
-.btn-modal-cancel { background: var(--card-2); color: var(--text); }
-.modal-status { font-size: 13px; margin-top: 10px; min-height: 18px; }
-.modal-status.ok { color: var(--accent-green); }
-.modal-status.error { color: var(--accent-red); }
+.modal-sheet .modal-actions button:active { transform: scale(0.97); }
+.btn-modal-save { background: var(--amber); color: var(--amber-ink); }
+.btn-modal-cancel { background: var(--stub-2); color: var(--text-1); }
+.modal-status { font-size: 13px; margin-top: 12px; min-height: 18px; }
+.modal-status.ok { color: #6fe3ab; }
+.modal-status.error { color: var(--blood); }
 
-.header-gear {
-  position: absolute;
-  right: 16px;
-  top: 24px;
-  background: none;
-  border: none;
-  color: var(--text-faint);
-  font-size: 20px;
-  cursor: pointer;
-  padding: 4px 8px;
-}
-
-/* ---------- Dismissed / restore list ---------- */
+/* ================================================== dismissed / restore = */
 
 .btn-restore-all {
   width: 100%;
-  border: 1px solid var(--border);
-  background: var(--card-2);
-  color: var(--text);
-  border-radius: 12px;
-  padding: 14px;
+  border: 1px dashed var(--line-2);
+  background: var(--stub-2);
+  color: var(--text-1);
+  border-radius: var(--radius-sm);
+  padding: 15px;
   font-weight: 700;
-  font-size: 15px;
+  font-size: 14.5px;
   cursor: pointer;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
+  transition: border-color 0.15s var(--ease);
 }
 .btn-restore-all:disabled { opacity: 0.6; }
 
@@ -457,149 +691,132 @@ nav.tab-bar button.active { color: var(--accent-orange); }
   display: flex;
   align-items: center;
   gap: 12px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 14px;
+  background: var(--stub);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
   padding: 14px 16px;
   margin-bottom: 10px;
 }
 .dismissed-info { flex: 1; min-width: 0; }
-.dismissed-info .artist { font-weight: 700; font-size: 16px; }
+.dismissed-info .artist { font-weight: 700; font-size: 15px; }
 .dismissed-info .meta {
-  color: var(--text-dim);
-  font-size: 13px;
-  margin-top: 3px;
+  color: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  margin-top: 4px;
   overflow-wrap: anywhere;
 }
 .btn-restore {
   flex: 0 0 auto;
-  border: none;
-  background: #22304a;
-  color: #b9d4ff;
-  border-radius: 10px;
+  border: 1px solid var(--line-2);
+  background: var(--stub-2);
+  color: var(--teal);
+  border-radius: var(--radius-sm);
   padding: 10px 16px;
   font-weight: 700;
+  font-size: 13.5px;
   cursor: pointer;
 }
 .btn-restore:disabled { opacity: 0.6; }
 
-/* ---------- Planned / dismissed poster cards ---------- */
+/* ============================================ planned / dismissed cards = */
+/* Base box (radius, gradient, min-height) is set inline by app.js — this
+   layer adds the printed-ticket typography and a quiet single divider,
+   deliberately without the full stub/notch treatment from the deck card. */
 
-.planned-card {
-  position: relative;
-  border-radius: 18px;
-  overflow: hidden;
-  min-height: 200px;
-  margin-bottom: 12px;
-  background: linear-gradient(160deg, #1c2230, #0b0e14);
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-}
+.planned-card { border: 1px solid var(--line); }
 .planned-card .card-bg { opacity: 0.95; }
-.planned-card .planned-body {
-  position: relative;
-  z-index: 2;
-  padding: 14px 16px 16px;
-}
+.planned-card .planned-body { padding: 15px 17px 17px; }
 .planned-card .artist {
-  font-size: 22px;
-  font-weight: 800;
+  font-family: var(--font-display);
+  font-size: 25px;
+  letter-spacing: 0.005em;
+  color: var(--text-1);
   text-shadow: 0 2px 10px rgba(0,0,0,0.7);
 }
-.planned-card .support {
-  color: var(--text-dim);
-  font-size: 14px;
-  margin-top: 2px;
-}
-.planned-card .meta {
-  color: var(--text-dim);
-  font-size: 14px;
-  margin-top: 4px;
-}
+.planned-card .support { color: var(--text-2); font-size: 13.5px; font-style: italic; margin-top: 2px; }
+.planned-card .meta { color: var(--text-2); font-size: 13.5px; margin-top: 5px; }
 .planned-card .when {
   display: inline-block;
-  margin-top: 8px;
-  background: rgba(20,24,32,0.75);
-  border: 1px solid rgba(255,255,255,0.14);
+  margin-top: 9px;
+  background: rgba(232,163,61,0.16);
+  border: 1px solid rgba(232,163,61,0.4);
+  color: var(--amber);
   border-radius: 999px;
-  padding: 5px 12px;
-  font-size: 13px;
-  font-weight: 700;
+  padding: 5px 13px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
 }
 
-/* Floating action on a poster card (Unplan on planned, Restore on
-   dismissed). Sits above the scrim, top-right, so it never fights the
-   artist name for space. */
 .btn-planned-tickets {
   position: absolute;
   z-index: 3;
   top: 14px;
   right: 14px;
-  border: 1px solid rgba(255,255,255,0.20);
-  background: rgba(20,24,32,0.78);
-  backdrop-filter: blur(8px);
-  color: #8ec1ff;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(22,23,29,0.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--teal);
   border-radius: 999px;
-  padding: 9px 18px;
+  padding: 9px 17px;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 12.5px;
   cursor: pointer;
 }
 .btn-planned-tickets:disabled { opacity: 0.6; }
+.btn-restore-overlay { color: var(--teal) !important; }
 
-.btn-restore-overlay { color: #b9d4ff !important; }
+.dismissed-card { filter: grayscale(0.15); }
 .dismissed-card .artist,
 .dismissed-card .meta,
-.dismissed-card .when { opacity: 0.9; }
+.dismissed-card .when { opacity: 0.88; }
 
-.btn-unplan {
-  color: #ff9aa2 !important;
-  border-color: rgba(255,154,162,0.35) !important;
-}
+.btn-unplan { color: #ff9a92 !important; border-color: rgba(255,154,146,0.35) !important; }
+
 .btn-tickets-inline {
-  margin-top: 10px;
-  border: 1px solid rgba(255,255,255,0.18);
-  background: rgba(20,24,32,0.75);
-  color: #8ec1ff;
+  margin-top: 11px;
+  border: 1px solid var(--line-2);
+  background: rgba(22,23,29,0.7);
+  color: var(--teal);
   border-radius: 999px;
   padding: 8px 16px;
   font-weight: 700;
-  font-size: 13px;
+  font-size: 12.5px;
   cursor: pointer;
 }
 
-/* "Did you go?" confirmation */
-.past-concert {
-  background: var(--card-2);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  margin-bottom: 14px;
+/* ================================================= "did you go?" prompt = */
+
+.past-concert { background: var(--stub-2); border: 1px solid var(--line); border-radius: var(--radius); }
+.past-concert .artist {
+  font-family: var(--font-display);
+  font-size: 26px;
+  margin-bottom: 6px;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.7);
+  color: var(--text-1);
 }
-.past-concert .artist { font-size: 22px; font-weight: 800; margin-bottom: 6px; text-shadow: 0 2px 10px rgba(0,0,0,0.7); }
-.past-concert .meta { color: var(--text-dim); font-size: 15px; }
-.past-concert .lineup {
-  color: var(--text-faint);
-  font-size: 13px;
-  margin-top: 10px;
-  line-height: 1.5;
-}
+.past-concert .meta { color: var(--text-2); font-size: 14px; }
+.past-concert .lineup { color: var(--text-3); font-size: 12.5px; margin-top: 10px; line-height: 1.5; }
+
 .btn-later {
   width: 100%;
-  margin-top: 10px;
+  margin-top: 12px;
   background: none;
   border: none;
-  color: var(--text-faint);
-  font-size: 14px;
+  color: var(--text-3);
+  font-size: 13.5px;
   padding: 10px;
   cursor: pointer;
 }
 
-/* ---------- Archive cards ---------- */
+/* ==================================================== archive + detail = */
 
 .archive-card {
   position: relative;
-  border-radius: 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
   overflow: hidden;
   min-height: 130px;
   margin-bottom: 10px;
@@ -608,7 +825,9 @@ nav.tab-bar button.active { color: var(--accent-orange); }
   flex-direction: column;
   justify-content: flex-end;
   cursor: pointer;
+  transition: border-color 0.15s var(--ease);
 }
+.archive-card:active { transform: scale(0.99); }
 .archive-card .card-bg { opacity: 0.95; }
 .archive-scrim {
   position: absolute;
@@ -616,35 +835,40 @@ nav.tab-bar button.active { color: var(--accent-orange); }
   z-index: 1;
   pointer-events: none;
   background: linear-gradient(to bottom,
-    rgba(5,7,10,0) 0%, rgba(5,7,10,0) 35%,
-    rgba(5,7,10,0.72) 74%, rgba(5,7,10,0.95) 100%);
+    rgba(11,12,16,0) 0%, rgba(11,12,16,0) 32%,
+    rgba(11,12,16,0.74) 72%, rgba(11,12,16,0.96) 100%);
 }
 .archive-body { position: relative; z-index: 2; padding: 14px 16px; }
-.archive-card .artist { font-size: 19px; font-weight: 800; text-shadow: 0 2px 10px rgba(0,0,0,0.7); }
-.archive-card .support { color: var(--text-dim); font-size: 13px; font-style: italic; margin-top: 2px; }
-.archive-card .meta { color: var(--text-dim); font-size: 14px; margin-top: 5px; }
-.archive-card .venue { color: var(--text-faint); font-size: 13px; margin-top: 2px; }
+.archive-card .artist {
+  font-family: var(--font-display);
+  font-size: 21px;
+  letter-spacing: 0.005em;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.7);
+  color: var(--text-1);
+}
+.archive-card .support { color: var(--text-2); font-size: 12.5px; font-style: italic; margin-top: 2px; }
+.archive-card .meta { color: var(--text-2); font-family: var(--font-mono); font-size: 12px; margin-top: 6px; }
+.archive-card .venue { color: var(--text-3); font-size: 12px; margin-top: 2px; }
 .archive-badge {
   display: inline-block;
   margin-bottom: 8px;
-  background: rgba(245,166,35,0.9);
-  color: #1a1200;
+  background: var(--amber);
+  color: var(--amber-ink);
   border-radius: 999px;
   padding: 4px 11px;
-  font-size: 12px;
-  font-weight: 800;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
 }
-
-/* ---------- Concert detail sheet ---------- */
 
 .detail-overlay { align-items: stretch; }
 .detail-sheet {
-  background: var(--bg);
+  background: var(--void);
   width: 100%;
   max-width: 640px;
   margin: 0 auto;
   overflow-y: auto;
-  border-radius: 20px 20px 0 0;
+  border-radius: 22px 22px 0 0;
 }
 .detail-hero {
   position: relative;
@@ -653,7 +877,7 @@ nav.tab-bar button.active { color: var(--accent-orange); }
   flex-direction: column;
   justify-content: flex-end;
   background: linear-gradient(160deg, #1c2230, #0b0e14);
-  border-radius: 20px 20px 0 0;
+  border-radius: 22px 22px 0 0;
   overflow: hidden;
 }
 .detail-hero-scrim {
@@ -662,12 +886,19 @@ nav.tab-bar button.active { color: var(--accent-orange); }
   z-index: 1;
   pointer-events: none;
   background: linear-gradient(to bottom,
-    rgba(5,7,10,0.35) 0%, rgba(5,7,10,0.05) 35%,
-    rgba(5,7,10,0.75) 78%, rgba(5,7,10,0.97) 100%);
+    rgba(11,12,16,0.35) 0%, rgba(11,12,16,0.05) 35%,
+    rgba(11,12,16,0.78) 78%, rgba(11,12,16,0.98) 100%);
 }
-.detail-hero-text { position: relative; z-index: 2; padding: 20px; }
-.detail-title { font-size: 30px; font-weight: 800; line-height: 1.1; text-shadow: 0 2px 14px rgba(0,0,0,0.7); }
-.detail-sub { color: var(--text-dim); font-size: 15px; margin-top: 6px; }
+.detail-hero-text { position: relative; z-index: 2; padding: 22px; }
+.detail-title {
+  font-family: var(--font-display);
+  font-size: 34px;
+  letter-spacing: 0.005em;
+  line-height: 1.05;
+  text-shadow: 0 2px 16px rgba(0,0,0,0.6);
+  color: var(--text-1);
+}
+.detail-sub { color: var(--text-2); font-family: var(--font-mono); font-size: 13px; margin-top: 8px; }
 .detail-close {
   position: absolute;
   z-index: 3;
@@ -676,59 +907,74 @@ nav.tab-bar button.active { color: var(--accent-orange); }
   width: 40px;
   height: 40px;
   border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.18);
-  background: rgba(20,24,32,0.8);
-  backdrop-filter: blur(8px);
-  color: var(--text);
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(22,23,29,0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--text-1);
   font-size: 16px;
   cursor: pointer;
 }
-.detail-body { padding: 18px 16px 40px; }
-.detail-body .stat-card div:last-child { font-size: 16px; font-weight: 600; }
+.detail-body { padding: 20px 16px 44px; }
+.detail-body .stat-card .stat-tag { margin: 0 0 6px; color: var(--text-3); }
+.detail-body .stat-card div:last-child { font-size: 15.5px; font-weight: 600; color: var(--text-1); }
 
 .note-input {
   width: 100%;
-  background: var(--card-2);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 12px;
-  color: var(--text);
-  font-size: 15px;
-  font-family: inherit;
+  background: var(--stub-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 13px;
+  color: var(--text-1);
+  font-size: 14.5px;
+  font-family: var(--font-body);
   resize: vertical;
   box-sizing: border-box;
 }
+.note-input:focus { border-color: var(--teal); }
 .btn-note {
-  border: 1px solid var(--border);
-  background: var(--card-2);
-  color: var(--text);
+  border: 1px solid var(--line-2);
+  background: var(--stub-2);
+  color: var(--text-1);
   border-radius: 999px;
   padding: 9px 18px;
   font-weight: 700;
-  font-size: 14px;
+  font-size: 13.5px;
   cursor: pointer;
 }
-/* ---------- Setlist ---------- */
 
-.setlist-set { margin-bottom: 16px; }
+/* ============================================================ setlist == */
+
+.setlist-set { margin-bottom: 18px; }
 .setlist-set-name {
-  color: var(--text-faint);
-  font-size: 12px;
-  letter-spacing: 0.06em;
+  color: var(--amber);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   margin-bottom: 8px;
 }
 .setlist-songs {
   margin: 0;
-  padding-left: 26px;
-  color: var(--text);
+  padding-left: 24px;
+  color: var(--text-1);
 }
 .setlist-songs li {
   padding: 5px 0;
-  font-size: 15px;
-  line-height: 1.4;
+  font-size: 14.5px;
+  line-height: 1.45;
+  border-bottom: 1px dashed var(--line);
 }
+.setlist-songs li:last-child { border-bottom: none; }
 .setlist-songs li::marker {
-  color: var(--text-faint);
-  font-size: 13px;
+  color: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+}
+
+/* ============================================================ layout === */
+
+@media (max-width: 380px) {
+  .concert-card .artist { font-size: 32px; }
+  h2.section-title { font-size: 29px; }
 }
