@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-07-31T16:13:05.955Z",
+    "lastUpdated": "2026-07-31T16:13:08.915Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
@@ -16,6 +16,43 @@
     }
   },
   "concerts": [
+    {
+      "id": "rec-podiuminfo-482936",
+      "source": "podiuminfo",
+      "sourceId": "482936",
+      "artist": "Oi Va Voi",
+      "lineup": [
+        "Oi Va Voi"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Oi Va Voi"
+      ],
+      "date": "2026-11-07",
+      "time": null,
+      "venue": "Melkweg",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/8994/100_Oi_Va_Voi_1.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/139168/cd/Oi-Va-Voi/Melkweg/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/482936/Oi-Va-Voi/Melkweg/",
+      "match": {
+        "score": 46,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Oi Va Voi",
+        "matchedArtists": [
+          "Oi Va Voi"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-07-27T20:52:26.545Z",
+      "lastSeenAt": "2026-07-30T19:15:25.168Z"
+    },
     {
       "id": "rec-podiuminfo-460139",
       "source": "podiuminfo",
