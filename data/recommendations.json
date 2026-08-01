@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-08-01T15:48:01.222Z",
+    "lastUpdated": "2026-08-01T15:48:03.947Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
@@ -16,6 +16,43 @@
     }
   },
   "concerts": [
+    {
+      "id": "rec-podiuminfo-465374",
+      "source": "podiuminfo",
+      "sourceId": "465374",
+      "artist": "Valley of the Sun",
+      "lineup": [
+        "Valley of the Sun"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Valley of the Sun"
+      ],
+      "date": "2026-11-01",
+      "time": null,
+      "venue": "The Jack",
+      "city": "Eindhoven",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/83448/100_Valley_of_the_Sun_1.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/465374/Valley-of-the-Sun/The-Jack/",
+      "match": {
+        "score": 41,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Nightstalker",
+        "matchedArtists": [
+          "Valley of the Sun"
+        ],
+        "similarVia": "Nightstalker"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-08-01T08:16:51.845Z"
+    },
     {
       "id": "rec-podiuminfo-469142",
       "source": "podiuminfo",
