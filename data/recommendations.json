@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-08-01T15:47:55.217Z",
+    "lastUpdated": "2026-08-01T15:47:58.073Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
@@ -16,6 +16,43 @@
     }
   },
   "concerts": [
+    {
+      "id": "rec-podiuminfo-474111",
+      "source": "podiuminfo",
+      "sourceId": "474111",
+      "artist": "Nothing But Thieves",
+      "lineup": [
+        "Nothing But Thieves"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Nothing But Thieves"
+      ],
+      "date": "2027-01-15",
+      "time": null,
+      "venue": "Ziggo Dome",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/85352/100_Nothing_But_Thieves_9.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/135505/cd/Nothing-But-Thieves-The-Stray-Dogs-World-Tour/Ziggo-Dome/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/474111/Nothing-But-Thieves/Ziggo-Dome/",
+      "match": {
+        "score": 38,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Muse",
+        "matchedArtists": [
+          "Nothing But Thieves"
+        ],
+        "similarVia": "Muse"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-08-01T08:16:51.845Z"
+    },
     {
       "id": "rec-podiuminfo-469154",
       "source": "podiuminfo",
