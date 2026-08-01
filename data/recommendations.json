@@ -1,57 +1,21 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-08-01T15:49:21.121Z",
+    "lastUpdated": "2026-08-01T18:59:27.381Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 366,
-      "daysCached": 0,
+      "daysFresh": 0,
+      "daysCached": 366,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 2,
       "rejectedByLineup": 0
     }
   },
   "concerts": [
-    {
-      "id": "rec-podiuminfo-460599",
-      "source": "podiuminfo",
-      "sourceId": "460599",
-      "artist": "Eek-A-Mouse",
-      "lineup": [
-        "Eek-A-Mouse"
-      ],
-      "supportingArtists": [],
-      "matchedArtists": [
-        "Eek-A-Mouse"
-      ],
-      "date": "2026-11-06",
-      "time": null,
-      "venue": "Gebouw-T",
-      "city": "Bergen op Zoom",
-      "country": "NL",
-      "isFestival": false,
-      "image": "https://www.festivalinfo.nl/img/artist/12832/100_Eek-A-Mouse_1.jpg",
-      "ticketUrl": "https://www.podiuminfo.nl/ticket/134853/cd/Eek-A-Mouse/Gebouw-T/",
-      "sourceApis": [
-        "podiuminfo"
-      ],
-      "sourceUrl": "https://www.podiuminfo.nl/concert/460599/Eek-A-Mouse/Gebouw-T/",
-      "match": {
-        "score": 46,
-        "label": "Strong match",
-        "matchedBy": "direct",
-        "reason": "Known artist: Eek-A-Mouse",
-        "matchedArtists": [
-          "Eek-A-Mouse"
-        ]
-      },
-      "discoveredAt": "2026-07-27T20:52:26.545Z",
-      "lastSeenAt": "2026-07-28T11:27:21.715Z"
-    },
     {
       "id": "rec-podiuminfo-458184",
       "source": "podiuminfo",
@@ -83,47 +47,48 @@
         "reason": "Known artist: Kid Francescoli",
         "matchedArtists": [
           "Kid Francescoli"
-        ]
-      },
-      "discoveredAt": "2026-07-27T20:52:26.545Z",
-      "lastSeenAt": "2026-07-28T11:27:21.715Z"
-    },
-    {
-      "id": "rec-podiuminfo-447796",
-      "source": "podiuminfo",
-      "sourceId": "447796",
-      "artist": "Deep Purple",
-      "lineup": [
-        "Deep Purple"
-      ],
-      "supportingArtists": [],
-      "matchedArtists": [
-        "Deep Purple"
-      ],
-      "date": "2026-11-09",
-      "time": null,
-      "venue": "Ziggo Dome",
-      "city": "Amsterdam",
-      "country": "NL",
-      "isFestival": false,
-      "image": "https://www.festivalinfo.nl/img/artist/4998/100_Deep_Purple_3.jpg",
-      "ticketUrl": "https://www.podiuminfo.nl/ticket/127089/cd/Deep-Purple-Vip-Package/Ziggo-Dome/",
-      "sourceApis": [
-        "podiuminfo"
-      ],
-      "sourceUrl": "https://www.podiuminfo.nl/concert/447796/Deep-Purple/Ziggo-Dome/",
-      "match": {
-        "score": 45,
-        "label": "Strong match",
-        "matchedBy": "direct",
-        "reason": "Known artist: Deep Purple",
-        "matchedArtists": [
-          "Deep Purple"
         ],
         "similarVia": null
       },
-      "discoveredAt": "2026-07-28T19:14:12.464Z",
-      "lastSeenAt": "2026-07-30T19:15:25.168Z"
+      "discoveredAt": "2026-07-27T20:52:26.545Z",
+      "lastSeenAt": "2026-08-01T18:59:27.381Z"
+    },
+    {
+      "id": "rec-podiuminfo-460599",
+      "source": "podiuminfo",
+      "sourceId": "460599",
+      "artist": "Eek-A-Mouse",
+      "lineup": [
+        "Eek-A-Mouse"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Eek-A-Mouse"
+      ],
+      "date": "2026-11-06",
+      "time": null,
+      "venue": "Gebouw-T",
+      "city": "Bergen op Zoom",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/12832/100_Eek-A-Mouse_1.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/134853/cd/Eek-A-Mouse/Gebouw-T/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/460599/Eek-A-Mouse/Gebouw-T/",
+      "match": {
+        "score": 46,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Eek-A-Mouse",
+        "matchedArtists": [
+          "Eek-A-Mouse"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-07-27T20:52:26.545Z",
+      "lastSeenAt": "2026-08-01T18:59:27.381Z"
     },
     {
       "id": "rec-podiuminfo-452030",
@@ -156,10 +121,11 @@
         "reason": "Known artist: Ásgeir",
         "matchedArtists": [
           "Ásgeir"
-        ]
+        ],
+        "similarVia": null
       },
       "discoveredAt": "2026-07-27T21:15:25.916Z",
-      "lastSeenAt": "2026-07-28T15:03:07.613Z"
+      "lastSeenAt": "2026-08-01T18:59:27.381Z"
     },
     {
       "id": "rec-podiuminfo-459963",
@@ -186,7 +152,7 @@
       ],
       "sourceUrl": "https://www.podiuminfo.nl/concert/459963/Lambert/Lutherse-Kerk/",
       "match": {
-        "score": 42,
+        "score": 43,
         "label": "Possible match",
         "matchedBy": "similar",
         "reason": "Similar to Gonzales",
@@ -196,7 +162,7 @@
         "similarVia": "Gonzales"
       },
       "discoveredAt": "2026-07-30T16:28:28.177Z",
-      "lastSeenAt": "2026-07-30T19:15:25.168Z"
+      "lastSeenAt": "2026-08-01T18:59:27.381Z"
     },
     {
       "id": "rec-podiuminfo-465374",
@@ -233,44 +199,7 @@
         "similarVia": "Nightstalker"
       },
       "discoveredAt": "2026-07-30T16:28:28.177Z",
-      "lastSeenAt": "2026-08-01T08:16:51.845Z"
-    },
-    {
-      "id": "rec-podiuminfo-469142",
-      "source": "podiuminfo",
-      "sourceId": "469142",
-      "artist": "Hippotraktor",
-      "lineup": [
-        "Hippotraktor"
-      ],
-      "supportingArtists": [],
-      "matchedArtists": [
-        "Hippotraktor"
-      ],
-      "date": "2026-11-04",
-      "time": null,
-      "venue": "Vera",
-      "city": "Groningen",
-      "country": "NL",
-      "isFestival": false,
-      "image": "https://www.podiuminfo.nl/img/podiuminfo-rond.png",
-      "ticketUrl": "https://www.podiuminfo.nl/ticket/134502/cd/Hippotraktor-BEL-support/Vera/",
-      "sourceApis": [
-        "podiuminfo"
-      ],
-      "sourceUrl": "https://www.podiuminfo.nl/concert/469142/Hippotraktor/Vera/",
-      "match": {
-        "score": 39,
-        "label": "Possible match",
-        "matchedBy": "similar",
-        "reason": "Similar to Psychonaut",
-        "matchedArtists": [
-          "Hippotraktor"
-        ],
-        "similarVia": "Psychonaut"
-      },
-      "discoveredAt": "2026-07-30T16:28:28.177Z",
-      "lastSeenAt": "2026-08-01T08:16:51.845Z"
+      "lastSeenAt": "2026-08-01T18:59:27.381Z"
     },
     {
       "id": "rec-podiuminfo-465876",
@@ -307,7 +236,44 @@
         "similarVia": "The Dears"
       },
       "discoveredAt": "2026-07-30T16:28:28.177Z",
-      "lastSeenAt": "2026-07-30T19:15:25.168Z"
+      "lastSeenAt": "2026-08-01T18:59:27.381Z"
+    },
+    {
+      "id": "rec-podiuminfo-469142",
+      "source": "podiuminfo",
+      "sourceId": "469142",
+      "artist": "Hippotraktor",
+      "lineup": [
+        "Hippotraktor"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Hippotraktor"
+      ],
+      "date": "2026-11-04",
+      "time": null,
+      "venue": "Vera",
+      "city": "Groningen",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.podiuminfo.nl/img/podiuminfo-rond.png",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/134502/cd/Hippotraktor-BEL-support/Vera/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/469142/Hippotraktor/Vera/",
+      "match": {
+        "score": 39,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Psychonaut",
+        "matchedArtists": [
+          "Hippotraktor"
+        ],
+        "similarVia": "Psychonaut"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-08-01T18:59:27.381Z"
     },
     {
       "id": "rec-podiuminfo-474111",
@@ -344,7 +310,7 @@
         "similarVia": "Muse"
       },
       "discoveredAt": "2026-07-30T16:28:28.177Z",
-      "lastSeenAt": "2026-08-01T08:16:51.845Z"
+      "lastSeenAt": "2026-08-01T18:59:27.381Z"
     },
     {
       "id": "rec-podiuminfo-479499",
@@ -371,7 +337,7 @@
       ],
       "sourceUrl": "https://www.podiuminfo.nl/concert/479499/The-Gathering/AFAS-Live/",
       "match": {
-        "score": 37,
+        "score": 38,
         "label": "Possible match",
         "matchedBy": "similar",
         "reason": "Similar to Anathema",
@@ -381,44 +347,7 @@
         "similarVia": "Anathema"
       },
       "discoveredAt": "2026-07-30T16:28:28.177Z",
-      "lastSeenAt": "2026-07-30T19:15:25.168Z"
-    },
-    {
-      "id": "rec-podiuminfo-469154",
-      "source": "podiuminfo",
-      "sourceId": "469154",
-      "artist": "Hippotraktor",
-      "lineup": [
-        "Hippotraktor"
-      ],
-      "supportingArtists": [],
-      "matchedArtists": [
-        "Hippotraktor"
-      ],
-      "date": "2026-12-18",
-      "time": null,
-      "venue": "Kroepoekfabriek",
-      "city": "Vlaardingen",
-      "country": "??",
-      "isFestival": false,
-      "image": "https://www.podiuminfo.nl/img/podiuminfo-rond.png",
-      "ticketUrl": "https://www.podiuminfo.nl/ticket/134444/cd/HIPPOTRAKTOR-TURPENTINE-VALLEY/Kroepoekfabriek/",
-      "sourceApis": [
-        "podiuminfo"
-      ],
-      "sourceUrl": "https://www.podiuminfo.nl/concert/469154/Hippotraktor/Kroepoekfabriek/",
-      "match": {
-        "score": 34,
-        "label": "Possible match",
-        "matchedBy": "similar",
-        "reason": "Similar to Psychonaut",
-        "matchedArtists": [
-          "Hippotraktor"
-        ],
-        "similarVia": "Psychonaut"
-      },
-      "discoveredAt": "2026-07-30T16:28:28.177Z",
-      "lastSeenAt": "2026-08-01T08:16:51.845Z"
+      "lastSeenAt": "2026-08-01T18:59:27.381Z"
     },
     {
       "id": "rec-podiuminfo-480495",
@@ -455,7 +384,81 @@
         "similarVia": "Bob Marley & The Wailers"
       },
       "discoveredAt": "2026-07-30T16:28:28.177Z",
-      "lastSeenAt": "2026-08-01T08:16:51.845Z"
+      "lastSeenAt": "2026-08-01T18:59:27.381Z"
+    },
+    {
+      "id": "rec-podiuminfo-469154",
+      "source": "podiuminfo",
+      "sourceId": "469154",
+      "artist": "Hippotraktor",
+      "lineup": [
+        "Hippotraktor"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Hippotraktor"
+      ],
+      "date": "2026-12-18",
+      "time": null,
+      "venue": "Kroepoekfabriek",
+      "city": "Vlaardingen",
+      "country": "??",
+      "isFestival": false,
+      "image": "https://www.podiuminfo.nl/img/podiuminfo-rond.png",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/134444/cd/HIPPOTRAKTOR-TURPENTINE-VALLEY/Kroepoekfabriek/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/469154/Hippotraktor/Kroepoekfabriek/",
+      "match": {
+        "score": 34,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Psychonaut",
+        "matchedArtists": [
+          "Hippotraktor"
+        ],
+        "similarVia": "Psychonaut"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-08-01T18:59:27.381Z"
+    },
+    {
+      "id": "rec-podiuminfo-484045",
+      "source": "podiuminfo",
+      "sourceId": "484045",
+      "artist": "Queensrÿche",
+      "lineup": [
+        "Queensrÿche"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Queensrÿche"
+      ],
+      "date": "2026-12-07",
+      "time": null,
+      "venue": "013",
+      "city": "Tilburg",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/5727/100_Queensryche_2.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/139317/cd/Queensryche/013/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/484045/Queensryche/013/",
+      "match": {
+        "score": 31,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Iron Maiden",
+        "matchedArtists": [
+          "Queensrÿche"
+        ],
+        "similarVia": "Iron Maiden"
+      },
+      "discoveredAt": "2026-08-01T18:59:27.381Z",
+      "lastSeenAt": "2026-08-01T18:59:27.381Z"
     },
     {
       "id": "rec-podiuminfo-482709",
@@ -492,7 +495,7 @@
         "similarVia": "Muse"
       },
       "discoveredAt": "2026-07-30T16:28:28.177Z",
-      "lastSeenAt": "2026-08-01T08:16:51.845Z"
+      "lastSeenAt": "2026-08-01T18:59:27.381Z"
     },
     {
       "id": "rec-podiuminfo-464815",
@@ -532,7 +535,7 @@
         "similarVia": "Psychonaut"
       },
       "discoveredAt": "2026-07-30T16:28:28.177Z",
-      "lastSeenAt": "2026-07-30T19:15:25.168Z"
+      "lastSeenAt": "2026-08-01T18:59:27.381Z"
     },
     {
       "id": "rec-podiuminfo-469143",
@@ -572,7 +575,7 @@
         "similarVia": "Psychonaut"
       },
       "discoveredAt": "2026-07-30T16:28:28.177Z",
-      "lastSeenAt": "2026-07-30T19:15:25.168Z"
+      "lastSeenAt": "2026-08-01T18:59:27.381Z"
     }
   ]
 }
