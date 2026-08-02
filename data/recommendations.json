@@ -1,13 +1,13 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-08-02T14:19:55.628Z",
+    "lastUpdated": "2026-08-02T19:00:29.508Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 366,
-      "daysCached": 0,
+      "daysFresh": 0,
+      "daysCached": 366,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
@@ -15,5 +15,46 @@
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-464815",
+      "source": "podiuminfo",
+      "sourceId": "464815",
+      "artist": "Hemelbestormer",
+      "lineup": [
+        "Hemelbestormer",
+        "The Fifth Alliance"
+      ],
+      "supportingArtists": [
+        "The Fifth Alliance"
+      ],
+      "matchedArtists": [
+        "Hemelbestormer"
+      ],
+      "date": "2026-11-07",
+      "time": null,
+      "venue": "ECI Cultuurfabriek",
+      "city": "Roermond",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.podiuminfo.nl/img/podiuminfo-rond.png",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/464815/Hemelbestormer-The-Fifth-Alliance/ECI-Cultuurfabriek/",
+      "match": {
+        "score": 30,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Psychonaut",
+        "matchedArtists": [
+          "Hemelbestormer"
+        ],
+        "similarVia": "Psychonaut"
+      },
+      "discoveredAt": "2026-08-02T19:00:29.508Z",
+      "lastSeenAt": "2026-08-02T19:00:29.508Z"
+    }
+  ]
 }
