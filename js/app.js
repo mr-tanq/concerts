@@ -556,8 +556,12 @@ function openSheet(c) {
   const root = document.getElementById("settings-modal-root");
   const photo = imageFor(c);
   const lineup = artistsOf(c);
-  const support = lineup.filter((n) => n !== c.artist);
+  // Everyone except the name already in the title above. For a festival that
+  // title is the festival itself, so this is the real bill; for a concert
+  // it's the headliner, so this is the support.
+  const support = lineup.filter((n) => n !== c.artist && n !== c.festivalName);
   const room = venueKey(c);
+  const planned = plannedConcerts.find((p) => p.id === c.id) || null;
 
   root.innerHTML = "";
   const sheet = el(`
@@ -581,8 +585,8 @@ function openSheet(c) {
 
         ${support.length ? `
           <div class="sheet-section">
-            <p class="whisper">${c.isFestival ? "Who played" : "Also on"}</p>
-            <p class="names"><b>${esc(c.artist)}</b>, ${esc(support.join(", "))}</p>
+            <p class="whisper">${c.isFestival ? "Who played" : "Support"}</p>
+            <p class="names">${esc(support.join(", "))}</p>
           </div>` : ""}
 
         <div class="sheet-section">
@@ -591,10 +595,49 @@ function openSheet(c) {
         </div>
 
         <div id="sheet-setlist"></div>
+
+        ${planned ? `
+          <div class="sheet-section">
+            <p class="whisper">Change of plan</p>
+            <div class="act-row" style="padding-left:0;padding-right:0">
+              ${planned.ticketUrl ? `<button class="plain-act" id="sheet-tickets">Tickets</button>` : ""}
+              <button class="plain-act" id="sheet-unplan">Not going after all</button>
+            </div>
+          </div>` : ""}
       </div>
     </div>
   `);
   root.appendChild(sheet);
+
+  // Unplan is reachable from any planned concert, not just whichever one
+  // happens to be next — a mistake buried three deep still has to be undoable.
+  if (planned) {
+    sheet.querySelector("#sheet-tickets")?.addEventListener("click", () => window.open(planned.ticketUrl, "_blank"));
+    const un = sheet.querySelector("#sheet-unplan");
+    un.addEventListener("click", async () => {
+      if (!getGithubConfig()) { openSettings(); return; }
+      un.disabled = true; un.textContent = "Removing";
+      pendingWrites++; renderSaving();
+      try {
+        const recId = await enqueue(() => unplanConcertRemote(planned));
+        plannedConcerts = plannedConcerts.filter((x) => x.id !== planned.id);
+        if (!deckQueue.some((d) => d.id === recId)) {
+          deckQueue.push({
+            ...planned, id: recId,
+            match: { score: planned.planning?.originalScore ?? 50, label: "Strong match",
+                     reason: `Known artist: ${planned.artist}`, matchedArtists: [planned.artist] },
+          });
+        }
+        root.innerHTML = "";
+        renderConcertsShell("going");
+      } catch (err) {
+        console.error(err);
+        syncError = err.message;
+        un.disabled = false; un.textContent = "Not going after all";
+        renderSaving();
+      } finally { pendingWrites--; renderSaving(); }
+    });
+  }
 
   setPhoto(sheet.querySelector(".sheet-photo"), photo);
   sheet.querySelector(".sheet-close").addEventListener("click", () => { root.innerHTML = ""; });
@@ -911,8 +954,10 @@ function upcomingHero(c) {
     window.open(c.ticketUrl, "_blank");
   });
 
+  // Guarded: a missing node here used to take the whole render down with it,
+  // which is a poor trade for one optional button.
   const un = node.querySelector('[data-a="unplan"]');
-  un.addEventListener("click", async (e) => {
+  un?.addEventListener("click", async (e) => {
     e.stopPropagation();
     if (!getGithubConfig()) { openSettings(); return; }
     un.disabled = true; un.textContent = "Removing";
