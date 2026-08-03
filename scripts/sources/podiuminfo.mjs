@@ -66,7 +66,23 @@ export function splitLineup(rawTitle, trackedSet = null) {
     .map((p) => p.trim())
     .filter(Boolean);
 
-  return parts.length ? parts : [cleaned];
+  const lineup = parts.length ? parts : [cleaned];
+  if (!trackedSet) return lineup;
+
+  // Podiuminfo sometimes appends a tour subtitle after a dash, e.g.
+  // "Puscifer - The Normal Isn't Tour" — confirmed directly against a live
+  // page. Untouched, that whole string never matches the tracked artist
+  // "Puscifer" and the concert silently never enters the crawl. Strip the
+  // suffix ONLY when the part before the dash exactly matches a tracked
+  // artist — this is precise, evidence-based matching, not a fuzzy guess:
+  // an untracked bill with a dash in its title is left completely alone.
+  return lineup.map((name) => {
+    if (trackedSet.has(normalizeArtistName(name))) return name;
+    const dashIdx = name.search(/\s+[-\u2013\u2014]\s+/);
+    if (dashIdx === -1) return name;
+    const before = name.slice(0, dashIdx).trim();
+    return trackedSet.has(normalizeArtistName(before)) ? before : name;
+  });
 }
 
 // ---------- Throttled fetching with bounded retries ----------
