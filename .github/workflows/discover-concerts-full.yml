@@ -1,8 +1,21 @@
-name: Discover concerts (weekly deep refresh)
+name: Discover concerts (daily deep refresh)
+
+# Runs the full crawl with FORCE_REFRESH_DAYS=true, ignoring the day-cache
+# entirely so every day in the lookahead window is re-checked against
+# Podiuminfo rather than served from what was cached last time. The
+# ordinary "Discover concerts" workflow (twice a day) is cheap because it
+# trusts the 20-hour-fresh cache; this one exists specifically to catch
+# concerts newly announced for a day that was already cached before the
+# announcement went up.
+#
+# 07:00 UTC = 09:00 in the Netherlands during summer (CEST, UTC+2). GitHub
+# Actions cron is always UTC and does not shift for daylight saving, so
+# once winter time (CET, UTC+1) starts this will land at 08:00 local
+# instead of 09:00 — a known ~1 hour drift twice a year, not a bug.
 
 on:
   schedule:
-    - cron: "0 5 * * 1"   # every Monday at 05:00 UTC
+    - cron: "0 7 * * *"   # daily at 07:00 UTC (09:00 NL time in summer)
   workflow_dispatch: {}
 
 permissions:
@@ -25,7 +38,6 @@ jobs:
           LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
           LASTFM_USER: ${{ secrets.LASTFM_USER }}
           FORCE_REFRESH_DAYS: "true"
-          DEBUG_ARTIST: Puscifer
         run: node scripts/discover-concerts.mjs
 
       - name: Commit updated recommendations + caches
@@ -33,5 +45,5 @@ jobs:
           git config user.name "listening-mirror-bot"
           git config user.email "actions@users.noreply.github.com"
           git add data/recommendations.json data/podiuminfo-day-cache.json data/podiuminfo-cache.json
-          git diff --cached --quiet && echo "No changes" || git commit -m "chore: weekly deep refresh of recommendations"
+          git diff --cached --quiet && echo "No changes" || git commit -m "chore: daily deep refresh of recommendations"
           git push
