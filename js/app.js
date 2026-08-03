@@ -792,7 +792,7 @@ function stageCard(c) {
         <div class="stage-when">${weekdayShort(c.date)} ${dayMonth(c.date)} ${yearOf(c.date)}${time} · ${esc(c.city)}</div>
         <h2 class="stage-artist">${esc(c.artist)}</h2>
         ${support.length ? `<div class="stage-with">with ${esc(support.slice(0, 3).join(", "))}</div>` : ""}
-        <div class="stage-why">${esc(c.venue)} — ${esc(c.match.reason)}</div>
+        <div class="stage-why">${esc(c.venue)}${c.match.matchedBy === "similar" ? ` — ${esc(c.match.reason)}` : ""}</div>
       </div>
     </div>
   `);
