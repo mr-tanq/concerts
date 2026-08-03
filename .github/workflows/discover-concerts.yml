@@ -24,7 +24,7 @@ jobs:
         env:
           LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
           LASTFM_USER: ${{ secrets.LASTFM_USER }}
-          DEBUG_ARTIST: Puscifer
+  
         run: node scripts/discover-concerts.mjs
 
       - name: Commit updated recommendations + caches
