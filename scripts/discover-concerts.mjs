@@ -7,8 +7,6 @@
 //
 // Pipeline:
 //   1. Last.fm listening signal (artists above minPlaycountToTrack)
-//   1b. Optionally expand with artists Last.fm considers similar to your
-//      favourites, so discovery can surface bands you haven't found yet
 //   2. Crawl Podiuminfo per-day agenda pages over the lookahead window
 //   3. One recommendation per Podiuminfo concert id, matched against ALL
 //      tracked artists at once
@@ -29,6 +27,11 @@
 //
 // FORCE_REFRESH_DAYS=true bypasses day-cache freshness checks (without
 // discarding the cache — entries are replaced only on successful fetch).
+//
+// DEBUG_ARTIST=<name> traces one artist end-to-end through the pipeline:
+// whether it's tracked, whether the crawl confirmed it in any lineup, and
+// at which filter each match was kept or dropped. Set it temporarily in
+// the workflow's env: to answer "why isn't X showing up".
 
 import { readFile, writeFile, rename } from "node:fs/promises";
 import path from "node:path";
@@ -424,6 +427,22 @@ async function main() {
     `Tracking ${trackedArtistNames.length} artists: ` +
     `${listenedNames.length} listened (playcount > ${minPlaycount}) + ${similarByName.size} similar.`
   );
+
+  // Set DEBUG_ARTIST to trace one specific artist end-to-end through the
+  // pipeline: is it tracked, did the crawl find it in any confirmed lineup,
+  // and if so, at which filter did each match get dropped. This turns "why
+  // isn't X showing up" from guesswork into a direct answer, permanently —
+  // not a one-off patch for this run.
+  const DEBUG_ARTIST = process.env.DEBUG_ARTIST ? normalizeArtistName(process.env.DEBUG_ARTIST) : null;
+  if (DEBUG_ARTIST) {
+    const listened = listenedNames.some((n) => normalizeArtistName(n) === DEBUG_ARTIST);
+    const similar = [...similarByName.keys()].includes(DEBUG_ARTIST);
+    console.log(
+      `[debug] "${process.env.DEBUG_ARTIST}": tracked as listened=${listened}, tracked as similar=${similar}. ` +
+      (listened || similar ? "Will be matched against the crawl." : "NOT tracked — the crawl will never look for it.")
+    );
+  }
+
   console.log(`Crawling Podiuminfo day agenda ${today} → ${lookaheadEnd}...`);
 
   // --- Crawl ---
@@ -446,6 +465,19 @@ async function main() {
     });
     events = result.events;
     stats = result.stats;
+
+    if (DEBUG_ARTIST) {
+      const hits = events.filter((e) => e.matchedTracked.some((a) => normalizeArtistName(a) === DEBUG_ARTIST));
+      console.log(`[debug] Podiuminfo crawl confirmed ${hits.length} event(s) with "${process.env.DEBUG_ARTIST}" in the lineup:`);
+      for (const e of hits) console.log(`    ${e.date} — ${e.venue}, ${e.city} (country=${e.country}, concertId=${e.concertId})`);
+      if (hits.length === 0) {
+        console.log(
+          `    None found. Either the artist isn't tracked (see the line above), the venue/date isn't ` +
+          `covered by Podiuminfo, or the day-page cache is stale for that date. FORCE_REFRESH_DAYS=true ` +
+          `rules out the cache explanation.`
+        );
+      }
+    }
   } catch (err) {
     console.error(`FAILED: crawl aborted — ${err.message}`);
     await writeJsonAtomic(DAY_CACHE_PATH, DAY_CACHE);
@@ -495,28 +527,34 @@ async function main() {
   };
 
   for (const event of events) {
-    if (!event.date || event.date < today || event.date > lookaheadEnd) { dropped.outOfDateRange++; continue; }
+    const isDebugTarget = DEBUG_ARTIST && event.matchedTracked.some((a) => normalizeArtistName(a) === DEBUG_ARTIST);
+    const trace = (reason) => { if (isDebugTarget) console.log(`[debug] ${event.date} ${event.venue}: dropped — ${reason}`); };
+
+    if (!event.date || event.date < today || event.date > lookaheadEnd) { dropped.outOfDateRange++; trace("outside the lookahead window"); continue; }
 
     // Country rule: NL always; BE only for high scores. An UNKNOWN country
     // is not silently promoted to NL — it's only kept if unknowns are
     // explicitly allowed in config.
-    if (event.country === null && !CONFIG.location.allowUnknownCountry) { dropped.unknownCountryRejected++; continue; }
+    if (event.country === null && !CONFIG.location.allowUnknownCountry) { dropped.unknownCountryRejected++; trace("country unknown and unknowns not allowed"); continue; }
 
-    if (alreadyInArchive(event, ARCHIVE.concerts)) { dropped.alreadyInArchive++; continue; }
-    if (isExcluded(event, excludedIds)) { dropped.previouslyHandled++; continue; }
+    if (alreadyInArchive(event, ARCHIVE.concerts)) { dropped.alreadyInArchive++; trace("already in the archive"); continue; }
+    if (isExcluded(event, excludedIds)) { dropped.previouslyHandled++; trace("already dismissed or planned before"); continue; }
 
     const { displayArtist, match } = scoreEvent(event, signalByName, similarByName, CONFIG);
-    if (match.score < CONFIG.discovery.minScoreToShow) { dropped.belowMinScore++; continue; }
+    if (isDebugTarget) console.log(`[debug] ${event.date} ${event.venue}: score ${match.score} (${match.matchedBy}) — ${match.reason}`);
+    if (match.score < CONFIG.discovery.minScoreToShow) { dropped.belowMinScore++; trace(`score ${match.score} below minScoreToShow ${CONFIG.discovery.minScoreToShow}`); continue; }
 
     const highScoreThreshold = CONFIG.location.highScoreThreshold ?? Infinity;
     const allowedCountries =
       match.score >= highScoreThreshold
         ? CONFIG.location.highScoreSearchCountries || CONFIG.location.searchCountries
         : CONFIG.location.searchCountries;
-    if (event.country !== null && !allowedCountries.includes(event.country)) { dropped.countryNotAllowed++; continue; }
+    if (event.country !== null && !allowedCountries.includes(event.country)) { dropped.countryNotAllowed++; trace(`country ${event.country} not allowed at this score`); continue; }
 
     const id = makeRecId(event.concertId);
     const prior = previousBySourceId.get(String(event.concertId)) || previousById.get(id);
+
+    if (isDebugTarget) console.log(`[debug] ${event.date} ${event.venue}: PUBLISHED as ${id}`);
 
     results.push({
       id,
@@ -573,10 +611,7 @@ async function main() {
   await writeJsonAtomic(DAY_CACHE_PATH, DAY_CACHE);
   await writeJsonAtomic(CONCERT_CACHE_PATH, CONCERT_CACHE);
 
-  const directCount = results.filter((r) => r.match.matchedBy === "direct").length;
-  const similarCount = results.length - directCount;
-
-  console.log(`${status}: wrote ${results.length} recommendations (${directCount} direct, ${similarCount} similar-artist).`);
+  console.log(`${status}: wrote ${results.length} recommendations (one per concert).`);
   console.log(
     `Funnel: ${events.length} confirmed events → ` +
     `-${dropped.outOfDateRange} out of range, ` +
