@@ -47,6 +47,35 @@ export function isArtistMatch(a, b) {
   return normalizeArtistName(a) === normalizeArtistName(b);
 }
 
+// Podiuminfo and other sources don't always agree on hyphens vs spaces in
+// band names — its own day-agenda listing renders "Kal-El" as "Kal El",
+// confirmed directly against a live page. A plain normalized-string
+// compare alone misses an artist that IS correctly tracked, purely because
+// of a hyphen. This folds hyphens to spaces on both sides before comparing
+// as a fallback — still exact matching against a slightly wider notion of
+// "the same string", never fuzzy/substring matching. Kept as a separate
+// helper (not baked into normalizeArtistName) because that function is
+// also used for city names, several of which are only correct WITH their
+// hyphen (Sint-Niklaas, Heist-op-den-Berg) — folding there would break
+// country detection instead of fixing artist matching.
+function foldHyphens(s) {
+  return s.replace(/[-\u2010-\u2015]/g, " ").replace(/\s+/g, " ").trim();
+}
+
+export function isTrackedName(name, trackedSet) {
+  const norm = normalizeArtistName(name);
+  if (trackedSet.has(norm)) return true;
+  // No early exit based on whether `name` itself contains a hyphen: the
+  // hyphen may just as easily live on the TRACKED side (Last.fm's "Kal-El"
+  // vs Podiuminfo's "Kal El"), so both directions have to go through the
+  // same fold before comparing.
+  const folded = foldHyphens(norm);
+  for (const t of trackedSet) {
+    if (foldHyphens(t) === folded) return true;
+  }
+  return false;
+}
+
 // ---------- Lineup parsing ----------
 // Conservative on purpose. We split on " + " and " • " (always surrounded
 // by whitespace on a real bill) but NEVER on "/" — that character appears
@@ -57,7 +86,7 @@ export function splitLineup(rawTitle, trackedSet = null) {
   const cleaned = (rawTitle || "").replace(/^Concert\s+/i, "").trim();
   if (!cleaned) return [];
 
-  if (trackedSet && trackedSet.has(normalizeArtistName(cleaned))) {
+  if (trackedSet && isTrackedName(cleaned, trackedSet)) {
     return [cleaned];
   }
 
@@ -77,11 +106,11 @@ export function splitLineup(rawTitle, trackedSet = null) {
   // artist — this is precise, evidence-based matching, not a fuzzy guess:
   // an untracked bill with a dash in its title is left completely alone.
   return lineup.map((name) => {
-    if (trackedSet.has(normalizeArtistName(name))) return name;
+    if (isTrackedName(name, trackedSet)) return name;
     const dashIdx = name.search(/\s+[-\u2013\u2014]\s+/);
     if (dashIdx === -1) return name;
     const before = name.slice(0, dashIdx).trim();
-    return trackedSet.has(normalizeArtistName(before)) ? before : name;
+    return isTrackedName(before, trackedSet) ? before : name;
   });
 }
 
@@ -389,7 +418,7 @@ export async function discoverEvents({
 
     for (const [concertId, { href, rawTitle }] of candidates.entries()) {
       const coarseLineup = splitLineup(rawTitle, trackedSet);
-      const relevant = coarseLineup.some((name) => trackedSet.has(normalizeArtistName(name)));
+      const relevant = coarseLineup.some((name) => isTrackedName(name, trackedSet));
       if (relevant && !toOpen.has(concertId)) toOpen.set(concertId, href);
     }
 
@@ -442,7 +471,7 @@ export async function discoverEvents({
       }
     }
 
-    const matchedTracked = parsed.lineup.filter((name) => trackedSet.has(normalizeArtistName(name)));
+    const matchedTracked = parsed.lineup.filter((name) => isTrackedName(name, trackedSet));
     if (matchedTracked.length === 0) {
       // The coarse day-page title said this was relevant but the
       // authoritative lineup disagrees. A handful is normal; a flood means
