@@ -25,6 +25,7 @@ jobs:
           LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
           LASTFM_USER: ${{ secrets.LASTFM_USER }}
           FORCE_REFRESH_DAYS: "true"
+          DEBUG_ARTIST: Puscifer
         run: node scripts/discover-concerts.mjs
 
       - name: Commit updated recommendations + caches
