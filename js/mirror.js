@@ -25,18 +25,27 @@ export function initMirror(deps) {
 
 async function spotifyFetch(path, options = {}) {
   const token = await getValidAccessToken();
-  if (!token) throw new Error("not-connected");
+  if (!token) {
+    const err = new Error("Not connected to Spotify.");
+    err.code = "reauth-required";
+    throw err;
+  }
   const res = await fetch(`https://api.spotify.com/v1${path}`, {
     ...options,
     headers: { Authorization: `Bearer ${token}`, ...(options.headers || {}) },
   });
+  if (res.status === 401) {
+    disconnectSpotify();
+    const err = new Error("Spotify rejected the access token.");
+    err.code = "reauth-required";
+    throw err;
+  }
   return res;
 }
 
 async function fetchNowPlaying() {
   const res = await spotifyFetch("/me/player/currently-playing");
   if (res.status === 204) return { playing: false };
-  if (res.status === 401) throw new Error("token-rejected");
   if (!res.ok) throw new Error(`Spotify HTTP ${res.status}`);
   const json = await res.json();
   if (!json?.item) return { playing: false };
@@ -147,18 +156,37 @@ function startPolling(body) {
     try {
       const state = await fetchNowPlaying();
       await renderNowPlaying(body, state);
+      setPollStatus(body, null); // clear any previous error once something succeeds
     } catch (err) {
-      if (err.message === "token-rejected" || err.message === "not-connected") {
-        disconnectSpotify();
-        renderMirror(body.closest(".mirror-stage")?.parentElement || body);
+      console.warn("Mirror poll failed:", err.message);
+      if (err.code === "reauth-required") {
+        stopPolling();
+        const panel = body.closest(".mirror-stage")?.parentElement;
+        renderMirror(panel || body.parentElement || body);
         return;
       }
-      console.warn("Mirror poll failed:", err.message);
+      // Anything else (network hiccup, rate limit, unexpected response) is
+      // shown right on the tab rather than only logged — this app is used
+      // exclusively on a phone, where the console is never actually seen.
+      setPollStatus(body, err.message);
     }
   };
   tick();
   pollTimer = setInterval(tick, POLL_MS);
   document.addEventListener("visibilitychange", onVisibilityChange);
+}
+
+function setPollStatus(body, message) {
+  const { el } = renderDeps;
+  const stage = body.closest(".mirror-stage");
+  if (!stage) return;
+  let status = stage.querySelector("#mirror-poll-status");
+  if (!message) { status?.remove(); return; }
+  if (!status) {
+    status = el(`<p class="status bad" id="mirror-poll-status"></p>`);
+    stage.appendChild(status);
+  }
+  status.textContent = message;
 }
 
 function onVisibilityChange() {
