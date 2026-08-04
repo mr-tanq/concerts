@@ -14,10 +14,20 @@ import {
 import { getSyncedLyrics, currentLine } from "./lyrics.js";
 
 const POLL_MS = 5000;
+// How often the lyric line re-checks itself against elapsed time. Spotify
+// itself is only asked once every POLL_MS — this just interpolates between
+// those answers using the browser's own clock, the same technique any
+// lyric-sync player uses, so the line changes when it should instead of in
+// visible 5-second jumps.
+const LYRIC_TICK_MS = 200;
 let pollTimer = null;
+let lyricClockTimer = null;
 let currentTrackId = null;
-let currentLyricLines = null;
-let renderDeps = null; // { el, esc } injected from app.js
+let currentLyricLines; // undefined = still fetching · null = confirmed no lyrics · array = loaded
+let syncedProgressMs = 0;   // progress as of the last successful poll
+let syncedAtMs = 0;         // performance.now() when that poll's data was captured
+let isPlayingNow = false;
+let renderDeps = null; // { el, esc, openSettings-like helper } injected from app.js
 
 export function initMirror(deps) {
   renderDeps = deps;
@@ -44,11 +54,18 @@ async function spotifyFetch(path, options = {}) {
 }
 
 async function fetchNowPlaying() {
+  const requestStartedAt = performance.now();
   const res = await spotifyFetch("/me/player/currently-playing");
   if (res.status === 204) return { playing: false };
   if (!res.ok) throw new Error(`Spotify HTTP ${res.status}`);
   const json = await res.json();
   if (!json?.item) return { playing: false };
+  // Spotify's progress_ms reflects where playback was WHEN THEIR SERVER
+  // processed the request, not when we finish receiving the response. On a
+  // slower connection that gap is exactly the "lyrics feel a beat behind"
+  // sensation — correcting for it here means every consumer of progressMs
+  // gets an already-compensated value, not just the lyric line.
+  const roundTripMs = performance.now() - requestStartedAt;
   return {
     playing: !!json.is_playing,
     trackId: json.item.id,
@@ -57,7 +74,7 @@ async function fetchNowPlaying() {
     primaryArtist: json.item.artists?.[0]?.name || "",
     album: json.item.album?.name || "",
     image: json.item.album?.images?.[0]?.url || null,
-    progressMs: json.progress_ms || 0,
+    progressMs: (json.progress_ms || 0) + roundTripMs,
     durationMs: json.item.duration_ms || 0,
   };
 }
@@ -171,6 +188,12 @@ function startPolling(body) {
     if (document.hidden) return; // paused while the tab/app isn't visible
     try {
       const state = await fetchNowPlaying();
+      // Re-anchor the local clock on every successful poll — this is what
+      // keeps it correct across seeks, pauses, and any drift, rather than
+      // letting the interpolation wander further off with each cycle.
+      syncedProgressMs = state.progressMs;
+      syncedAtMs = performance.now();
+      isPlayingNow = state.playing;
       await renderNowPlaying(body, state);
       setPollStatus(body, null); // clear any previous error once something succeeds
     } catch (err) {
@@ -189,6 +212,7 @@ function startPolling(body) {
   };
   tick();
   pollTimer = setInterval(tick, POLL_MS);
+  startLyricClock(body);
   document.addEventListener("visibilitychange", onVisibilityChange);
 }
 
@@ -205,6 +229,27 @@ function setPollStatus(body, message) {
   status.textContent = message;
 }
 
+// Where the track SHOULD be right now, extrapolated from the last poll
+// using wall-clock time — not from the last poll's number alone, which
+// would only ever change once every POLL_MS.
+function estimateProgressMs() {
+  if (!isPlayingNow) return syncedProgressMs;
+  return syncedProgressMs + (performance.now() - syncedAtMs);
+}
+
+function startLyricClock(body) {
+  stopLyricClock();
+  lyricClockTimer = setInterval(() => {
+    if (document.hidden || !isPlayingNow) return;
+    updateLyricLine(body, estimateProgressMs());
+  }, LYRIC_TICK_MS);
+}
+
+function stopLyricClock() {
+  if (lyricClockTimer) clearInterval(lyricClockTimer);
+  lyricClockTimer = null;
+}
+
 function onVisibilityChange() {
   if (!document.hidden && pollTimer) {
     // Fire immediately on return instead of waiting up to POLL_MS.
@@ -216,6 +261,7 @@ function onVisibilityChange() {
 export function stopPolling() {
   if (pollTimer) clearInterval(pollTimer);
   pollTimer = null;
+  stopLyricClock();
   document.removeEventListener("visibilitychange", onVisibilityChange);
 }
 
@@ -231,7 +277,7 @@ async function renderNowPlaying(body, state) {
 
   if (state.trackId !== currentTrackId) {
     currentTrackId = state.trackId;
-    currentLyricLines = null;
+    currentLyricLines = undefined;
     body.innerHTML = "";
     body.appendChild(el(`
       <div class="mirror-now">
@@ -270,10 +316,26 @@ function updateLyricLine(body, progressMs) {
   const { el, esc } = renderDeps;
   const host = body.querySelector("#mirror-line");
   if (!host) return;
-  const text = currentLyricLines ? currentLine(currentLyricLines, progressMs) : null;
+
+  let text = null;
+  let emptyMessage = ""; // still fetching, or before the first lyric — nothing wrong, say nothing
+  if (currentLyricLines === null) {
+    emptyMessage = "No synced lyrics for this one."; // confirmed miss, worth saying
+  } else if (Array.isArray(currentLyricLines)) {
+    text = currentLine(currentLyricLines, progressMs);
+  }
+
+  // The clock calls this up to 5x/second; most of those calls land between
+  // line changes, where there's nothing to actually update. Comparing
+  // against what's already shown avoids rebuilding the DOM node — and the
+  // CSS fade — for no visible change.
+  const key = text ?? `\u0000${emptyMessage}`;
+  if (host.dataset.lyricText === key) return;
+
   const node = text
     ? el(`<p class="lede mirror-lyric">${esc(text)}</p>`)
-    : el(`<p class="lede mirror-lyric is-empty">${currentLyricLines === null ? "" : "No synced lyrics for this one."}</p>`);
+    : el(`<p class="lede mirror-lyric is-empty">${esc(emptyMessage)}</p>`);
+  node.dataset.lyricText = key;
   host.replaceWith(node);
   node.id = "mirror-line";
 }
