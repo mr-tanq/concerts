@@ -2,6 +2,39 @@ import { buildArchiveView, filterConcerts, artistsOf, venueKey } from "./archive
 import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, isConflictError } from "./github-api.js";
 import { initMirror, renderMirror, stopPolling as stopMirrorPolling } from "./mirror.js";
 
+// ---------- global error visibility ----------
+//
+// This app is used exclusively on a phone, where the JS console is never
+// actually seen. Without this, any uncaught error just fails silently —
+// the screen goes blank or stops updating and there's no way to tell why.
+// Registered as the very first thing this module does, so it's active
+// before any click handler or async chain gets a chance to throw.
+let fatalErrors = [];
+function showFatalError(text) {
+  fatalErrors.push(text);
+  document.getElementById("fatal-error-bar")?.remove();
+  const bar = document.createElement("div");
+  bar.id = "fatal-error-bar";
+  bar.style.cssText =
+    "position:fixed;top:0;left:0;right:0;z-index:9999;background:#2a0a0a;color:#ffb4b0;" +
+    "font-family:monospace;font-size:11px;line-height:1.5;padding:12px;white-space:pre-wrap;" +
+    "word-break:break-word;max-height:45vh;overflow:auto;border-bottom:2px solid #ff5a4d";
+  bar.textContent = fatalErrors.map((e, i) => `[${i + 1}] ${e}`).join("\n\n");
+  const dismiss = document.createElement("button");
+  dismiss.textContent = "Dismiss";
+  dismiss.style.cssText =
+    "display:block;margin-top:10px;background:#ff5a4d;color:#1a0505;border:none;" +
+    "padding:8px 14px;border-radius:4px;font-weight:700;font-family:sans-serif;font-size:12px";
+  dismiss.addEventListener("click", () => { fatalErrors = []; bar.remove(); });
+  bar.appendChild(dismiss);
+  document.body.appendChild(bar);
+}
+window.addEventListener("error", (e) => {
+  showFatalError((e.error?.stack || e.message || String(e)).slice(0, 2000));
+});
+window.addEventListener("unhandledrejection", (e) => {
+  showFatalError(("Unhandled promise: " + (e.reason?.stack || e.reason?.message || String(e.reason))).slice(0, 2000));
+});
 const TABS = ["mirror", "realm", "concerts", "identity", "archive"];
 
 // Deck state. Swipes are OPTIMISTIC: the card leaves immediately and the
