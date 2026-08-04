@@ -1,5 +1,6 @@
 import { buildArchiveView, filterConcerts, artistsOf, venueKey } from "./archive-stats.js";
 import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, isConflictError } from "./github-api.js";
+import { initMirror, renderMirror, stopPolling as stopMirrorPolling } from "./mirror.js";
 
 const TABS = ["mirror", "realm", "concerts", "identity", "archive"];
 
@@ -447,7 +448,6 @@ function anniversaryLine(view) {
   node.addEventListener("click", () => openSheet(c));
   return node;
 }
-
 function renderExplore() {
   const host = document.getElementById("explore-root");
   if (!host || !archiveView) return;
@@ -1260,8 +1260,7 @@ function askAboutPast(queue) {
   yes.addEventListener("click", () => answer(true));
   no.addEventListener("click", () => answer(false));
   veil.querySelector("#p-later").addEventListener("click", next);
-}
-
+                    }
 // ==========================================================================
 // SETTINGS
 // ==========================================================================
@@ -1369,6 +1368,13 @@ function setActiveTab(name) {
     document.getElementById(`nav-${t}`).classList.toggle("active", t === name);
   });
   window.scrollTo({ top: 0, behavior: "instant" });
+
+  // Polling only runs while the tab is actually on screen — leaving it
+  // stops the interval outright rather than relying solely on the
+  // visibility API, which only covers the whole page being backgrounded,
+  // not switching to a different in-app tab.
+  if (name === "mirror") renderMirror(document.getElementById("panel-mirror"));
+  else stopMirrorPolling();
 }
 
 async function init() {
@@ -1378,7 +1384,11 @@ async function init() {
   document.getElementById("btn-settings").addEventListener("click", () => openSettings());
   adoptConfigFromUrl();
   markConnected();
-  setActiveTab("concerts");
+  initMirror({ el, esc });
+  // Spotify's login redirect lands back on whichever tab happens to be
+  // active by default; if that round-trip is in progress, land on Mirror
+  // so the person sees the result immediately instead of Concerts.
+  setActiveTab(new URLSearchParams(location.search).has("code") ? "mirror" : "concerts");
 
   try {
     const [archiveData, recsData, plannedData, historyData, concertCache, artistImageData, setlistData] =
