@@ -1,6 +1,7 @@
 import { buildArchiveView, filterConcerts, artistsOf, venueKey } from "./archive-stats.js";
 import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, isConflictError } from "./github-api.js";
 import { initMirror, renderMirror, stopPolling as stopMirrorPolling } from "./mirror.js";
+import { initIdentity, renderIdentity } from "./identity.js";
 
 // ---------- global error visibility ----------
 //
@@ -35,6 +36,7 @@ window.addEventListener("error", (e) => {
 window.addEventListener("unhandledrejection", (e) => {
   showFatalError(("Unhandled promise: " + (e.reason?.stack || e.reason?.message || String(e.reason))).slice(0, 2000));
 });
+
 const TABS = ["mirror", "realm", "concerts", "identity", "archive"];
 
 // Deck state. Swipes are OPTIMISTIC: the card leaves immediately and the
@@ -480,7 +482,7 @@ function anniversaryLine(view) {
   `);
   node.addEventListener("click", () => openSheet(c));
   return node;
-}
+      }
 function renderExplore() {
   const host = document.getElementById("explore-root");
   if (!host || !archiveView) return;
@@ -1293,7 +1295,8 @@ function askAboutPast(queue) {
   yes.addEventListener("click", () => answer(true));
   no.addEventListener("click", () => answer(false));
   veil.querySelector("#p-later").addEventListener("click", next);
-                    }
+}
+
 // ==========================================================================
 // SETTINGS
 // ==========================================================================
@@ -1389,8 +1392,7 @@ function storageIsPersistent() {
     localStorage.removeItem("__lm_probe");
     return true;
   } catch { return false; }
-}
-
+    }
 // ==========================================================================
 // BOOT
 // ==========================================================================
@@ -1424,7 +1426,7 @@ async function init() {
   setActiveTab(new URLSearchParams(location.search).has("code") ? "mirror" : "concerts");
 
   try {
-    const [archiveData, recsData, plannedData, historyData, concertCache, artistImageData, setlistData] =
+    const [archiveData, recsData, plannedData, historyData, concertCache, artistImageData, setlistData, identityData] =
       await Promise.all([
         loadJSON("data/archive.json"),
         loadJSON("data/recommendations.json"),
@@ -1433,6 +1435,7 @@ async function init() {
         loadJSON("data/podiuminfo-cache.json").catch(() => ({ entries: {} })),
         loadJSON("data/artist-images.json").catch(() => ({ artists: {} })),
         loadJSON("data/setlists.json").catch(() => ({ setlists: {} })),
+        loadJSON("data/identity.json").catch(() => ({ meta: {} })),
       ]);
 
     setlists = new Map(Object.entries(setlistData.setlists || {}));
@@ -1461,6 +1464,8 @@ async function init() {
 
     renderArchive(archiveData);
     renderConcerts(recsData, plannedData, historyData);
+    initIdentity({ el, esc }, artistImages);
+    renderIdentity(document.getElementById("panel-identity"), identityData);
 
     if (getGithubConfig()) askAboutPast(pastPlannedConcerts(historyData));
   } catch (err) {
