@@ -81,24 +81,48 @@ export function renderMirror(root) {
 
   completeSpotifyLoginIfRedirected().then((result) => {
     if (result.handled) renderMirror(root); // re-render once the redirect round-trip resolves
+  }).catch((err) => {
+    console.error(err);
+    root.appendChild(el(`<p class="status bad">Login check failed: ${esc(err.message)}</p>`));
   });
 
-  if (!getSpotifyConfig()?.clientId) {
-    root.appendChild(setupPrompt(root, "clientId"));
-    return;
-  }
-  if (!isSpotifyConnected()) {
-    root.appendChild(setupPrompt(root, "connect"));
-    return;
-  }
-
+  // TEMPORARY — remove once the actual cause is confirmed. Always shown,
+  // regardless of which branch below ends up rendering, so the exact
+  // internal state is visible on screen instead of guessed at.
+  const hasClientId = !!getSpotifyConfig()?.clientId;
+  const connected = isSpotifyConnected();
   root.appendChild(el(`
-    <div class="mirror-stage">
-      <p class="whisper">Mirror</p>
-      <div id="mirror-body"><p class="footnote">Checking what's playing…</p></div>
-    </div>
+    <p class="footnote" style="font-family:var(--mono);font-size:10px;padding:0 var(--gutter)">
+      debug: hasClientId=${hasClientId} connected=${connected} search="${esc(location.search)}"
+    </p>
   `));
-  startPolling(root.querySelector("#mirror-body"));
+
+  // Anything unexpected here — a bad selector, a storage read failing in
+  // an unusual way, anything not already anticipated — now becomes a
+  // visible red line instead of an uncaught exception that leaves the tab
+  // blank with no trace. On a phone there's no console to catch this any
+  // other way.
+  try {
+    if (!hasClientId) {
+      root.appendChild(setupPrompt(root, "clientId"));
+      return;
+    }
+    if (!connected) {
+      root.appendChild(setupPrompt(root, "connect"));
+      return;
+    }
+
+    root.appendChild(el(`
+      <div class="mirror-stage">
+        <p class="whisper">Mirror</p>
+        <div id="mirror-body"><p class="footnote">Checking what's playing…</p></div>
+      </div>
+    `));
+    startPolling(root.querySelector("#mirror-body"));
+  } catch (err) {
+    console.error(err);
+    root.appendChild(el(`<p class="status bad">Something broke: ${esc(err.message)}</p>`));
+  }
 }
 
 function setupPrompt(root, stage) {
