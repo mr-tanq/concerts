@@ -2,26 +2,6 @@
   "$schema": "Listening Mirror Podiuminfo Day Cache v1",
   "note": "Caches the list of candidate concert ids found on each day's agenda page (podiuminfo.nl/concertagenda/YYYY/MM/DD/), so repeat runs don't re-fetch a day we already scanned recently. This replaced per-artist search after Podiuminfo's 24 July 2026 relaunch moved free-text search to client-side JS, breaking the old ?input_zoek= approach entirely.",
   "entries": {
-    "2026-07-27": {
-      "checkedAt": "2026-07-27T13:29:12.709Z",
-      "candidates": [
-        {
-          "concertId": "463412",
-          "href": "https://www.podiuminfo.nl/concert/463412/Daniela-Mercury/Melkweg/",
-          "lineup": [
-            "Daniela Mercury"
-          ]
-        },
-        {
-          "concertId": "464534",
-          "href": "https://www.podiuminfo.nl/concert/464534/Vio-Lence-Cutthroat/Little-Devil/",
-          "lineup": [
-            "Vio-Lence",
-            "Cutthroat"
-          ]
-        }
-      ]
-    },
     "2026-07-28": {
       "checkedAt": "2026-07-28T10:36:09.822Z",
       "candidates": [
@@ -80966,6 +80946,10 @@
     },
     "2027-08-03": {
       "checkedAt": "2026-08-03T23:16:35.217Z",
+      "candidates": []
+    },
+    "2027-08-04": {
+      "checkedAt": "2026-08-04T08:27:09.078Z",
       "candidates": []
     }
   }
