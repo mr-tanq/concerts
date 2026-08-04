@@ -1,19 +1,57 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-08-04T08:27:09.085Z",
+    "lastUpdated": "2026-08-04T09:43:42.301Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 1,
-      "daysCached": 365,
+      "daysFresh": 366,
+      "daysCached": 0,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 2,
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-489503",
+      "source": "podiuminfo",
+      "sourceId": "489503",
+      "artist": "Megadeth",
+      "lineup": [
+        "Megadeth"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Megadeth"
+      ],
+      "date": "2027-03-24",
+      "time": null,
+      "venue": "AFAS Live",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/214/100_Megadeth_1.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/140396/cd/Megadeth-Breakout-Hibernation-Of-The-Nations/AFAS-Live/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/489503/Megadeth-Breakout-Hibernation-Of-The-Nations/AFAS-Live/",
+      "match": {
+        "score": 49,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Megadeth",
+        "matchedArtists": [
+          "Megadeth"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-08-04T09:43:42.301Z",
+      "lastSeenAt": "2026-08-04T09:43:42.301Z"
+    }
+  ]
 }
