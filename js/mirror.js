@@ -272,6 +272,7 @@ async function renderNowPlaying(body, state) {
 
     getSyncedLyrics({ artist: state.primaryArtist, track: state.track, album: state.album, durationSec: state.durationMs / 1000 })
       .then(({ lines }) => { currentLyricLines = lines; updateLyricLine(body, state.progressMs); });
+  }
 
   const fill = body.querySelector("#mirror-progress-fill");
   if (fill && state.durationMs) fill.style.width = `${Math.min(100, (state.progressMs / state.durationMs) * 100)}%`;
