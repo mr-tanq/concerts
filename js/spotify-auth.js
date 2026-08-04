@@ -156,7 +156,11 @@ export async function completeSpotifyLoginIfRedirected() {
 async function refreshAccessToken() {
   const config = getSpotifyConfig();
   const tokens = getTokens();
-  if (!config?.clientId || !tokens?.refreshToken) throw new Error("Not connected to Spotify.");
+  if (!config?.clientId || !tokens?.refreshToken) {
+    const err = new Error("Not connected to Spotify.");
+    err.code = "reauth-required";
+    throw err;
+  }
 
   const res = await fetch("https://accounts.spotify.com/api/token", {
     method: "POST",
@@ -169,10 +173,18 @@ async function refreshAccessToken() {
   });
   if (!res.ok) {
     // A refresh token can be revoked (e.g. the user removed the app's
-    // access from their Spotify account) — treat that as "disconnected"
-    // rather than retrying forever.
-    if (res.status === 400 || res.status === 401) disconnectSpotify();
-    throw new Error(`Spotify token refresh failed: HTTP ${res.status}`);
+    // access from their Spotify account) — treat that as "needs to log in
+    // again" rather than retrying forever. Anything else (5xx, network
+    // hiccup) is left as a plain error so the caller can just retry later
+    // without forcing a fresh login for what might be a passing outage.
+    const body = await res.text().catch(() => "");
+    if (res.status === 400 || res.status === 401) {
+      disconnectSpotify();
+      const err = new Error("Spotify login expired — reconnect to keep this working.");
+      err.code = "reauth-required";
+      throw err;
+    }
+    throw new Error(`Spotify token refresh failed: HTTP ${res.status} ${body.slice(0, 200)}`);
   }
   const json = await res.json();
   saveTokens({
