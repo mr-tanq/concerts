@@ -79,19 +79,6 @@ async function fetchNowPlaying() {
   };
 }
 
-// Playback controls are best-effort: they need Premium AND an active
-// device, neither of which this app can guarantee. A failure here is
-// reported inline rather than thrown, so one missing device doesn't take
-// the whole tab down.
-async function control(action) {
-  const map = {
-    playpause: (isPlaying) => ({ path: "/me/player/" + (isPlaying ? "pause" : "play"), method: "PUT" }),
-    next: () => ({ path: "/me/player/next", method: "POST" }),
-    previous: () => ({ path: "/me/player/previous", method: "POST" }),
-  };
-  return map[action];
-}
-
 export function renderMirror(root) {
   const { el, esc } = renderDeps;
   root.innerHTML = "";
@@ -265,15 +252,30 @@ export function stopPolling() {
   document.removeEventListener("visibilitychange", onVisibilityChange);
 }
 
+// A poll reporting "nothing" immediately after a Pause tap is a known
+// Spotify quirk on some clients/devices, not necessarily the truth — the
+// track is very likely just paused. Tolerating a couple of consecutive
+// misses before actually clearing the screen avoids the track vanishing
+// the instant you pause it, while still correctly clearing after a real
+// stop (closing Spotify, switching to a podcast with no track, etc.).
+const MAX_TOLERATED_MISSES = 2;
+let missingPollStreak = 0;
+
 async function renderNowPlaying(body, state) {
   const { el, esc } = renderDeps;
 
-  if (!state.playing) {
+  if (!state.trackId) {
+    if (currentTrackId && missingPollStreak < MAX_TOLERATED_MISSES) {
+      missingPollStreak++;
+      return; // keep showing the last known track a little longer
+    }
+    missingPollStreak = 0;
     currentTrackId = null;
     body.innerHTML = "";
     body.appendChild(el(`<p class="footnote">Nothing playing right now.</p>`));
     return;
   }
+  missingPollStreak = 0;
 
   if (state.trackId !== currentTrackId) {
     currentTrackId = state.trackId;
@@ -297,7 +299,7 @@ async function renderNowPlaying(body, state) {
       </div>
     `));
     if (state.image) body.querySelector(".mirror-art").style.backgroundImage = `url("${state.image.replace(/"/g, "%22")}")`;
-    wireControls(body, state);
+    wireControls(body);
 
     getSyncedLyrics({ artist: state.primaryArtist, track: state.track, album: state.album, durationSec: state.durationMs / 1000 })
       .then(({ lines }) => { currentLyricLines = lines; updateLyricLine(body, state.progressMs); });
@@ -307,7 +309,7 @@ async function renderNowPlaying(body, state) {
   if (fill && state.durationMs) fill.style.width = `${Math.min(100, (state.progressMs / state.durationMs) * 100)}%`;
 
   const playBtn = body.querySelector('[data-a="playpause"]');
-  if (playBtn) playBtn.textContent = state.playing ? "Pause" : "Play";
+  if (playBtn && playBtn.dataset.pending !== "true") playBtn.textContent = state.playing ? "Pause" : "Play";
 
   updateLyricLine(body, state.progressMs);
 }
@@ -340,16 +342,58 @@ function updateLyricLine(body, progressMs) {
   node.id = "mirror-line";
 }
 
-function wireControls(body, state) {
+function wireControls(body) {
   const status = body.querySelector("#mirror-control-status");
-  body.querySelectorAll("[data-a]").forEach((btn) => {
+
+  body.querySelector('[data-a="playpause"]')?.addEventListener("click", async (e) => {
+    const btn = e.currentTarget;
+    status.textContent = "";
+    const wasPlaying = isPlayingNow;
+
+    // Optimistic: flip immediately rather than waiting up to POLL_MS for
+    // the next poll to confirm — a tap should feel instant. Re-anchoring
+    // the clock here keeps the frozen/resumed position from jumping when
+    // the next real poll lands.
+    isPlayingNow = !wasPlaying;
+    btn.textContent = isPlayingNow ? "Pause" : "Play";
+    btn.dataset.pending = "true";
+    syncedProgressMs = estimateProgressMs();
+    syncedAtMs = performance.now();
+
+    try {
+      const res = await spotifyFetch(wasPlaying ? "/me/player/pause" : "/me/player/play", { method: "PUT" });
+      if (res.status === 404) {
+        status.textContent = "No active Spotify device — open Spotify somewhere first.";
+        status.className = "status bad";
+        isPlayingNow = wasPlaying; // revert the guess
+        btn.textContent = wasPlaying ? "Pause" : "Play";
+      } else if (res.status === 403) {
+        status.textContent = "Playback control needs Spotify Premium.";
+        status.className = "status bad";
+        isPlayingNow = wasPlaying;
+        btn.textContent = wasPlaying ? "Pause" : "Play";
+      } else if (!res.ok && res.status !== 204) {
+        status.textContent = `Couldn't do that (HTTP ${res.status}).`;
+        status.className = "status bad";
+        isPlayingNow = wasPlaying;
+        btn.textContent = wasPlaying ? "Pause" : "Play";
+      }
+    } catch (err) {
+      status.textContent = err.message;
+      status.className = "status bad";
+      isPlayingNow = wasPlaying;
+      btn.textContent = wasPlaying ? "Pause" : "Play";
+    } finally {
+      btn.dataset.pending = "false";
+    }
+  });
+
+  body.querySelectorAll('[data-a="previous"], [data-a="next"]').forEach((btn) => {
     btn.addEventListener("click", async () => {
-      const action = btn.dataset.a;
       status.textContent = "";
       try {
-        const build = await control(action);
-        const { path, method } = build(state.playing);
-        const res = await spotifyFetch(path, { method });
+        const path = btn.dataset.a === "next" ? "/me/player/next" : "/me/player/previous";
+        const res = await spotifyFetch(path, { method: "POST" });
         if (res.status === 404) {
           status.textContent = "No active Spotify device — open Spotify somewhere first.";
           status.className = "status bad";
