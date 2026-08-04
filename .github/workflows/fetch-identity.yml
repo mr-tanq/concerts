@@ -1,0 +1,41 @@
+name: Fetch identity
+
+# Refreshes data/identity.json (top artists, top tracks, top albums, recent
+# plays) from Last.fm. Runs server-side because Last.fm's API has no CORS
+# support — the app only ever reads the resulting static file.
+#
+# Same schedule as discovery: this is a "who are you" page built from
+# habits, not a live "what's happening now" page, so twice a day is more
+# than fresh enough.
+
+on:
+  schedule:
+    - cron: "15 6,18 * * *"   # twice daily, offset from the discovery job
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  identity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Fetch Last.fm identity stats
+        env:
+          LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
+          LASTFM_USER: ${{ secrets.LASTFM_USER }}
+        run: node scripts/fetch-identity.mjs
+
+      - name: Commit identity data
+        run: |
+          git config user.name "listening-mirror-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/identity.json
+          git diff --cached --quiet && echo "No changes" || git commit -m "chore: refresh identity stats"
+          git push
