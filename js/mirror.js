@@ -96,6 +96,11 @@ export function renderMirror(root) {
       debug: hasClientId=${hasClientId} connected=${connected} search="${esc(location.search)}"
     </p>
   `));
+  root.appendChild(el(`
+    <p class="footnote" id="mirror-poll-debug" style="font-family:var(--mono);font-size:10px;padding:0 var(--gutter)">
+      debug: poll not yet run
+    </p>
+  `));
 
   // Anything unexpected here — a bad selector, a storage read failing in
   // an unusual way, anything not already anticipated — now becomes a
@@ -177,12 +182,15 @@ function startPolling(body) {
   stopPolling();
   const tick = async () => {
     if (document.hidden) return; // paused while the tab/app isn't visible
+    const pollDebug = document.getElementById("mirror-poll-debug");
     try {
       const state = await fetchNowPlaying();
+      if (pollDebug) pollDebug.textContent = `debug: poll ok — playing=${state.playing} trackId=${state.trackId ?? "none"}`;
       await renderNowPlaying(body, state);
       setPollStatus(body, null); // clear any previous error once something succeeds
     } catch (err) {
       console.warn("Mirror poll failed:", err.message);
+      if (pollDebug) pollDebug.textContent = `debug: poll THREW — code=${err.code ?? "none"} message=${err.message}`;
       if (err.code === "reauth-required") {
         stopPolling();
         const panel = body.closest(".mirror-stage")?.parentElement;
