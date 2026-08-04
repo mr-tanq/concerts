@@ -86,21 +86,8 @@ export function renderMirror(root) {
     root.appendChild(el(`<p class="status bad">Login check failed: ${esc(err.message)}</p>`));
   });
 
-  // TEMPORARY — remove once the actual cause is confirmed. Always shown,
-  // regardless of which branch below ends up rendering, so the exact
-  // internal state is visible on screen instead of guessed at.
   const hasClientId = !!getSpotifyConfig()?.clientId;
   const connected = isSpotifyConnected();
-  root.appendChild(el(`
-    <p class="footnote" style="font-family:var(--mono);font-size:10px;padding:0 var(--gutter)">
-      debug: hasClientId=${hasClientId} connected=${connected} search="${esc(location.search)}"
-    </p>
-  `));
-  root.appendChild(el(`
-    <p class="footnote" id="mirror-poll-debug" style="font-family:var(--mono);font-size:10px;padding:0 var(--gutter)">
-      debug: poll not yet run
-    </p>
-  `));
 
   // Anything unexpected here — a bad selector, a storage read failing in
   // an unusual way, anything not already anticipated — now becomes a
@@ -182,15 +169,12 @@ function startPolling(body) {
   stopPolling();
   const tick = async () => {
     if (document.hidden) return; // paused while the tab/app isn't visible
-    const pollDebug = document.getElementById("mirror-poll-debug");
     try {
       const state = await fetchNowPlaying();
-      if (pollDebug) pollDebug.textContent = `debug: poll ok — playing=${state.playing} trackId=${state.trackId ?? "none"}`;
       await renderNowPlaying(body, state);
       setPollStatus(body, null); // clear any previous error once something succeeds
     } catch (err) {
       console.warn("Mirror poll failed:", err.message);
-      if (pollDebug) pollDebug.textContent = `debug: poll THREW — code=${err.code ?? "none"} message=${err.message}`;
       if (err.code === "reauth-required") {
         stopPolling();
         const panel = body.closest(".mirror-stage")?.parentElement;
@@ -250,25 +234,24 @@ async function renderNowPlaying(body, state) {
     currentLyricLines = null;
     body.innerHTML = "";
     body.appendChild(el(`
-      <div class="mirror-art ${state.image ? "" : "is-empty"}"></div>
-      <div class="mirror-line" id="mirror-line"></div>
-      <div class="mirror-track">
-        <span class="mirror-track-name">${esc(state.track)}</span>
-        <span class="mirror-track-artist"> — ${esc(state.artist)}</span>
+      <div class="mirror-now">
+        <div class="mirror-art ${state.image ? "" : "is-empty"}"></div>
+        <div class="mirror-line" id="mirror-line"></div>
+        <div class="mirror-track">
+          <span class="mirror-track-name">${esc(state.track)}</span>
+          <span class="mirror-track-artist"> — ${esc(state.artist)}</span>
+        </div>
+        <div class="mirror-progress"><div class="mirror-progress-fill" id="mirror-progress-fill"></div></div>
+        <div class="mirror-controls">
+          <button class="plain-act" data-a="previous">Prev</button>
+          <button class="plain-act" data-a="playpause">Pause</button>
+          <button class="plain-act" data-a="next">Next</button>
+        </div>
+        <p class="status" id="mirror-control-status"></p>
       </div>
-      <div class="mirror-progress"><div class="mirror-progress-fill" id="mirror-progress-fill"></div></div>
-      <div class="mirror-controls">
-        <button class="plain-act" data-a="previous">Prev</button>
-        <button class="plain-act" data-a="playpause">Pause</button>
-        <button class="plain-act" data-a="next">Next</button>
-      </div>
-      <p class="status" id="mirror-control-status"></p>
     `));
     if (state.image) body.querySelector(".mirror-art").style.backgroundImage = `url("${state.image.replace(/"/g, "%22")}")`;
     wireControls(body, state);
-
-    const dbg = document.getElementById("mirror-poll-debug");
-    if (dbg) dbg.textContent = `debug: built markup — body.children=${body.children.length} html.length=${body.innerHTML.length}`;
 
     getSyncedLyrics({ artist: state.primaryArtist, track: state.track, album: state.album, durationSec: state.durationMs / 1000 })
       .then(({ lines }) => { currentLyricLines = lines; updateLyricLine(body, state.progressMs); });
