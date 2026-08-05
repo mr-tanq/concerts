@@ -548,7 +548,7 @@ main { max-width: 720px; margin: 0 auto; }
   font-family: var(--mono);
   font-size: 10px;
   letter-spacing: 0.18em;
-text-transform: uppercase;
+  text-transform: uppercase;
   color: var(--bone-faint);
   padding: 4px 0 0;
 }
@@ -577,7 +577,7 @@ text-transform: uppercase;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--ember);
-}
+                    }
 .upcoming-hero .entry-artist { font-size: 40px; margin: 12px 0 6px; }
 
 .upcoming-list { margin-top: 44px; }
@@ -1095,3 +1095,66 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 .recent-body { flex: 1; min-width: 0; font-size: 14px; }
 .recent-body b { color: var(--bone); font-weight: 400; font-family: var(--serif); font-size: 16px; }
 .recent-body span { color: var(--bone-faint); }
+
+/* ---- artist portrait (Self -> tap an artist) ----
+   Reuses the same "type overlaid on a photo, gradient scrim beneath it"
+   grammar as Tonight's stage — the same design language applied to a
+   different kind of subject, rather than a second visual system. The one
+   new thing is the photo's own slow, continuous breathing zoom: the single
+   deliberate ambient-motion moment in the app, reserved for the place it
+   means the most — looking at someone you've spent years listening to. */
+.portrait-photo {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  max-height: 68vh;
+  background-size: cover;
+  background-position: center;
+  background-color: #101013;
+  overflow: hidden;
+}
+.portrait-photo::before {
+  content: "";
+  position: absolute;
+  inset: -4%;
+  background: inherit;
+  background-size: cover;
+  background-position: center;
+  animation: breathe 24s ease-in-out infinite;
+}
+@keyframes breathe {
+  0%, 100% { transform: scale(1.0); }
+  50%      { transform: scale(1.045); }
+}
+.portrait-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(to bottom, rgba(8,8,10,0.15) 0%, rgba(8,8,10,0) 30%, rgba(8,8,10,0.55) 66%, var(--black) 100%);
+}
+.portrait-photo.is-empty { aspect-ratio: 4 / 3; background-color: var(--black-2); }
+.portrait-photo.is-empty::before { animation: none; }
+
+.portrait-photo-name {
+  position: absolute;
+  z-index: 2;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: 22px;
+}
+.portrait-name {
+  font-family: var(--serif);
+  font-size: clamp(38px, 12vw, 58px);
+  line-height: 0.96;
+  letter-spacing: -0.02em;
+  color: var(--bone);
+  text-shadow: 0 2px 24px rgba(0,0,0,0.5);
+  overflow-wrap: anywhere;
+}
+
+.portrait-statement {
+  font-size: 25px;
+  line-height: 1.32;
+}
+.portrait-statement em { font-style: italic; color: var(--ember); }
