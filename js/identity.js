@@ -6,6 +6,13 @@
 // built from habits is honestly a slower-moving thing than a single
 // instant of playback, so a periodic snapshot is the right cadence, not a
 // compromise.
+//
+// The one exception is tapping into an artist: that opens what you've
+// actually played by them, and tapping a track there reuses the SAME
+// Spotify connection Mirror already set up — no separate login, no new
+// secret, just the existing session doing a search-and-play.
+
+import { getValidAccessToken, isSpotifyConnected } from "./spotify-auth.js";
 
 let renderDeps = null; // { el, esc } injected from app.js
 let artistPhotos = new Map(); // reuses the same artist-images.json the rest of the app already loads
@@ -15,6 +22,8 @@ export function initIdentity(deps, photos) {
   renderDeps = deps;
   artistPhotos = photos || new Map();
 }
+
+let currentData = null;
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -37,12 +46,17 @@ function withCommas(n) {
 }
 
 function photoFor(artistName) {
-  const key = (artistName || "").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim();
+  const key = normalizeArtistKey(artistName);
   return artistPhotos.get(key) || null;
+}
+
+function normalizeArtistKey(name) {
+  return (name || "").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim();
 }
 
 export function renderIdentity(root, data) {
   const { el, esc } = renderDeps;
+  currentData = data;
   root.innerHTML = "";
 
   if (!data?.meta?.lastUpdated) {
@@ -144,7 +158,12 @@ function renderArtists(data) {
   if (!artists?.length) {
     list.appendChild(el(`<p class="void">${mode === "month" ? "Nothing tracked yet this month." : "Nothing tracked yet."}</p>`));
   } else {
-    artists.forEach((a, i) => list.appendChild(rankRow(i + 1, a.name, null, a.playcount, photoFor(a.name))));
+    artists.forEach((a, i) => {
+      const row = rankRow(i + 1, a.name, null, a.playcount, photoFor(a.name));
+      row.classList.add("is-tappable");
+      row.addEventListener("click", () => openArtistSheet(a.name));
+      list.appendChild(row);
+    });
   }
   host.appendChild(list);
 }
@@ -168,4 +187,104 @@ function rankRow(rank, title, subtitle, playcount, photo, isAlbum = false) {
   `);
   if (hasPhotoSlot && photo) row.querySelector(".rank-photo").style.backgroundImage = `url("${photo.replace(/"/g, "%22")}")`;
   return row;
-      }
+}
+
+// ---------- artist drill-down ----------
+//
+// Reuses the app's existing full-screen detail pattern (.sheet-root) rather
+// than inventing a second one — a night at a show and an artist's own
+// track list are the same KIND of thing here: one subject, given the whole
+// screen.
+
+function openArtistSheet(artistName) {
+  const { el, esc } = renderDeps;
+  const root = document.getElementById("settings-modal-root");
+  const photo = photoFor(artistName);
+  const key = normalizeArtistKey(artistName);
+  const tracks = currentData?.topTracksByArtist?.[key] || [];
+
+  root.innerHTML = "";
+  const sheet = el(`
+    <div class="sheet-root">
+      <button class="sheet-close">Close</button>
+      <div class="sheet-inner">
+        <div class="sheet-photo ${photo ? "" : "is-empty"}"></div>
+        <div class="sheet-head">
+          <h2 class="sheet-artist">${esc(artistName)}</h2>
+        </div>
+        <div class="sheet-section" style="margin-top:28px">
+          <p class="whisper">${tracks.length ? "What you play most" : "Nothing tracked yet"}</p>
+          <div id="artist-track-list"></div>
+          <p class="status" id="artist-play-status"></p>
+        </div>
+      </div>
+    </div>
+  `);
+  root.appendChild(sheet);
+  if (photo) sheet.querySelector(".sheet-photo").style.backgroundImage = `url("${photo.replace(/"/g, "%22")}")`;
+  sheet.querySelector(".sheet-close").addEventListener("click", () => { root.innerHTML = ""; });
+
+  const list = sheet.querySelector("#artist-track-list");
+  const status = sheet.querySelector("#artist-play-status");
+  tracks.forEach((t, i) => {
+    const row = rankRow(i + 1, t.name, null, t.playcount, false);
+    row.classList.add("is-tappable");
+    row.addEventListener("click", () => playViaSpotify(t.name, artistName, status));
+    list.appendChild(row);
+  });
+}
+
+// Search-and-play: Last.fm knows what you've listened to, but has no
+// playback of its own, so a tapped track is looked up on Spotify by name
+// and played there — using the exact same connection Mirror already
+// established, not a second login.
+async function playViaSpotify(trackName, artistName, status) {
+  if (!isSpotifyConnected()) {
+    status.textContent = "Connect Spotify in the Mirror tab first.";
+    status.className = "status bad";
+    return;
+  }
+
+  status.textContent = "Finding it on Spotify…";
+  status.className = "status";
+
+  try {
+    const token = await getValidAccessToken();
+    if (!token) throw new Error("Connect Spotify in the Mirror tab first.");
+
+    const q = encodeURIComponent(`track:${trackName} artist:${artistName}`);
+    const searchRes = await fetch(`https://api.spotify.com/v1/search?q=${q}&type=track&limit=1`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!searchRes.ok) throw new Error(`Spotify search failed (HTTP ${searchRes.status}).`);
+    const searchJson = await searchRes.json();
+    const uri = searchJson?.tracks?.items?.[0]?.uri;
+    if (!uri) {
+      status.textContent = "Couldn't find that track on Spotify.";
+      status.className = "status bad";
+      return;
+    }
+
+    const playRes = await fetch("https://api.spotify.com/v1/me/player/play", {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ uris: [uri] }),
+    });
+    if (playRes.status === 404) {
+      status.textContent = "No active Spotify device — open Spotify somewhere first.";
+      status.className = "status bad";
+    } else if (playRes.status === 403) {
+      status.textContent = "Playback needs Spotify Premium.";
+      status.className = "status bad";
+    } else if (!playRes.ok && playRes.status !== 204) {
+      status.textContent = `Couldn't play that (HTTP ${playRes.status}).`;
+      status.className = "status bad";
+    } else {
+      status.textContent = "Playing — check Mirror.";
+      status.className = "status";
+    }
+  } catch (err) {
+    status.textContent = err.message;
+    status.className = "status bad";
+  }
+}
