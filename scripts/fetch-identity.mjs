@@ -119,6 +119,44 @@ const topAlbums = (Array.isArray(topAlbumsArr) ? topAlbumsArr : topAlbumsArr ? [
   };
 });
 
+// --- top tracks per artist ---
+//
+// Last.fm has no "your top tracks BY this artist" endpoint — only
+// user.getArtistTracks, which returns individual scrobble EVENTS, not an
+// aggregate. So we fetch a bounded number of pages per artist and count
+// track names ourselves. Bounded on purpose: a heavily-played artist could
+// have thousands of scrobbles, and this only needs enough recent history to
+// answer "what do you keep coming back to", not the complete archive.
+const ARTIST_TRACK_PAGES = 3;
+
+function normalizeArtistKey(name) {
+  return (name || "").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim();
+}
+
+async function topTracksForArtist(artistName) {
+  const counts = new Map();
+  for (let page = 1; page <= ARTIST_TRACK_PAGES; page++) {
+    const json = await lastfm("user.getartisttracks", { artist: artistName, limit: 200, page }).catch((err) => {
+      console.warn(`getArtistTracks failed for "${artistName}" page ${page}: ${err.message}`);
+      return null;
+    });
+    if (!json) break;
+    const arr = json?.artisttracks?.track;
+    const tracks = Array.isArray(arr) ? arr : arr ? [arr] : [];
+    if (!tracks.length) break;
+    for (const t of tracks) {
+      if (!t?.name) continue;
+      counts.set(t.name, (counts.get(t.name) || 0) + 1);
+    }
+    const totalPages = Number(json?.artisttracks?.["@attr"]?.totalPages) || 1;
+    if (page >= totalPages) break;
+  }
+  return [...counts.entries()]
+    .map(([name, playcount]) => ({ name, playcount }))
+    .sort((a, b) => b.playcount - a.playcount)
+    .slice(0, 8);
+}
+
 // --- recent tracks ---
 const recentJson = await lastfm("user.getrecenttracks", { limit: 12 });
 const recentArr = recentJson?.recenttracks?.track;
@@ -133,12 +171,25 @@ const recentTracks = (Array.isArray(recentArr) ? recentArr : recentArr ? [recent
     playedAt: toIso(t.date.uts),
   }));
 
+// --- top tracks per artist, for every artist that appears above ---
+const artistNamesToExpand = new Map(); // key -> display name
+for (const a of [...mapArtists(topArtistsOverall), ...mapArtists(topArtistsMonth)]) {
+  const key = normalizeArtistKey(a.name);
+  if (!artistNamesToExpand.has(key)) artistNamesToExpand.set(key, a.name);
+}
+console.log(`Fetching per-artist top tracks for ${artistNamesToExpand.size} artists...`);
+const topTracksByArtist = {};
+for (const [key, displayName] of artistNamesToExpand) {
+  topTracksByArtist[key] = await topTracksForArtist(displayName);
+}
+
 const output = {
   $schema: "Listening Mirror Identity v1",
   meta: { lastUpdated: new Date().toISOString(), lastfmUser: USER },
   profile,
   topArtistsOverall: mapArtists(topArtistsOverall),
   topArtistsMonth: mapArtists(topArtistsMonth),
+  topTracksByArtist,
   topTracks,
   topAlbums,
   recentTracks,
