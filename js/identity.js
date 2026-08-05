@@ -13,14 +13,17 @@
 // secret, just the existing session doing a search-and-play.
 
 import { getValidAccessToken, isSpotifyConnected } from "./spotify-auth.js";
+import { artistsOf } from "./archive-stats.js";
 
 let renderDeps = null; // { el, esc } injected from app.js
 let artistPhotos = new Map(); // reuses the same artist-images.json the rest of the app already loads
+let archiveConcerts = []; // reused so the artist portrait can say "you've seen them live N times"
 let mode = "overall"; // artists list: "overall" | "month"
 
-export function initIdentity(deps, photos) {
+export function initIdentity(deps, photos, concerts) {
   renderDeps = deps;
   artistPhotos = photos || new Map();
+  archiveConcerts = concerts || [];
 }
 
 let currentData = null;
@@ -76,8 +79,15 @@ export function renderIdentity(root, data) {
   if (data.topTracks?.length) {
     root.appendChild(el(`<div class="section-heading">Songs you keep coming back to</div>`));
     const list = el(`<div></div>`);
-    data.topTracks.slice(0, 10).forEach((t, i) => list.appendChild(rankRow(i + 1, t.name, t.artist, t.playcount, false)));
+    const status = el(`<p class="status" id="top-tracks-status"></p>`);
+    data.topTracks.slice(0, 10).forEach((t, i) => {
+      const row = rankRow(i + 1, t.name, t.artist, t.playcount, false);
+      row.classList.add("is-tappable");
+      row.addEventListener("click", () => playViaSpotify(t.name, t.artist, status));
+      list.appendChild(row);
+    });
     root.appendChild(list);
+    root.appendChild(status);
   }
 
   if (data.topAlbums?.length) {
@@ -196,24 +206,73 @@ function rankRow(rank, title, subtitle, playcount, photo, isAlbum = false) {
 // track list are the same KIND of thing here: one subject, given the whole
 // screen.
 
+// Concerts from the Archive where this artist actually played — headliner,
+// support, or festival bill, matched the same way the Archive itself
+// counts "most-seen artist", so the numbers never disagree with each other.
+function concertsFeaturing(artistName) {
+  const key = normalizeArtistKey(artistName);
+  return archiveConcerts
+    .filter((c) => artistsOf(c).some((n) => normalizeArtistKey(n) === key))
+    .sort((a, b) => String(b.date).localeCompare(String(a.date)));
+}
+
+const MONTHS_FULL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+function fullDate(iso) {
+  const [y, m, d] = String(iso || "").split("-");
+  return y ? `${Number(d)} ${MONTHS_FULL[Number(m) - 1]} ${y}` : "";
+}
+
+// The numbers alone are a dashboard; this turns them into one sentence
+// about the actual relationship — how much, how lately, and whether it's
+// ever been a night in a room together.
+function portraitStatement(overallCount, monthCount, liveCount) {
+  const parts = [];
+  parts.push(`${withCommas(overallCount)} play${overallCount === 1 ? "" : "s"}`);
+  if (monthCount > 0) parts.push(`${monthCount} of those this month alone`);
+  let sentence = parts.join(" — ") + ".";
+  if (liveCount > 0) {
+    sentence += ` <em>You've stood in the room ${spellSmall(liveCount)} time${liveCount === 1 ? "" : "s"}.</em>`;
+  } else {
+    sentence += ` <em>Never in the same room — yet.</em>`;
+  }
+  return sentence;
+}
+
+const SMALL_WORDS = ["zero","one","two","three","four","five","six","seven","eight","nine","ten"];
+function spellSmall(n) { return SMALL_WORDS[n] || String(n); }
+
 function openArtistSheet(artistName) {
   const { el, esc } = renderDeps;
   const root = document.getElementById("settings-modal-root");
   const photo = photoFor(artistName);
   const key = normalizeArtistKey(artistName);
   const tracks = currentData?.topTracksByArtist?.[key] || [];
+  const overallCount = currentData?.topArtistsOverall?.find((a) => normalizeArtistKey(a.name) === key)?.playcount || 0;
+  const monthCount = currentData?.topArtistsMonth?.find((a) => normalizeArtistKey(a.name) === key)?.playcount || 0;
+  const liveShows = concertsFeaturing(artistName);
 
   root.innerHTML = "";
   const sheet = el(`
     <div class="sheet-root">
       <button class="sheet-close">Close</button>
       <div class="sheet-inner">
-        <div class="sheet-photo ${photo ? "" : "is-empty"}"></div>
-        <div class="sheet-head">
-          <h2 class="sheet-artist">${esc(artistName)}</h2>
+        <div class="portrait-photo ${photo ? "" : "is-empty"}">
+          <div class="portrait-photo-name">
+            <h2 class="portrait-name">${esc(artistName)}</h2>
+          </div>
         </div>
-        <div class="sheet-section" style="margin-top:28px">
-          <p class="whisper">${tracks.length ? "What you've played recently" : "Nothing recent"}</p>
+        <div class="sheet-head" style="margin-top:22px">
+          <p class="lede portrait-statement">${portraitStatement(overallCount, monthCount, liveShows.length)}</p>
+        </div>
+
+        ${liveShows.length ? `
+          <div class="sheet-section">
+            <p class="whisper">Live</p>
+            <div id="portrait-live-list"></div>
+          </div>` : ""}
+
+        <div class="sheet-section">
+          <p class="whisper">${tracks.length ? "What you've been playing" : "Nothing recent"}</p>
           ${!tracks.length ? `<p class="footnote">Last.fm only lets this look at recent listening, not everything ever — this one just hasn't come up lately.</p>` : ""}
           <div id="artist-track-list"></div>
           <p class="status" id="artist-play-status"></p>
@@ -222,8 +281,20 @@ function openArtistSheet(artistName) {
     </div>
   `);
   root.appendChild(sheet);
-  if (photo) sheet.querySelector(".sheet-photo").style.backgroundImage = `url("${photo.replace(/"/g, "%22")}")`;
+  if (photo) sheet.querySelector(".portrait-photo").style.backgroundImage = `url("${photo.replace(/"/g, "%22")}")`;
   sheet.querySelector(".sheet-close").addEventListener("click", () => { root.innerHTML = ""; });
+
+  if (liveShows.length) {
+    const liveList = sheet.querySelector("#portrait-live-list");
+    liveShows.forEach((c) => {
+      liveList.appendChild(el(`
+        <div class="recent-row">
+          <div class="recent-when">${fullDate(c.date).split(" ").slice(0, 2).join(" ")}</div>
+          <div class="recent-body"><b>${esc(c.festivalName || c.venue)}</b><br><span>${esc(c.venue)}${c.city ? `, ${esc(c.city)}` : ""}</span></div>
+        </div>
+      `));
+    });
+  }
 
   const list = sheet.querySelector("#artist-track-list");
   const status = sheet.querySelector("#artist-play-status");
@@ -288,4 +359,4 @@ async function playViaSpotify(trackName, artistName, status) {
     status.textContent = err.message;
     status.className = "status bad";
   }
-}
+  }
