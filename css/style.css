@@ -27,6 +27,8 @@
   --bone-dim:   #9b978f;
   --bone-faint: #5c5a56;
   --ember:      #ff7a45;   /* the single accent — a filament, not a brand */
+  --ice:        #6fd6ea;   /* cold, electric — reserved for Mirror's "right now" */
+  --red:        #ff4d4d;   /* true red for actual errors — distinct from ember's warm emphasis */
   --hair:       rgba(242,239,233,0.10);
   --hair-soft:  rgba(242,239,233,0.055);
 
@@ -49,7 +51,7 @@
   --accent-orange: var(--ember);
   --accent-blue: var(--bone);
   --accent-green: var(--ember);
-  --accent-red: #ff5a4d;
+  --accent-red: var(--red);
 }
 
 * { box-sizing: border-box; }
@@ -337,6 +339,7 @@ main { max-width: 720px; margin: 0 auto; }
 .entry.is-festival .entry-artist { padding-left: 12px; border-left: 1px solid var(--ember); }
 
 /* ---- explore: filtering the spine ---- */
+
 .explore {
   position: sticky;
   top: 46px;
@@ -545,7 +548,7 @@ main { max-width: 720px; margin: 0 auto; }
   font-family: var(--mono);
   font-size: 10px;
   letter-spacing: 0.18em;
-  text-transform: uppercase;
+text-transform: uppercase;
   color: var(--bone-faint);
   padding: 4px 0 0;
 }
@@ -697,7 +700,6 @@ main { max-width: 720px; margin: 0 auto; }
   font-family: var(--serif);
   font-size: clamp(36px, 11vw, 54px);
   line-height: 0.96;
-line-height: 0.96;
   letter-spacing: -0.02em;
   color: var(--bone);
   overflow-wrap: anywhere;
@@ -846,7 +848,7 @@ line-height: 0.96;
 .field input:focus { border-bottom-color: var(--ember); }
 
 .status { font-size: 13px; margin-top: 20px; min-height: 20px; color: var(--bone-dim); }
-.status.bad { color: var(--ember); }
+.status.bad { color: var(--red); }
 .status a { color: var(--ember); }
 
 /* Prompt: did you go? */
@@ -935,7 +937,7 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
   padding: 8px 14px;
   background: var(--black);
 }
-.saving.bad { color: var(--ember); }
+.saving.bad { color: var(--red); }
 
 @media (min-width: 700px) {
   :root { --gutter: 40px; }
@@ -977,8 +979,8 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
   min-height: 1.3em;
   transition: opacity 0.3s var(--ease);
 }
-.mirror-lyric::before { content: "“"; opacity: 0.5; }
-.mirror-lyric::after { content: "”"; opacity: 0.5; }
+.mirror-lyric::before { content: "“"; opacity: 0.7; color: var(--ice); }
+.mirror-lyric::after { content: "”"; opacity: 0.7; color: var(--ice); }
 .mirror-lyric.is-empty {
   font-style: normal;
   color: var(--bone-faint);
@@ -1004,7 +1006,7 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 }
 .mirror-progress-fill {
   height: 1px;
-  background: var(--ember);
+  background: var(--ice);
   width: 0%;
   transition: width 0.4s linear;
 }
@@ -1015,6 +1017,7 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
   gap: 30px;
   margin-top: 26px;
 }
+
 /* ==========================================================================
    SELF — a portrait built from listening habits.
    Ranked lists as hairline-separated rows, matching every other list in the
@@ -1065,6 +1068,9 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
   font-feature-settings: "tnum";
   white-space: nowrap;
 }
+
+.rank-row.is-tappable { cursor: pointer; transition: opacity 0.2s var(--ease); }
+.rank-row.is-tappable:active { opacity: 0.55; }
 
 /* Albums get a small square instead of a rank number — the cover art is
    worth the extra visual weight here since it's usually the one place in
