@@ -1464,8 +1464,7 @@ async function init() {
 
     renderArchive(archiveData);
     renderConcerts(recsData, plannedData, historyData);
-    initIdentity({ el, esc }, artistImages);
-    renderIdentity(document.getElementById("panel-identity"), identityData);
+initIdentity({ el, esc }, artistImages, archiveConcerts);    renderIdentity(document.getElementById("panel-identity"), identityData);
 
     if (getGithubConfig()) askAboutPast(pastPlannedConcerts(historyData));
   } catch (err) {
