@@ -119,68 +119,78 @@ const topAlbums = (Array.isArray(topAlbumsArr) ? topAlbumsArr : topAlbumsArr ? [
   };
 });
 
-// --- top tracks per artist ---
+// --- top tracks per artist, built from real scrobble history ---
 //
-// Last.fm has no "your top tracks BY this artist" endpoint — only
-// user.getArtistTracks, which returns individual scrobble EVENTS, not an
-// aggregate. So we fetch a bounded number of pages per artist and count
-// track names ourselves. Bounded on purpose: a heavily-played artist could
-// have thousands of scrobbles, and this only needs enough recent history to
-// answer "what do you keep coming back to", not the complete archive.
-const ARTIST_TRACK_PAGES = 3;
+// Last.fm deprecated user.getArtistTracks (error 27, confirmed against a
+// live request — not an assumption), so "your top tracks by this artist"
+// can no longer be asked for directly. Instead, a bounded window of actual
+// recent scrobbles is fetched once below and grouped by artist locally.
+// This also directly reuses the same fetch that produces recentTracks,
+// rather than paying for it twice.
+//
+// Honest limitation: an artist with no scrobbles inside this window (i.e.
+// nothing recent) will show no tracks in the app, even if you played them
+// heavily years ago. Last.fm's remaining API gives no cheaper way to ask
+// "everything you've ever played by X" — widening the window trades a
+// slower job for deeper history, which can be revisited later if needed.
+const RECENT_SCROBBLE_PAGES = 20;
 
 function normalizeArtistKey(name) {
   return (name || "").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim();
 }
 
-async function topTracksForArtist(artistName) {
-  const counts = new Map();
-  for (let page = 1; page <= ARTIST_TRACK_PAGES; page++) {
-    const json = await lastfm("user.getartisttracks", { artist: artistName, limit: 200, page }).catch((err) => {
-      console.warn(`getArtistTracks failed for "${artistName}" page ${page}: ${err.message}`);
+async function fetchRecentScrobbles(maxPages) {
+  const scrobbles = [];
+  for (let page = 1; page <= maxPages; page++) {
+    const json = await lastfm("user.getrecenttracks", { limit: 200, page }).catch((err) => {
+      console.warn(`getRecentTracks page ${page} failed: ${err.message}`);
       return null;
     });
     if (!json) break;
-    const arr = json?.artisttracks?.track;
+    const arr = json?.recenttracks?.track;
     const tracks = Array.isArray(arr) ? arr : arr ? [arr] : [];
     if (!tracks.length) break;
-    for (const t of tracks) {
-      if (!t?.name) continue;
-      counts.set(t.name, (counts.get(t.name) || 0) + 1);
-    }
-    const totalPages = Number(json?.artisttracks?.["@attr"]?.totalPages) || 1;
+    scrobbles.push(...tracks);
+    const totalPages = Number(json?.recenttracks?.["@attr"]?.totalPages) || 1;
     if (page >= totalPages) break;
   }
-  return [...counts.entries()]
-    .map(([name, playcount]) => ({ name, playcount }))
-    .sort((a, b) => b.playcount - a.playcount)
-    .slice(0, 8);
+  return scrobbles;
 }
 
-// --- recent tracks ---
-const recentJson = await lastfm("user.getrecenttracks", { limit: 12 });
-const recentArr = recentJson?.recenttracks?.track;
-const recentTracks = (Array.isArray(recentArr) ? recentArr : recentArr ? [recentArr] : [])
+// --- recent scrobbles: one fetch, used for both recentTracks and the
+// per-artist breakdown ---
+console.log(`Fetching up to ${RECENT_SCROBBLE_PAGES} pages of recent scrobbles...`);
+const allScrobbles = await fetchRecentScrobbles(RECENT_SCROBBLE_PAGES);
+console.log(`Fetched ${allScrobbles.length} scrobbles.`);
+
+const recentTracks = allScrobbles
   // The currently-playing entry (if any) has no date and an
   // @attr.nowplaying flag — that's what Mirror already shows live, so it's
   // excluded here to avoid saying the same thing twice.
   .filter((t) => t.date?.uts)
+  .slice(0, 12)
   .map((t) => ({
     name: t.name,
     artist: t.artist?.["#text"] || "",
     playedAt: toIso(t.date.uts),
   }));
 
-// --- top tracks per artist, for every artist that appears above ---
-const artistNamesToExpand = new Map(); // key -> display name
-for (const a of [...mapArtists(topArtistsOverall), ...mapArtists(topArtistsMonth)]) {
-  const key = normalizeArtistKey(a.name);
-  if (!artistNamesToExpand.has(key)) artistNamesToExpand.set(key, a.name);
+const topTracksByArtistCounts = new Map(); // artistKey -> Map(trackName -> count)
+for (const t of allScrobbles) {
+  if (!t.date?.uts) continue; // skip now-playing
+  const artistName = t.artist?.["#text"] || "";
+  if (!artistName || !t.name) continue;
+  const key = normalizeArtistKey(artistName);
+  if (!topTracksByArtistCounts.has(key)) topTracksByArtistCounts.set(key, new Map());
+  const trackMap = topTracksByArtistCounts.get(key);
+  trackMap.set(t.name, (trackMap.get(t.name) || 0) + 1);
 }
-console.log(`Fetching per-artist top tracks for ${artistNamesToExpand.size} artists...`);
 const topTracksByArtist = {};
-for (const [key, displayName] of artistNamesToExpand) {
-  topTracksByArtist[key] = await topTracksForArtist(displayName);
+for (const [key, trackMap] of topTracksByArtistCounts) {
+  topTracksByArtist[key] = [...trackMap.entries()]
+    .map(([name, playcount]) => ({ name, playcount }))
+    .sort((a, b) => b.playcount - a.playcount)
+    .slice(0, 8);
 }
 
 const output = {
