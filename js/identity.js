@@ -213,7 +213,8 @@ function openArtistSheet(artistName) {
           <h2 class="sheet-artist">${esc(artistName)}</h2>
         </div>
         <div class="sheet-section" style="margin-top:28px">
-          <p class="whisper">${tracks.length ? "What you play most" : "Nothing tracked yet"}</p>
+          <p class="whisper">${tracks.length ? "What you've played recently" : "Nothing recent"}</p>
+          ${!tracks.length ? `<p class="footnote">Last.fm only lets this look at recent listening, not everything ever — this one just hasn't come up lately.</p>` : ""}
           <div id="artist-track-list"></div>
           <p class="status" id="artist-play-status"></p>
         </div>
