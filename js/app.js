@@ -4,7 +4,7 @@ import { initMirror, renderMirror, stopPolling as stopMirrorPolling } from "./mi
 import { initIdentity, renderIdentity } from "./identity.js";
 
 // ---------- global error visibility ----------
-//
+// 
 // This app is used exclusively on a phone, where the JS console is never
 // actually seen. Without this, any uncaught error just fails silently —
 // the screen goes blank or stops updating and there's no way to tell why.
