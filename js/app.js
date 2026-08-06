@@ -586,6 +586,25 @@ function archiveEntry(c) {
 // ==========================================================================
 // DETAIL — a full page for one night
 // ==========================================================================
+const ORDINALS = ["first","second","third","fourth","fifth","sixth","seventh","eighth","ninth","tenth",
+  "eleventh","twelfth","thirteenth","fourteenth","fifteenth"];
+
+// Not a fact — a memory. "The third of four times you've seen them" reads
+// completely differently from a visit counter, even though it's the exact
+// same number underneath.
+
+function timesSeenStatement(c) {
+  const subject = c.festivalName || c.artist;
+  const key = normalizeKey(subject);
+  const allWithSubject = archiveConcerts
+    .filter((x) => artistsOf(x).some((n) => normalizeKey(n) === key) || normalizeKey(x.festivalName || x.artist) === key)
+    .sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  const total = allWithSubject.length;
+  if (total <= 1) return `The only time you've seen ${esc(subject)} — so far.`;
+  const index = allWithSubject.findIndex((x) => x.id === c.id) + 1;
+  const ord = ORDINALS[index - 1] || `${index}th`;
+  return `The ${ord} of ${spell(total)} times you've seen ${esc(subject)}.`;
+}
 
 function openSheet(c) {
   const root = document.getElementById("settings-modal-root");
