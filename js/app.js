@@ -2,7 +2,7 @@ import { buildArchiveView, filterConcerts, artistsOf, venueKey } from "./archive
 import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, isConflictError } from "./github-api.js";
 import { initMirror, renderMirror, stopPolling as stopMirrorPolling } from "./mirror.js";
 import { initIdentity, renderIdentity } from "./identity.js";
-
+ 
 // ---------- global error visibility ----------
 // 
 // This app is used exclusively on a phone, where the JS console is never
