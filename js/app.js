@@ -483,6 +483,36 @@ function anniversaryLine(view) {
   node.addEventListener("click", () => openSheet(c));
   return node;
       }
+// Most days aren't anniversaries — this is what fills that space instead,
+// so the archive resurfaces something every time rather than only on the
+// rare exact date. Picked deterministically from the day (stable if you
+// reopen the tab, different tomorrow), and weighted toward concerts with
+// no notes attached — the ones you genuinely never wrote a word about are
+// the ones actually worth being reminded of.
+function forgottenMemoryLine() {
+  if (!archiveConcerts.length) return null;
+  const todaySeed = new Date().toISOString().slice(0, 10);
+  const seed = [...todaySeed].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) >>> 0, 0);
+
+  const undocumented = archiveConcerts.filter((c) => !(c.notes && c.notes.trim()));
+  const pool = undocumented.length ? undocumented : archiveConcerts;
+  const c = pool[seed % pool.length];
+
+  const yearsAgo = Number(yearOf(new Date().toISOString())) - Number(yearOf(c.date));
+  const whenPhrase = yearsAgo > 0 ? `${titleCase(spell(yearsAgo))} year${yearsAgo === 1 ? "" : "s"} ago` : "Earlier this year";
+
+  const node = el(`
+    <div class="anniversary">
+      <p class="whisper">From the archive</p>
+      <p class="anniversary-line">
+        ${whenPhrase} —
+        ${esc(c.festivalName || c.artist)}<span>, ${esc(c.venue)}</span>
+      </p>
+    </div>
+  `);
+  node.addEventListener("click", () => openSheet(c));
+  return node;
+}
 function renderExplore() {
   const host = document.getElementById("explore-root");
   if (!host || !archiveView) return;
