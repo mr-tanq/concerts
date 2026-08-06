@@ -629,6 +629,7 @@ function openSheet(c) {
             ${weekdayShort(c.date)} ${fullDate(c.date)}<br>
             ${esc(c.venue)}, ${esc(c.city)}
           </div>
+          <p class="lede sheet-memory-line">${timesSeenStatement(c)}</p>
         </div>
 
         <dl class="facts">
