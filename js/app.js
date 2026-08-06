@@ -422,9 +422,8 @@ function renderArchive(archiveData) {
 
   root.appendChild(openingStatement(archiveView));
 
-  const anniversary = anniversaryLine(archiveView);
+  const anniversary = anniversaryLine(archiveView) || forgottenMemoryLine();
   if (anniversary) root.appendChild(anniversary);
-
   root.appendChild(el(`<div id="explore-root"></div>`));
   root.appendChild(el(`<div id="spine-root"></div>`));
   renderExplore();
