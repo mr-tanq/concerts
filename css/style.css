@@ -298,6 +298,12 @@ main { max-width: 720px; margin: 0 auto; }
   text-transform: uppercase;
   font-feature-settings: "tnum";
 }
+.entry-first {
+  color: var(--ember);
+  margin-left: 10px;
+  padding-left: 10px;
+  border-left: 1px solid var(--ember);
+}
 .entry-artist {
   font-family: var(--serif);
   font-size: 27px;
@@ -577,7 +583,7 @@ main { max-width: 720px; margin: 0 auto; }
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--ember);
-                    }
+}
 .upcoming-hero .entry-artist { font-size: 40px; margin: 12px 0 6px; }
 
 .upcoming-list { margin-top: 44px; }
@@ -714,6 +720,7 @@ main { max-width: 720px; margin: 0 auto; }
   line-height: 1.9;
 }
 .sheet-memory-line { font-size: 22px; margin-top: 18px; }
+
 /* Facts as a definition list, not a grid of tiles. */
 .facts { margin: 40px 0 0; padding: 0 var(--gutter); }
 .fact {
@@ -951,21 +958,31 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 .mirror-stage { padding: 4px var(--gutter) 0; }
 
 .mirror-art {
+  position: relative;
   width: 100%;
   max-width: 280px;
   aspect-ratio: 1 / 1;
   border-radius: 4px;
   margin: 22px auto 0;
-  background-size: cover;
-  background-position: center;
   background-color: var(--black-2);
+  overflow: hidden;
   /* Without a border, a predominantly dark album cover (common in doom /
      post-rock / black metal — exactly this person's taste) is visually
      indistinguishable from the page background. The hairline is the same
      device used everywhere else in the app to delineate without a box. */
   border: 1px solid var(--hair);
 }
+.mirror-art::before {
+  content: "";
+  position: absolute;
+  inset: -4%;
+  background: inherit;
+  background-size: cover;
+  background-position: center;
+  animation: breathe 24s ease-in-out infinite;
+}
 .mirror-art.is-empty { opacity: 0.4; }
+.mirror-art.is-empty::before { animation: none; }
 
 /* The lyric line is deliberately styled as a QUOTATION, not a statement in
    the app's own voice — a quote mark and a lighter weight of italic mark
@@ -1072,11 +1089,6 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 .rank-row.is-tappable { cursor: pointer; transition: opacity 0.2s var(--ease); }
 .rank-row.is-tappable:active { opacity: 0.55; }
 
-/* Albums get a small square instead of a rank number — the cover art is
-   worth the extra visual weight here since it's usually the one place in
-   this list where Last.fm still gives us real photography. */
-.rank-row.is-album .rank-photo { border-radius: 3px; }
-
 .recent-row {
   display: flex;
   align-items: baseline;
@@ -1095,6 +1107,65 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 .recent-body { flex: 1; min-width: 0; font-size: 14px; }
 .recent-body b { color: var(--bone); font-weight: 400; font-family: var(--serif); font-size: 16px; }
 .recent-body span { color: var(--bone-faint); }
+
+/* ---- album gallery ----
+   Where every other list in Self is a hairline-separated row, albums get a
+   horizontal scroll of real cover photography instead — Last.fm still
+   licenses album art even though it dropped artist photos years ago, and
+   this is the one place in Self actually worth spending that on. */
+.album-gallery {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 4px var(--gutter) 10px;
+  margin: 0 calc(var(--gutter) * -1);
+}
+.album-gallery::-webkit-scrollbar { display: none; }
+.album-card {
+  position: relative;
+  flex: 0 0 148px;
+  width: 148px;
+  aspect-ratio: 1 / 1;
+  border-radius: 4px;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--black-2);
+  border: 1px solid var(--hair);
+}
+.album-card.is-empty { opacity: 0.35; }
+.album-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(8,8,10,0) 45%, rgba(8,8,10,0.88) 100%);
+}
+.album-card-caption {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 9px;
+  z-index: 1;
+}
+.album-card-name {
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.15;
+  color: var(--bone);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.album-card-count {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  color: var(--bone-faint);
+  margin-top: 3px;
+}
 
 /* ---- artist portrait (Self -> tap an artist) ----
    Reuses the same "type overlaid on a photo, gradient scrim beneath it"
