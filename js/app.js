@@ -1,763 +1,378 @@
-import { buildArchiveView, filterConcerts, artistsOf, venueKey } from "./archive-stats.js";
-import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, isConflictError } from "./github-api.js";
-import { initMirror, renderMirror, stopPolling as stopMirrorPolling } from "./mirror.js";
-import { initIdentity, renderIdentity } from "./identity.js";
-import { initRealm, renderRealm } from "./realm.js";
-
-// ---------- global error visibility ----------
+// identity.js
 //
-// This app is used exclusively on a phone, where the JS console is never
-// actually seen. Without this, any uncaught error just fails silently —
-// the screen goes blank or stops updating and there's no way to tell why.
-// Registered as the very first thing this module does, so it's active
-// before any click handler or async chain gets a chance to throw.
-let fatalErrors = [];
-function showFatalError(text) {
-  fatalErrors.push(text);
-  document.getElementById("fatal-error-bar")?.remove();
-  const bar = document.createElement("div");
-  bar.id = "fatal-error-bar";
-  bar.style.cssText =
-    "position:fixed;top:0;left:0;right:0;z-index:9999;background:#2a0a0a;color:#ffb4b0;" +
-    "font-family:monospace;font-size:11px;line-height:1.5;padding:12px;white-space:pre-wrap;" +
-    "word-break:break-word;max-height:45vh;overflow:auto;border-bottom:2px solid #ff5a4d";
-  bar.textContent = fatalErrors.map((e, i) => `[${i + 1}] ${e}`).join("\n\n");
-  const dismiss = document.createElement("button");
-  dismiss.textContent = "Dismiss";
-  dismiss.style.cssText =
-    "display:block;margin-top:10px;background:#ff5a4d;color:#1a0505;border:none;" +
-    "padding:8px 14px;border-radius:4px;font-weight:700;font-family:sans-serif;font-size:12px";
-  dismiss.addEventListener("click", () => { fatalErrors = []; bar.remove(); });
-  bar.appendChild(dismiss);
-  document.body.appendChild(bar);
-}
-window.addEventListener("error", (e) => {
-  showFatalError((e.error?.stack || e.message || String(e)).slice(0, 2000));
-});
-window.addEventListener("unhandledrejection", (e) => {
-  showFatalError(("Unhandled promise: " + (e.reason?.stack || e.reason?.message || String(e.reason))).slice(0, 2000));
-});
+// "Who you are, according to what you play." Built entirely from a single
+// static data/identity.json, refreshed twice daily by a GitHub Action —
+// there is no live network call here at all, unlike Mirror. An identity
+// built from habits is honestly a slower-moving thing than a single
+// instant of playback, so a periodic snapshot is the right cadence, not a
+// compromise.
+//
+// The one exception is tapping into an artist: that opens what you've
+// actually played by them, and tapping a track there reuses the SAME
+// Spotify connection Mirror already set up — no separate login, no new
+// secret, just the existing session doing a search-and-play.
 
-const TABS = ["mirror", "realm", "concerts", "identity", "archive"];
+import { getValidAccessToken, isSpotifyConnected } from "./spotify-auth.js";
+import { actuallySeenArtistsOf } from "./archive-stats.js";
 
-// Deck state. Swipes are OPTIMISTIC: the card leaves immediately and the
-// GitHub commit runs in the background, because waiting ~2s per swipe for
-// three sequential API round-trips made the deck feel broken. If a commit
-// fails we surface it and push the card back onto the deck.
-let deckQueue = [];
-let plannedConcerts = [];
-let archiveConcerts = [];
-let archiveView = null;
-let exploreFilter = { mode: "all", value: null };
-let dismissedConcerts = [];
-let legacyDismissedIds = [];
-let pendingWrites = 0;
-let syncError = null;
+let renderDeps = null; // { el, esc } injected from app.js
+let artistPhotos = new Map(); // reuses the same artist-images.json the rest of the app already loads
+let archiveConcerts = []; // reused so the artist portrait can say "you've seen them live N times"
+let mode = "overall"; // artists list: "overall" | "month"
 
-let concertImageBySourceId = new Map();
-let concertImageByVenueDate = new Map();
-let concertImageByArtist = new Map();
-let artistImages = new Map();
-let setlists = new Map();
-
-// ---------- tiny helpers ----------
-
-async function loadJSON(path) {
-  const res = await fetch(path, { cache: "no-store" });
-  if (!res.ok) throw new Error(`Failed to load ${path}: ${res.status}`);
-  return res.json();
+export function initIdentity(deps, photos, concerts) {
+  renderDeps = deps;
+  artistPhotos = photos || new Map();
+  archiveConcerts = concerts || [];
 }
 
-function el(html) {
-  const t = document.createElement("template");
-  t.innerHTML = html.trim();
-  return t.content.firstElementChild;
-}
-
-function esc(s) {
-  return String(s ?? "").replace(/[&<>"']/g, (m) => (
-    { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]
-  ));
-}
+let currentData = null;
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-function dayMonth(iso) {
-  const [, m, d] = String(iso || "").split("-");
-  return m ? `${d} ${MONTHS[Number(m) - 1]}` : "";
-}
-function fullDate(iso) {
-  const [y, m, d] = String(iso || "").split("-");
-  return y ? `${d} ${MONTHS[Number(m) - 1]} ${y}` : "";
-}
-function weekdayShort(iso) {
-  const dt = new Date(iso + "T00:00:00");
-  return dt.toLocaleDateString("en-GB", { weekday: "short" });
-}
-function yearOf(iso) { return String(iso || "").slice(0, 4); }
-
-function daysUntil(iso) {
-  const today = new Date().toISOString().slice(0, 10);
-  return Math.round((new Date(iso + "T00:00:00") - new Date(today + "T00:00:00")) / 86400000);
-}
-function countdownWord(iso) {
-  const d = daysUntil(iso);
-  if (d < 0) return "Passed";
-  if (d === 0) return "Tonight";
-  if (d === 1) return "Tomorrow";
-  if (d < 7) return `In ${d} days`;
-  if (d < 14) return "Next week";
-  if (d < 60) return `In ${Math.round(d / 7)} weeks`;
-  return `In ${Math.round(d / 30)} months`;
+function timeAgo(iso) {
+  const then = new Date(iso).getTime();
+  const diffMs = Date.now() - then;
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return "Now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  const d = new Date(iso);
+  return `${d.getDate()} ${MONTHS[d.getMonth()]}`;
 }
 
-// Spell small numbers out. "Twenty-five years" belongs in a sentence about a
-// life; "25 years" belongs in a spreadsheet.
-const WORDS = ["zero","one","two","three","four","five","six","seven","eight","nine","ten",
-  "eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen","twenty",
-  "twenty-one","twenty-two","twenty-three","twenty-four","twenty-five","twenty-six","twenty-seven",
-  "twenty-eight","twenty-nine","thirty"];
-function spell(n) { return WORDS[n] || String(n); }
-function titleCase(s) { return s ? s[0].toUpperCase() + s.slice(1) : s; }
-
-// ---------- images ----------
-
-function normalizeKey(s) {
-  return (s || "").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim();
+function withCommas(n) {
+  return Number(n || 0).toLocaleString("en-US");
 }
 
-// The image Podiuminfo exposes is the ARTIST's photo, not concert artwork
-// (the URL is literally /img/artist/<id>/...). So the artist name is the
-// natural key, and any cached concert featuring that artist yields it —
-// which is what rescues records saved before the schema carried sourceId.
-function imageFor(rec) {
-  if (!rec) return null;
-
-  // Deezer's curated 1000px photo must be checked FIRST. rec.image (set
-  // directly from the concert's own source page — Podiuminfo's artist
-  // thumbnails run around ~100px) used to be checked before this, which
-  // meant it permanently won even when a far better Deezer photo existed
-  // for the exact same artist — that mismatch between this comment and the
-  // actual order was the real cause of "blurry" (upscaled tiny thumbnail)
-  // photos on the Tonight/Discover stage.
-  const byName = artistImages.get(normalizeKey(rec.artist));
-  if (byName) return byName;
-
-  if (rec.image) return rec.image;
-
-  const cached = concertImageByArtist.get(normalizeKey(rec.artist));
-  if (cached) return cached;
-
-  let sid = rec.sourceId ? String(rec.sourceId) : null;
-  if (!sid) {
-    const m = String(rec.id || "").match(/podiuminfo-(\d+)/) ||
-              String(rec.recommendationId || "").match(/podiuminfo-(\d+)/);
-    if (m) sid = m[1];
-  }
-  if (sid && concertImageBySourceId.has(sid)) return concertImageBySourceId.get(sid);
-
-  if (rec.venue && rec.date) {
-    const hit = concertImageByVenueDate.get(`${normalizeKey(rec.venue)}|${rec.date}`);
-    if (hit) return hit;
-  }
-  return null;
+function photoFor(artistName) {
+  const key = normalizeArtistKey(artistName);
+  return artistPhotos.get(key) || null;
 }
 
-// Photos are applied from JS rather than inlined into the markup so a URL
-// containing quotes can never break out of a style attribute.
-function setPhoto(node, url) {
-  if (!node) return false;
-  if (!url) { node.classList.add("is-empty"); return false; }
-  node.style.backgroundImage = `url("${url.replace(/"/g, "%22")}")`;
-  return true;
+function normalizeArtistKey(name) {
+  return (name || "").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim();
 }
 
-// ---------- staleness shield ----------
-//
-// GitHub Pages serves data/*.json through a CDN that can keep returning the
-// previous version for minutes after a commit, which made freshly dismissed
-// concerts reappear on refresh. Filter against history AND a short local
-// record of what was just acted on, since the history file can be stale too.
-
-const RECENT_KEY = "lm_recently_handled";
-const RECENT_TTL_MS = 30 * 60 * 1000;
-
-function loadRecentlyHandled() {
-  try {
-    const raw = JSON.parse(localStorage.getItem(RECENT_KEY) || "{}");
-    const now = Date.now();
-    return Object.fromEntries(Object.entries(raw).filter(([, t]) => now - t < RECENT_TTL_MS));
-  } catch { return {}; }
-}
-function markRecentlyHandled(id) {
-  const map = loadRecentlyHandled();
-  map[id] = Date.now();
-  try { localStorage.setItem(RECENT_KEY, JSON.stringify(map)); } catch {}
-}
-function filterStaleRecommendations(concerts, historyData) {
-  const excluded = new Set([
-    ...(historyData?.dismissedIds || []),
-    ...(historyData?.plannedIds || []),
-    ...Object.keys(loadRecentlyHandled()),
-  ]);
-  return concerts.filter((c) => !excluded.has(c.id));
-}
-
-// ---------- serialized, conflict-safe repo writes ----------
-//
-// Swipes are optimistic, so several writes can fire within a second. Running
-// them concurrently meant they all read the same file sha, the first PUT won
-// and the rest failed. Every mutation goes through one serial queue, and
-// each attempt re-reads state and re-applies its change, so a conflict is
-// resolved by rebasing rather than overwriting.
-
-let writeChain = Promise.resolve();
-
-function enqueue(task) {
-  const run = writeChain.then(task, task);
-  writeChain = run.catch(() => {});
-  return run;
-}
-
-async function mutate(paths, applyFn, message, attempts = 4) {
-  const config = getGithubConfig();
-  if (!config) throw new Error("Not connected to GitHub");
-
-  for (let attempt = 0; ; attempt++) {
-    const files = {};
-    for (const p of paths) files[p] = await getFile(config, p);
-
-    const jsons = {};
-    for (const p of paths) jsons[p] = files[p].json;
-    const touched = applyFn(jsons) || paths;
-
-    try {
-      for (const p of touched) await putFile(config, p, jsons[p], files[p].sha, message);
-      return;
-    } catch (err) {
-      if (isConflictError(err) && attempt < attempts - 1) {
-        await new Promise((r) => setTimeout(r, 250 * (attempt + 1)));
-        continue;
-      }
-      throw err;
-    }
-  }
-}
-
-// ---------- remote writes ----------
-
-function plannedRecordFrom(rec) {
-  return {
-    id: `planned-${String(rec.id).replace(/^rec-/, "")}`,
-    source: rec.source || "podiuminfo",
-    sourceId: rec.sourceId ?? null,
-    artist: rec.artist,
-    lineup: rec.lineup || [],
-    supportingArtists: rec.supportingArtists || [],
-    date: rec.date,
-    time: rec.time || null,
-    venue: rec.venue,
-    city: rec.city,
-    country: rec.country,
-    isFestival: rec.isFestival || false,
-    image: rec.image || null,
-    ticketUrl: rec.ticketUrl || null,
-    sourceUrl: rec.sourceUrl || null,
-    recommendationId: rec.id,
-    planning: { plannedAt: new Date().toISOString(), originalScore: rec.match?.score ?? null },
-  };
-}
-
-async function planConcertRemote(rec) {
-  const RECS = "data/recommendations.json";
-  const PLANNED = "data/planned.json";
-  const HIST = "data/recommendation-history.json";
-
-  await mutate([RECS, PLANNED, HIST], (f) => {
-    const recs = f[RECS], planned = f[PLANNED], history = f[HIST];
-
-    const idx = recs.concerts.findIndex((c) => c.id === rec.id);
-    if (idx !== -1) {
-      recs.concerts.splice(idx, 1);
-      recs.meta.lastUpdated = new Date().toISOString();
-    }
-
-    const record = plannedRecordFrom(rec);
-    const dup = planned.concerts.some(
-      (c) => (c.sourceId && rec.sourceId && String(c.sourceId) === String(rec.sourceId)) ||
-             (c.artist === record.artist && c.date === record.date && c.venue === record.venue)
-    );
-    if (!dup) planned.concerts.push(record);
-    planned.meta.lastUpdated = new Date().toISOString();
-
-    if (!history.plannedIds.includes(rec.id)) history.plannedIds.push(rec.id);
-  }, `chore: plan ${rec.id} (app)`);
-}
-
-async function dismissConcertRemote(rec) {
-  const RECS = "data/recommendations.json";
-  const HIST = "data/recommendation-history.json";
-
-  await mutate([RECS, HIST], (f) => {
-    const recs = f[RECS], history = f[HIST];
-
-    const idx = recs.concerts.findIndex((c) => c.id === rec.id);
-    if (idx !== -1) {
-      recs.concerts.splice(idx, 1);
-      recs.meta.lastUpdated = new Date().toISOString();
-    }
-    if (!history.dismissedIds.includes(rec.id)) history.dismissedIds.push(rec.id);
-
-    // A full snapshot, not just the id — otherwise a set-aside concert is
-    // unreviewable and unrestorable.
-    if (!Array.isArray(history.dismissed)) history.dismissed = [];
-    if (!history.dismissed.some((d) => d.id === rec.id)) {
-      history.dismissed.unshift({ ...rec, dismissedAt: new Date().toISOString() });
-    }
-  }, `chore: dismiss ${rec.id} (app)`);
-}
-
-async function restoreConcertsRemote(recsToRestore, legacyIdsToRestore = []) {
-  const RECS = "data/recommendations.json";
-  const HIST = "data/recommendation-history.json";
-  const restoringIds = new Set([...recsToRestore.map((r) => r.id), ...legacyIdsToRestore]);
-
-  await mutate([RECS, HIST], (f) => {
-    const recs = f[RECS], history = f[HIST];
-
-    history.dismissedIds = (history.dismissedIds || []).filter((id) => !restoringIds.has(id));
-    history.dismissed = (history.dismissed || []).filter((d) => !restoringIds.has(d.id));
-
-    for (const rec of recsToRestore) {
-      if (recs.concerts.some((c) => c.id === rec.id)) continue;
-      const { dismissedAt, ...clean } = rec;
-      recs.concerts.push(clean);
-    }
-    recs.concerts.sort((a, b) => (b.match?.score ?? 0) - (a.match?.score ?? 0));
-    recs.meta.lastUpdated = new Date().toISOString();
-  }, `chore: restore ${restoringIds.size} concert(s) (app)`);
-}
-
-async function unplanConcertRemote(plannedRec) {
-  const RECS = "data/recommendations.json";
-  const PLANNED = "data/planned.json";
-  const HIST = "data/recommendation-history.json";
-  const recId = plannedRec.recommendationId || String(plannedRec.id || "").replace(/^planned-/, "rec-");
-
-  await mutate([RECS, PLANNED, HIST], (f) => {
-    const recs = f[RECS], planned = f[PLANNED], history = f[HIST];
-
-    const idx = planned.concerts.findIndex((c) => c.id === plannedRec.id);
-    if (idx !== -1) {
-      planned.concerts.splice(idx, 1);
-      planned.meta.lastUpdated = new Date().toISOString();
-    }
-
-    // Drop it from the exclude-list, otherwise discovery keeps filtering it
-    // out and it can never come back.
-    history.plannedIds = (history.plannedIds || []).filter((id) => id !== recId);
-
-    if (!recs.concerts.some((c) => c.id === recId)) {
-      recs.concerts.push({
-        id: recId,
-        source: plannedRec.source || "podiuminfo",
-        sourceId: plannedRec.sourceId ?? null,
-        artist: plannedRec.artist,
-        lineup: plannedRec.lineup || [],
-        supportingArtists: plannedRec.supportingArtists || [],
-        matchedArtists: [plannedRec.artist],
-        date: plannedRec.date,
-        time: plannedRec.time || null,
-        venue: plannedRec.venue,
-        city: plannedRec.city,
-        country: plannedRec.country || "??",
-        isFestival: plannedRec.isFestival || false,
-        image: plannedRec.image || null,
-        ticketUrl: plannedRec.ticketUrl || null,
-        sourceApis: plannedRec.sourceApis || ["podiuminfo"],
-        sourceUrl: plannedRec.sourceUrl || null,
-        match: {
-          score: plannedRec.planning?.originalScore ?? 50,
-          label: "Strong match",
-          matchedBy: "direct",
-          reason: `Known artist: ${plannedRec.artist}`,
-          matchedArtists: [plannedRec.artist],
-        },
-        discoveredAt: new Date().toISOString(),
-        lastSeenAt: new Date().toISOString(),
-      });
-      recs.concerts.sort((a, b) => (b.match?.score ?? 0) - (a.match?.score ?? 0));
-      recs.meta.lastUpdated = new Date().toISOString();
-    }
-  }, `chore: unplan ${plannedRec.id} (app)`);
-  return recId;
-}
-
-async function saveConcertNoteRemote(concert, text) {
-  const ARCH = "data/archive.json";
-  await mutate([ARCH], (f) => {
-    const archive = f[ARCH];
-    const row = archive.concerts.find((x) => x.id === concert.id);
-    if (!row) throw new Error("Concert not found in the archive");
-    row.notes = text || null;
-    if (archive.meta) archive.meta.lastUpdated = new Date().toISOString();
-  }, `chore: note on ${concert.id} (app)`);
-}
-
-// ---------- saving indicator ----------
-
-function renderSaving() {
-  document.getElementById("saving")?.remove();
-  if (pendingWrites === 0 && !syncError) return;
-  const node = syncError
-    ? el(`<div class="saving bad" id="saving">${esc(syncError)}</div>`)
-    : el(`<div class="saving" id="saving">Saving</div>`);
-  document.body.appendChild(node);
-  if (syncError) setTimeout(() => { syncError = null; renderSaving(); }, 6000);
-}
-
-// ==========================================================================
-// ARCHIVE — the spine
-// ==========================================================================
-
-function renderArchive(archiveData) {
-  archiveConcerts = archiveData.concerts || [];
-  archiveView = buildArchiveView(archiveConcerts);
-  const root = document.getElementById("panel-archive");
+export function renderIdentity(root, data) {
+  const { el, esc } = renderDeps;
+  currentData = data;
   root.innerHTML = "";
 
-  root.appendChild(openingStatement(archiveView));
-
-  const anniversary = anniversaryLine(archiveView) || forgottenMemoryLine();
-  if (anniversary) root.appendChild(anniversary);
-
-  root.appendChild(el(`<div id="explore-root"></div>`));
-  root.appendChild(el(`<div id="spine-root"></div>`));
-  renderExplore();
-}
-
-// The archive's headline numbers written as a sentence. Four stat tiles say
-// "here is some data"; a sentence says "here is your life".
-function openingStatement(view) {
-  const { totalConcerts, festivals, venues, cities } = view.overview;
-  const firstYear = yearOf(view.milestones.first?.date);
-  const lastYear = yearOf(view.milestones.latest?.date);
-  const span = firstYear && lastYear ? Number(lastYear) - Number(firstYear) + 1 : 0;
-  const firstCity = view.milestones.first?.city;
-  const topCity = view.patterns.topCities[0]?.name;
-
-  const journey = firstCity && topCity && firstCity !== topCity
-    ? `From ${esc(firstCity)} to ${esc(topCity)}.`
-    : firstCity ? `It started in ${esc(firstCity)}.` : "";
-
-  const node = el(`
-    <div class="opening">
-      <p class="whisper">The Archive</p>
-      <p class="lede">
-        ${totalConcerts} nights.<br>
-        ${span ? `${titleCase(spell(span))} years.<br>` : ""}
-        <em>${journey}</em>
-      </p>
-      <p class="opening-figures">
-        <b>${festivals}</b> festivals ·
-        <b>${venues}</b> rooms ·
-        <b>${cities}</b> cities<br>
-        Most often: <b>${esc(view.signature.topArtist?.name ?? "—")}</b>, ${view.signature.topArtist?.count ?? 0} times<br>
-        Most familiar room: <b>${esc(view.signature.topVenue?.name ?? "—")}</b>, ${view.signature.topVenue?.count ?? 0} visits<br>
-        Busiest year: <b>${esc(view.peakYear?.name ?? "—")}</b>, ${view.peakYear?.count ?? 0} nights
-      </p>
-    </div>
-  `);
-  return node;
-}
-
-// The single most affecting thing the archive knows: that tonight is an
-// anniversary. Given its own line rather than buried under a heading.
-function anniversaryLine(view) {
-  const hits = view.onThisDay;
-  if (!hits.length) return null;
-  const c = hits[0];
-  const node = el(`
-    <div class="anniversary">
-      <p class="whisper">On this day</p>
-      <p class="anniversary-line">
-        ${titleCase(spell(c.yearsAgo))} year${c.yearsAgo === 1 ? "" : "s"} ago tonight —
-        ${esc(c.festivalName || c.artist)}<span>, ${esc(c.venue)}</span>
-      </p>
-    </div>
-  `);
-  node.addEventListener("click", () => openSheet(c));
-  return node;
-}
-
-// Most days aren't anniversaries — this is what fills that space instead,
-// so the archive resurfaces something every time rather than only on the
-// rare exact date. Picked deterministically from the day (stable if you
-// reopen the tab, different tomorrow), and weighted toward concerts with
-// no notes attached — the ones you genuinely never wrote a word about are
-// the ones actually worth being reminded of.
-function forgottenMemoryLine() {
-  if (!archiveConcerts.length) return null;
-  const todaySeed = new Date().toISOString().slice(0, 10);
-  const seed = [...todaySeed].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) >>> 0, 0);
-
-  const undocumented = archiveConcerts.filter((c) => !(c.notes && c.notes.trim()));
-  const pool = undocumented.length ? undocumented : archiveConcerts;
-  const c = pool[seed % pool.length];
-
-  const yearsAgo = Number(yearOf(new Date().toISOString())) - Number(yearOf(c.date));
-  const whenPhrase = yearsAgo > 0 ? `${titleCase(spell(yearsAgo))} year${yearsAgo === 1 ? "" : "s"} ago` : "Earlier this year";
-
-  const node = el(`
-    <div class="anniversary">
-      <p class="whisper">From the archive</p>
-      <p class="anniversary-line">
-        ${whenPhrase} —
-        ${esc(c.festivalName || c.artist)}<span>, ${esc(c.venue)}</span>
-      </p>
-    </div>
-  `);
-  node.addEventListener("click", () => openSheet(c));
-  return node;
-}
-
-function renderExplore() {
-  const host = document.getElementById("explore-root");
-  if (!host || !archiveView) return;
-  host.innerHTML = "";
-
-  const MODES = [["all","Everything"],["year","By year"],["artist","By artist"],["city","By city"],["venue","By room"]];
-  const bar = el(`<div class="explore"><div class="explore-modes"></div></div>`);
-  const modes = bar.querySelector(".explore-modes");
-
-  for (const [mode, label] of MODES) {
-    const b = el(`<button class="explore-mode ${exploreFilter.mode === mode ? "on" : ""}">${label}</button>`);
-    b.addEventListener("click", () => { exploreFilter = { mode, value: null }; renderExplore(); });
-    modes.appendChild(b);
-  }
-
-  if (exploreFilter.mode !== "all") {
-    const values = archiveView.explore[exploreFilter.mode] || [];
-    const row = el(`<div class="explore-values"></div>`);
-    // A horizontal scroll rather than a wall of wrapped pills: 400 artists
-    // should be a drawer you pull through, not a page you fall down.
-    for (const { name, count } of values.slice(0, 60)) {
-      const v = el(`<button class="explore-value ${exploreFilter.value === name ? "on" : ""}">${esc(name)}<i>${count}</i></button>`);
-      v.addEventListener("click", () => {
-        exploreFilter = { mode: exploreFilter.mode, value: exploreFilter.value === name ? null : name };
-        renderExplore();
-      });
-      row.appendChild(v);
-    }
-    bar.appendChild(row);
-  }
-
-  host.appendChild(bar);
-  renderSpine();
-}
-
-function renderSpine() {
-  const host = document.getElementById("spine-root");
-  if (!host) return;
-  host.innerHTML = "";
-
-  const list = filterConcerts(archiveConcerts, exploreFilter)
-    .slice()
-    .sort((a, b) => String(b.date).localeCompare(String(a.date)));
-
-  if (exploreFilter.value) {
-    host.appendChild(el(`<p class="filter-note">${list.length} night${list.length === 1 ? "" : "s"} · ${esc(exploreFilter.value)}</p>`));
-  }
-
-  if (!list.length) {
-    host.appendChild(el(`<p class="void">Nothing here.</p>`));
+  if (!data?.meta?.lastUpdated) {
+    root.appendChild(el(`
+      <div class="stage-empty">
+        <p class="whisper">Self</p>
+        <p class="lede">Who you are, according to what you play.</p>
+        <p class="footnote">Still gathering — this fills in after the identity job first runs.</p>
+      </div>
+    `));
     return;
   }
 
-  const spine = el(`<div class="spine"></div>`);
+  root.appendChild(openingStatement(data));
+  root.appendChild(el(`<div id="identity-artists-root"></div>`));
 
-  // Group by year so the spine reads as chapters. Newest first: the archive
-  // is something you walk backwards into.
-  let currentYear = null;
-  let band = null;
-  for (const c of list) {
-    const y = yearOf(c.date);
-    if (y !== currentYear) {
-      currentYear = y;
-      const count = list.filter((x) => yearOf(x.date) === y).length;
-      band = el(`
-        <div class="year-band">
-          <div class="year-ghost">${esc(y)}</div>
-          <div class="year-mark"><b>${esc(y)}</b>${count} night${count === 1 ? "" : "s"}</div>
-        </div>
-      `);
-      spine.appendChild(band);
-    }
-    band.appendChild(archiveEntry(c));
+  if (data.topTracks?.length) {
+    root.appendChild(el(`<div class="section-heading">Songs you keep coming back to</div>`));
+    const list = el(`<div></div>`);
+    const status = el(`<p class="status" id="top-tracks-status"></p>`);
+    data.topTracks.slice(0, 10).forEach((t, i) => {
+      const row = rankRow(i + 1, t.name, t.artist, t.playcount, false);
+      row.classList.add("is-tappable");
+      row.addEventListener("click", () => playViaSpotify(t.name, t.artist, status));
+      list.appendChild(row);
+    });
+    root.appendChild(list);
+    root.appendChild(status);
   }
 
-  host.appendChild(spine);
-}
+  if (data.topAlbums?.length) {
+    root.appendChild(el(`<div class="section-heading">Albums</div>`));
+    const gallery = el(`<div class="album-gallery"></div>`);
+    data.topAlbums.slice(0, 10).forEach((a) => gallery.appendChild(albumCard(a)));
+    root.appendChild(gallery);
+  }
 
-function archiveEntry(c) {
-  const support = (c.supportingArtists || []).filter(Boolean);
-  const withLine = support.length
-    ? `<div class="entry-with">with ${esc(support.slice(0, 3).join(", "))}${support.length > 3 ? ` +${support.length - 3}` : ""}</div>`
-    : "";
-  const firstTimeTag = isFirstTimeSeeing(c) ? `<span class="entry-first">First time</span>` : "";
+  if (data.recentTracks?.length) {
+    root.appendChild(el(`<div class="section-heading">Recently played</div>`));
+    const list = el(`<div></div>`);
+    data.recentTracks.slice(0, 10).forEach((t) => {
+      const row = el(`
+        <div class="recent-row">
+          <div class="recent-when">${esc(timeAgo(t.playedAt))}</div>
+          <div class="recent-body"><b>${esc(t.name)}</b><br><span>${esc(t.artist)}</span></div>
+        </div>
+      `);
+      list.appendChild(row);
+    });
+    root.appendChild(list);
+  }
 
-  const node = el(`
-    <article class="entry ${c.isFestival ? "is-festival" : ""}">
-      <div class="entry-text">
-        <div class="entry-date">${weekdayShort(c.date)} · ${dayMonth(c.date)}${firstTimeTag}</div>
-        <h3 class="entry-artist">${esc(c.festivalName || c.artist)}</h3>
-        ${withLine}
-        <div class="entry-place">${esc(c.venue)}<span class="dot">·</span>${esc(c.city)}</div>
+  if (data.profile?.url) {
+    root.appendChild(el(`
+      <div class="act-row">
+        <button class="plain-act" id="identity-lastfm-link">View on Last.fm</button>
       </div>
-      <div class="entry-photo"></div>
-    </article>
+    `));
+    root.querySelector("#identity-lastfm-link").addEventListener("click", () => window.open(data.profile.url, "_blank"));
+  }
+
+  renderArtists(data);
+}
+
+// The headline numbers as a sentence, same voice as Archive's opening
+// statement — this is the same kind of thing (a life, summarized), just
+// measured in scrobbles instead of nights.
+function openingStatement(data) {
+  const { el, esc } = renderDeps;
+  const { totalScrobbles, registeredAt } = data.profile;
+  const sinceYear = registeredAt ? new Date(registeredAt).getFullYear() : null;
+  const lately = data.topArtistsMonth?.[0]?.name || data.topArtistsOverall?.[0]?.name || null;
+
+  return el(`
+    <div class="opening">
+      <p class="whisper">Self</p>
+      <p class="lede">
+        ${withCommas(totalScrobbles)} scrobbles${sinceYear ? ` since ${sinceYear}` : ""}.<br>
+        ${lately ? `<em>Lately, you keep returning to ${esc(lately)}.</em>` : ""}
+      </p>
+    </div>
   `);
-  setPhoto(node.querySelector(".entry-photo"), imageFor(c));
-  node.addEventListener("click", () => openSheet(c));
-  return node;
 }
 
-// ==========================================================================
-// DETAIL — a full page for one night
-// ==========================================================================
+function renderArtists(data) {
+  const { el } = renderDeps;
+  const host = document.getElementById("identity-artists-root");
+  if (!host) return;
+  host.innerHTML = "";
 
-const ORDINALS = ["first","second","third","fourth","fifth","sixth","seventh","eighth","ninth","tenth",
-  "eleventh","twelfth","thirteenth","fourteenth","fifteenth"];
+  const bar = el(`
+    <div class="identity-modes">
+      <div class="explore-modes">
+        <button class="explore-mode ${mode === "overall" ? "on" : ""}" data-m="overall">All time</button>
+        <button class="explore-mode ${mode === "month" ? "on" : ""}" data-m="month">This month</button>
+      </div>
+    </div>
+  `);
+  bar.querySelectorAll("button").forEach((b) => {
+    b.addEventListener("click", () => { mode = b.dataset.m; renderArtists(data); });
+  });
+  host.appendChild(bar);
 
-// Every concert in the archive that shares this one's "subject" (its own
-// headliner, or its own festival name) — support-slot and festival-lineup
-// appearances count too, the same broad matching artistsOf() already uses
-// everywhere else. Shared by the memory statement and the spine's
-// first-time marker so the two can never disagree with each other.
-function concertsForSubject(c) {
-  const subject = c.festivalName || c.artist;
-  const key = normalizeKey(subject);
+  const list = el(`<div></div>`);
+  const artists = mode === "month" ? data.topArtistsMonth : data.topArtistsOverall;
+  if (!artists?.length) {
+    list.appendChild(el(`<p class="void">${mode === "month" ? "Nothing tracked yet this month." : "Nothing tracked yet."}</p>`));
+  } else {
+    artists.forEach((a, i) => {
+      const row = rankRow(i + 1, a.name, null, a.playcount, photoFor(a.name));
+      row.classList.add("is-tappable");
+      row.addEventListener("click", () => openArtistSheet(a.name));
+      list.appendChild(row);
+    });
+  }
+  host.appendChild(list);
+}
+
+function albumCard(a) {
+  const { el, esc } = renderDeps;
+  const card = el(`
+    <div class="album-card ${a.image ? "" : "is-empty"}">
+      <div class="album-card-caption">
+        <div class="album-card-name">${esc(a.name)}</div>
+        <div class="album-card-count">${withCommas(a.playcount)}× · ${esc(a.artist)}</div>
+      </div>
+    </div>
+  `);
+  if (a.image) card.style.backgroundImage = `url("${a.image.replace(/"/g, "%22")}")`;
+  return card;
+}
+
+function rankRow(rank, title, subtitle, playcount, photo) {
+  const { el, esc } = renderDeps;
+  // photo === false means this row type never shows a photo (top tracks) —
+  // use the rank number instead. Any other value (a URL, or null for "has
+  // a photo slot but this one's missing") gets the photo treatment.
+  const hasPhotoSlot = photo !== false;
+  const row = el(`
+    <div class="rank-row">
+      ${hasPhotoSlot ? `<div class="rank-photo ${photo ? "" : "is-empty"}"></div>` : `<div class="rank-num">${rank}</div>`}
+      <div class="rank-body">
+        <div class="rank-name">${esc(title)}</div>
+        ${subtitle ? `<div class="rank-sub">${esc(subtitle)}</div>` : ""}
+      </div>
+      <div class="rank-count">${withCommas(playcount)}×</div>
+    </div>
+  `);
+  if (hasPhotoSlot && photo) row.querySelector(".rank-photo").style.backgroundImage = `url("${photo.replace(/"/g, "%22")}")`;
+  return row;
+}
+
+// ---------- artist drill-down ----------
+//
+// Reuses the app's existing full-screen detail pattern (.sheet-root) rather
+// than inventing a second one — a night at a show and an artist's own
+// track list are the same KIND of thing here: one subject, given the whole
+// screen.
+
+// Concerts from the Archive where this artist actually played — headliner,
+// support, or festival bill, matched the same way the Archive itself
+// counts "most-seen artist", so the numbers never disagree with each other.
+function concertsFeaturing(artistName) {
+  const key = normalizeArtistKey(artistName);
   return archiveConcerts
-    .filter((x) => artistsOf(x).some((n) => normalizeKey(n) === key) || normalizeKey(x.festivalName || x.artist) === key)
-    .sort((a, b) => String(a.date).localeCompare(String(b.date)));
+    .filter((c) => actuallySeenArtistsOf(c).some((n) => normalizeArtistKey(n) === key))
+    .sort((a, b) => String(b.date).localeCompare(String(a.date)));
 }
 
-// Not a fact — a memory. "The third of four times you've seen them" reads
-// completely differently from a visit counter, even though it's the exact
-// same number underneath.
-function timesSeenStatement(c) {
-  const subject = c.festivalName || c.artist;
-  const all = concertsForSubject(c);
-  const total = all.length;
-  if (total <= 1) return `The only time you've seen ${esc(subject)} — so far.`;
-  const index = all.findIndex((x) => x.id === c.id) + 1;
-  const ord = ORDINALS[index - 1] || `${index}th`;
-  return `The ${ord} of ${spell(total)} times you've seen ${esc(subject)}.`;
+const MONTHS_FULL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+function fullDate(iso) {
+  const [y, m, d] = String(iso || "").split("-");
+  return y ? `${Number(d)} ${MONTHS_FULL[Number(m) - 1]} ${y}` : "";
 }
 
-// Marks the earliest night with this subject as a discovery, not just
-// another row — the spine should feel like walking backward into moments
-// that were once new, not a flat list where every night looks equally routine.
-function isFirstTimeSeeing(c) {
-  const all = concertsForSubject(c);
-  return all.length > 0 && all[0].id === c.id;
+// The numbers alone are a dashboard; this turns them into one sentence
+// about the actual relationship — how much, how lately, and whether it's
+// ever been a night in a room together.
+function portraitStatement(overallCount, monthCount, liveCount) {
+  const parts = [];
+  parts.push(`${withCommas(overallCount)} play${overallCount === 1 ? "" : "s"}`);
+  if (monthCount > 0) parts.push(`${monthCount} of those this month alone`);
+  let sentence = parts.join(" — ") + ".";
+  if (liveCount > 0) {
+    sentence += ` <em>You've stood in the room ${spellSmall(liveCount)} time${liveCount === 1 ? "" : "s"}.</em>`;
+  } else {
+    sentence += ` <em>Never in the same room — yet.</em>`;
+  }
+  return sentence;
 }
 
-function openSheet(c) {
+const SMALL_WORDS = ["zero","one","two","three","four","five","six","seven","eight","nine","ten"];
+function spellSmall(n) { return SMALL_WORDS[n] || String(n); }
+
+function openArtistSheet(artistName) {
+  const { el, esc } = renderDeps;
   const root = document.getElementById("settings-modal-root");
-  const photo = imageFor(c);
-  const lineup = artistsOf(c);
-  // Everyone except the name already in the title above. For a festival that
-  // title is the festival itself, so this is the real bill; for a concert
-  // it's the headliner, so this is the support.
-  const support = lineup.filter((n) => n !== c.artist && n !== c.festivalName);
-  const room = venueKey(c);
-  const planned = plannedConcerts.find((p) => p.id === c.id) || null;
+  const photo = photoFor(artistName);
+  const key = normalizeArtistKey(artistName);
+  const tracks = currentData?.topTracksByArtist?.[key] || [];
+  const overallCount = currentData?.topArtistsOverall?.find((a) => normalizeArtistKey(a.name) === key)?.playcount || 0;
+  const monthCount = currentData?.topArtistsMonth?.find((a) => normalizeArtistKey(a.name) === key)?.playcount || 0;
+  const liveShows = concertsFeaturing(artistName);
 
   root.innerHTML = "";
   const sheet = el(`
     <div class="sheet-root">
       <button class="sheet-close">Close</button>
       <div class="sheet-inner">
-        <div class="sheet-photo ${photo ? "" : "is-empty"}"></div>
-        <div class="sheet-head">
-          <h2 class="sheet-artist">${esc(c.festivalName || c.artist)}</h2>
-          <div class="sheet-when">
-            ${weekdayShort(c.date)} ${fullDate(c.date)}<br>
-            ${esc(c.venue)}, ${esc(c.city)}
+        <div class="portrait-photo ${photo ? "" : "is-empty"}">
+          <div class="portrait-photo-name">
+            <h2 class="portrait-name">${esc(artistName)}</h2>
           </div>
-          <p class="lede sheet-memory-line">${timesSeenStatement(c)}</p>
+        </div>
+        <div class="sheet-head" style="margin-top:22px">
+          <p class="lede portrait-statement">${portraitStatement(overallCount, monthCount, liveShows.length)}</p>
         </div>
 
-        <dl class="facts">
-          <div class="fact"><dt>Billing</dt><dd>${c.isFestival ? "Festival" : "Own show"}</dd></div>
-          ${room && room !== c.venue ? `<div class="fact"><dt>Part of</dt><dd>${esc(room)}</dd></div>` : ""}
-          ${c.country ? `<div class="fact"><dt>Country</dt><dd>${esc(c.country)}</dd></div>` : ""}
-        </dl>
-
-        ${support.length ? `
+        ${liveShows.length ? `
           <div class="sheet-section">
-            <p class="whisper">${c.isFestival ? "Who played" : "Support"}</p>
-            <p class="names">${esc(support.join(", "))}</p>
+            <p class="whisper">Live</p>
+            <div id="portrait-live-list"></div>
           </div>` : ""}
 
         <div class="sheet-section">
-          <p class="whisper">Note to self</p>
-          <div id="sheet-note"></div>
+          <p class="whisper">${tracks.length ? "What you've been playing" : "Nothing recent"}</p>
+          ${!tracks.length ? `<p class="footnote">Last.fm only lets this look at recent listening, not everything ever — this one just hasn't come up lately.</p>` : ""}
+          <div id="artist-track-list"></div>
+          <p class="status" id="artist-play-status"></p>
         </div>
-
-        <div id="sheet-setlist"></div>
-
-        ${planned ? `
-          <div class="sheet-section">
-            <p class="whisper">Change of plan</p>
-            <div class="act-row" style="padding-left:0;padding-right:0">
-              ${planned.ticketUrl ? `<button class="plain-act" id="sheet-tickets">Tickets</button>` : ""}
-              <button class="plain-act" id="sheet-unplan">Not going after all</button>
-            </div>
-          </div>` : ""}
       </div>
     </div>
   `);
   root.appendChild(sheet);
+  if (photo) sheet.querySelector(".portrait-photo").style.backgroundImage = `url("${photo.replace(/"/g, "%22")}")`;
+  sheet.querySelector(".sheet-close").addEventListener("click", () => { root.innerHTML = ""; });
 
-  // Unplan is reachable from any planned concert, not just whichever one
-  // happens to be next — a mistake buried three deep still has to be undoable.
-  if (planned) {
-    sheet.querySelector("#sheet-tickets")?.addEventListener("click", () => window.open(planned.ticketUrl, "_blank"));
-    const un = sheet.querySelector("#sheet-unplan");
-    un.addEventListener("click", async () => {
-      if (!getGithubConfig()) { openSettings(); return; }
-      un.disabled = true; un.textContent = "Removing";
-      pendingWrites++; renderSaving();
-      try {
-        const recId = await enqueue(() => unplanConcertRemote(planned));
-        plannedConcerts = plannedConcerts.filter((x) => x.id !== planned.id);
-        if (!deckQueue.some((d) => d.id === recId)) {
-          deckQueue.push({
-            ...planned, id: recId,
-            match: { score: planned.planning?.originalScore ?? 50, label: "Strong match",
-                     reason: `Known artist: ${planned.artist}`, matchedArtists: [planned.artist] },
-          });
-        }
-        root.innerHTML = "";
-        renderConcertsShell("going");
-      } catch (err) {
-        console.error(err);
-        syncError = err.message;
-        un.disabled = false; un.textContent = "Not going after all";
-        renderSaving();
-      } finally { pendingWrites--; renderSaving(); }
+  if (liveShows.length) {
+    const liveList = sheet.querySelector("#portrait-live-list");
+    liveShows.forEach((c) => {
+      liveList.appendChild(el(`
+        <div class="recent-row">
+          <div class="recent-when">${fullDate(c.date).split(" ").slice(0, 2).join(" ")}</div>
+          <div class="recent-body"><b>${esc(c.festivalName || c.venue)}</b><br><span>${esc(c.venue)}${c.city ? `, ${esc(c.city)}` : ""}</span></div>
+        </div>
+      `));
     });
   }
 
-  setPhoto(sheet.querySelector(".sheet-photo"), photo);
-  sheet.querySelector(".sheet-close").addEventListener("click", () => { root.innerHTML = ""; });
-
-  renderNote(sheet.querySelector("#sheet-note"), c);
-  renderSetlist(sheet.querySelector("#sheet-setlist"), c);
+  const list = sheet.querySelector("#artist-track-list");
+  const status = sheet.querySelector("#artist-play-status");
+  tracks.forEach((t, i) => {
+    const row = rankRow(i + 1, t.name, null, t.playcount, false);
+    row.classList.add("is-tappable");
+    row.addEventListener("click", () => playViaSpotify(t.name, artistName, status));
+    list.appendChild(row);
+  });
 }
 
+// Search-and-play: Last.fm knows what you've listened to, but has no
+// playback of its own, so a tapped track is looked up on Spotify by name
+// and played there — using the exact same connection Mirror already
+// established, not a second login.
+async function playViaSpotify(trackName, artistName, status) {
+  if (!isSpotifyConnected()) {
+    status.textContent = "Connect Spotify in the Mirror tab first.";
+    status.className = "status bad";
+    return;
+  }
+
+  status.textContent = "Finding it on Spotify…";
+  status.className = "status";
+
+  try {
+    const token = await getValidAccessToken();
+    if (!token) throw new Error("Connect Spotify in the Mirror tab first.");
+
+    const q = encodeURIComponent(`track:${trackName} artist:${artistName}`);
+    const searchRes = await fetch(`https://api.spotify.com/v1/search?q=${q}&type=track&limit=1`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!searchRes.ok) throw new Error(`Spotify search failed (HTTP ${searchRes.status}).`);
+    const searchJson = await searchRes.json();
+    const uri = searchJson?.tracks?.items?.[0]?.uri;
+    if (!uri) {
+      status.textContent = "Couldn't find that track on Spotify.";
+      status.className = "status bad";
+      return;
+    }
+
+    const playRes = await fetch("https://api.spotify.com/v1/me/player/play", {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ uris: [uri] }),
+    });
+    if (playRes.status === 404) {
+      status.textContent = "No active Spotify device — open Spotify somewhere first.";
+      status.className = "status bad";
+    } else if (playRes.status === 403) {
+      status.textContent = "Playback needs Spotify Premium.";
+      status.className = "status bad";
+    } else if (!playRes.ok && playRes.status !== 204) {
+      status.textContent = `Couldn't play that (HTTP ${playRes.status}).`;
+      status.className = "status bad";
+    } else {
+      status.textContent = "Playing — check Mirror.";
+      status.className = "status";
+    }
+  } catch (err) {
+    status.textContent = err.message;
+    status.className = "status bad";
+  }
+}
 function renderNote(host, c) {
   host.innerHTML = "";
   const has = !!(c.notes && c.notes.trim());
@@ -805,7 +420,8 @@ function renderNote(host, c) {
     });
   });
   host.appendChild(view);
-                                   }
+}
+
 // Only rendered when a setlist was actually matched. An empty "Setlist"
 // heading on every concert would imply data is missing rather than simply
 // not existing — most small shows are never submitted to setlist.fm.
@@ -1545,19 +1161,19 @@ async function init() {
     initIdentity({ el, esc }, artistImages, archiveConcerts);
     renderIdentity(document.getElementById("panel-identity"), identityData);
     initRealm({ el, esc });
-    // Festival lineup entries list everyone who played the festival, not
-    // necessarily who this person actually watched — counting all of them
-    // as "seen live" overstates it (a 4-band day at a 40-band festival
-    // would otherwise claim all 40). Realm only trusts own-show artist +
-    // support, where attendance is a much safer assumption.
+    // Only counts artists actually confirmed via the "who did you really
+    // see" picker on each concert (or, for concerts never curated, the
+    // full bill — same backward-compatible default actuallySeenArtistsOf
+    // uses everywhere else), so Realm can't claim a festival-lineup name
+    // you never actually caught.
     const confidentlySeenArtists = new Set();
     for (const c of archiveConcerts) {
-      if (c.isFestival) continue;
-      for (const name of [c.artist, ...(c.supportingArtists || [])].filter(Boolean)) {
+      for (const name of actuallySeenArtistsOf(c)) {
         confidentlySeenArtists.add(normalizeKey(name));
       }
     }
     renderRealm(document.getElementById("panel-realm"), originsData, confidentlySeenArtists);
+
     if (getGithubConfig()) askAboutPast(pastPlannedConcerts(historyData));
   } catch (err) {
     console.error(err);
