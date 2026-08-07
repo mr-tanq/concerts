@@ -13,7 +13,7 @@
 // secret, just the existing session doing a search-and-play.
 
 import { getValidAccessToken, isSpotifyConnected } from "./spotify-auth.js";
-import { artistsOf } from "./archive-stats.js";
+import { actuallySeenArtistsOf } from "./archive-stats.js";
 
 let renderDeps = null; // { el, esc } injected from app.js
 let artistPhotos = new Map(); // reuses the same artist-images.json the rest of the app already loads
@@ -225,7 +225,7 @@ function rankRow(rank, title, subtitle, playcount, photo) {
 function concertsFeaturing(artistName) {
   const key = normalizeArtistKey(artistName);
   return archiveConcerts
-    .filter((c) => artistsOf(c).some((n) => normalizeArtistKey(n) === key))
+    .filter((c) => actuallySeenArtistsOf(c).some((n) => normalizeArtistKey(n) === key))
     .sort((a, b) => String(b.date).localeCompare(String(a.date)));
 }
 
