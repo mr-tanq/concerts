@@ -194,9 +194,6 @@ function albumCard(a) {
 
 function rankRow(rank, title, subtitle, playcount, photo) {
   const { el, esc } = renderDeps;
-  // photo === false means this row type never shows a photo (top tracks) —
-  // use the rank number instead. Any other value (a URL, or null for "has
-  // a photo slot but this one's missing") gets the photo treatment.
   const hasPhotoSlot = photo !== false;
   const row = el(`
     <div class="rank-row">
@@ -213,15 +210,7 @@ function rankRow(rank, title, subtitle, playcount, photo) {
 }
 
 // ---------- artist drill-down ----------
-//
-// Reuses the app's existing full-screen detail pattern (.sheet-root) rather
-// than inventing a second one — a night at a show and an artist's own
-// track list are the same KIND of thing here: one subject, given the whole
-// screen.
 
-// Concerts from the Archive where this artist actually played — headliner,
-// support, or festival bill, matched the same way the Archive itself
-// counts "most-seen artist", so the numbers never disagree with each other.
 function concertsFeaturing(artistName) {
   const key = normalizeArtistKey(artistName);
   return archiveConcerts
@@ -235,9 +224,6 @@ function fullDate(iso) {
   return y ? `${Number(d)} ${MONTHS_FULL[Number(m) - 1]} ${y}` : "";
 }
 
-// The numbers alone are a dashboard; this turns them into one sentence
-// about the actual relationship — how much, how lately, and whether it's
-// ever been a night in a room together.
 function portraitStatement(overallCount, monthCount, liveCount) {
   const parts = [];
   parts.push(`${withCommas(overallCount)} play${overallCount === 1 ? "" : "s"}`);
@@ -319,10 +305,6 @@ function openArtistSheet(artistName) {
   });
 }
 
-// Search-and-play: Last.fm knows what you've listened to, but has no
-// playback of its own, so a tapped track is looked up on Spotify by name
-// and played there — using the exact same connection Mirror already
-// established, not a second login.
 async function playViaSpotify(trackName, artistName, status) {
   if (!isSpotifyConnected()) {
     status.textContent = "Connect Spotify in the Mirror tab first.";
