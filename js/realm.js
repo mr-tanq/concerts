@@ -46,17 +46,58 @@ const CENTROIDS = {
   ZA: [-30.6, 22.9], ZM: [-13.1, 27.8], ZW: [-19.0, 29.2],
 };
 
+function normalizeKeyLocal(name) {
+  return (name || "").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim();
+}
+
 function project(lat, lon, width, height) {
   const x = ((lon + 180) / 360) * width;
   const y = ((90 - lat) / 180) * height;
   return [x, y];
 }
 
-export function renderRealm(root, data) {
+// Covers roughly Iceland/Ireland to Ukraine, and down to Israel — the
+// cluster that's unreadable at world scale because so much of this app's
+// touring circuit sits inside it.
+const EUROPE_BOUNDS = { latMin: 29, latMax: 71, lonMin: -11, lonMax: 42 };
+
+function projectInBounds(lat, lon, bounds, width, height) {
+  const x = ((lon - bounds.lonMin) / (bounds.lonMax - bounds.lonMin)) * width;
+  const y = ((bounds.latMax - lat) / (bounds.latMax - bounds.latMin)) * height;
+  return [x, y];
+}
+
+// Pins whose projected position lands within the same coarse grid cell are
+// pulled apart into a small ring around their shared center, so "several
+// countries at once" reads as several visible dots instead of one blob
+// swallowing the rest.
+function spreadOverlaps(points, cellSize) {
+  const groups = new Map();
+  for (const p of points) {
+    const key = `${Math.round(p.x / cellSize)}:${Math.round(p.y / cellSize)}`;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(p);
+  }
+  for (const group of groups.values()) {
+    if (group.length <= 1) continue;
+    const cx = group.reduce((s, p) => s + p.x, 0) / group.length;
+    const cy = group.reduce((s, p) => s + p.y, 0) / group.length;
+    const radius = Math.min(cellSize * 0.85, 7 + group.length * 2.2);
+    group.forEach((p, i) => {
+      const angle = (i / group.length) * Math.PI * 2 - Math.PI / 2;
+      p.x = cx + Math.cos(angle) * radius;
+      p.y = cy + Math.sin(angle) * radius;
+    });
+  }
+}
+
+export function renderRealm(root, data, confidentlySeenKeys) {
   const { el, esc } = renderDeps;
   root.innerHTML = "";
 
-  const artists = Object.values(data?.artists || {}).filter((a) => a.country && CENTROIDS[a.country]);
+  const artists = Object.values(data?.artists || {})
+    .filter((a) => a.country && CENTROIDS[a.country])
+    .filter((a) => !confidentlySeenKeys || confidentlySeenKeys.has(normalizeKeyLocal(a.name)));
 
   if (!Object.keys(data?.artists || {}).length) {
     root.appendChild(el(`
@@ -92,6 +133,8 @@ export function renderRealm(root, data) {
   `));
 
   root.appendChild(buildMap(countries));
+  const europeMap = buildEuropeMap(countries);
+  if (europeMap) root.appendChild(europeMap);
 
   const list = el(`<div style="margin-top:12px"></div>`);
   countries.forEach((c) => {
@@ -106,7 +149,7 @@ export function renderRealm(root, data) {
 }
 
 function buildMap(countries) {
-  const { el, esc } = renderDeps;
+  const { el } = renderDeps;
   const W = 700, H = 350;
 
   const graticule = [];
@@ -119,18 +162,23 @@ function buildMap(countries) {
     graticule.push(`<line x1="0" y1="${y1}" x2="${W}" y2="${y1}" class="realm-grid-line ${lat === 0 ? "is-equator" : ""}" />`);
   }
 
-  const pins = countries.map((c) => {
+  // No text labels here on purpose — the legend below already gives every
+  // full name, and this many countries at world scale means labels overlap
+  // into noise long before the dots do. This map's job is just "whereabouts
+  // in the world", not "which one is which".
+  const points = countries.map((c) => {
     const [lat, lon] = CENTROIDS[c.code];
     const [x, y] = project(lat, lon, W, H);
-    const label = esc(c.name.length > 16 ? c.code : c.name);
-    return `
-      <g class="realm-pin" transform="translate(${x},${y})">
-        <circle class="realm-pin-glow" r="9" />
-        <circle class="realm-pin-dot" r="3" />
-        <text class="realm-pin-label" x="0" y="-13" text-anchor="middle">${label}</text>
-      </g>
-    `;
-  }).join("");
+    return { x, y };
+  });
+  spreadOverlaps(points, 16);
+
+  const pins = points.map(({ x, y }) => `
+    <g class="realm-pin" transform="translate(${x},${y})">
+      <circle class="realm-pin-glow" r="8" />
+      <circle class="realm-pin-dot" r="2.6" />
+    </g>
+  `).join("");
 
   const svg = `
     <svg class="realm-map" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
@@ -139,4 +187,58 @@ function buildMap(countries) {
     </svg>
   `;
   return el(`<div class="realm-map-wrap">${svg}</div>`);
+}
+
+// The zoomed detail view. Most of a European person's touring circuit lands
+// in a tiny slice of a world map — this gives that slice the space it
+// actually needs, with real labels, rather than asking one map to do both
+// jobs at once.
+function buildEuropeMap(countries) {
+  const { el, esc } = renderDeps;
+  const inBounds = countries.filter((c) => {
+    const [lat, lon] = CENTROIDS[c.code];
+    return lat >= EUROPE_BOUNDS.latMin && lat <= EUROPE_BOUNDS.latMax &&
+           lon >= EUROPE_BOUNDS.lonMin && lon <= EUROPE_BOUNDS.lonMax;
+  });
+  if (!inBounds.length) return null;
+
+  const W = 700, H = 480;
+
+  const graticule = [];
+  for (let lon = 0; lon <= 40; lon += 10) {
+    const [x1] = projectInBounds(0, lon, EUROPE_BOUNDS, W, H);
+    graticule.push(`<line x1="${x1}" y1="0" x2="${x1}" y2="${H}" class="realm-grid-line" />`);
+  }
+  for (let lat = 30; lat <= 70; lat += 10) {
+    const [, y1] = projectInBounds(lat, 0, EUROPE_BOUNDS, W, H);
+    graticule.push(`<line x1="0" y1="${y1}" x2="${W}" y2="${y1}" class="realm-grid-line" />`);
+  }
+
+  const points = inBounds.map((c) => {
+    const [lat, lon] = CENTROIDS[c.code];
+    const [x, y] = projectInBounds(lat, lon, EUROPE_BOUNDS, W, H);
+    return { x, y, name: c.name };
+  });
+  spreadOverlaps(points, 46);
+
+  const pins = points.map(({ x, y, name }) => `
+    <g class="realm-pin" transform="translate(${x},${y})">
+      <circle class="realm-pin-glow" r="10" />
+      <circle class="realm-pin-dot" r="3" />
+      <text class="realm-pin-label" x="0" y="-14" text-anchor="middle">${esc(name)}</text>
+    </g>
+  `).join("");
+
+  const svg = `
+    <svg class="realm-map" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+      ${graticule.join("")}
+      ${pins}
+    </svg>
+  `;
+  return el(`
+    <div style="margin-top:36px">
+      <div style="padding:0 var(--gutter)"><p class="whisper">Closer — Europe</p></div>
+      <div class="realm-map-wrap">${svg}</div>
+    </div>
+  `);
 }
