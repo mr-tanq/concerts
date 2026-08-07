@@ -1545,8 +1545,19 @@ async function init() {
     initIdentity({ el, esc }, artistImages, archiveConcerts);
     renderIdentity(document.getElementById("panel-identity"), identityData);
     initRealm({ el, esc });
-    renderRealm(document.getElementById("panel-realm"), originsData);
-
+    // Festival lineup entries list everyone who played the festival, not
+    // necessarily who this person actually watched — counting all of them
+    // as "seen live" overstates it (a 4-band day at a 40-band festival
+    // would otherwise claim all 40). Realm only trusts own-show artist +
+    // support, where attendance is a much safer assumption.
+    const confidentlySeenArtists = new Set();
+    for (const c of archiveConcerts) {
+      if (c.isFestival) continue;
+      for (const name of [c.artist, ...(c.supportingArtists || [])].filter(Boolean)) {
+        confidentlySeenArtists.add(normalizeKey(name));
+      }
+    }
+    renderRealm(document.getElementById("panel-realm"), originsData, confidentlySeenArtists);
     if (getGithubConfig()) askAboutPast(pastPlannedConcerts(historyData));
   } catch (err) {
     console.error(err);
