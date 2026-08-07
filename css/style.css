@@ -746,6 +746,36 @@ main { max-width: 720px; margin: 0 auto; }
 .names { font-family: var(--serif); font-size: 20px; line-height: 1.5; color: var(--bone-dim); }
 .names b { color: var(--bone); font-weight: 400; }
 
+/* Who-did-you-actually-see picker: tap a row to flip it. Seen names read
+   in the normal bone/serif voice; missed names drop to the faint tier,
+   the same "this doesn't count" treatment used for dismissed concerts. */
+.lineup-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 13px 0;
+  border-top: 1px solid var(--hair-soft);
+  cursor: pointer;
+}
+.lineup-row:first-child { border-top: none; }
+.lineup-name {
+  font-family: var(--serif);
+  font-size: 18px;
+  color: var(--bone-faint);
+  transition: color 0.2s var(--ease);
+}
+.lineup-row.is-seen .lineup-name { color: var(--bone); }
+.lineup-state {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bone-faint);
+  flex: 0 0 auto;
+}
+.lineup-row.is-seen .lineup-state { color: var(--ember); }
+
 .note-body {
   font-family: var(--serif);
   font-style: italic;
