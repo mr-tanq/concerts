@@ -11,7 +11,7 @@ name: Enrich artist images
 
 on:
   schedule:
-    - cron: "0 4 * * 1"   # weekly, catches artists added during the week
+    - cron: "30 5 * * *"   # daily — discovery now finds new artists more than once a week
   workflow_dispatch: {}
 
 permissions:
