@@ -385,10 +385,11 @@ async function unplanConcertRemote(plannedRec) {
         },
         discoveredAt: new Date().toISOString(),
         lastSeenAt: new Date().toISOString(),
-        recs.meta.lastUpdated = new Date().toISOString();
+      });
+      recs.concerts.sort((a, b) => (b.match?.score ?? 0) - (a.match?.score ?? 0));
+      recs.meta.lastUpdated = new Date().toISOString();
     }
   }, `chore: unplan ${plannedRec.id} (app)`);
-
   return recId;
 }
 
