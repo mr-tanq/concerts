@@ -385,7 +385,7 @@ async function unplanConcertRemote(plannedRec) {
         },
         discoveredAt: new Date().toISOString(),
         lastSeenAt: new Date().toISOString(),
-recs.meta.lastUpdated = new Date().toISOString();
+        recs.meta.lastUpdated = new Date().toISOString();
     }
   }, `chore: unplan ${plannedRec.id} (app)`);
 
@@ -804,7 +804,7 @@ function renderNote(host, c) {
     });
   });
   host.appendChild(view);
-}
+                                   }
 // Only rendered when a setlist was actually matched. An empty "Setlist"
 // heading on every concert would imply data is missing rather than simply
 // not existing — most small shows are never submitted to setlist.fm.
@@ -1255,7 +1255,7 @@ function archiveRecordFrom(p) {
     source: p.source || "podiuminfo",
     sourceId: p.sourceId ?? null,
     importedFromPlannedId: p.id || null,
-addedAt: new Date().toISOString(),
+    addedAt: new Date().toISOString(),
   };
 }
 
