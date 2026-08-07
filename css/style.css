@@ -1229,3 +1229,24 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
   line-height: 1.32;
 }
 .portrait-statement em { font-style: italic; color: var(--ember); }
+
+/* ==========================================================================
+   REALM — an abstract map of where the music comes from.
+   Not cartography: a coordinate grid (the same hairline language as the
+   rest of the app) with a pin at each country's approximate centroid.
+   ========================================================================== */
+
+.realm-map-wrap { padding: 30px var(--gutter) 6px; }
+.realm-map { width: 100%; height: auto; overflow: visible; }
+
+.realm-grid-line { stroke: var(--hair-soft); stroke-width: 1; }
+.realm-grid-line.is-equator { stroke: var(--hair); }
+
+.realm-pin-glow { fill: var(--ember); opacity: 0.16; }
+.realm-pin-dot { fill: var(--ember); }
+.realm-pin-label {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.04em;
+  fill: var(--bone-dim);
+}
