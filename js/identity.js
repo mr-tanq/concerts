@@ -92,9 +92,9 @@ export function renderIdentity(root, data) {
 
   if (data.topAlbums?.length) {
     root.appendChild(el(`<div class="section-heading">Albums</div>`));
-    const list = el(`<div></div>`);
-    data.topAlbums.slice(0, 8).forEach((a, i) => list.appendChild(rankRow(i + 1, a.name, a.artist, a.playcount, a.image, true)));
-    root.appendChild(list);
+    const gallery = el(`<div class="album-gallery"></div>`);
+    data.topAlbums.slice(0, 10).forEach((a) => gallery.appendChild(albumCard(a)));
+    root.appendChild(gallery);
   }
 
   if (data.recentTracks?.length) {
@@ -178,15 +178,28 @@ function renderArtists(data) {
   host.appendChild(list);
 }
 
-function rankRow(rank, title, subtitle, playcount, photo, isAlbum = false) {
+function albumCard(a) {
+  const { el, esc } = renderDeps;
+  const card = el(`
+    <div class="album-card ${a.image ? "" : "is-empty"}">
+      <div class="album-card-caption">
+        <div class="album-card-name">${esc(a.name)}</div>
+        <div class="album-card-count">${withCommas(a.playcount)}× · ${esc(a.artist)}</div>
+      </div>
+    </div>
+  `);
+  if (a.image) card.style.backgroundImage = `url("${a.image.replace(/"/g, "%22")}")`;
+  return card;
+}
+
+function rankRow(rank, title, subtitle, playcount, photo) {
   const { el, esc } = renderDeps;
   // photo === false means this row type never shows a photo (top tracks) —
   // use the rank number instead. Any other value (a URL, or null for "has
-  // a photo slot but this one's missing") gets the photo treatment, so an
-  // album with no cover art still reads as an album row, not a numbered one.
+  // a photo slot but this one's missing") gets the photo treatment.
   const hasPhotoSlot = photo !== false;
   const row = el(`
-    <div class="rank-row ${isAlbum ? "is-album" : ""}">
+    <div class="rank-row">
       ${hasPhotoSlot ? `<div class="rank-photo ${photo ? "" : "is-empty"}"></div>` : `<div class="rank-num">${rank}</div>`}
       <div class="rank-body">
         <div class="rank-name">${esc(title)}</div>
@@ -359,4 +372,4 @@ async function playViaSpotify(trackName, artistName, status) {
     status.textContent = err.message;
     status.className = "status bad";
   }
-  }
+}
