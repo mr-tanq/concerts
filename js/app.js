@@ -2,6 +2,7 @@ import { buildArchiveView, filterConcerts, artistsOf, venueKey } from "./archive
 import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, isConflictError } from "./github-api.js";
 import { initMirror, renderMirror, stopPolling as stopMirrorPolling } from "./mirror.js";
 import { initIdentity, renderIdentity } from "./identity.js";
+import { initRealm, renderRealm } from "./realm.js";
 
 // ---------- global error visibility ----------
 //
@@ -384,10 +385,7 @@ async function unplanConcertRemote(plannedRec) {
         },
         discoveredAt: new Date().toISOString(),
         lastSeenAt: new Date().toISOString(),
-lastSeenAt: new Date().toISOString(),
-      });
-      recs.concerts.sort((a, b) => (b.match?.score ?? 0) - (a.match?.score ?? 0));
-      recs.meta.lastUpdated = new Date().toISOString();
+recs.meta.lastUpdated = new Date().toISOString();
     }
   }, `chore: unplan ${plannedRec.id} (app)`);
 
@@ -805,9 +803,8 @@ function renderNote(host, c) {
       }
     });
   });
-host.appendChild(view);
+  host.appendChild(view);
 }
-
 // Only rendered when a setlist was actually matched. An empty "Setlist"
 // heading on every concert would imply data is missing rather than simply
 // not existing — most small shows are never submitted to setlist.fm.
@@ -1255,10 +1252,10 @@ function archiveRecordFrom(p) {
     notes: null,
     rating: null,
     lineup: p.lineup || [],
-source: p.source || "podiuminfo",
+    source: p.source || "podiuminfo",
     sourceId: p.sourceId ?? null,
     importedFromPlannedId: p.id || null,
-    addedAt: new Date().toISOString(),
+addedAt: new Date().toISOString(),
   };
 }
 
@@ -1505,7 +1502,7 @@ async function init() {
   setActiveTab(new URLSearchParams(location.search).has("code") ? "mirror" : "concerts");
 
   try {
-    const [archiveData, recsData, plannedData, historyData, concertCache, artistImageData, setlistData, identityData] =
+    const [archiveData, recsData, plannedData, historyData, concertCache, artistImageData, setlistData, identityData, originsData] =
       await Promise.all([
         loadJSON("data/archive.json"),
         loadJSON("data/recommendations.json"),
@@ -1515,6 +1512,7 @@ async function init() {
         loadJSON("data/artist-images.json").catch(() => ({ artists: {} })),
         loadJSON("data/setlists.json").catch(() => ({ setlists: {} })),
         loadJSON("data/identity.json").catch(() => ({ meta: {} })),
+        loadJSON("data/artist-origins.json").catch(() => ({ artists: {} })),
       ]);
 
     setlists = new Map(Object.entries(setlistData.setlists || {}));
@@ -1545,6 +1543,8 @@ async function init() {
     renderConcerts(recsData, plannedData, historyData);
     initIdentity({ el, esc }, artistImages, archiveConcerts);
     renderIdentity(document.getElementById("panel-identity"), identityData);
+    initRealm({ el, esc });
+    renderRealm(document.getElementById("panel-realm"), originsData);
 
     if (getGithubConfig()) askAboutPast(pastPlannedConcerts(historyData));
   } catch (err) {
