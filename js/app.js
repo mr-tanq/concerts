@@ -4,7 +4,7 @@ import { initMirror, renderMirror, stopPolling as stopMirrorPolling } from "./mi
 import { initIdentity, renderIdentity } from "./identity.js";
 
 // ---------- global error visibility ----------
-// 
+//
 // This app is used exclusively on a phone, where the JS console is never
 // actually seen. Without this, any uncaught error just fails silently —
 // the screen goes blank or stops updating and there's no way to tell why.
@@ -378,6 +378,7 @@ async function unplanConcertRemote(plannedRec) {
         },
         discoveredAt: new Date().toISOString(),
         lastSeenAt: new Date().toISOString(),
+lastSeenAt: new Date().toISOString(),
       });
       recs.concerts.sort((a, b) => (b.match?.score ?? 0) - (a.match?.score ?? 0));
       recs.meta.lastUpdated = new Date().toISOString();
@@ -424,6 +425,7 @@ function renderArchive(archiveData) {
 
   const anniversary = anniversaryLine(archiveView) || forgottenMemoryLine();
   if (anniversary) root.appendChild(anniversary);
+
   root.appendChild(el(`<div id="explore-root"></div>`));
   root.appendChild(el(`<div id="spine-root"></div>`));
   renderExplore();
@@ -481,7 +483,8 @@ function anniversaryLine(view) {
   `);
   node.addEventListener("click", () => openSheet(c));
   return node;
-      }
+}
+
 // Most days aren't anniversaries — this is what fills that space instead,
 // so the archive resurfaces something every time rather than only on the
 // rare exact date. Picked deterministically from the day (stable if you
@@ -512,6 +515,7 @@ function forgottenMemoryLine() {
   node.addEventListener("click", () => openSheet(c));
   return node;
 }
+
 function renderExplore() {
   const host = document.getElementById("explore-root");
   if (!host || !archiveView) return;
@@ -595,11 +599,12 @@ function archiveEntry(c) {
   const withLine = support.length
     ? `<div class="entry-with">with ${esc(support.slice(0, 3).join(", "))}${support.length > 3 ? ` +${support.length - 3}` : ""}</div>`
     : "";
+  const firstTimeTag = isFirstTimeSeeing(c) ? `<span class="entry-first">First time</span>` : "";
 
   const node = el(`
     <article class="entry ${c.isFestival ? "is-festival" : ""}">
       <div class="entry-text">
-        <div class="entry-date">${weekdayShort(c.date)} · ${dayMonth(c.date)}</div>
+        <div class="entry-date">${weekdayShort(c.date)} · ${dayMonth(c.date)}${firstTimeTag}</div>
         <h3 class="entry-artist">${esc(c.festivalName || c.artist)}</h3>
         ${withLine}
         <div class="entry-place">${esc(c.venue)}<span class="dot">·</span>${esc(c.city)}</div>
@@ -615,24 +620,42 @@ function archiveEntry(c) {
 // ==========================================================================
 // DETAIL — a full page for one night
 // ==========================================================================
+
 const ORDINALS = ["first","second","third","fourth","fifth","sixth","seventh","eighth","ninth","tenth",
   "eleventh","twelfth","thirteenth","fourteenth","fifteenth"];
+
+// Every concert in the archive that shares this one's "subject" (its own
+// headliner, or its own festival name) — support-slot and festival-lineup
+// appearances count too, the same broad matching artistsOf() already uses
+// everywhere else. Shared by the memory statement and the spine's
+// first-time marker so the two can never disagree with each other.
+function concertsForSubject(c) {
+  const subject = c.festivalName || c.artist;
+  const key = normalizeKey(subject);
+  return archiveConcerts
+    .filter((x) => artistsOf(x).some((n) => normalizeKey(n) === key) || normalizeKey(x.festivalName || x.artist) === key)
+    .sort((a, b) => String(a.date).localeCompare(String(b.date)));
+}
 
 // Not a fact — a memory. "The third of four times you've seen them" reads
 // completely differently from a visit counter, even though it's the exact
 // same number underneath.
-
 function timesSeenStatement(c) {
   const subject = c.festivalName || c.artist;
-  const key = normalizeKey(subject);
-  const allWithSubject = archiveConcerts
-    .filter((x) => artistsOf(x).some((n) => normalizeKey(n) === key) || normalizeKey(x.festivalName || x.artist) === key)
-    .sort((a, b) => String(a.date).localeCompare(String(b.date)));
-  const total = allWithSubject.length;
+  const all = concertsForSubject(c);
+  const total = all.length;
   if (total <= 1) return `The only time you've seen ${esc(subject)} — so far.`;
-  const index = allWithSubject.findIndex((x) => x.id === c.id) + 1;
+  const index = all.findIndex((x) => x.id === c.id) + 1;
   const ord = ORDINALS[index - 1] || `${index}th`;
   return `The ${ord} of ${spell(total)} times you've seen ${esc(subject)}.`;
+}
+
+// Marks the earliest night with this subject as a discovery, not just
+// another row — the spine should feel like walking backward into moments
+// that were once new, not a flat list where every night looks equally routine.
+function isFirstTimeSeeing(c) {
+  const all = concertsForSubject(c);
+  return all.length > 0 && all[0].id === c.id;
 }
 
 function openSheet(c) {
@@ -776,7 +799,7 @@ function renderNote(host, c) {
       }
     });
   });
-  host.appendChild(view);
+host.appendChild(view);
 }
 
 // Only rendered when a setlist was actually matched. An empty "Setlist"
@@ -1226,7 +1249,7 @@ function archiveRecordFrom(p) {
     notes: null,
     rating: null,
     lineup: p.lineup || [],
-    source: p.source || "podiuminfo",
+source: p.source || "podiuminfo",
     sourceId: p.sourceId ?? null,
     importedFromPlannedId: p.id || null,
     addedAt: new Date().toISOString(),
@@ -1441,7 +1464,8 @@ function storageIsPersistent() {
     localStorage.removeItem("__lm_probe");
     return true;
   } catch { return false; }
-    }
+}
+
 // ==========================================================================
 // BOOT
 // ==========================================================================
@@ -1513,7 +1537,8 @@ async function init() {
 
     renderArchive(archiveData);
     renderConcerts(recsData, plannedData, historyData);
-initIdentity({ el, esc }, artistImages, archiveConcerts);    renderIdentity(document.getElementById("panel-identity"), identityData);
+    initIdentity({ el, esc }, artistImages, archiveConcerts);
+    renderIdentity(document.getElementById("panel-identity"), identityData);
 
     if (getGithubConfig()) askAboutPast(pastPlannedConcerts(historyData));
   } catch (err) {
