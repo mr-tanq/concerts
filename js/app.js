@@ -131,12 +131,18 @@ function normalizeKey(s) {
 // which is what rescues records saved before the schema carried sourceId.
 function imageFor(rec) {
   if (!rec) return null;
-  if (rec.image) return rec.image;
 
-  // Deezer first: 1000px and covers the whole archive. Podiuminfo's ~100px
-  // thumbnails are the fallback.
+  // Deezer's curated 1000px photo must be checked FIRST. rec.image (set
+  // directly from the concert's own source page — Podiuminfo's artist
+  // thumbnails run around ~100px) used to be checked before this, which
+  // meant it permanently won even when a far better Deezer photo existed
+  // for the exact same artist — that mismatch between this comment and the
+  // actual order was the real cause of "blurry" (upscaled tiny thumbnail)
+  // photos on the Tonight/Discover stage.
   const byName = artistImages.get(normalizeKey(rec.artist));
   if (byName) return byName;
+
+  if (rec.image) return rec.image;
 
   const cached = concertImageByArtist.get(normalizeKey(rec.artist));
   if (cached) return cached;
