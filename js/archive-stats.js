@@ -20,6 +20,19 @@ export function artistsOf(c) {
   return [c.artist, ...(c.supportingArtists || [])].filter(Boolean);
 }
 
+// Who was actually watched, as distinct from who was on the bill.
+// c.seenArtists is only ever set once the person curates a concert through
+// the "who did you actually see" picker — before that, every name on the
+// bill is assumed seen (the app's original, unqualified behavior), so this
+// stays backward compatible with every concert already in the archive.
+// Uses Array.isArray rather than a length check so an explicitly-saved
+// empty list ("I saw none of the support") is honored rather than treated
+// as "never curated".
+export function actuallySeenArtistsOf(c) {
+  if (Array.isArray(c.seenArtists)) return c.seenArtists;
+  return artistsOf(c);
+}
+
 export function sortByDateAsc(concerts) {
   return [...concerts].sort((a, b) => String(a.date).localeCompare(String(b.date)));
 }
@@ -62,7 +75,7 @@ export function getOverview(concerts) {
 
 export function getSignature(concerts) {
   return {
-    topArtist: countByList(concerts, artistsOf)[0] || null,
+    topArtist: countByList(concerts, actuallySeenArtistsOf)[0] || null,
     topVenue: countBy(concerts, venueKey)[0] || null,
     topCity: countBy(concerts, (c) => c.city)[0] || null,
   };
@@ -82,7 +95,7 @@ export function getPeakYear(concerts) {
 
 export function getPatterns(concerts, topN = 5) {
   return {
-    mostSeenArtists: countByList(concerts, artistsOf).slice(0, topN),
+    mostSeenArtists: countByList(concerts, actuallySeenArtistsOf).slice(0, topN),
     recurringRooms: countBy(concerts, venueKey).slice(0, topN),
     topCities: countBy(concerts, (c) => c.city).slice(0, topN),
   };
@@ -110,7 +123,7 @@ export function getOnThisDay(concerts, today = new Date()) {
 export function getExploreOptions(concerts) {
   return {
     year: countBy(concerts, (c) => String(c.date || "").slice(0, 4)),
-    artist: countByList(concerts, artistsOf),
+    artist: countByList(concerts, actuallySeenArtistsOf),
     city: countBy(concerts, (c) => c.city),
     venue: countBy(concerts, venueKey),
   };
@@ -122,7 +135,7 @@ export function filterConcerts(concerts, { mode, value } = {}) {
     case "year":
       return concerts.filter((c) => String(c.date || "").slice(0, 4) === String(value));
     case "artist":
-      return concerts.filter((c) => artistsOf(c).some((n) => n === value));
+      return concerts.filter((c) => actuallySeenArtistsOf(c).some((n) => n === value));
     case "city":
       return concerts.filter((c) => c.city === value);
     case "venue":
