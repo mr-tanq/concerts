@@ -1,0 +1,39 @@
+name: Fetch artist origins
+
+# Looks up a country of origin for every artist actually seen live, via
+# MusicBrainz, and writes data/artist-origins.json. Powers the Realm tab's
+# map. MusicBrainz asks for roughly 1 request/second, so this runs
+# server-side rather than from the browser — same pattern as artist images
+# and identity stats.
+#
+# Runs weekly rather than daily: a band's country of origin never changes,
+# so there's no freshness pressure — this only needs to catch NEW artists
+# added to the archive since the last run.
+
+on:
+  schedule:
+    - cron: "0 3 * * 1"   # weekly, Monday
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  origins:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: node scripts/fetch-artist-origins.mjs
+
+      - name: Commit artist origins
+        run: |
+          git config user.name "listening-mirror-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/artist-origins.json
+          git diff --cached --quiet && echo "No changes" || git commit -m "chore: refresh artist origins"
+          git push
