@@ -416,6 +416,29 @@ async function saveSeenArtistsRemote(concert, seenNames) {
   }, `chore: update who was seen at ${concert.id} (app)`);
 }
 
+// For the night the archive simply didn't record everyone who played —
+// most often a support act that never made it into the source data.
+// Added into lineup (festivals) or supportingArtists (everything else),
+// and into seenArtists too: adding someone here already means you
+// remember them being there.
+async function addLineupArtistRemote(concert, name) {
+  const ARCH = "data/archive.json";
+  await mutate([ARCH], (f) => {
+    const archive = f[ARCH];
+    const row = archive.concerts.find((x) => x.id === concert.id);
+    if (!row) throw new Error("Concert not found in the archive");
+    if (row.isFestival) {
+      if (!Array.isArray(row.lineup)) row.lineup = [];
+      if (!row.lineup.includes(name)) row.lineup.push(name);
+    } else {
+      if (!Array.isArray(row.supportingArtists)) row.supportingArtists = [];
+      if (!row.supportingArtists.includes(name)) row.supportingArtists.push(name);
+    }
+    if (Array.isArray(row.seenArtists) && !row.seenArtists.includes(name)) row.seenArtists.push(name);
+    if (archive.meta) archive.meta.lastUpdated = new Date().toISOString();
+  }, `chore: add ${name} to ${concert.id} (app)`);
+}
+
 // ---------- saving indicator ----------
 
 function renderSaving() {
@@ -703,12 +726,11 @@ function openSheet(c) {
           ${c.country ? `<div class="fact"><dt>Country</dt><dd>${esc(c.country)}</dd></div>` : ""}
         </dl>
 
-        ${lineup.length > 1 ? `
-          <div class="sheet-section">
-            <p class="whisper">Who did you actually see?</p>
-            <div id="sheet-lineup"></div>
-            <p class="status" id="lineup-status"></p>
-          </div>` : ""}
+        <div class="sheet-section">
+          <p class="whisper">Who did you actually see?</p>
+          <div id="sheet-lineup"></div>
+          <p class="status" id="lineup-status"></p>
+        </div>
 
         <div class="sheet-section">
           <p class="whisper">Note to self</p>
@@ -765,7 +787,7 @@ function openSheet(c) {
 
   renderNote(sheet.querySelector("#sheet-note"), c);
   renderSetlist(sheet.querySelector("#sheet-setlist"), c);
-  if (lineup.length > 1) renderLineupPicker(sheet.querySelector("#sheet-lineup"), sheet.querySelector("#lineup-status"), c, lineup);
+  renderLineupPicker(sheet.querySelector("#sheet-lineup"), sheet.querySelector("#lineup-status"), c, lineup);
 }
 
 // Lets the person mark exactly which names on the bill they actually
@@ -820,7 +842,67 @@ function renderLineupPicker(host, status, c, lineup) {
       saveBtn.disabled = false; saveBtn.textContent = "Save";
     }
   });
+
+  // The source data missed someone — most often a support act that was
+  // never in the crawled lineup. Kept as small and out of the way as
+  // possible at rest: a single quiet line, not a form sitting open.
+  const addTrigger = el(`<button class="lineup-add-trigger">+ Someone missing?</button>`);
+  host.appendChild(addTrigger);
+
+  addTrigger.addEventListener("click", () => {
+    const addRow = el(`
+      <div class="lineup-add">
+        <input type="text" class="lineup-add-input" placeholder="Who else played?" />
+        <button class="plain-act" id="lineup-add-btn">Add</button>
+      </div>
+    `);
+    addTrigger.replaceWith(addRow);
+    const addInput = addRow.querySelector(".lineup-add-input");
+    const addInput = addRow.querySelector(".lineup-add-input");
+    const addBtn = addRow.querySelector("#lineup-add-btn");
+    addInput.focus();
+
+    async function addArtist() {
+      const name = addInput.value.trim();
+      if (!name) return;
+      if (lineup.some((n) => normalizeKey(n) === normalizeKey(name))) {
+        status.textContent = "Already on the list.";
+        status.className = "status bad";
+        return;
+      }
+      if (!getGithubConfig()) { openSettings(); return; }
+      addBtn.disabled = true; addBtn.textContent = "Adding";
+      try {
+        await enqueue(() => addLineupArtistRemote(c, name));
+        if (c.isFestival) {
+          if (!Array.isArray(c.lineup)) c.lineup = [];
+          c.lineup.push(name);
+        } else {
+          if (!Array.isArray(c.supportingArtists)) c.supportingArtists = [];
+          c.supportingArtists.push(name);
+        }
+        if (Array.isArray(c.seenArtists) && !c.seenArtists.includes(name)) c.seenArtists.push(name);
+        const local = archiveConcerts.find((x) => x.id === c.id);
+        if (local) {
+          local.lineup = c.lineup;
+          local.supportingArtists = c.supportingArtists;
+          local.seenArtists = c.seenArtists;
+        }
+        status.textContent = `Added ${name}.`;
+        status.className = "status";
+        renderLineupPicker(host, status, c, artistsOf(c));
+      } catch (err) {
+        console.error(err);
+        status.textContent = err.message;
+        status.className = "status bad";
+        addBtn.disabled = false; addBtn.textContent = "Add";
+      }
+    }
+    addBtn.addEventListener("click", addArtist);
+    addInput.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); addArtist(); } });
+  });
 }
+
 function renderNote(host, c) {
   host.innerHTML = "";
   const has = !!(c.notes && c.notes.trim());
@@ -1608,7 +1690,7 @@ async function init() {
     renderConcerts(recsData, plannedData, historyData);
     initIdentity({ el, esc }, artistImages, archiveConcerts);
     renderIdentity(document.getElementById("panel-identity"), identityData);
-initRealm({ el, esc }, archiveConcerts);
+    initRealm({ el, esc }, archiveConcerts);
     // Only counts artists actually confirmed via the "who did you really
     // see" picker on each concert (or, for concerts never curated, the
     // full bill — same backward-compatible default actuallySeenArtistsOf
