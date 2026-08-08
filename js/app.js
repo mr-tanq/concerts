@@ -1608,7 +1608,7 @@ async function init() {
     renderConcerts(recsData, plannedData, historyData);
     initIdentity({ el, esc }, artistImages, archiveConcerts);
     renderIdentity(document.getElementById("panel-identity"), identityData);
-    initRealm({ el, esc });
+initRealm({ el, esc }, archiveConcerts);
     // Only counts artists actually confirmed via the "who did you really
     // see" picker on each concert (or, for concerts never curated, the
     // full bill — same backward-compatible default actuallySeenArtistsOf
