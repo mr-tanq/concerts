@@ -775,6 +775,39 @@ main { max-width: 720px; margin: 0 auto; }
   flex: 0 0 auto;
 }
 .lineup-row.is-seen .lineup-state { color: var(--ember); }
+.lineup-add-trigger {
+  display: block;
+  margin-top: 16px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bone-faint);
+  padding: 4px 0;
+}
+.lineup-add-trigger:active { color: var(--ember); }
+
+.lineup-add {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  margin-top: 16px;
+}
+.lineup-add-input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--hair);
+  padding: 0 0 8px;
+  color: var(--bone);
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 16px;
+  outline: none;
+}
+.lineup-add-input:focus { border-bottom-color: var(--ember); }
+.lineup-add-input::placeholder { color: var(--bone-faint); font-style: italic; }
 
 .note-body {
   font-family: var(--serif);
