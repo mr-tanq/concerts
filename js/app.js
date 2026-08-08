@@ -858,7 +858,6 @@ function renderLineupPicker(host, status, c, lineup) {
     `);
     addTrigger.replaceWith(addRow);
     const addInput = addRow.querySelector(".lineup-add-input");
-    const addInput = addRow.querySelector(".lineup-add-input");
     const addBtn = addRow.querySelector("#lineup-add-btn");
     addInput.focus();
 
