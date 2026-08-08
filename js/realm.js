@@ -1,26 +1,38 @@
 // realm.js
 //
-// "A wider map of what you listen to." Not a political world map — this
-// app has no access to accurate country border geometry, and a wrong
-// border is worse than no border. Instead: an abstract coordinate space
-// (the same hairline-grid language used everywhere else in this app) with
-// a pin at each country's approximate centroid. It reads as a map without
-// pretending to be cartography.
+// CONSTELLATION ATLAS.
 //
-// Built entirely from a static data/artist-origins.json, refreshed weekly
-// by a GitHub Action (MusicBrainz, not Last.fm or Deezer — neither of
-// those expose country of origin at all).
+// The brief for this file was: stop treating geography as a chart. This
+// app has no access to real political border geometry — so rather than
+// fake cartography badly, the whole section leans into a different, more
+// honest metaphor: the world as a night sky. Every country you've actually
+// heard live is a star at its real latitude/longitude. Brightness, size and
+// glow are how "importance" is shown — no bars, no grid, no legend table.
+// Countries with no connection to your history aren't dimmed, they simply
+// don't exist here; the surrounding dark IS "almost disappearing".
+//
+// Tapping a star doesn't open a card. The sky around it fades, the star
+// becomes the center of its own small composition, and the artists from
+// that country ignite one by one — each with the actual cities where you
+// saw them (pulled straight from the Archive), because the more
+// interesting relationship was never "artist → country", it was always
+// "artist → the room you were standing in when you heard them".
+//
+// Built from the same static data/artist-origins.json as before. Nothing
+// about the data model changed — only how it's seen.
+
+import { actuallySeenArtistsOf } from "./archive-stats.js";
 
 let renderDeps = null; // { el, esc } injected from app.js
+let archiveConcertsRef = []; // for the "seen in <cities>" line inside focus mode
 
-export function initRealm(deps) {
+export function initRealm(deps, concerts) {
   renderDeps = deps;
+  archiveConcertsRef = concerts || [];
 }
 
-// Approximate centroids (lat, lon) for countries plausible to show up here.
-// Precision to a degree or two is intentional — pins on an abstract grid,
-// not a survey. Missing a country here just means it's silently skipped
-// rather than guessed at.
+// Approximate centroids (lat, lon) — precision to a degree or two is
+// intentional. Stars, not surveys.
 const CENTROIDS = {
   AD: [42.5, 1.6], AE: [24.0, 54.0], AF: [33.9, 67.7], AL: [41.0, 20.0], AM: [40.1, 45.0],
   AR: [-38.4, -63.6], AT: [47.6, 14.6], AU: [-25.3, 133.8], BA: [43.9, 17.7], BE: [50.6, 4.5],
@@ -46,6 +58,19 @@ const CENTROIDS = {
   ZA: [-30.6, 22.9], ZM: [-13.1, 27.8], ZW: [-19.0, 29.2],
 };
 
+// Home — used only to compute the "one came all the way from…" narrative
+// fact via real distance, not a guess.
+const HOME = { lat: 52.03, lon: 5.09 }; // Nieuwegein, NL
+
+function haversineKm(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat / 2) ** 2 +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
 function normalizeKeyLocal(name) {
   return (name || "").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim();
 }
@@ -56,10 +81,7 @@ function project(lat, lon, width, height) {
   return [x, y];
 }
 
-// Covers roughly Iceland/Ireland to Ukraine, and down to Israel — the
-// cluster that's unreadable at world scale because so much of this app's
-// touring circuit sits inside it.
-const EUROPE_BOUNDS = { latMin: 29, latMax: 71, lonMin: -11, lonMax: 42 };
+const EUROPE_BOUNDS = { latMin: 29, latMax: 71, lonMin: -25, lonMax: 42 };
 
 function projectInBounds(lat, lon, bounds, width, height) {
   const x = ((lon - bounds.lonMin) / (bounds.lonMax - bounds.lonMin)) * width;
@@ -67,10 +89,9 @@ function projectInBounds(lat, lon, bounds, width, height) {
   return [x, y];
 }
 
-// Pins whose projected position lands within the same coarse grid cell are
-// pulled apart into a small ring around their shared center, so "several
-// countries at once" reads as several visible dots instead of one blob
-// swallowing the rest.
+// Stars whose projected position lands in the same coarse cell are pulled
+// apart into a small ring around their shared center — so a dense cluster
+// reads as several distinct points of light, not one merged glow.
 function spreadOverlaps(points, cellSize) {
   const groups = new Map();
   for (const p of points) {
@@ -82,7 +103,7 @@ function spreadOverlaps(points, cellSize) {
     if (group.length <= 1) continue;
     const cx = group.reduce((s, p) => s + p.x, 0) / group.length;
     const cy = group.reduce((s, p) => s + p.y, 0) / group.length;
-    const radius = Math.min(cellSize * 0.85, 7 + group.length * 2.2);
+    const radius = Math.min(cellSize * 0.85, 8 + group.length * 2.6);
     group.forEach((p, i) => {
       const angle = (i / group.length) * Math.PI * 2 - Math.PI / 2;
       p.x = cx + Math.cos(angle) * radius;
@@ -91,11 +112,26 @@ function spreadOverlaps(points, cellSize) {
   }
 }
 
+// Importance as light, not size on a bar chart. Square-root scaling so one
+// dominant country doesn't swallow the composition — it should feel
+// brighter, not just bigger.
+function weight(count, maxCount) {
+  const t = Math.sqrt(count) / Math.sqrt(Math.max(maxCount, 1));
+  return {
+    dot: 2.2 + t * 4.2,
+    glow: 7 + t * 26,
+    glowOpacity: 0.12 + t * 0.26,
+  };
+}
+
+const ORDINAL_WORDS = ["zero","one","two","three","four","five","six","seven","eight","nine","ten"];
+function spellSmall(n) { return ORDINAL_WORDS[n] || String(n); }
+
 export function renderRealm(root, data, confidentlySeenKeys) {
   const { el, esc } = renderDeps;
   root.innerHTML = "";
 
-  const artists = Object.values(data?.artists || {})
+  const rawArtists = Object.values(data?.artists || {})
     .filter((a) => a.country && CENTROIDS[a.country])
     .filter((a) => !confidentlySeenKeys || confidentlySeenKeys.has(normalizeKeyLocal(a.name)));
 
@@ -110,135 +146,208 @@ export function renderRealm(root, data, confidentlySeenKeys) {
     return;
   }
 
-  // Group by country so a country with several artists gets one pin, not
-  // several stacked on top of each other.
+  // Group by country.
   const byCountry = new Map(); // code -> { name, artists: Set }
-  for (const a of artists) {
+  for (const a of rawArtists) {
     if (!byCountry.has(a.country)) byCountry.set(a.country, { name: a.countryName || a.country, artists: new Set() });
     byCountry.get(a.country).artists.add(a.name);
   }
-  const countries = [...byCountry.entries()].map(([code, v]) => ({ code, name: v.name, artists: [...v.artists] }));
-  countries.sort((a, b) => b.artists.length - a.artists.length || a.name.localeCompare(b.name));
+  const countries = [...byCountry.entries()]
+    .map(([code, v]) => ({ code, name: v.name, artists: [...v.artists], count: v.artists.size }))
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 
-  const totalArtistsResolved = artists.length;
-
-  root.appendChild(el(`
-    <div class="opening">
-      <p class="whisper">Realm</p>
-      <p class="lede">
-        ${countries.length} ${countries.length === 1 ? "country" : "countries"} you've brought into the room.<br>
-        <em>${totalArtistsResolved} artist${totalArtistsResolved === 1 ? "" : "s"}, seen live${countries[0] ? ` — most from ${esc(countries[0].name)}` : ""}.</em>
-      </p>
-    </div>
-  `));
-
-  root.appendChild(buildMap(countries));
-  const europeMap = buildEuropeMap(countries);
-  if (europeMap) root.appendChild(europeMap);
-
-  const list = el(`<div style="margin-top:12px"></div>`);
-  countries.forEach((c) => {
-    list.appendChild(el(`
-      <div class="recent-row">
-        <div class="recent-when" style="flex-basis:auto;text-transform:none;font-size:12px">${esc(c.name)}</div>
-        <div class="recent-body"><span>${esc(c.artists.join(", "))}</span></div>
+  if (!countries.length) {
+    root.appendChild(el(`
+      <div class="stage-empty">
+        <p class="whisper">Realm</p>
+        <p class="lede">A wider map of what you listen to.</p>
+        <p class="footnote">Still gathering — this fills in after the origins job first runs.</p>
       </div>
     `));
-  });
-  root.appendChild(list);
-}
-
-function buildMap(countries) {
-  const { el } = renderDeps;
-  const W = 700, H = 350;
-
-  const graticule = [];
-  for (let lon = -180; lon <= 180; lon += 30) {
-    const [x1] = project(0, lon, W, H);
-    graticule.push(`<line x1="${x1}" y1="0" x2="${x1}" y2="${H}" class="realm-grid-line" />`);
-  }
-  for (let lat = -60; lat <= 60; lat += 30) {
-    const [, y1] = project(lat, 0, W, H);
-    graticule.push(`<line x1="0" y1="${y1}" x2="${W}" y2="${y1}" class="realm-grid-line ${lat === 0 ? "is-equator" : ""}" />`);
+    return;
   }
 
-  // No text labels here on purpose — the legend below already gives every
-  // full name, and this many countries at world scale means labels overlap
-  // into noise long before the dots do. This map's job is just "whereabouts
-  // in the world", not "which one is which".
-  const points = countries.map((c) => {
+  const totalArtists = rawArtists.length;
+  const dominant = countries[0];
+  const singleArtistCount = countries.filter((c) => c.count === 1).length;
+
+  // Farthest country from home, by real distance — the "one came all the
+  // way from…" line, computed rather than guessed.
+  let farthest = countries[0];
+  let farthestKm = -1;
+  for (const c of countries) {
     const [lat, lon] = CENTROIDS[c.code];
-    const [x, y] = project(lat, lon, W, H);
-    return { x, y };
-  });
-  spreadOverlaps(points, 16);
+    const km = haversineKm(HOME.lat, HOME.lon, lat, lon);
+    if (km > farthestKm) { farthestKm = km; farthest = c; }
+  }
 
-  const pins = points.map(({ x, y }) => `
-    <g class="realm-pin" transform="translate(${x},${y})">
-      <circle class="realm-pin-glow" r="8" />
-      <circle class="realm-pin-dot" r="2.6" />
-    </g>
-  `).join("");
+  root.appendChild(buildOpening(countries, totalArtists, dominant, farthest, singleArtistCount));
 
-  const svg = `
-    <svg class="realm-map" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-      ${graticule.join("")}
-      ${pins}
-    </svg>
-  `;
-  return el(`<div class="realm-map-wrap">${svg}</div>`);
-}
+  const maxCount = dominant.count;
+  root.appendChild(buildSky(countries, maxCount, "world"));
 
-// The zoomed detail view. Most of a European person's touring circuit lands
-// in a tiny slice of a world map — this gives that slice the space it
-// actually needs, with real labels, rather than asking one map to do both
-// jobs at once.
-function buildEuropeMap(countries) {
-  const { el, esc } = renderDeps;
-  const inBounds = countries.filter((c) => {
+  const europeCountries = countries.filter((c) => {
     const [lat, lon] = CENTROIDS[c.code];
     return lat >= EUROPE_BOUNDS.latMin && lat <= EUROPE_BOUNDS.latMax &&
            lon >= EUROPE_BOUNDS.lonMin && lon <= EUROPE_BOUNDS.lonMax;
   });
-  if (!inBounds.length) return null;
-
-  const W = 700, H = 480;
-
-  const graticule = [];
-  for (let lon = 0; lon <= 40; lon += 10) {
-    const [x1] = projectInBounds(0, lon, EUROPE_BOUNDS, W, H);
-    graticule.push(`<line x1="${x1}" y1="0" x2="${x1}" y2="${H}" class="realm-grid-line" />`);
+  if (europeCountries.length) {
+    root.appendChild(el(`
+      <div class="realm-transition">
+        <div class="realm-transition-line"></div>
+        <p class="realm-transition-label">Closer — where most of it lives</p>
+      </div>
+    `));
+    root.appendChild(buildSky(europeCountries, maxCount, "europe"));
   }
-  for (let lat = 30; lat <= 70; lat += 10) {
-    const [, y1] = projectInBounds(lat, 0, EUROPE_BOUNDS, W, H);
-    graticule.push(`<line x1="0" y1="${y1}" x2="${W}" y2="${y1}" class="realm-grid-line" />`);
-  }
+}
 
-  const points = inBounds.map((c) => {
-    const [lat, lon] = CENTROIDS[c.code];
-    const [x, y] = projectInBounds(lat, lon, EUROPE_BOUNDS, W, H);
-    return { x, y, name: c.name };
-  });
-  spreadOverlaps(points, 46);
-
-  const pins = points.map(({ x, y, name }) => `
-    <g class="realm-pin" transform="translate(${x},${y})">
-      <circle class="realm-pin-glow" r="10" />
-      <circle class="realm-pin-dot" r="3" />
-      <text class="realm-pin-label" x="0" y="-14" text-anchor="middle">${esc(name)}</text>
-    </g>
-  `).join("");
-
-  const svg = `
-    <svg class="realm-map" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-      ${graticule.join("")}
-      ${pins}
-    </svg>
-  `;
+// The editorial opening — a sentence about a life, not a stat block.
+function buildOpening(countries, totalArtists, dominant, farthest, singleArtistCount) {
+  const { el, esc } = renderDeps;
+  const farApart = farthest.code !== dominant.code;
   return el(`
-    <div style="margin-top:36px">
-      <div style="padding:0 var(--gutter)"><p class="whisper">Closer — Europe</p></div>
-      <div class="realm-map-wrap">${svg}</div>
+    <div class="opening">
+      <p class="whisper">Realm</p>
+      <p class="lede">
+        ${withCommas(totalArtists)} artist${totalArtists === 1 ? "" : "s"} crossed borders before they found you, from ${countries.length} ${countries.length === 1 ? "country" : "countries"}.<br>
+        <em>Most came from ${esc(dominant.name)}.${farApart ? ` One came all the way from ${esc(farthest.name)}.` : ""}</em>
+      </p>
+      ${singleArtistCount ? `<p class="footnote">${titleCase(spellSmall(singleArtistCount))} ${singleArtistCount === 1 ? "country you've" : "countries you've"} only crossed paths with once.</p>` : ""}
     </div>
   `);
+}
+
+function withCommas(n) { return Number(n || 0).toLocaleString("en-US"); }
+function titleCase(s) { return s ? s[0].toUpperCase() + s.slice(1) : s; }
+
+// Builds one sky — world overview or the closer Europe composition. Same
+// visual language, different scale and bounds.
+function buildSky(countries, maxCount, mode) {
+  const { el } = renderDeps;
+  const isEurope = mode === "europe";
+  const W = isEurope ? 400 : 700;
+  const H = isEurope ? 460 : 350;
+  const cellSize = isEurope ? 44 : 15;
+
+  const points = countries.map((c) => {
+    const [lat, lon] = CENTROIDS[c.code];
+    const [x, y] = isEurope ? projectInBounds(lat, lon, EUROPE_BOUNDS, W, H) : project(lat, lon, W, H);
+    return { x, y, country: c };
+  });
+  spreadOverlaps(points, cellSize);
+
+  const stars = points.map(({ x, y, country }, i) => {
+    const wgt = weight(country.count, maxCount);
+    const isDominant = country.count === maxCount && maxCount > 1;
+    const label = isEurope ? `<text class="realm-star-label" x="0" y="${-(wgt.glow * 0.55 + 8)}" text-anchor="middle">${escSafe(country.name)}</text>` : "";
+    return `
+      <g class="realm-star ${isDominant ? "is-dominant" : ""}" data-code="${country.code}" data-idx="${i}"
+         transform="translate(${x},${y})">
+        <g class="realm-star-anim" style="animation-delay:${(i * 90)}ms">
+          ${isDominant ? `<circle class="realm-star-halo" r="${wgt.glow * 1.7}" />` : ""}
+          <circle class="realm-star-glow" r="${wgt.glow}" style="opacity:${wgt.glowOpacity}" />
+          <circle class="realm-star-dot" r="${wgt.dot}" />
+          ${label}
+          <circle class="realm-star-hit" r="18" />
+        </g>
+      </g>
+    `;
+  }).join("");
+
+  const wrap = el(`
+    <div class="realm-sky-wrap ${isEurope ? "is-europe" : "is-world"}">
+      <svg class="realm-sky" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="realm-vignette-${mode}" cx="50%" cy="45%" r="75%">
+            <stop offset="0%" stop-color="#0e0e13" stop-opacity="0.55" />
+            <stop offset="100%" stop-color="#08080a" stop-opacity="0" />
+          </radialGradient>
+        </defs>
+        <rect x="0" y="0" width="${W}" height="${H}" fill="url(#realm-vignette-${mode})" />
+        ${stars}
+      </svg>
+    </div>
+  `);
+
+  wrap.querySelectorAll(".realm-star").forEach((starEl) => {
+    starEl.addEventListener("click", () => {
+      const code = starEl.dataset.code;
+      const country = countries.find((c) => c.code === code);
+      if (country) enterFocus(wrap, country, starEl);
+    });
+  });
+
+  return wrap;
+}
+
+function escSafe(s) {
+  const { esc } = renderDeps;
+  return esc(s);
+}
+
+// ---------- focus mode ----------
+//
+// No modal, no card: the tapped star's own sky dims around it, the star
+// becomes the center of a small composition, and its artists ignite one at
+// a time — each with the real cities you actually stood in for them.
+
+function citiesForArtist(artistName) {
+  const key = normalizeKeyLocal(artistName);
+  const cities = [];
+  const seen = new Set();
+  for (const c of archiveConcertsRef) {
+    if (!c.city || seen.has(c.city)) continue;
+    if (actuallySeenArtistsOf(c).some((n) => normalizeKeyLocal(n) === key)) {
+      cities.push(c.city);
+      seen.add(c.city);
+    }
+  }
+  return cities;
+}
+
+function countryStatement(country) {
+  if (country.count === 1) return `The only artist from here — so far.`;
+  return `${withCommas(country.count)} artists, one country.`;
+}
+
+function enterFocus(wrap, country, starEl) {
+  const { el, esc } = renderDeps;
+  wrap.classList.add("is-focused");
+  starEl.classList.add("is-active");
+
+  const rect = starEl.getBoundingClientRect();
+  const wrapRect = wrap.getBoundingClientRect();
+  const originX = ((rect.left + rect.width / 2 - wrapRect.left) / wrapRect.width) * 100;
+  const originY = ((rect.top + rect.height / 2 - wrapRect.top) / wrapRect.height) * 100;
+
+  const panel = el(`
+    <div class="realm-focus" style="transform-origin:${originX}% ${originY}%">
+      <button class="realm-focus-close">Back to the sky</button>
+      <p class="whisper">${country.artists.length} ${country.artists.length === 1 ? "artist" : "artists"}</p>
+      <h2 class="realm-focus-name">${esc(country.name)}</h2>
+      <p class="lede realm-focus-statement">${countryStatement(country)}</p>
+      <div class="realm-focus-list"></div>
+    </div>
+  `);
+
+  const list = panel.querySelector(".realm-focus-list");
+  country.artists.forEach((name, i) => {
+    const cities = citiesForArtist(name);
+    const row = el(`
+      <div class="realm-focus-artist" style="animation-delay:${180 + i * 110}ms">
+        <div class="realm-focus-artist-name">${esc(name)}</div>
+        ${cities.length ? `<div class="realm-focus-artist-cities">Seen in ${esc(cities.join(", "))}</div>` : ""}
+      </div>
+    `);
+    list.appendChild(row);
+  });
+
+  panel.querySelector(".realm-focus-close").addEventListener("click", () => {
+    panel.remove();
+    wrap.classList.remove("is-focused");
+    starEl.classList.remove("is-active");
+  });
+
+  wrap.appendChild(panel);
 }
