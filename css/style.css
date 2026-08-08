@@ -1261,22 +1261,146 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 .portrait-statement em { font-style: italic; color: var(--ember); }
 
 /* ==========================================================================
-   REALM — an abstract map of where the music comes from.
-   Not cartography: a coordinate grid (the same hairline language as the
-   rest of the app) with a pin at each country's approximate centroid.
+   REALM — a constellation, not a chart.
+   Every visited country is a star at its real coordinates. Brightness and
+   size carry "importance" instead of bars or labels everywhere. Countries
+   with no history simply aren't rendered — the dark IS the absence.
    ========================================================================== */
 
-.realm-map-wrap { padding: 30px var(--gutter) 6px; }
-.realm-map { width: 100%; height: auto; overflow: visible; }
-
-.realm-grid-line { stroke: var(--hair-soft); stroke-width: 1; }
-.realm-grid-line.is-equator { stroke: var(--hair); }
-
-.realm-pin-glow { fill: var(--ember); opacity: 0.16; }
-.realm-pin-dot { fill: var(--ember); }
-.realm-pin-label {
+.realm-transition {
+  padding: 40px var(--gutter) 4px;
+  text-align: center;
+}
+.realm-transition-line {
+  width: 1px;
+  height: 34px;
+  margin: 0 auto 14px;
+  background: linear-gradient(to bottom, transparent, var(--hair) 40%, var(--ember) 100%);
+}
+.realm-transition-label {
   font-family: var(--mono);
-  font-size: 9.5px;
-  letter-spacing: 0.04em;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--bone-faint);
+}
+
+.realm-sky-wrap {
+  position: relative;
+  padding: 22px var(--gutter) 4px;
+}
+.realm-sky-wrap.is-europe { padding-top: 8px; }
+.realm-sky {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  display: block;
+}
+.realm-sky-wrap.is-focused .realm-sky { pointer-events: none; }
+
+/* Each star is an outer <g> carrying only the SVG position (translate),
+   and an inner <g> carrying the CSS entrance animation — kept separate so
+   the animated transform never fights the positional one. */
+.realm-star-anim {
+  animation: realmStarIn 900ms var(--ease) both;
+  transform-origin: 0px 0px;
+}
+@keyframes realmStarIn {
+  from { opacity: 0; transform: scale(0.3); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.realm-star { cursor: pointer; }
+.realm-star-dot { fill: var(--ember); }
+.realm-star-glow { fill: var(--ember); }
+.realm-star-hit { fill: transparent; }
+.realm-star-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.03em;
   fill: var(--bone-dim);
+  pointer-events: none;
+}
+
+.realm-star-halo {
+  fill: none;
+  stroke: var(--ember);
+  stroke-width: 1;
+  opacity: 0.32;
+  animation: realmHaloPulse 6s ease-in-out infinite;
+}
+@keyframes realmHaloPulse {
+  0%, 100% { opacity: 0.22; }
+  50%      { opacity: 0.5; }
+}
+
+.realm-sky-wrap.is-focused .realm-star:not(.is-active) {
+  opacity: 0.12;
+  transition: opacity 0.5s var(--ease);
+}
+.realm-star.is-active { opacity: 1; }
+
+/* ---- focus mode: the tapped star becomes its own small composition ---- */
+
+.realm-focus {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  max-height: 78vh;
+  overflow-y: auto;
+  background: rgba(8,8,10,0.97);
+  padding: 22px var(--gutter) 34px;
+  animation: realmFocusIn 0.5s var(--ease) both;
+  z-index: 2;
+}
+@keyframes realmFocusIn {
+  from { opacity: 0; transform: scale(0.25); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.realm-focus-close {
+  display: block;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bone-faint);
+  padding: 4px 0 26px;
+}
+.realm-focus-close:active { color: var(--ember); }
+
+.realm-focus-name {
+  font-family: var(--serif);
+  font-size: clamp(34px, 11vw, 50px);
+  line-height: 1;
+  letter-spacing: -0.015em;
+  color: var(--bone);
+  margin-top: 6px;
+  overflow-wrap: anywhere;
+}
+.realm-focus-statement { margin-top: 14px; font-size: 20px; }
+
+.realm-focus-list { margin-top: 30px; }
+.realm-focus-artist {
+  padding: 14px 0;
+  border-top: 1px solid var(--hair-soft);
+  opacity: 0;
+  animation: realmArtistIn 0.6s var(--ease) both;
+}
+.realm-focus-artist:first-child { border-top: none; }
+@keyframes realmArtistIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.realm-focus-artist-name {
+  font-family: var(--serif);
+  font-size: 21px;
+  color: var(--bone);
+  overflow-wrap: anywhere;
+}
+.realm-focus-artist-cities {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  color: var(--bone-faint);
+  margin-top: 4px;
 }
