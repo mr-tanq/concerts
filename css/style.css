@@ -1293,13 +1293,6 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 }
 .portrait-statement em { font-style: italic; color: var(--ember); }
 
-/* ==========================================================================
-   REALM — a constellation, not a chart.
-   Every visited country is a star at its real coordinates. Brightness and
-   size carry "importance" instead of bars or labels everywhere. Countries
-   with no history simply aren't rendered — the dark IS the absence.
-   ========================================================================== */
-
 .realm-transition {
   padding: 40px var(--gutter) 4px;
   text-align: center;
@@ -1321,6 +1314,7 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 .realm-sky-wrap {
   position: relative;
   padding: 22px var(--gutter) 4px;
+  transform-origin: 50% 40%;
 }
 .realm-sky-wrap.is-europe { padding-top: 8px; }
 .realm-sky {
@@ -1331,9 +1325,42 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 }
 .realm-sky-wrap.is-focused .realm-sky { pointer-events: none; }
 
-/* Each star is an outer <g> carrying only the SVG position (translate),
-   and an inner <g> carrying the CSS entrance animation — kept separate so
-   the animated transform never fights the positional one. */
+@supports (animation-timeline: view()) {
+  .realm-sky-wrap.is-world {
+    animation: realmRecede linear both;
+    animation-timeline: view();
+    animation-range: exit 0% exit 100%;
+  }
+  .realm-sky-wrap.is-europe {
+    animation: realmDescend linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 70%;
+  }
+  @keyframes realmRecede {
+    from { transform: scale(1); opacity: 1; }
+    to   { transform: scale(1.05); opacity: 0.6; }
+  }
+  @keyframes realmDescend {
+    from { transform: scale(0.94); opacity: 0.4; filter: brightness(0.75); }
+    to   { transform: scale(1); opacity: 1; filter: brightness(1); }
+  }
+}
+
+.realm-land-layer { pointer-events: none; }
+.realm-land {
+  fill: var(--bone);
+  fill-opacity: 0.045;
+  stroke: var(--bone);
+  stroke-opacity: 0.075;
+  stroke-width: 0.6;
+}
+
+.realm-leader {
+  stroke: var(--bone-faint);
+  stroke-width: 0.6;
+  opacity: 0.4;
+}
+
 .realm-star-anim {
   animation: realmStarIn 900ms var(--ease) both;
   transform-origin: 0px 0px;
@@ -1344,27 +1371,25 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 }
 
 .realm-star { cursor: pointer; }
-.realm-star-dot { fill: var(--ember); }
+.realm-star-atmosphere { fill: var(--ember); transform-origin: 0px 0px; }
 .realm-star-glow { fill: var(--ember); }
+.realm-star-dot { fill: var(--ember); }
+.realm-star-sat { fill: var(--ember); opacity: 0.55; }
 .realm-star-hit { fill: transparent; }
+
+.realm-star.is-dominant .realm-star-atmosphere {
+  animation: realmAtmospherePulse 7s ease-in-out infinite;
+}
+@keyframes realmAtmospherePulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.15); }
+}
+
 .realm-star-label {
   font-family: var(--mono);
-  font-size: 11px;
   letter-spacing: 0.03em;
   fill: var(--bone-dim);
   pointer-events: none;
-}
-
-.realm-star-halo {
-  fill: none;
-  stroke: var(--ember);
-  stroke-width: 1;
-  opacity: 0.32;
-  animation: realmHaloPulse 6s ease-in-out infinite;
-}
-@keyframes realmHaloPulse {
-  0%, 100% { opacity: 0.22; }
-  50%      { opacity: 0.5; }
 }
 
 .realm-sky-wrap.is-focused .realm-star:not(.is-active) {
@@ -1372,8 +1397,6 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
   transition: opacity 0.5s var(--ease);
 }
 .realm-star.is-active { opacity: 1; }
-
-/* ---- focus mode: the tapped star becomes its own small composition ---- */
 
 .realm-focus {
   position: absolute;
@@ -1412,28 +1435,52 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 }
 .realm-focus-statement { margin-top: 14px; font-size: 20px; }
 
-.realm-focus-list { margin-top: 30px; }
-.realm-focus-artist {
-  padding: 14px 0;
-  border-top: 1px solid var(--hair-soft);
+.realm-journey {
+  position: relative;
+  margin-top: 32px;
+  padding-left: 24px;
+}
+.realm-journey-spine {
+  position: absolute;
+  left: 3px;
+  top: 6px;
+  bottom: 14px;
+  width: 1px;
+  background: linear-gradient(to bottom, var(--ember), var(--hair) 85%);
+  opacity: 0.4;
+}
+.realm-journey-stop {
+  position: relative;
+  padding: 0 0 26px;
   opacity: 0;
   animation: realmArtistIn 0.6s var(--ease) both;
 }
-.realm-focus-artist:first-child { border-top: none; }
-@keyframes realmArtistIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
+.realm-journey-stop:last-child { padding-bottom: 0; }
+.realm-journey-dot {
+  position: absolute;
+  left: -24px;
+  top: 5px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ember);
 }
-.realm-focus-artist-name {
+.realm-journey-stop.is-unplaced .realm-journey-dot { background: var(--bone-faint); }
+.realm-journey-city {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bone-faint);
+  margin-bottom: 4px;
+}
+.realm-journey-artists {
   font-family: var(--serif);
-  font-size: 21px;
+  font-size: 20px;
   color: var(--bone);
   overflow-wrap: anywhere;
 }
-.realm-focus-artist-cities {
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.03em;
-  color: var(--bone-faint);
-  margin-top: 4px;
+@keyframes realmArtistIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
