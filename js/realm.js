@@ -581,14 +581,32 @@ const seenSoFar = new Map();
     // Known to have played, no confirmed night in the Archive yet.
     country.artists.forEach((name, i) => {
       journeyHost.appendChild(el(`
-        <div class="realm-journey-stop is-unplaced" style="animation-delay:${180 + i * 110}ms">
+        <div class="realm-journey-stop is-unplaced" data-stop>
           <div class="realm-journey-dot"></div>
           <div class="realm-journey-artists">${esc(name)}</div>
         </div>
       `));
     });
   }
-
+// Revealed by scroll position, not a fixed timer — a fast scroll to the
+  // bottom of a long journey used to be able to outrun the entrance
+  // animation and land on a stop that was technically there but still
+  // sitting at opacity 0, waiting for a delay that had nothing to do with
+  // when the person actually arrived at it.
+  if (typeof IntersectionObserver !== "undefined") {
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        }
+      }
+    }, { threshold: 0.1, rootMargin: "0px 0px 40px 0px" });
+    panel.querySelectorAll("[data-stop]").forEach((stopEl) => observer.observe(stopEl));
+  } else {
+    panel.querySelectorAll("[data-stop]").forEach((stopEl) => stopEl.classList.add("is-visible"));
+  }
+  
   panel.querySelector(".realm-focus-close").addEventListener("click", () => {
     panel.remove();
     wrap.classList.remove("is-focused");
