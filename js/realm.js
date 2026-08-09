@@ -462,27 +462,29 @@ function buildSky(countries, maxCount, mode) {
 // place along a timeline, not a stray fact.
 
 function journeyForCountry(country) {
-  const byCity = new Map(); // city -> { artists: Set, firstDate }
   const key = normalizeKeyLocal;
   const artistKeys = new Set(country.artists.map(key));
+  // Keyed by date+city, not city alone — returning to the same city on a
+  // different night is a different encounter and needs its own stop, or
+  // every additional time you went back to see them again in a familiar
+  // room would silently disappear into the first visit.
+  const stopsByKey = new Map();
 
   for (const c of archiveConcertsRef) {
-    if (!c.city) continue;
+    if (!c.city || !c.date) continue;
     const matched = actuallySeenArtistsOf(c).filter((n) => artistKeys.has(key(n)));
     if (!matched.length) continue;
-    if (!byCity.has(c.city)) byCity.set(c.city, { artists: new Map(), firstDate: c.date });
-    const entry = byCity.get(c.city);
-    if (c.date && (!entry.firstDate || c.date < entry.firstDate)) entry.firstDate = c.date;
+    const stopKey = `${c.date}|${c.city}`;
+    if (!stopsByKey.has(stopKey)) stopsByKey.set(stopKey, { city: c.city, date: c.date, artists: new Set() });
+    const entry = stopsByKey.get(stopKey);
     for (const name of matched) {
       const canonical = country.artists.find((a) => key(a) === key(name)) || name;
-      if (!entry.artists.has(canonical) || (c.date && c.date < entry.artists.get(canonical))) {
-        entry.artists.set(canonical, c.date);
-      }
+      entry.artists.add(canonical);
     }
   }
 
-  return [...byCity.entries()]
-    .map(([city, v]) => ({ city, artists: [...v.artists.keys()], firstDate: v.firstDate }))
+  return [...stopsByKey.values()]
+    .map((s) => ({ city: s.city, artists: [...s.artists], firstDate: s.date }))
     .sort((a, b) => String(a.firstDate || "9999").localeCompare(String(b.firstDate || "9999")));
 }
 
@@ -499,18 +501,20 @@ function ordinalSuffix(n) {
 // Not generic. Looks for something actually true about this country's
 // shape before saying anything at all — says less when there's nothing
 // worth the sentence.
+
 function countryObservation(country, journey) {
   const artistCount = country.artists.length;
   if (artistCount === 1) return `The only artist from here — so far.`;
 
-  const cityCount = journey.length;
+  const distinctCities = [...new Set(journey.map((j) => j.city))];
+  const cityCount = distinctCities.length;
   const allDates = journey.map((j) => j.firstDate).filter(Boolean).sort();
   const spanYears = allDates.length >= 2
     ? Number(allDates[allDates.length - 1].slice(0, 4)) - Number(allDates[0].slice(0, 4))
     : 0;
 
   if (cityCount <= 1) {
-    const cityName = journey[0]?.city;
+    const cityName = distinctCities[0];
     return cityName
       ? `${titleCase(spellSmall(artistCount))} artists, always in ${cityName}.`
       : `${titleCase(spellSmall(artistCount))} artists, one country.`;
