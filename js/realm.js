@@ -165,17 +165,19 @@ function spreadOverlaps(points, cellSize) {
 }
 
 // Importance as atmosphere, not radius. The dot itself barely grows; what
-// grows is the soft light around it. Genuinely dense countries also get a
-// small deterministic scatter of satellite points — a cluster of names,
-// not a number.
+// grows is soft light and a scatter of sparks — never a bigger disc.
+// Compressed hard after the first pass looked too much like a bubble chart
+// even with a big soft circle: the fix wasn't just size, it was giving the
+// glow an actual falloff (a radial gradient, not a flat fill) so it reads
+// as light dissipating rather than a shape with an edge.
 function weight(count, maxCount) {
   const t = Math.sqrt(count) / Math.sqrt(Math.max(maxCount, 1));
   return {
-    dot: 1.7 + t * 1.5,
-    glow: 4.5 + t * 8,
-    glowOpacity: 0.2 + t * 0.22,
-    atmosphere: 16 + t * 52,
-    atmosphereOpacity: 0.045 + t * 0.1,
+    dot: 1.6 + t * 1.2,
+    glow: 4 + t * 6,
+    glowOpacity: 0.22 + t * 0.2,
+    atmosphere: 9 + t * 26,
+    atmosphereOpacity: 0.16 + t * 0.26,
   };
 }
 
@@ -309,17 +311,18 @@ function boxesOverlap(a, b) {
 function layoutLabels(points, isEurope, weightOf) {
   const fontSize = isEurope ? 11 : 9.5;
   const sorted = [...points].sort((a, b) => b.country.count - a.country.count);
-  const topSet = new Set(sorted.slice(0, isEurope ? 9 : 6).map((p) => p.country.code));
+  const topSet = new Set(sorted.slice(0, isEurope ? 6 : 5).map((p) => p.country.code));
 
   const placedBoxes = [];
   const results = [];
 
   for (const p of sorted) {
-    const eligible = p.country.count > 1 || topSet.has(p.country.code);
+    const isPriority = topSet.has(p.country.code);
+    const eligible = isPriority || p.country.count > 1;
     if (!eligible) continue;
 
     const wgt = weightOf(p.country.count);
-    const base = wgt.atmosphere * 0.34 + 9;
+    const base = wgt.atmosphere * 0.55 + 8;
     const text = p.country.name;
 
     const candidates = [
@@ -331,12 +334,19 @@ function layoutLabels(points, isEurope, weightOf) {
       { lx: p.x - base * 0.7, ly: p.y - base * 0.7, anchor: "end" },
     ];
 
+    // Priority countries earn the full search — displaced with a leader
+    // line rather than dropped. Everything else gets one clean try at the
+    // simple "just above" position; if that collides, it goes dark rather
+    // than crowding the composition with a forced, awkward placement.
+    const passes = isPriority ? 2 : 1;
+    const candidateSet = isPriority ? candidates : candidates.slice(0, 1);
+
     let chosen = null;
     let chosenIdx = -1;
-    for (let pass = 0; pass < 2 && !chosen; pass++) {
+    for (let pass = 0; pass < passes && !chosen; pass++) {
       const scale = pass === 0 ? 1 : 1.6;
-      for (let i = 0; i < candidates.length; i++) {
-        const cand = candidates[i];
+      for (let i = 0; i < candidateSet.length; i++) {
+        const cand = candidateSet[i];
         const lx = pass === 0 ? cand.lx : p.x + (cand.lx - p.x) * scale;
         const ly = pass === 0 ? cand.ly : p.y + (cand.ly - p.y) * scale;
         const box = estimateLabelBox(text, fontSize, lx, ly, cand.anchor);
@@ -347,7 +357,7 @@ function layoutLabels(points, isEurope, weightOf) {
         }
       }
     }
-    if (!chosen) continue; // truly crowded — say less, per the brief, rather than overlap
+    if (!chosen) continue; // says less, per the brief, rather than crowd or force it
 
     placedBoxes.push(chosen.box);
     results.push({
@@ -365,7 +375,7 @@ function buildSky(countries, maxCount, mode) {
   const { el, esc } = renderDeps;
   const isEurope = mode === "europe";
   const W = isEurope ? 400 : 700;
-  const H = isEurope ? 460 : 350;
+  const H = isEurope ? 460 : 440;
   const cellSize = isEurope ? 44 : 15;
   const projectFn = isEurope
     ? (lat, lon) => projectInBounds(lat, lon, EUROPE_BOUNDS, W, H)
@@ -383,15 +393,15 @@ function buildSky(countries, maxCount, mode) {
   const stars = points.map(({ x, y, country }, i) => {
     const wgt = weightOf(country.count);
     const isDominant = country.count === maxCount && maxCount > 1;
-    const satellites = country.count >= 3
-      ? seededOffsets(country.code, Math.min(country.count - 1, 5), wgt.atmosphere * 0.55)
-          .map(([dx, dy]) => `<circle class="realm-star-sat" cx="${dx.toFixed(1)}" cy="${dy.toFixed(1)}" r="0.9" />`)
+    const satellites = country.count >= 2
+      ? seededOffsets(country.code, Math.min(country.count - 1, 7), wgt.atmosphere * 0.7)
+          .map(([dx, dy]) => `<circle class="realm-star-sat" cx="${dx.toFixed(1)}" cy="${dy.toFixed(1)}" r="0.85" />`)
           .join("")
       : "";
     return `
       <g class="realm-star ${isDominant ? "is-dominant" : ""}" data-code="${country.code}" data-idx="${i}" transform="translate(${x},${y})">
         <g class="realm-star-anim" style="animation-delay:${(i * 90)}ms">
-          <circle class="realm-star-atmosphere" r="${wgt.atmosphere}" style="opacity:${wgt.atmosphereOpacity}" />
+          <circle class="realm-star-atmosphere" r="${wgt.atmosphere}" fill="url(#realm-star-glow-${mode})" style="opacity:${wgt.atmosphereOpacity}" />
           <circle class="realm-star-glow" r="${wgt.glow}" style="opacity:${wgt.glowOpacity}" />
           <circle class="realm-star-dot" r="${wgt.dot}" />
           ${satellites}
@@ -419,6 +429,10 @@ function buildSky(countries, maxCount, mode) {
           <radialGradient id="realm-vignette-${mode}" cx="50%" cy="45%" r="75%">
             <stop offset="0%" stop-color="#0e0e13" stop-opacity="0.5" />
             <stop offset="100%" stop-color="#08080a" stop-opacity="0" />
+          </radialGradient>
+          <radialGradient id="realm-star-glow-${mode}" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" class="realm-glow-stop-in" />
+            <stop offset="100%" class="realm-glow-stop-out" />
           </radialGradient>
         </defs>
         <rect x="0" y="0" width="${W}" height="${H}" fill="url(#realm-vignette-${mode})" />
@@ -472,6 +486,17 @@ function journeyForCountry(country) {
     .sort((a, b) => String(a.firstDate || "9999").localeCompare(String(b.firstDate || "9999")));
 }
 
+// How many of this country's cities each artist actually appears in —
+// repetition made visible (a small mark) instead of the same name just
+// showing up again with nothing acknowledging it's the same thread.
+function repeatCounts(journey) {
+  const counts = new Map();
+  for (const stop of journey) {
+    for (const name of stop.artists) counts.set(name, (counts.get(name) || 0) + 1);
+  }
+  return counts;
+}
+
 // Not generic. Looks for something actually true about this country's
 // shape before saying anything at all — says less when there's nothing
 // worth the sentence.
@@ -498,9 +523,18 @@ function countryObservation(country, journey) {
 }
 
 function enterFocus(wrap, country, starEl) {
-  const { el, esc } = renderDeps;
   wrap.classList.add("is-focused");
   starEl.classList.add("is-active");
+
+  // The rest of the sky dims first — a beat where only this country's
+  // light remains — and only then does the detail rise. Isolating a
+  // memory, not opening a screen. Timing matches the CSS dim transition.
+  window.setTimeout(() => revealFocusPanel(wrap, country, starEl), 640);
+}
+
+function revealFocusPanel(wrap, country, starEl) {
+  const { el, esc } = renderDeps;
+  if (!wrap.isConnected) return;
 
   const rect = starEl.getBoundingClientRect();
   const wrapRect = wrap.getBoundingClientRect();
@@ -508,6 +542,7 @@ function enterFocus(wrap, country, starEl) {
   const originY = ((rect.top + rect.height / 2 - wrapRect.top) / wrapRect.height) * 100;
 
   const journey = journeyForCountry(country);
+  const repeats = repeatCounts(journey);
 
   const panel = el(`
     <div class="realm-focus" style="transform-origin:${originX}% ${originY}%">
@@ -523,11 +558,16 @@ function enterFocus(wrap, country, starEl) {
   if (journey.length) {
     journeyHost.appendChild(el(`<div class="realm-journey-spine"></div>`));
     journey.forEach((stop, i) => {
+      const year = stop.firstDate ? stop.firstDate.slice(0, 4) : "";
+      const artistsMarkup = stop.artists.map((name) => {
+        const n = repeats.get(name) || 1;
+        return `<span class="realm-journey-artist">${esc(name)}${n > 1 ? `<span class="realm-journey-repeat">×${n}</span>` : ""}</span>`;
+      }).join(", ");
       const row = el(`
         <div class="realm-journey-stop" style="animation-delay:${180 + i * 140}ms">
           <div class="realm-journey-dot"></div>
-          <div class="realm-journey-city">${esc(stop.city)}</div>
-          <div class="realm-journey-artists">${esc(stop.artists.join(", "))}</div>
+          <div class="realm-journey-city">${esc(stop.city)}${year ? `<span class="realm-journey-year">${year}</span>` : ""}</div>
+          <div class="realm-journey-artists">${artistsMarkup}</div>
         </div>
       `);
       journeyHost.appendChild(row);
