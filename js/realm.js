@@ -285,3 +285,270 @@ function buildOpening(countries, totalArtists, dominant, farthest, singleArtistC
     </div>
   `);
 }
+// ---------- label placement ----------
+//
+// Only countries that earn one get a label at rest — a single artist
+// doesn't need to announce itself next to a country with thirty. For the
+// ones that do, six candidate positions are tried around the star in
+// priority order; the first that doesn't collide with an already-placed
+// label wins. Anything pushed away from the simple "just above" position
+// gets a thin leader line back to its star, so displacement never reads
+// as disconnection.
+
+function estimateLabelBox(text, fontSize, lx, ly, anchor) {
+  const w = text.length * fontSize * 0.56;
+  const h = fontSize * 1.15;
+  const left = anchor === "start" ? lx : anchor === "end" ? lx - w : lx - w / 2;
+  return { minX: left, maxX: left + w, minY: ly - h, maxY: ly + h * 0.25, w, h };
+}
+
+function boxesOverlap(a, b) {
+  return a.minX < b.maxX && a.maxX > b.minX && a.minY < b.maxY && a.maxY > b.minY;
+}
+
+function layoutLabels(points, isEurope, weightOf) {
+  const fontSize = isEurope ? 11 : 9.5;
+  const sorted = [...points].sort((a, b) => b.country.count - a.country.count);
+  const topSet = new Set(sorted.slice(0, isEurope ? 9 : 6).map((p) => p.country.code));
+
+  const placedBoxes = [];
+  const results = [];
+
+  for (const p of sorted) {
+    const eligible = p.country.count > 1 || topSet.has(p.country.code);
+    if (!eligible) continue;
+
+    const wgt = weightOf(p.country.count);
+    const base = wgt.atmosphere * 0.34 + 9;
+    const text = p.country.name;
+
+    const candidates = [
+      { lx: p.x, ly: p.y - base, anchor: "middle" },
+      { lx: p.x + base * 0.85, ly: p.y + 3, anchor: "start" },
+      { lx: p.x - base * 0.85, ly: p.y + 3, anchor: "end" },
+      { lx: p.x, ly: p.y + base + fontSize, anchor: "middle" },
+      { lx: p.x + base * 0.7, ly: p.y - base * 0.7, anchor: "start" },
+      { lx: p.x - base * 0.7, ly: p.y - base * 0.7, anchor: "end" },
+    ];
+
+    let chosen = null;
+    let chosenIdx = -1;
+    for (let pass = 0; pass < 2 && !chosen; pass++) {
+      const scale = pass === 0 ? 1 : 1.6;
+      for (let i = 0; i < candidates.length; i++) {
+        const cand = candidates[i];
+        const lx = pass === 0 ? cand.lx : p.x + (cand.lx - p.x) * scale;
+        const ly = pass === 0 ? cand.ly : p.y + (cand.ly - p.y) * scale;
+        const box = estimateLabelBox(text, fontSize, lx, ly, cand.anchor);
+        if (!placedBoxes.some((b) => boxesOverlap(b, box))) {
+          chosen = { lx, ly, anchor: cand.anchor, box };
+          chosenIdx = i;
+          break;
+        }
+      }
+    }
+    if (!chosen) continue; // truly crowded — say less, per the brief, rather than overlap
+
+    placedBoxes.push(chosen.box);
+    results.push({
+      code: p.country.code,
+      x: p.x, y: p.y,
+      lx: chosen.lx, ly: chosen.ly, anchor: chosen.anchor,
+      leader: chosenIdx > 0,
+      text, fontSize,
+    });
+  }
+  return results;
+}
+
+function buildSky(countries, maxCount, mode) {
+  const { el, esc } = renderDeps;
+  const isEurope = mode === "europe";
+  const W = isEurope ? 400 : 700;
+  const H = isEurope ? 460 : 350;
+  const cellSize = isEurope ? 44 : 15;
+  const projectFn = isEurope
+    ? (lat, lon) => projectInBounds(lat, lon, EUROPE_BOUNDS, W, H)
+    : (lat, lon) => project(lat, lon, W, H);
+
+  const points = countries.map((c) => {
+    const [lat, lon] = CENTROIDS[c.code];
+    const [x, y] = projectFn(lat, lon);
+    return { x, y, country: c };
+  });
+  spreadOverlaps(points, cellSize);
+
+  const weightOf = (count) => weight(count, maxCount);
+
+  const stars = points.map(({ x, y, country }, i) => {
+    const wgt = weightOf(country.count);
+    const isDominant = country.count === maxCount && maxCount > 1;
+    const satellites = country.count >= 3
+      ? seededOffsets(country.code, Math.min(country.count - 1, 5), wgt.atmosphere * 0.55)
+          .map(([dx, dy]) => `<circle class="realm-star-sat" cx="${dx.toFixed(1)}" cy="${dy.toFixed(1)}" r="0.9" />`)
+          .join("")
+      : "";
+    return `
+      <g class="realm-star ${isDominant ? "is-dominant" : ""}" data-code="${country.code}" data-idx="${i}" transform="translate(${x},${y})">
+        <g class="realm-star-anim" style="animation-delay:${(i * 90)}ms">
+          <circle class="realm-star-atmosphere" r="${wgt.atmosphere}" style="opacity:${wgt.atmosphereOpacity}" />
+          <circle class="realm-star-glow" r="${wgt.glow}" style="opacity:${wgt.glowOpacity}" />
+          <circle class="realm-star-dot" r="${wgt.dot}" />
+          ${satellites}
+          <circle class="realm-star-hit" r="18" />
+        </g>
+      </g>
+    `;
+  }).join("");
+
+  const labels = layoutLabels(points, isEurope, weightOf);
+  const labelMarkup = labels.map((lab) => {
+    const leaderLine = lab.leader
+      ? `<line class="realm-leader" x1="${lab.x.toFixed(1)}" y1="${lab.y.toFixed(1)}" x2="${lab.lx.toFixed(1)}" y2="${(lab.ly - lab.fontSize * 0.35).toFixed(1)}" />`
+      : "";
+    return `
+      ${leaderLine}
+      <text class="realm-star-label" x="${lab.lx.toFixed(1)}" y="${lab.ly.toFixed(1)}" text-anchor="${lab.anchor}" style="font-size:${lab.fontSize}px">${esc(lab.text)}</text>
+    `;
+  }).join("");
+
+  const wrap = el(`
+    <div class="realm-sky-wrap ${isEurope ? "is-europe" : "is-world"}">
+      <svg class="realm-sky" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="realm-vignette-${mode}" cx="50%" cy="45%" r="75%">
+            <stop offset="0%" stop-color="#0e0e13" stop-opacity="0.5" />
+            <stop offset="100%" stop-color="#08080a" stop-opacity="0" />
+          </radialGradient>
+        </defs>
+        <rect x="0" y="0" width="${W}" height="${H}" fill="url(#realm-vignette-${mode})" />
+        <g class="realm-land-layer">${buildSilhouette(projectFn)}</g>
+        <g class="realm-leaders">${labelMarkup}</g>
+        ${stars}
+      </svg>
+    </div>
+  `);
+
+  wrap.querySelectorAll(".realm-star").forEach((starEl) => {
+    starEl.addEventListener("click", () => {
+      const code = starEl.dataset.code;
+      const country = countries.find((c) => c.code === code);
+      if (country) enterFocus(wrap, country, starEl);
+    });
+  });
+
+  return wrap;
+}
+
+// ---------- the journey: origin → encounter ----------
+//
+// Groups this country's artists by the actual cities you saw them in
+// (from the Archive, via actuallySeenArtistsOf so curation is respected),
+// each city carrying its earliest date — so "seen in Utrecht" becomes a
+// place along a timeline, not a stray fact.
+
+function journeyForCountry(country) {
+  const byCity = new Map(); // city -> { artists: Set, firstDate }
+  const key = normalizeKeyLocal;
+  const artistKeys = new Set(country.artists.map(key));
+
+  for (const c of archiveConcertsRef) {
+    if (!c.city) continue;
+    const matched = actuallySeenArtistsOf(c).filter((n) => artistKeys.has(key(n)));
+    if (!matched.length) continue;
+    if (!byCity.has(c.city)) byCity.set(c.city, { artists: new Map(), firstDate: c.date });
+    const entry = byCity.get(c.city);
+    if (c.date && (!entry.firstDate || c.date < entry.firstDate)) entry.firstDate = c.date;
+    for (const name of matched) {
+      const canonical = country.artists.find((a) => key(a) === key(name)) || name;
+      if (!entry.artists.has(canonical) || (c.date && c.date < entry.artists.get(canonical))) {
+        entry.artists.set(canonical, c.date);
+      }
+    }
+  }
+
+  return [...byCity.entries()]
+    .map(([city, v]) => ({ city, artists: [...v.artists.keys()], firstDate: v.firstDate }))
+    .sort((a, b) => String(a.firstDate || "9999").localeCompare(String(b.firstDate || "9999")));
+}
+
+// Not generic. Looks for something actually true about this country's
+// shape before saying anything at all — says less when there's nothing
+// worth the sentence.
+function countryObservation(country, journey) {
+  const artistCount = country.artists.length;
+  if (artistCount === 1) return `The only artist from here — so far.`;
+
+  const cityCount = journey.length;
+  const allDates = journey.map((j) => j.firstDate).filter(Boolean).sort();
+  const spanYears = allDates.length >= 2
+    ? Number(allDates[allDates.length - 1].slice(0, 4)) - Number(allDates[0].slice(0, 4))
+    : 0;
+
+  if (cityCount <= 1) {
+    const cityName = journey[0]?.city;
+    return cityName
+      ? `${titleCase(spellSmall(artistCount))} artists, always in ${cityName}.`
+      : `${titleCase(spellSmall(artistCount))} artists, one country.`;
+  }
+  if (spanYears >= 3) {
+    return `${titleCase(spellSmall(artistCount))} artists, ${spellSmall(cityCount)} cities. Years apart, they kept finding you.`;
+  }
+  return `${titleCase(spellSmall(artistCount))} artists across ${spellSmall(cityCount)} cities.`;
+}
+
+function enterFocus(wrap, country, starEl) {
+  const { el, esc } = renderDeps;
+  wrap.classList.add("is-focused");
+  starEl.classList.add("is-active");
+
+  const rect = starEl.getBoundingClientRect();
+  const wrapRect = wrap.getBoundingClientRect();
+  const originX = ((rect.left + rect.width / 2 - wrapRect.left) / wrapRect.width) * 100;
+  const originY = ((rect.top + rect.height / 2 - wrapRect.top) / wrapRect.height) * 100;
+
+  const journey = journeyForCountry(country);
+
+  const panel = el(`
+    <div class="realm-focus" style="transform-origin:${originX}% ${originY}%">
+      <button class="realm-focus-close">Back to the sky</button>
+      <p class="whisper">${country.artists.length} ${country.artists.length === 1 ? "artist" : "artists"}</p>
+      <h2 class="realm-focus-name">${esc(country.name)}</h2>
+      <p class="lede realm-focus-statement">${countryObservation(country, journey)}</p>
+      <div class="realm-journey"></div>
+    </div>
+  `);
+
+  const journeyHost = panel.querySelector(".realm-journey");
+  if (journey.length) {
+    journeyHost.appendChild(el(`<div class="realm-journey-spine"></div>`));
+    journey.forEach((stop, i) => {
+      const row = el(`
+        <div class="realm-journey-stop" style="animation-delay:${180 + i * 140}ms">
+          <div class="realm-journey-dot"></div>
+          <div class="realm-journey-city">${esc(stop.city)}</div>
+          <div class="realm-journey-artists">${esc(stop.artists.join(", "))}</div>
+        </div>
+      `);
+      journeyHost.appendChild(row);
+    });
+  } else {
+    // Known to have played, no confirmed night in the Archive yet.
+    country.artists.forEach((name, i) => {
+      journeyHost.appendChild(el(`
+        <div class="realm-journey-stop is-unplaced" style="animation-delay:${180 + i * 110}ms">
+          <div class="realm-journey-dot"></div>
+          <div class="realm-journey-artists">${esc(name)}</div>
+        </div>
+      `));
+    });
+  }
+
+  panel.querySelector(".realm-focus-close").addEventListener("click", () => {
+    panel.remove();
+    wrap.classList.remove("is-focused");
+    starEl.classList.remove("is-active");
+  });
+
+  wrap.appendChild(panel);
+}
