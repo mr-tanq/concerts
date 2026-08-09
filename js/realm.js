@@ -489,12 +489,11 @@ function journeyForCountry(country) {
 // How many of this country's cities each artist actually appears in —
 // repetition made visible (a small mark) instead of the same name just
 // showing up again with nothing acknowledging it's the same thread.
-function repeatCounts(journey) {
-  const counts = new Map();
-  for (const stop of journey) {
-    for (const name of stop.artists) counts.set(name, (counts.get(name) || 0) + 1);
-  }
-  return counts;
+function ordinalSuffix(n) {
+  const v = n % 100;
+  if (v >= 11 && v <= 13) return `${n}th`;
+  const suffix = ["th", "st", "nd", "rd"][n % 10] || "th";
+  return `${n}${suffix}`;
 }
 
 // Not generic. Looks for something actually true about this country's
@@ -542,7 +541,6 @@ function revealFocusPanel(wrap, country, starEl) {
   const originY = ((rect.top + rect.height / 2 - wrapRect.top) / wrapRect.height) * 100;
 
   const journey = journeyForCountry(country);
-  const repeats = repeatCounts(journey);
 
   const panel = el(`
     <div class="realm-focus" style="transform-origin:${originX}% ${originY}%">
@@ -557,11 +555,14 @@ function revealFocusPanel(wrap, country, starEl) {
   const journeyHost = panel.querySelector(".realm-journey");
   if (journey.length) {
     journeyHost.appendChild(el(`<div class="realm-journey-spine"></div>`));
+const seenSoFar = new Map();
     journey.forEach((stop, i) => {
       const year = stop.firstDate ? stop.firstDate.slice(0, 4) : "";
       const artistsMarkup = stop.artists.map((name) => {
-        const n = repeats.get(name) || 1;
-        return `<span class="realm-journey-artist">${esc(name)}${n > 1 ? `<span class="realm-journey-repeat">×${n}</span>` : ""}</span>`;
+        const occurrence = (seenSoFar.get(name) || 0) + 1;
+        seenSoFar.set(name, occurrence);
+        const marker = occurrence > 1 ? `<span class="realm-journey-repeat">${ordinalSuffix(occurrence)}</span>` : "";
+        return `<span class="realm-journey-artist">${esc(name)}${marker}</span>`;
       }).join(", ");
       const row = el(`
         <div class="realm-journey-stop" style="animation-delay:${180 + i * 140}ms">
