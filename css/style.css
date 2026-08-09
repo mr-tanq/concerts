@@ -1293,6 +1293,8 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 }
 .portrait-statement em { font-style: italic; color: var(--ember); }
 
+
+
 .realm-transition {
   padding: 40px var(--gutter) 4px;
   text-align: center;
@@ -1371,7 +1373,9 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 }
 
 .realm-star { cursor: pointer; }
-.realm-star-atmosphere { fill: var(--ember); transform-origin: 0px 0px; }
+.realm-glow-stop-in { stop-color: var(--ember); stop-opacity: 1; }
+.realm-glow-stop-out { stop-color: var(--ember); stop-opacity: 0; }
+.realm-star-atmosphere { transform-origin: 0px 0px; }
 .realm-star-glow { fill: var(--ember); }
 .realm-star-dot { fill: var(--ember); }
 .realm-star-sat { fill: var(--ember); opacity: 0.55; }
@@ -1393,8 +1397,8 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 }
 
 .realm-sky-wrap.is-focused .realm-star:not(.is-active) {
-  opacity: 0.12;
-  transition: opacity 0.5s var(--ease);
+  opacity: 0.08;
+  transition: opacity 0.62s var(--ease);
 }
 .realm-star.is-active { opacity: 1; }
 
@@ -1403,9 +1407,11 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
   top: 0; left: 0; right: 0;
   max-height: 78vh;
   overflow-y: auto;
-  background: rgba(8,8,10,0.97);
+  background: rgba(8,8,10,0.88);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
   padding: 22px var(--gutter) 34px;
-  animation: realmFocusIn 0.5s var(--ease) both;
+  animation: realmFocusIn 0.6s var(--ease) both;
   z-index: 2;
 }
 @keyframes realmFocusIn {
@@ -1474,11 +1480,25 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
   color: var(--bone-faint);
   margin-bottom: 4px;
 }
+.realm-journey-year {
+  margin-left: 8px;
+  color: var(--ember);
+  opacity: 0.75;
+}
 .realm-journey-artists {
   font-family: var(--serif);
   font-size: 20px;
   color: var(--bone);
   overflow-wrap: anywhere;
+}
+.realm-journey-artist { display: inline; }
+.realm-journey-repeat {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ember);
+  opacity: 0.8;
+  margin-left: 3px;
+  vertical-align: super;
 }
 @keyframes realmArtistIn {
   from { opacity: 0; transform: translateY(6px); }
