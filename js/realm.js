@@ -569,7 +569,7 @@ const seenSoFar = new Map();
         return `<span class="realm-journey-artist">${esc(name)}${marker}</span>`;
       }).join(", ");
       const row = el(`
-        <div class="realm-journey-stop" style="animation-delay:${180 + i * 140}ms">
+        <div class="realm-journey-stop" data-stop>
           <div class="realm-journey-dot"></div>
           <div class="realm-journey-city">${esc(stop.city)}${year ? `<span class="realm-journey-year">${year}</span>` : ""}</div>
           <div class="realm-journey-artists">${artistsMarkup}</div>
