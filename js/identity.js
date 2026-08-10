@@ -239,6 +239,15 @@ function fullDate(iso) {
   return y ? `${Number(d)} ${MONTHS_FULL[Number(m) - 1]} ${y}` : "";
 }
 
+// Compact form for the narrow "recent-when" column — day + short month +
+// year, e.g. "12 Nov 2025". The previous code built this by truncating
+// fullDate()'s output to its first two words, which silently dropped the
+// year every time.
+function shortDateWithYear(iso) {
+  const [y, m, d] = String(iso || "").split("-");
+  return y ? `${Number(d)} ${MONTHS[Number(m) - 1]} ${y}` : "";
+}
+
 function portraitStatement(overallCount, monthCount, liveCount) {
   const parts = [];
   parts.push(`${withCommas(overallCount)} play${overallCount === 1 ? "" : "s"}`);
