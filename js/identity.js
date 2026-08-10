@@ -57,6 +57,21 @@ function normalizeArtistKey(name) {
   return (name || "").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim();
 }
 
+// Last.fm and the Archive don't always agree on how much of a stage name
+// to use — Last.fm's own artist database has "Gonzales" for the person
+// this app's Archive correctly knows as "Chilly Gonzales". An exact key
+// match misses this entirely. A plain substring check would be too loose
+// (it would happily match "Muse" inside "Museum"), so this only accepts a
+// match where the shorter name is a whole word, or whole leading/trailing
+// word-sequence, of the longer one.
+function keysLikelyMatch(a, b) {
+  if (a === b) return true;
+  if (!a || !b) return false;
+  const shorter = a.length <= b.length ? a : b;
+  const longer = a.length <= b.length ? b : a;
+  return longer.startsWith(shorter + " ") || longer.endsWith(" " + shorter);
+}
+
 export function renderIdentity(root, data) {
   const { el, esc } = renderDeps;
   currentData = data;
@@ -214,7 +229,7 @@ function rankRow(rank, title, subtitle, playcount, photo) {
 function concertsFeaturing(artistName) {
   const key = normalizeArtistKey(artistName);
   return archiveConcerts
-    .filter((c) => actuallySeenArtistsOf(c).some((n) => normalizeArtistKey(n) === key))
+    .filter((c) => actuallySeenArtistsOf(c).some((n) => keysLikelyMatch(normalizeArtistKey(n), key)))
     .sort((a, b) => String(b.date).localeCompare(String(a.date)));
 }
 
