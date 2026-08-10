@@ -3,6 +3,7 @@ import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, is
 import { initMirror, renderMirror, stopPolling as stopMirrorPolling } from "./mirror.js";
 import { initIdentity, renderIdentity } from "./identity.js";
 import { initRealm, renderRealm } from "./realm.js";
+import { computeInsights, renderInsights } from "./insights.js";
 
 // ---------- global error visibility ----------
 //
@@ -901,7 +902,6 @@ function renderLineupPicker(host, status, c, lineup) {
     addInput.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); addArtist(); } });
   });
 }
-
 function renderNote(host, c) {
   host.innerHTML = "";
   const has = !!(c.notes && c.notes.trim());
@@ -1432,7 +1432,7 @@ async function attendedConcertRemote(plannedRec) {
 }
 
 async function notAttendedConcertRemote(plannedRec) {
-  const PLANNED = "data/planned.json";
+const PLANNED = "data/planned.json";
   const HIST = "data/recommendation-history.json";
   await mutate([PLANNED, HIST], (f) => {
     const planned = f[PLANNED], history = f[HIST];
@@ -1648,7 +1648,7 @@ async function init() {
   setActiveTab(new URLSearchParams(location.search).has("code") ? "mirror" : "concerts");
 
   try {
-    const [archiveData, recsData, plannedData, historyData, concertCache, artistImageData, setlistData, identityData, originsData] =
+    const [archiveData, recsData, plannedData, historyData, concertCache, artistImageData, setlistData, identityData, originsData, timeseriesData] =
       await Promise.all([
         loadJSON("data/archive.json"),
         loadJSON("data/recommendations.json"),
@@ -1659,6 +1659,7 @@ async function init() {
         loadJSON("data/setlists.json").catch(() => ({ setlists: {} })),
         loadJSON("data/identity.json").catch(() => ({ meta: {} })),
         loadJSON("data/artist-origins.json").catch(() => ({ artists: {} })),
+        loadJSON("data/listening-timeseries.json").catch(() => ({ meta: { weekStarts: [] }, artists: {} })),
       ]);
 
     setlists = new Map(Object.entries(setlistData.setlists || {}));
@@ -1689,6 +1690,13 @@ async function init() {
     renderConcerts(recsData, plannedData, historyData);
     initIdentity({ el, esc }, artistImages, archiveConcerts);
     renderIdentity(document.getElementById("panel-identity"), identityData);
+    // Insight engine — prepended in front of whatever identity.js already
+    // rendered, rather than edited into it, so this stays a clean layer on
+    // top instead of a change to code that already works.
+    const insightsHost = el(`<div id="identity-insights-root"></div>`);
+    document.getElementById("panel-identity").prepend(insightsHost);
+    const insights = computeInsights(timeseriesData, archiveConcerts, { maxInsights: 6 });
+    renderInsights(insightsHost, insights, { el, esc });
     initRealm({ el, esc }, archiveConcerts);
     // Only counts artists actually confirmed via the "who did you really
     // see" picker on each concert (or, for concerts never curated, the
