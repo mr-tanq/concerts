@@ -1,0 +1,43 @@
+name: Fetch listening history
+
+# Backfills, then incrementally updates, data/listening-timeseries.json —
+# the weekly per-artist playcount data the SELF insight engine reasons
+# over. Runs weekly: a single run only processes up to ~180 new weeks
+# (see MAX_WEEKS_PER_RUN in the script), so a long-history account may
+# need a few runs before backfillComplete becomes true in the output —
+# that's expected and safe, each run just continues where the last left off.
+#
+# Uses the SAME Last.fm credentials as fetch-identity.yml. If that
+# workflow's secret names differ from LASTFM_API_KEY / LASTFM_USERNAME
+# below, update these to match rather than adding a second set of secrets.
+
+on:
+  schedule:
+    - cron: "30 4 * * 1"   # weekly, Monday
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  history:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: node scripts/fetch-listening-history.mjs
+        env:
+          LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
+          LASTFM_USERNAME: ${{ secrets.LASTFM_USERNAME }}
+
+      - name: Commit listening history
+        run: |
+          git config user.name "listening-mirror-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/listening-timeseries.json
+          git diff --cached --quiet && echo "No changes" || git commit -m "chore: update listening history"
+          git push
