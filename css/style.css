@@ -1503,3 +1503,43 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
   margin-left: 3px;
   vertical-align: super;
 }
+/* ==========================================================================
+   INSIGHTS — SELF as an insight engine, not a stats page.
+   No cards, no bars, no percentages. Each insight is a quiet editorial
+   passage, hairline-separated like everything else in this app, with a
+   restrained fade-and-rise entrance. Ember appears only as a "when" —
+   a moment in time — never as decoration.
+   ========================================================================== */
+
+.insight-list { margin-top: 6px; }
+
+.insight-entry {
+  padding: 26px 0;
+  border-top: 1px solid var(--hair-soft);
+  opacity: 0;
+  animation: insightIn 0.7s var(--ease) both;
+}
+.insight-entry:first-child { border-top: none; padding-top: 4px; }
+
+@keyframes insightIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.insight-sentence {
+  margin-top: 8px;
+  font-size: 22px;
+  line-height: 1.35;
+}
+
+.insight-when {
+  margin-top: 12px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ember);
+  opacity: 0.75;
+}
+
+.insight-empty { padding: 18px 0 6px; }
