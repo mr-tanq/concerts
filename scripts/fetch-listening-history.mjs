@@ -24,7 +24,7 @@ const ROOT = path.resolve(new URL(".", import.meta.url).pathname, "..");
 const OUT = path.join(ROOT, "data/listening-timeseries.json");
 
 const API_KEY = process.env.LASTFM_API_KEY;
-const USERNAME = process.env.LASTFM_USERNAME;
+const USERNAME = process.env.LASTFM_USER;
 const BASE = "https://ws.audioscrobbler.com/2.0/";
 
 const MIN_GAP_MS = 260;        // stays comfortably under Last.fm's ~5 req/sec guidance
@@ -104,7 +104,7 @@ async function loadJson(rel, fallback) {
 
 async function main() {
   if (!API_KEY || !USERNAME) {
-    console.error("Missing LASTFM_API_KEY or LASTFM_USERNAME environment variable.");
+    console.error("Missing LASTFM_API_KEY or LASTFM_USER environment variable.");
     process.exit(1);
   }
 
