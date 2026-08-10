@@ -7,9 +7,8 @@ name: Fetch listening history
 # need a few runs before backfillComplete becomes true in the output —
 # that's expected and safe, each run just continues where the last left off.
 #
-# Uses the SAME Last.fm credentials as fetch-identity.yml. If that
-# workflow's secret names differ from LASTFM_API_KEY / LASTFM_USERNAME
-# below, update these to match rather than adding a second set of secrets.
+# Uses the SAME Last.fm credentials as fetch-identity.yml
+# (LASTFM_API_KEY, LASTFM_USER) — no separate secrets needed.
 
 on:
   schedule:
@@ -32,7 +31,7 @@ jobs:
       - run: node scripts/fetch-listening-history.mjs
         env:
           LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
-          LASTFM_USERNAME: ${{ secrets.LASTFM_USERNAME }}
+          LASTFM_USER: ${{ secrets.LASTFM_USER }}
 
       - name: Commit listening history
         run: |
