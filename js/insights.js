@@ -23,6 +23,21 @@ function normalizeKey(name) {
   return (name || "").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim();
 }
 
+// Last.fm and the Archive don't always agree on how much of a stage name
+// to use — Last.fm's own artist database has "Gonzales" for the person
+// this app's Archive correctly knows as "Chilly Gonzales". An exact key
+// match misses this entirely. A plain substring check would be too loose
+// (it would happily match "Muse" inside "Museum"), so this only accepts a
+// match where the shorter name is a whole word, or whole leading/trailing
+// word-sequence, of the longer one.
+function keysLikelyMatch(a, b) {
+  if (a === b) return true;
+  if (!a || !b) return false;
+  const shorter = a.length <= b.length ? a : b;
+  const longer = a.length <= b.length ? b : a;
+  return longer.startsWith(shorter + " ") || longer.endsWith(" " + shorter);
+}
+
 const SMALL_WORDS = ["zero","one","two","three","four","five","six","seven","eight","nine","ten",
   "eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen","twenty"];
 function spellSmall(n) { return SMALL_WORDS[n] || String(n); }
@@ -163,7 +178,7 @@ function detectPostConcertSurge(artistName, series, concertDate) {
   // recently reads as a brand-new discovery, which is the wrong story;
   // that shape belongs to detectConcertRevival instead.
   const totalBeforeEver = playsInWindow(series, series[0]?.weekStart || "0000-01-01", concertDate);
-const after = playsInWindow(series, concertDate, addDays(concertDate, 30));
+  const after = playsInWindow(series, concertDate, addDays(concertDate, 30));
   if (totalBeforeEver > 5 || after < 10) return null;
 
   return {
@@ -244,12 +259,48 @@ function whenHintFor(c) {
 
 // ---------- selection ----------
 
+// Last.fm's own chart data carries whatever spelling was scrobbled, which
+// can drift from the correctly-accented name already curated in the
+// Archive (e.g. "Mum" vs "múm"). The Archive is treated as the source of
+// truth for display names wherever the two overlap.
+function buildCanonicalNameIndex(archiveConcerts) {
+  const index = new Map();
+  for (const c of archiveConcerts || []) {
+    for (const n of actuallySeenArtistsOf(c)) {
+      const key = normalizeKey(n);
+      if (!index.has(key)) index.set(key, n);
+    }
+  }
+  return index;
+}
+
+// Fuzzy fallback for finding this artist's Last.fm entry when the exact
+// normalized key isn't present — same word-boundary rule as keysLikelyMatch.
+function findArtistEntry(artists, rawName) {
+  const key = normalizeKey(rawName);
+  if (artists[key]) return artists[key];
+  for (const entryKey of Object.keys(artists)) {
+    if (keysLikelyMatch(key, entryKey)) return artists[entryKey];
+  }
+  return null;
+}
+
+function canonicalNameFor(canonicalNames, rawName) {
+  const key = normalizeKey(rawName);
+  if (canonicalNames.has(key)) return canonicalNames.get(key);
+  for (const [indexKey, name] of canonicalNames.entries()) {
+    if (keysLikelyMatch(key, indexKey)) return name;
+  }
+  return rawName;
+}
+
 export function computeInsights(timeseries, archiveConcerts, options = {}) {
   const maxInsights = options.maxInsights ?? 6;
   const weekStarts = timeseries?.meta?.weekStarts || [];
   if (!weekStarts.length) return [];
 
   const artists = timeseries.artists || {};
+  const canonicalNames = buildCanonicalNameIndex(archiveConcerts);
   const candidates = [];
 
   // Concert-aware candidates go first: when a listening pattern can be
@@ -262,35 +313,47 @@ export function computeInsights(timeseries, archiveConcerts, options = {}) {
   for (const concert of archiveConcerts || []) {
     if (!concert.date) continue;
     for (const name of actuallySeenArtistsOf(concert)) {
-      const entry = artists[normalizeKey(name)];
+      const entry = findArtistEntry(artists, name);
       if (!entry) continue;
       const series = fullSeriesFor(entry, weekStarts);
-      const surge = detectPostConcertSurge(entry.name, series, concert.date);
-      if (surge) { candidates.push(surge); explainedByConcert.add(normalizeKey(entry.name)); }
-      const revival = detectConcertRevival(entry.name, series, concert.date);
-      if (revival) { candidates.push(revival); explainedByConcert.add(normalizeKey(entry.name)); }
+      // 'name' here is already the Archive's own spelling — the most
+      // authoritative one available, no lookup needed.
+      const surge = detectPostConcertSurge(name, series, concert.date);
+      if (surge) { candidates.push(surge); explainedByConcert.add(normalizeKey(name)); }
+      const revival = detectConcertRevival(name, series, concert.date);
+      if (revival) { candidates.push(revival); explainedByConcert.add(normalizeKey(name)); }
     }
   }
 
   for (const entry of Object.values(artists)) {
     const series = fullSeriesFor(entry, weekStarts);
-    const stayed = detectStayed(entry.name, series);
+    const displayName = canonicalNameFor(canonicalNames, entry.name);
+    const stayed = detectStayed(displayName, series);
     if (stayed) candidates.push(stayed);
     if (!explainedByConcert.has(normalizeKey(entry.name))) {
-      const comeback = detectComebacks(entry.name, series);
+      const comeback = detectComebacks(displayName, series);
       if (comeback) candidates.push(comeback);
-      const obsession = detectObsessions(entry.name, series);
+      const obsession = detectObsessions(displayName, series);
       if (obsession) candidates.push(obsession);
     }
   }
 
   candidates.sort((a, b) => b.score - a.score);
+  // Capped per type — 'stayed' has a structural scoring advantage on any
+  // long-running account (many artists naturally clear 5+ years), so
+  // without this the strongest 6 could all be the same kind of sentence.
+  // Better to show fewer, more varied insights than six near-duplicates.
+  const MAX_PER_TYPE = 2;
   const seenArtists = new Set();
+  const typeCounts = new Map();
   const selected = [];
   for (const c of candidates) {
     const key = normalizeKey(c.artistName);
     if (seenArtists.has(key)) continue;
+    const typeCount = typeCounts.get(c.type) || 0;
+    if (typeCount >= MAX_PER_TYPE) continue;
     seenArtists.add(key);
+    typeCounts.set(c.type, typeCount + 1);
     selected.push(c);
     if (selected.length >= maxInsights) break;
   }
