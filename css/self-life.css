@@ -1,0 +1,159 @@
+/* ==========================================================================
+   SELF — the listening life.
+   Time as the visual object, the way geography belongs to Realm and
+   concerts belong to Archive. Soft flowing strands, not a bar chart —
+   thickness and brightness carry activity, never a hard-edged shape.
+   ========================================================================== */
+
+.hero-footnote {
+  margin-top: 18px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--bone-faint);
+}
+
+.life-wrap {
+  padding: 22px var(--gutter) 6px;
+  position: relative;
+}
+
+.life-axis {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--bone-faint);
+  margin-bottom: 22px;
+}
+.life-axis-line {
+  flex: 1;
+  height: 1px;
+  background: var(--hair);
+}
+
+.life-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.life-rows.is-focused .life-row:not(.is-active) {
+  opacity: 0.32;
+  transition: opacity 0.45s var(--ease);
+}
+
+.life-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 7px 0;
+  cursor: pointer;
+  opacity: 0;
+  animation: lifeRowIn 0.6s var(--ease) both;
+}
+@keyframes lifeRowIn {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.life-row-label {
+  flex: 0 0 90px;
+  font-family: var(--serif);
+  font-size: 13px;
+  color: var(--bone-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 0.3s var(--ease);
+}
+.life-row.is-active .life-row-label { color: var(--bone); }
+
+.life-strand {
+  flex: 1;
+  width: 100%;
+  height: 24px;
+  display: block;
+}
+.strand-live { fill: var(--ember); opacity: 0.9; }
+
+.life-panel {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--hair-soft);
+  min-height: 70px;
+}
+.life-panel-inner {
+  opacity: 0;
+  animation: lifeRowIn 0.4s var(--ease) both;
+}
+.life-panel-name {
+  font-family: var(--serif);
+  font-size: 28px;
+  color: var(--bone);
+}
+.life-panel-stat {
+  margin-top: 6px;
+  font-size: 15px;
+  color: var(--bone-dim);
+}
+.life-panel-live { color: var(--ember); }
+.life-panel-view { margin-top: 16px; display: block; }
+
+.life-rail {
+  position: relative;
+  height: 22px;
+  margin-top: 10px;
+  touch-action: pan-y;
+}
+.life-rail-cursor {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--ember);
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+.life-rail-year {
+  position: absolute;
+  top: -18px;
+  transform: translateX(-50%);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--ember);
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.life-empty { padding: 20px 0 6px; }
+
+/* ---- the 3 editorial moments ---- */
+
+.moment-block {
+  padding: 30px 0;
+  border-top: 1px solid var(--hair-soft);
+  opacity: 0;
+  animation: insightIn 0.7s var(--ease) both;
+}
+.moment-block:first-child { border-top: none; }
+.moment-name {
+  margin-top: 8px;
+  font-family: var(--serif);
+  font-size: 30px;
+  color: var(--bone);
+}
+.moment-line {
+  margin-top: 6px;
+  font-size: 18px;
+  color: var(--bone-dim);
+  line-height: 1.4;
+}
+.moment-view { margin-top: 16px; display: block; }
+
+.explore-more { display: block; margin-top: 14px; }
