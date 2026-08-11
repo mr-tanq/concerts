@@ -312,7 +312,7 @@ function openArtistSheet(artistName) {
     liveShows.forEach((c) => {
       liveList.appendChild(el(`
         <div class="recent-row">
-          <div class="recent-when">${fullDate(c.date).split(" ").slice(0, 2).join(" ")}</div>
+          <div class="recent-when">${shortDateWithYear(c.date)}</div>
           <div class="recent-body"><b>${esc(c.festivalName || c.venue)}</b><br><span>${esc(c.venue)}${c.city ? `, ${esc(c.city)}` : ""}</span></div>
         </div>
       `));
