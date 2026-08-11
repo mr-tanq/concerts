@@ -16,10 +16,15 @@
 //                      non-redundant handful
 //   editorial       -> labelFor() / templateFor()
 //   presentation    -> renderInsights()
+//
+// Note: computeInsights()/renderInsights() (the flat list) are no longer
+// wired into SELF's default page — self-timeline.js's 3 editorial moments
+// replaced that role — but everything here stays exported and working,
+// since the detectors themselves are exactly what self-timeline.js reuses.
 
 import { actuallySeenArtistsOf } from "./archive-stats.js";
 
-function normalizeKey(name) {
+export function normalizeKey(name) {
   return (name || "").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim();
 }
 
@@ -30,7 +35,7 @@ function normalizeKey(name) {
 // (it would happily match "Muse" inside "Museum"), so this only accepts a
 // match where the shorter name is a whole word, or whole leading/trailing
 // word-sequence, of the longer one.
-function keysLikelyMatch(a, b) {
+export function keysLikelyMatch(a, b) {
   if (a === b) return true;
   if (!a || !b) return false;
   const shorter = a.length <= b.length ? a : b;
@@ -40,18 +45,18 @@ function keysLikelyMatch(a, b) {
 
 const SMALL_WORDS = ["zero","one","two","three","four","five","six","seven","eight","nine","ten",
   "eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen","twenty"];
-function spellSmall(n) { return SMALL_WORDS[n] || String(n); }
+export function spellSmall(n) { return SMALL_WORDS[n] || String(n); }
 
-function humanizeWeeks(weeks) {
+export function humanizeWeeks(weeks) {
   if (weeks < 8) return `${spellSmall(weeks)} week${weeks === 1 ? "" : "s"}`;
   const months = Math.round(weeks / 4.345);
   if (months < 20) return `${spellSmall(months)} month${months === 1 ? "" : "s"}`;
   const years = Math.round(weeks / 52.18);
   return `${spellSmall(years)} year${years === 1 ? "" : "s"}`;
 }
-function humanizeDays(days) { return humanizeWeeks(Math.round(days / 7)); }
+export function humanizeDays(days) { return humanizeWeeks(Math.round(days / 7)); }
 
-function monthYear(iso) {
+export function monthYear(iso) {
   const d = new Date(iso + "T00:00:00Z");
   return d.toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
 }
@@ -66,7 +71,7 @@ function addDays(iso, days) {
 // The shape every detector actually works with: one artist's plays across
 // EVERY known week in the dataset, zero-filled where they had none — so a
 // gap is a real, countable silence, not just an absence of a key.
-function fullSeriesFor(artistEntry, weekStarts) {
+export function fullSeriesFor(artistEntry, weekStarts) {
   const weeksMap = artistEntry?.weeks || {};
   return weekStarts.map((weekStart) => ({ weekStart, playcount: weeksMap[weekStart] || 0 }));
 }
@@ -84,7 +89,7 @@ function playsInWindow(series, startIso, endIso) {
 // surface a handful of genuinely notable things, not flag everything that
 // technically qualifies.
 
-function detectStayed(artistName, series) {
+export function detectStayed(artistName, series) {
   const activeYears = new Set();
   for (const { weekStart, playcount } of series) {
     if (playcount > 0) activeYears.add(weekStart.slice(0, 4));
@@ -104,7 +109,7 @@ function detectStayed(artistName, series) {
   };
 }
 
-function detectComebacks(artistName, series) {
+export function detectComebacks(artistName, series) {
   const MIN_GAP_WEEKS = 26;
   const MIN_RETURN_PLAYS = 5;
   const RETURN_WINDOW = 8;
@@ -140,7 +145,7 @@ function detectComebacks(artistName, series) {
   };
 }
 
-function detectObsessions(artistName, series) {
+export function detectObsessions(artistName, series) {
   const totalPlays = series.reduce((s, w) => s + w.playcount, 0);
   if (totalPlays < 15) return null;
 
@@ -172,7 +177,7 @@ function detectObsessions(artistName, series) {
 // Last.fm profile page could ever tell you, because it doesn't know you
 // stood in a room for this artist on a specific night.
 
-function detectPostConcertSurge(artistName, series, concertDate) {
+export function detectPostConcertSurge(artistName, series, concertDate) {
   // "Barely listened before" has to mean the whole history, not just the
   // last two months — otherwise a longtime fan who'd simply gone quiet
   // recently reads as a brand-new discovery, which is the wrong story;
@@ -191,7 +196,7 @@ function detectPostConcertSurge(artistName, series, concertDate) {
   };
 }
 
-function detectConcertRevival(artistName, series, concertDate) {
+export function detectConcertRevival(artistName, series, concertDate) {
   const dormantStart = addDays(concertDate, -730);
   const dormantWindow = playsInWindow(series, dormantStart, addDays(concertDate, -60));
   const priorActivity = series.some((w) => w.weekStart < dormantStart && w.playcount > 0);
@@ -219,7 +224,7 @@ function detectConcertRevival(artistName, series, concertDate) {
 
 // ---------- editorial ----------
 
-function labelFor(type) {
+export function labelFor(type) {
   return {
     stayed: "The ones that stayed",
     comeback: "The comeback",
@@ -229,7 +234,7 @@ function labelFor(type) {
   }[type] || "";
 }
 
-function templateFor(c) {
+export function templateFor(c) {
   switch (c.type) {
     case "stayed":
       return `${c.artistName} has appeared in your listening across ${spellSmall(c.yearSpan)} different years — ${c.firstYear} to ${c.lastYear}.`;
@@ -246,7 +251,7 @@ function templateFor(c) {
   }
 }
 
-function whenHintFor(c) {
+export function whenHintFor(c) {
   switch (c.type) {
     case "stayed": return null;
     case "comeback": return monthYear(c.returnWeekStart);
@@ -263,7 +268,7 @@ function whenHintFor(c) {
 // can drift from the correctly-accented name already curated in the
 // Archive (e.g. "Mum" vs "múm"). The Archive is treated as the source of
 // truth for display names wherever the two overlap.
-function buildCanonicalNameIndex(archiveConcerts) {
+export function buildCanonicalNameIndex(archiveConcerts) {
   const index = new Map();
   for (const c of archiveConcerts || []) {
     for (const n of actuallySeenArtistsOf(c)) {
@@ -276,7 +281,7 @@ function buildCanonicalNameIndex(archiveConcerts) {
 
 // Fuzzy fallback for finding this artist's Last.fm entry when the exact
 // normalized key isn't present — same word-boundary rule as keysLikelyMatch.
-function findArtistEntry(artists, rawName) {
+export function findArtistEntry(artists, rawName) {
   const key = normalizeKey(rawName);
   if (artists[key]) return artists[key];
   for (const entryKey of Object.keys(artists)) {
@@ -285,7 +290,7 @@ function findArtistEntry(artists, rawName) {
   return null;
 }
 
-function canonicalNameFor(canonicalNames, rawName) {
+export function canonicalNameFor(canonicalNames, rawName) {
   const key = normalizeKey(rawName);
   if (canonicalNames.has(key)) return canonicalNames.get(key);
   for (const [indexKey, name] of canonicalNames.entries()) {
