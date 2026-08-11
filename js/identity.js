@@ -72,7 +72,13 @@ function keysLikelyMatch(a, b) {
   return longer.startsWith(shorter + " ") || longer.endsWith(" " + shorter);
 }
 
-export function renderIdentity(root, data) {
+// ---------- HERO ----------
+//
+// Headline numbers as a sentence, same voice as Archive's opening
+// statement. Deliberately stops here — no ranked list immediately after;
+// the listening-life visualization needs its own breathing room before
+// any list appears.
+export function renderHero(root, data) {
   const { el, esc } = renderDeps;
   currentData = data;
   root.innerHTML = "";
@@ -85,87 +91,77 @@ export function renderIdentity(root, data) {
         <p class="footnote">Still gathering — this fills in after the identity job first runs.</p>
       </div>
     `));
-    return;
+    return false;
   }
 
-  root.appendChild(openingStatement(data));
-  root.appendChild(el(`<div id="identity-artists-root"></div>`));
-
-  if (data.topTracks?.length) {
-    root.appendChild(el(`<div class="section-heading">Songs you keep coming back to</div>`));
-    const list = el(`<div></div>`);
-    const status = el(`<p class="status" id="top-tracks-status"></p>`);
-    data.topTracks.slice(0, 10).forEach((t, i) => {
-      const row = rankRow(i + 1, t.name, t.artist, t.playcount, false);
-      row.classList.add("is-tappable");
-      row.addEventListener("click", () => playViaSpotify(t.name, t.artist, status));
-      list.appendChild(row);
-    });
-    root.appendChild(list);
-    root.appendChild(status);
-  }
-
-  if (data.topAlbums?.length) {
-    root.appendChild(el(`<div class="section-heading">Albums</div>`));
-    const gallery = el(`<div class="album-gallery"></div>`);
-    data.topAlbums.slice(0, 10).forEach((a) => gallery.appendChild(albumCard(a)));
-    root.appendChild(gallery);
-  }
-
-  if (data.recentTracks?.length) {
-    root.appendChild(el(`<div class="section-heading">Recently played</div>`));
-    const list = el(`<div></div>`);
-    data.recentTracks.slice(0, 10).forEach((t) => {
-      const row = el(`
-        <div class="recent-row">
-          <div class="recent-when">${esc(timeAgo(t.playedAt))}</div>
-          <div class="recent-body"><b>${esc(t.name)}</b><br><span>${esc(t.artist)}</span></div>
-        </div>
-      `);
-      list.appendChild(row);
-    });
-    root.appendChild(list);
-  }
-
-  if (data.profile?.url) {
-    root.appendChild(el(`
-      <div class="act-row">
-        <button class="plain-act" id="identity-lastfm-link">View on Last.fm</button>
-      </div>
-    `));
-    root.querySelector("#identity-lastfm-link").addEventListener("click", () => window.open(data.profile.url, "_blank"));
-  }
-
-  renderArtists(data);
-}
-
-// The headline numbers as a sentence, same voice as Archive's opening
-// statement — this is the same kind of thing (a life, summarized), just
-// measured in scrobbles instead of nights.
-function openingStatement(data) {
-  const { el, esc } = renderDeps;
   const { totalScrobbles, registeredAt } = data.profile;
   const sinceYear = registeredAt ? new Date(registeredAt).getFullYear() : null;
+  const nowYear = new Date().getFullYear();
+  const span = sinceYear ? nowYear - sinceYear : null;
   const lately = data.topArtistsMonth?.[0]?.name || data.topArtistsOverall?.[0]?.name || null;
 
-  return el(`
+  root.appendChild(el(`
     <div class="opening">
       <p class="whisper">Self</p>
       <p class="lede">
         ${withCommas(totalScrobbles)} scrobbles${sinceYear ? ` since ${sinceYear}` : ""}.<br>
         ${lately ? `<em>Lately, you keep returning to ${esc(lately)}.</em>` : ""}
       </p>
+      ${span >= 2 ? `<p class="hero-footnote">${titleCaseSmall(spellSmallLong(span))} years of arrivals, disappearances and returns.</p>` : ""}
     </div>
-  `);
+  `));
+  return true;
 }
 
-function renderArtists(data) {
+const SMALL_WORDS_LONG = ["zero","one","two","three","four","five","six","seven","eight","nine","ten",
+  "eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen","twenty",
+  "twenty-one","twenty-two","twenty-three","twenty-four","twenty-five","twenty-six","twenty-seven",
+  "twenty-eight","twenty-nine","thirty"];
+function spellSmallLong(n) { return SMALL_WORDS_LONG[n] || String(n); }
+function titleCaseSmall(s) { return s ? s[0].toUpperCase() + s.slice(1) : s; }
+
+// ---------- EXPLORE (Artists / Songs / Albums) ----------
+//
+// Conventional rankings, deliberately placed AFTER the listening-life
+// visualization and the 3 editorial moments — this is where SELF admits
+// to also being a little bit of a stats page, but only once it's already
+// told the more interesting story first.
+
+let exploreTab = "artists";
+let exploreArtistsShowAll = false;
+
+export function renderExplore(root, data) {
   const { el } = renderDeps;
-  const host = document.getElementById("identity-artists-root");
-  if (!host) return;
+  root.innerHTML = "";
+  root.appendChild(el(`<div class="section-heading">Explore your listening</div>`));
+
+  const tabBar = el(`
+    <div class="identity-modes">
+      <div class="explore-modes">
+        <button class="explore-mode ${exploreTab === "artists" ? "on" : ""}" data-t="artists">Artists</button>
+        <button class="explore-mode ${exploreTab === "songs" ? "on" : ""}" data-t="songs">Songs</button>
+        <button class="explore-mode ${exploreTab === "albums" ? "on" : ""}" data-t="albums">Albums</button>
+      </div>
+    </div>
+  `);
+  tabBar.querySelectorAll("button").forEach((b) => {
+    b.addEventListener("click", () => { exploreTab = b.dataset.t; renderExplore(root, data); });
+  });
+  root.appendChild(tabBar);
+
+  const body = el(`<div></div>`);
+  root.appendChild(body);
+
+  if (exploreTab === "artists") renderExploreArtists(body, data);
+  else if (exploreTab === "songs") renderExploreSongs(body, data);
+  else renderExploreAlbums(body, data);
+}
+
+function renderExploreArtists(host, data) {
+  const { el } = renderDeps;
   host.innerHTML = "";
 
-  const bar = el(`
+  const modeBar = el(`
     <div class="identity-modes">
       <div class="explore-modes">
         <button class="explore-mode ${mode === "overall" ? "on" : ""}" data-m="overall">All time</button>
@@ -173,24 +169,99 @@ function renderArtists(data) {
       </div>
     </div>
   `);
-  bar.querySelectorAll("button").forEach((b) => {
-    b.addEventListener("click", () => { mode = b.dataset.m; renderArtists(data); });
+  modeBar.querySelectorAll("button").forEach((b) => {
+    b.addEventListener("click", () => { mode = b.dataset.m; exploreArtistsShowAll = false; renderExploreArtists(host, data); });
   });
-  host.appendChild(bar);
+  host.appendChild(modeBar);
 
   const list = el(`<div></div>`);
   const artists = mode === "month" ? data.topArtistsMonth : data.topArtistsOverall;
   if (!artists?.length) {
     list.appendChild(el(`<p class="void">${mode === "month" ? "Nothing tracked yet this month." : "Nothing tracked yet."}</p>`));
   } else {
-    artists.forEach((a, i) => {
+    const shown = exploreArtistsShowAll ? artists : artists.slice(0, 10);
+    shown.forEach((a, i) => {
       const row = rankRow(i + 1, a.name, null, a.playcount, photoFor(a.name));
       row.classList.add("is-tappable");
       row.addEventListener("click", () => openArtistSheet(a.name));
       list.appendChild(row);
     });
+    if (!exploreArtistsShowAll && artists.length > 10) {
+      const more = el(`<button class="plain-act explore-more">Show more ↓</button>`);
+      more.addEventListener("click", () => { exploreArtistsShowAll = true; renderExploreArtists(host, data); });
+      list.appendChild(more);
+    }
   }
   host.appendChild(list);
+}
+
+function renderExploreSongs(host, data) {
+  const { el } = renderDeps;
+  host.innerHTML = "";
+  if (!data.topTracks?.length) {
+    host.appendChild(el(`<p class="void">Nothing tracked yet.</p>`));
+    return;
+  }
+  const list = el(`<div></div>`);
+  const status = el(`<p class="status" id="top-tracks-status"></p>`);
+  data.topTracks.slice(0, 10).forEach((t, i) => {
+    const row = rankRow(i + 1, t.name, t.artist, t.playcount, false);
+    row.classList.add("is-tappable");
+    row.addEventListener("click", () => playViaSpotify(t.name, t.artist, status));
+    list.appendChild(row);
+  });
+  host.appendChild(list);
+  host.appendChild(status);
+}
+
+function renderExploreAlbums(host, data) {
+  const { el } = renderDeps;
+  host.innerHTML = "";
+  if (!data.topAlbums?.length) {
+    host.appendChild(el(`<p class="void">Nothing tracked yet.</p>`));
+    return;
+  }
+  const gallery = el(`<div class="album-gallery"></div>`);
+  data.topAlbums.slice(0, 10).forEach((a) => gallery.appendChild(albumCard(a)));
+  host.appendChild(gallery);
+}
+
+// ---------- RIGHT NOW ----------
+//
+// Deliberately small — recent listening already lives conceptually in
+// Mirror. SELF is about identity over years, not the last few hours.
+
+let rightNowExpanded = false;
+
+export function renderRightNow(root, data) {
+  const { el, esc } = renderDeps;
+  root.innerHTML = "";
+  if (!data.recentTracks?.length) return;
+
+  root.appendChild(el(`<div class="section-heading">Right now</div>`));
+  const list = el(`<div></div>`);
+  const count = rightNowExpanded ? 10 : Math.min(5, data.recentTracks.length);
+  data.recentTracks.slice(0, count).forEach((t) => {
+    list.appendChild(el(`
+      <div class="recent-row">
+        <div class="recent-when">${esc(timeAgo(t.playedAt))}</div>
+        <div class="recent-body"><b>${esc(t.name)}</b><br><span>${esc(t.artist)}</span></div>
+      </div>
+    `));
+  });
+  root.appendChild(list);
+
+  if (!rightNowExpanded && data.recentTracks.length > count) {
+    const more = el(`<button class="plain-act">Show recent →</button>`);
+    more.addEventListener("click", () => { rightNowExpanded = true; renderRightNow(root, data); });
+    root.appendChild(more);
+  }
+
+  if (data.profile?.url) {
+    const link = el(`<div class="act-row"><button class="plain-act" id="identity-lastfm-link">View on Last.fm</button></div>`);
+    link.querySelector("button").addEventListener("click", () => window.open(data.profile.url, "_blank"));
+    root.appendChild(link);
+  }
 }
 
 function albumCard(a) {
@@ -264,7 +335,7 @@ function portraitStatement(overallCount, monthCount, liveCount) {
 const SMALL_WORDS = ["zero","one","two","three","four","five","six","seven","eight","nine","ten"];
 function spellSmall(n) { return SMALL_WORDS[n] || String(n); }
 
-function openArtistSheet(artistName) {
+export function openArtistSheet(artistName) {
   const { el, esc } = renderDeps;
   const root = document.getElementById("settings-modal-root");
   const photo = photoFor(artistName);
