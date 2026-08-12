@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-08-12T20:38:46.698Z",
+    "lastUpdated": "2026-08-12T20:38:49.739Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
@@ -16,6 +16,42 @@
     }
   },
   "concerts": [
+    {
+      "id": "rec-podiuminfo-484781",
+      "source": "podiuminfo",
+      "sourceId": "484781",
+      "artist": "Ólafur Arnalds",
+      "lineup": [
+        "Ólafur Arnalds"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Ólafur Arnalds"
+      ],
+      "date": "2027-05-10",
+      "time": null,
+      "venue": "TivoliVredenburg",
+      "city": "Utrecht",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/37696/100___lafur_Arnalds_6.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/139700/cd/Olafur-Arnalds/TivoliVredenburg/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/484781/Olafur-Arnalds-Falling-Apart-Together/TivoliVredenburg/",
+      "match": {
+        "score": 56,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Ólafur Arnalds",
+        "matchedArtists": [
+          "Ólafur Arnalds"
+        ]
+      },
+      "discoveredAt": "2026-08-10T20:02:13.784Z",
+      "lastSeenAt": "2026-08-10T20:02:13.784Z"
+    },
     {
       "id": "rec-podiuminfo-467043",
       "source": "podiuminfo",
