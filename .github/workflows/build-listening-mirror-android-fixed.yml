@@ -14,20 +14,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Restore Android companion project
+      - name: Restore and patch Android companion project
         shell: bash
         run: |
           set -euo pipefail
 
-          OLD_WORKFLOW=".github/workflows/build-listening-mirror-android.yml"
+          ORIGINAL_WORKFLOW=".github/workflows/build-listening-mirror-android.yml"
 
-          if [ ! -f "$OLD_WORKFLOW" ]; then
-            echo "Original workflow not found: $OLD_WORKFLOW"
+          if [ ! -f "$ORIGINAL_WORKFLOW" ]; then
+            echo "Original workflow not found: $ORIGINAL_WORKFLOW"
             exit 1
           fi
 
-          # Extract the embedded base64 payload from the original workflow.
-          sed -n "/<<'PAYLOAD'/,/^[[:space:]]*PAYLOAD[[:space:]]*$/p" "$OLD_WORKFLOW" \
+          echo "Extracting embedded Android project..."
+
+          sed -n "/<<'PAYLOAD'/,/^[[:space:]]*PAYLOAD[[:space:]]*$/p" \
+            "$ORIGINAL_WORKFLOW" \
             | sed '1d;$d;s/^[[:space:]]*//' \
             > /tmp/listening-mirror-android.tar.gz.b64
 
@@ -40,27 +42,113 @@ jobs:
             /tmp/listening-mirror-android.tar.gz.b64 \
             > /tmp/listening-mirror-android.tar.gz
 
+          rm -rf "$GITHUB_WORKSPACE/source"
           mkdir -p "$GITHUB_WORKSPACE/source"
 
           tar -xzf \
             /tmp/listening-mirror-android.tar.gz \
             -C "$GITHUB_WORKSPACE/source"
 
-          test -f \
-            "$GITHUB_WORKSPACE/source/android-companion/settings.gradle.kts"
+          PROJECT="$GITHUB_WORKSPACE/source/android-companion"
 
-          MANIFEST="$GITHUB_WORKSPACE/source/android-companion/app/src/main/AndroidManifest.xml"
+          test -f "$PROJECT/settings.gradle.kts"
+
+          echo "Android project restored."
+
+          # ------------------------------------------------------------
+          # PATCH 1
+          # Fix invalid XML comment in AndroidManifest.xml.
+          #
+          # XML comments cannot contain "--".
+          # ------------------------------------------------------------
+
+          MANIFEST="$PROJECT/app/src/main/AndroidManifest.xml"
 
           test -f "$MANIFEST"
 
-          # Fix invalid XML comment.
-          # XML comments are not allowed to contain "--".
           sed -i \
             's/class -- the system binds it/class; the system binds it/g' \
             "$MANIFEST"
 
-          echo "Android project restored successfully."
-          echo "Manifest XML comment patched successfully."
+          echo "Manifest XML comment fixed."
+
+          # ------------------------------------------------------------
+          # PATCH 2
+          # LogicTests.kt accidentally contains the sessionId parameter
+          # twice in the snapshot() helper.
+          #
+          # Keep exactly one declaration.
+          # ------------------------------------------------------------
+
+          TEST_FILE="$PROJECT/app/src/test/java/com/listeningmirror/companion/logic/LogicTests.kt"
+
+          test -f "$TEST_FILE"
+
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          project = Path(os.environ["GITHUB_WORKSPACE"]) / "source" / "android-companion"
+
+          path = (
+              project
+              / "app"
+              / "src"
+              / "test"
+              / "java"
+              / "com"
+              / "listeningmirror"
+              / "companion"
+              / "logic"
+              / "LogicTests.kt"
+          )
+
+          text = path.read_text()
+
+          duplicate = (
+              '    sessionId: String = "session-of-$packageName",\n'
+              '    sessionId: String = "session-of-$packageName",\n'
+          )
+
+          replacement = (
+              '    sessionId: String = "session-of-$packageName",\n'
+          )
+
+          if duplicate not in text:
+              raise SystemExit(
+                  "Expected duplicate sessionId declaration was not found."
+              )
+
+          text = text.replace(
+              duplicate,
+              replacement,
+              1
+          )
+
+          path.write_text(text)
+
+          print("Duplicate sessionId declaration fixed.")
+          PY
+
+          echo
+          echo "Checking patched test helper:"
+          grep -n \
+            'sessionId: String = "session-of-\$packageName"' \
+            "$TEST_FILE"
+
+          COUNT="$(
+            grep -c \
+              'sessionId: String = "session-of-\$packageName"' \
+              "$TEST_FILE"
+          )"
+
+          if [ "$COUNT" -ne 1 ]; then
+            echo "Expected exactly one sessionId declaration; found $COUNT."
+            exit 1
+          fi
+
+          echo
+          echo "All source patches applied successfully."
 
       - name: Set up Java 17
         uses: actions/setup-java@v4
@@ -83,6 +171,19 @@ jobs:
       - name: Build debug APK
         working-directory: source/android-companion
         run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK exists
+        shell: bash
+        run: |
+          APK="source/android-companion/app/build/outputs/apk/debug/app-debug.apk"
+
+          if [ ! -f "$APK" ]; then
+            echo "APK was not produced."
+            exit 1
+          fi
+
+          echo "APK successfully built:"
+          ls -lh "$APK"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
