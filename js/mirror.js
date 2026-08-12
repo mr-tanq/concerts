@@ -152,7 +152,27 @@ function setupPrompt(root, stage) {
 // onState callback on its own schedule, and none of the code below needs
 // to change to accept it.
 
+// Resets everything Mirror's OWN rendering pipeline remembers about
+// "what was last shown" — deliberately separate from the provider's own
+// generation/session concept (provider restart and Mirror-view reset are
+// different lifecycles). Without this, leaving and returning to the
+// Mirror tab recreates the DOM but leaves currentIdentityKey pointing at
+// whatever track was last shown; if the provider's very first new state
+// still reports that SAME track, the "is this a new track" comparison
+// sees no change and never rebuilds the just-wiped DOM, leaving the
+// screen stuck on "Checking what's playing…" until the track changes.
+function resetMirrorSession() {
+  currentIdentityKey = null;
+  currentLyricLines = undefined;
+  syncedProgressMs = 0;
+  syncedAtMs = 0;
+  hasReliablePosition = false;
+  isPlayingNow = false;
+  missingPollStreak = 0;
+}
+
 function startPolling(body) {
+  resetMirrorSession();
   stopPolling();
   startSpotifyProvider({
     onState: (state) => handleListeningState(body, state),
@@ -231,6 +251,9 @@ let missingPollStreak = 0;
 
 async function handleListeningState(body, state) {
   const { el, esc } = renderDeps;
+  // Any successful state — even "nothing playing" — means the provider
+  // has recovered from whatever transient error was last shown, if any.
+  setPollStatus(body, null);
 
   if (!state) {
     if (currentIdentityKey && missingPollStreak < MAX_TOLERATED_MISSES) {
@@ -239,6 +262,10 @@ async function handleListeningState(body, state) {
     }
     missingPollStreak = 0;
     currentIdentityKey = null;
+    currentLyricLines = undefined;
+    hasReliablePosition = false;
+    isPlayingNow = false;
+    syncedProgressMs = 0;
     body.innerHTML = "";
     body.appendChild(el(`<p class="footnote">Nothing playing right now.</p>`));
     return;
@@ -304,7 +331,11 @@ async function handleListeningState(body, state) {
       // one and silently overwrite it with the wrong lyrics.
       if (requestKey !== currentIdentityKey) return;
       currentLyricLines = lines;
-      updateLyricLine(body, state.positionMs);
+      // The CURRENT playback anchor, not the position captured when this
+      // request started — the track's identity may still match, but the
+      // position itself can be seconds stale by now (a seek, a pause, or
+      // simply the normal passage of time while lrclib was still loading).
+      updateLyricLine(body, estimateProgressMs());
     });
   }
 
