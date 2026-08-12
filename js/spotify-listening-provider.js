@@ -30,6 +30,13 @@ const POLL_MS = 5000;
 
 let pollTimer = null;
 let activeCallbacks = null; // { onState, onError }
+// Bumped on every start/stop. Any in-flight request captures the
+// generation it belongs to; if that number no longer matches by the time
+// the request resolves, the provider has since been stopped and/or
+// restarted into a new session, and the result is discarded outright —
+// it must never reach a DIFFERENT session's callbacks.
+let generation = 0;
+let activeAbortController = null;
 
 async function spotifyFetch(path, options = {}) {
   const token = await getValidAccessToken();
@@ -51,11 +58,10 @@ async function spotifyFetch(path, options = {}) {
   return res;
 }
 
-// Pure — Spotify's raw JSON (plus the measured round-trip time) in,
-// either null ("nothing identifiable is playing") or a fully generic
-// CurrentListeningState out. No caller needs to know Spotify's response
-// shape ever again after this point.
-export function normalizeSpotifyState(json, roundTripMs = 0) {
+// Pure — Spotify's raw JSON in, either null ("nothing identifiable is
+// playing") or a fully generic CurrentListeningState out. No caller needs
+// to know Spotify's response shape ever again after this point.
+export function normalizeSpotifyState(json) {
   if (!json?.item) return null;
   const item = json.item;
   return {
@@ -67,12 +73,7 @@ export function normalizeSpotifyState(json, roundTripMs = 0) {
     artwork: item.album?.images?.[0]?.url ?? null,
     isPlaying: !!json.is_playing,
     durationMs: item.duration_ms ?? null,
-    // Spotify's progress_ms reflects where playback was WHEN THEIR SERVER
-    // processed the request, not when we finish receiving the response.
-    // On a slower connection that gap is exactly the "lyrics feel a beat
-    // behind" sensation — correcting for it here means every consumer of
-    // positionMs gets an already-compensated value, not just the lyric line.
-    positionMs: json.progress_ms != null ? json.progress_ms + roundTripMs : null,
+    positionMs: json.progress_ms ?? null,
     externalId: item.id ?? null,
     externalUrl: item.external_urls?.spotify ?? null,
     // Spotify is a first-party, authoritative source about the user's own
@@ -87,14 +88,12 @@ export function normalizeSpotifyState(json, roundTripMs = 0) {
   };
 }
 
-async function fetchSpotifyState() {
-  const requestStartedAt = performance.now();
-  const res = await spotifyFetch("/me/player/currently-playing");
+async function fetchSpotifyState(signal) {
+  const res = await spotifyFetch("/me/player/currently-playing", { signal });
   if (res.status === 204) return null;
   if (!res.ok) throw new Error(`Spotify HTTP ${res.status}`);
   const json = await res.json();
-  const roundTripMs = performance.now() - requestStartedAt;
-  return normalizeSpotifyState(json, roundTripMs);
+  return normalizeSpotifyState(json);
 }
 
 // Owns its own polling loop end to end — start/stop, visibility pausing,
@@ -102,16 +101,45 @@ async function fetchSpotifyState() {
 // no idea this is a 5-second interval under the hood.
 export function startSpotifyProvider({ onState, onError }) {
   stopSpotifyProvider();
+  generation++;
+  const myGeneration = generation;
   activeCallbacks = { onState, onError };
+
+  // Session-local — declared fresh inside this call, captured only by
+  // THIS session's tick closure. Previously this was a single
+  // module-level variable shared across every session: an old session's
+  // finally block would reset it to false even while a NEWER session's
+  // poll was still genuinely in flight (the generation guard protects
+  // callback delivery, but was never involved in this variable at all),
+  // which let a third poll start concurrently with the second. Being
+  // closure-local makes that interference structurally impossible — two
+  // different sessions simply aren't touching the same variable anymore.
+  let pollInFlight = false;
 
   const tick = async () => {
     if (document.hidden) return;
+    if (pollInFlight) return; // never allow two in-flight polls at once
+    pollInFlight = true;
+    const controller = new AbortController();
+    activeAbortController = controller;
     try {
-      const state = await fetchSpotifyState();
+      const state = await fetchSpotifyState(controller.signal);
+      // A stop/restart may have happened while this was in flight — if
+      // so, this result belongs to a session that no longer exists.
+      if (myGeneration !== generation) return;
       activeCallbacks?.onState(state);
     } catch (err) {
+      if (myGeneration !== generation) return;
+      if (err.name === "AbortError") return; // intentional cancellation, not a real failure
       console.warn("Spotify provider poll failed:", err.message);
       activeCallbacks?.onError(err);
+    } finally {
+      pollInFlight = false; // only ever this session's own flag
+      // Only clear the shared controller reference if it's still OURS —
+      // a newer session may have already replaced it with its own
+      // controller by the time this (older, possibly aborted) tick's
+      // finally runs, and that newer one must never be cleared here.
+      if (activeAbortController === controller) activeAbortController = null;
     }
   };
   tick();
@@ -129,6 +157,9 @@ function onVisibilityChange() {
 }
 
 export function stopSpotifyProvider() {
+  generation++; // invalidates any in-flight work from the current session
+  activeAbortController?.abort();
+  activeAbortController = null;
   if (pollTimer) clearInterval(pollTimer);
   pollTimer = null;
   activeCallbacks = null;
