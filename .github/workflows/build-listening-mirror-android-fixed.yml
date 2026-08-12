@@ -1,4 +1,4 @@
-name: Build Listening Mirror Android APK - Fixed
+name: Build Listening Mirror Android APK - Canonical
 
 on:
   workflow_dispatch:
@@ -14,141 +14,46 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Restore and patch Android companion project
+      - name: Restore canonical Android companion source
         shell: bash
         run: |
           set -euo pipefail
 
-          ORIGINAL_WORKFLOW=".github/workflows/build-listening-mirror-android.yml"
+          ARCHIVE="$GITHUB_WORKSPACE/listening-mirror-android-companion.tar.gz"
+          SOURCE_DIR="$GITHUB_WORKSPACE/source"
 
-          if [ ! -f "$ORIGINAL_WORKFLOW" ]; then
-            echo "Original workflow not found: $ORIGINAL_WORKFLOW"
+          if [ ! -f "$ARCHIVE" ]; then
+            echo "Canonical Android archive not found:"
+            echo "$ARCHIVE"
             exit 1
           fi
 
-          echo "Extracting embedded Android project..."
+          echo "Using canonical Android source:"
+          ls -lh "$ARCHIVE"
 
-          sed -n "/<<'PAYLOAD'/,/^[[:space:]]*PAYLOAD[[:space:]]*$/p" \
-            "$ORIGINAL_WORKFLOW" \
-            | sed '1d;$d;s/^[[:space:]]*//' \
-            > /tmp/listening-mirror-android.tar.gz.b64
+          rm -rf "$SOURCE_DIR"
+          mkdir -p "$SOURCE_DIR"
 
-          if [ ! -s /tmp/listening-mirror-android.tar.gz.b64 ]; then
-            echo "Failed to extract embedded Android project payload."
+          tar -xzf "$ARCHIVE" -C "$SOURCE_DIR"
+
+          PROJECT="$SOURCE_DIR/android-companion"
+
+          if [ ! -f "$PROJECT/settings.gradle.kts" ]; then
+            echo "Android project was not restored correctly."
             exit 1
           fi
 
-          base64 --decode \
-            /tmp/listening-mirror-android.tar.gz.b64 \
-            > /tmp/listening-mirror-android.tar.gz
+          if [ ! -f "$PROJECT/gradlew" ]; then
+            echo "Gradle wrapper is missing."
+            exit 1
+          fi
 
-          rm -rf "$GITHUB_WORKSPACE/source"
-          mkdir -p "$GITHUB_WORKSPACE/source"
-
-          tar -xzf \
-            /tmp/listening-mirror-android.tar.gz \
-            -C "$GITHUB_WORKSPACE/source"
-
-          PROJECT="$GITHUB_WORKSPACE/source/android-companion"
-
-          test -f "$PROJECT/settings.gradle.kts"
-
-          echo "Android project restored."
-
-          # ------------------------------------------------------------
-          # PATCH 1
-          # Fix invalid XML comment in AndroidManifest.xml.
-          #
-          # XML comments cannot contain "--".
-          # ------------------------------------------------------------
-
-          MANIFEST="$PROJECT/app/src/main/AndroidManifest.xml"
-
-          test -f "$MANIFEST"
-
-          sed -i \
-            's/class -- the system binds it/class; the system binds it/g' \
-            "$MANIFEST"
-
-          echo "Manifest XML comment fixed."
-
-          # ------------------------------------------------------------
-          # PATCH 2
-          # LogicTests.kt accidentally contains the sessionId parameter
-          # twice in the snapshot() helper.
-          #
-          # Keep exactly one declaration.
-          # ------------------------------------------------------------
-
-          TEST_FILE="$PROJECT/app/src/test/java/com/listeningmirror/companion/logic/LogicTests.kt"
-
-          test -f "$TEST_FILE"
-
-          python3 - <<'PY'
-          import os
-          from pathlib import Path
-
-          project = Path(os.environ["GITHUB_WORKSPACE"]) / "source" / "android-companion"
-
-          path = (
-              project
-              / "app"
-              / "src"
-              / "test"
-              / "java"
-              / "com"
-              / "listeningmirror"
-              / "companion"
-              / "logic"
-              / "LogicTests.kt"
-          )
-
-          text = path.read_text()
-
-          duplicate = (
-              '    sessionId: String = "session-of-$packageName",\n'
-              '    sessionId: String = "session-of-$packageName",\n'
-          )
-
-          replacement = (
-              '    sessionId: String = "session-of-$packageName",\n'
-          )
-
-          if duplicate not in text:
-              raise SystemExit(
-                  "Expected duplicate sessionId declaration was not found."
-              )
-
-          text = text.replace(
-              duplicate,
-              replacement,
-              1
-          )
-
-          path.write_text(text)
-
-          print("Duplicate sessionId declaration fixed.")
-          PY
+          chmod +x "$PROJECT/gradlew"
 
           echo
-          echo "Checking patched test helper:"
-          grep -n \
-            'sessionId: String = "session-of-\$packageName"' \
-            "$TEST_FILE"
-
-          COUNT="$(
-            grep -c \
-              'sessionId: String = "session-of-\$packageName"' \
-              "$TEST_FILE"
-          )"
-
-          if [ "$COUNT" -ne 1 ]; then
-            echo "Expected exactly one sessionId declaration; found $COUNT."
-            exit 1
-          fi
-
-          echo
-          echo "All source patches applied successfully."
+          echo "Canonical Android project restored successfully."
+          echo "Project root:"
+          echo "$PROJECT"
 
       - name: Set up Java 17
         uses: actions/setup-java@v4
@@ -156,34 +61,38 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Gradle 8.9
+      - name: Set up Gradle cache
         uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.9'
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
       - name: Run unit tests
         working-directory: source/android-companion
-        run: gradle --no-daemon :app:testDebugUnitTest
+        run: ./gradlew --no-daemon :app:testDebugUnitTest
 
       - name: Build debug APK
         working-directory: source/android-companion
-        run: gradle --no-daemon :app:assembleDebug
+        run: ./gradlew --no-daemon :app:assembleDebug
 
-      - name: Verify APK exists
+      - name: Verify APK
         shell: bash
         run: |
-          APK="source/android-companion/app/build/outputs/apk/debug/app-debug.apk"
+          APK="$GITHUB_WORKSPACE/source/android-companion/app/build/outputs/apk/debug/app-debug.apk"
 
           if [ ! -f "$APK" ]; then
             echo "APK was not produced."
             exit 1
           fi
 
-          echo "APK successfully built:"
+          echo
+          echo "========================================"
+          echo "LISTENING MIRROR APK BUILT SUCCESSFULLY"
+          echo "========================================"
+          echo
           ls -lh "$APK"
+
+          sha256sum "$APK"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
