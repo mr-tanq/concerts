@@ -1,82 +1,45 @@
 // mirror.js
 //
-// The "what's playing right now" tab. Polls Spotify while this tab is on
-// screen, shows the current lyric line in the app's existing editorial
-// voice (the same big serif used for archive statements elsewhere — a
-// lyric line IS that kind of sentence), and stays completely quiet the
-// rest of the time: no polling when the tab isn't visible, no network
-// calls at all until Spotify is actually connected.
+// The "what's playing right now" tab. Shows the current lyric line in the
+// app's existing editorial voice (the same big serif used for archive
+// statements elsewhere — a lyric line IS that kind of sentence), and
+// stays completely quiet the rest of the time.
+//
+// As of Phase 1A, Mirror no longer talks to Spotify at all — it consumes
+// a generic CurrentListeningState from whichever provider is active
+// (today, only spotify-listening-provider.js exists). Everything below
+// this line operates on that generic shape: artist, track, artwork,
+// isPlaying, durationMs, positionMs, source, controlsSupported. A future
+// source publishing the same shape needs no changes here.
 
 import {
-  getSpotifyConfig, saveSpotifyConfig, isSpotifyConnected, disconnectSpotify,
-  beginSpotifyLogin, completeSpotifyLoginIfRedirected, getValidAccessToken,
+  getSpotifyConfig, saveSpotifyConfig, isSpotifyConnected,
+  beginSpotifyLogin, completeSpotifyLoginIfRedirected,
 } from "./spotify-auth.js";
+import {
+  startSpotifyProvider, stopSpotifyProvider,
+  spotifyPlayPause, spotifyNext, spotifyPrevious,
+} from "./spotify-listening-provider.js";
+import { identityKeyFor, isValidPlaybackNumber } from "./listening-state.js";
 import { getSyncedLyrics, currentLine } from "./lyrics.js";
 
-const POLL_MS = 5000;
-// How often the lyric line re-checks itself against elapsed time. Spotify
-// itself is only asked once every POLL_MS — this just interpolates between
-// those answers using the browser's own clock, the same technique any
-// lyric-sync player uses, so the line changes when it should instead of in
-// visible 5-second jumps.
+// How often the lyric line re-checks itself against elapsed time. The
+// active provider is only asked for a fresh state occasionally (5s for
+// Spotify's poll, whatever cadence a future push source uses) — this
+// just interpolates between those answers using the browser's own clock,
+// the same technique any lyric-sync player uses, so the line changes
+// when it should instead of in visible jumps.
 const LYRIC_TICK_MS = 200;
-let pollTimer = null;
 let lyricClockTimer = null;
-let currentTrackId = null;
+let currentIdentityKey = null;
 let currentLyricLines; // undefined = still fetching · null = confirmed no lyrics · array = loaded
-let syncedProgressMs = 0;   // progress as of the last successful poll
-let syncedAtMs = 0;         // performance.now() when that poll's data was captured
+let syncedProgressMs = 0;   // position as of the last state update
+let syncedAtMs = 0;         // performance.now() when that update was captured
 let isPlayingNow = false;
-let renderDeps = null; // { el, esc, openSettings-like helper } injected from app.js
+let renderDeps = null; // { el, esc } injected from app.js
 
 export function initMirror(deps) {
   renderDeps = deps;
-}
-
-async function spotifyFetch(path, options = {}) {
-  const token = await getValidAccessToken();
-  if (!token) {
-    const err = new Error("Not connected to Spotify.");
-    err.code = "reauth-required";
-    throw err;
-  }
-  const res = await fetch(`https://api.spotify.com/v1${path}`, {
-    ...options,
-    headers: { Authorization: `Bearer ${token}`, ...(options.headers || {}) },
-  });
-  if (res.status === 401) {
-    disconnectSpotify();
-    const err = new Error("Spotify rejected the access token.");
-    err.code = "reauth-required";
-    throw err;
-  }
-  return res;
-}
-
-async function fetchNowPlaying() {
-  const requestStartedAt = performance.now();
-  const res = await spotifyFetch("/me/player/currently-playing");
-  if (res.status === 204) return { playing: false };
-  if (!res.ok) throw new Error(`Spotify HTTP ${res.status}`);
-  const json = await res.json();
-  if (!json?.item) return { playing: false };
-  // Spotify's progress_ms reflects where playback was WHEN THEIR SERVER
-  // processed the request, not when we finish receiving the response. On a
-  // slower connection that gap is exactly the "lyrics feel a beat behind"
-  // sensation — correcting for it here means every consumer of progressMs
-  // gets an already-compensated value, not just the lyric line.
-  const roundTripMs = performance.now() - requestStartedAt;
-  return {
-    playing: !!json.is_playing,
-    trackId: json.item.id,
-    track: json.item.name,
-    artist: (json.item.artists || []).map((a) => a.name).join(", "),
-    primaryArtist: json.item.artists?.[0]?.name || "",
-    album: json.item.album?.name || "",
-    image: json.item.album?.images?.[0]?.url || null,
-    progressMs: (json.progress_ms || 0) + roundTripMs,
-    durationMs: json.item.duration_ms || 0,
-  };
 }
 
 export function renderMirror(root) {
@@ -169,38 +132,35 @@ function setupPrompt(root, stage) {
   return wrap;
 }
 
+// ---------- provider wiring ----------
+//
+// Mirror doesn't poll anything itself — it asks the active provider to
+// start, and receives a generic CurrentListeningState (or null) through
+// onState whenever one is available. Today the only provider is Spotify's
+// own 5-second poll; a future push-based provider calls the exact same
+// onState callback on its own schedule, and none of the code below needs
+// to change to accept it.
+
 function startPolling(body) {
   stopPolling();
-  const tick = async () => {
-    if (document.hidden) return; // paused while the tab/app isn't visible
-    try {
-      const state = await fetchNowPlaying();
-      // Re-anchor the local clock on every successful poll — this is what
-      // keeps it correct across seeks, pauses, and any drift, rather than
-      // letting the interpolation wander further off with each cycle.
-      syncedProgressMs = state.progressMs;
-      syncedAtMs = performance.now();
-      isPlayingNow = state.playing;
-      await renderNowPlaying(body, state);
-      setPollStatus(body, null); // clear any previous error once something succeeds
-    } catch (err) {
-      console.warn("Mirror poll failed:", err.message);
-      if (err.code === "reauth-required") {
-        stopPolling();
-        const panel = body.closest(".mirror-stage")?.parentElement;
-        renderMirror(panel || body.parentElement || body);
-        return;
-      }
-      // Anything else (network hiccup, rate limit, unexpected response) is
-      // shown right on the tab rather than only logged — this app is used
-      // exclusively on a phone, where the console is never actually seen.
-      setPollStatus(body, err.message);
-    }
-  };
-  tick();
-  pollTimer = setInterval(tick, POLL_MS);
+  startSpotifyProvider({
+    onState: (state) => handleListeningState(body, state),
+    onError: (err) => handleProviderError(body, err),
+  });
   startLyricClock(body);
-  document.addEventListener("visibilitychange", onVisibilityChange);
+}
+
+function handleProviderError(body, err) {
+  if (err.code === "reauth-required") {
+    stopPolling();
+    const panel = body.closest(".mirror-stage")?.parentElement;
+    renderMirror(panel || body.parentElement || body);
+    return;
+  }
+  // Anything else (network hiccup, rate limit, unexpected response) is
+  // shown right on the tab rather than only logged — this app is used
+  // exclusively on a phone, where the console is never actually seen.
+  setPollStatus(body, err.message);
 }
 
 function setPollStatus(body, message) {
@@ -216,9 +176,9 @@ function setPollStatus(body, message) {
   status.textContent = message;
 }
 
-// Where the track SHOULD be right now, extrapolated from the last poll
-// using wall-clock time — not from the last poll's number alone, which
-// would only ever change once every POLL_MS.
+// Where the track SHOULD be right now, extrapolated from the last known
+// state using wall-clock time — not from that state's number alone,
+// which would only ever change once every provider update.
 function estimateProgressMs() {
   if (!isPlayingNow) return syncedProgressMs;
   return syncedProgressMs + (performance.now() - syncedAtMs);
@@ -237,22 +197,16 @@ function stopLyricClock() {
   lyricClockTimer = null;
 }
 
-function onVisibilityChange() {
-  if (!document.hidden && pollTimer) {
-    // Fire immediately on return instead of waiting up to POLL_MS.
-    const body = document.getElementById("mirror-body");
-    if (body) startPolling(body);
-  }
-}
-
+// The provider owns its own visibility handling (an immediate re-check on
+// tab return) — the lyric clock already no-ops while hidden and resumes
+// correctly on its own via the document.hidden check in its own tick, so
+// Mirror doesn't need a second visibility listener duplicating that.
 export function stopPolling() {
-  if (pollTimer) clearInterval(pollTimer);
-  pollTimer = null;
+  stopSpotifyProvider();
   stopLyricClock();
-  document.removeEventListener("visibilitychange", onVisibilityChange);
 }
 
-// A poll reporting "nothing" immediately after a Pause tap is a known
+// A state reporting "nothing" immediately after a Pause tap is a known
 // Spotify quirk on some clients/devices, not necessarily the truth — the
 // track is very likely just paused. Tolerating a couple of consecutive
 // misses before actually clearing the screen avoids the track vanishing
@@ -261,63 +215,97 @@ export function stopPolling() {
 const MAX_TOLERATED_MISSES = 2;
 let missingPollStreak = 0;
 
-async function renderNowPlaying(body, state) {
+async function handleListeningState(body, state) {
   const { el, esc } = renderDeps;
 
-  if (!state.trackId) {
-    if (currentTrackId && missingPollStreak < MAX_TOLERATED_MISSES) {
+  if (!state) {
+    if (currentIdentityKey && missingPollStreak < MAX_TOLERATED_MISSES) {
       missingPollStreak++;
       return; // keep showing the last known track a little longer
     }
     missingPollStreak = 0;
-    currentTrackId = null;
+    currentIdentityKey = null;
     body.innerHTML = "";
     body.appendChild(el(`<p class="footnote">Nothing playing right now.</p>`));
     return;
   }
   missingPollStreak = 0;
 
-  if (state.trackId !== currentTrackId) {
-    currentTrackId = state.trackId;
+  // Re-anchor the local clock on every successful state — this is what
+  // keeps it correct across seeks, pauses, and any drift, rather than
+  // letting the interpolation wander further off with each cycle. A
+  // source that can't report a position at all just leaves the last
+  // known one in place rather than snapping to 0.
+  if (isValidPlaybackNumber(state.positionMs)) syncedProgressMs = state.positionMs;
+  syncedAtMs = performance.now();
+  isPlayingNow = state.isPlaying;
+
+  const key = identityKeyFor(state);
+  if (key !== currentIdentityKey) {
+    currentIdentityKey = key;
     currentLyricLines = undefined;
     body.innerHTML = "";
     body.appendChild(el(`
       <div class="mirror-now">
-        <div class="mirror-art ${state.image ? "" : "is-empty"}"></div>
+        <div class="mirror-art ${state.artwork ? "" : "is-empty"}"></div>
         <div class="mirror-line" id="mirror-line"></div>
         <div class="mirror-track">
           <span class="mirror-track-name">${esc(state.track)}</span>
           <span class="mirror-track-artist"> — ${esc(state.artist)}</span>
         </div>
         <div class="mirror-progress"><div class="mirror-progress-fill" id="mirror-progress-fill"></div></div>
+        ${state.controlsSupported ? `
         <div class="mirror-controls">
           <button class="plain-act" data-a="previous">Prev</button>
           <button class="plain-act" data-a="playpause">Pause</button>
           <button class="plain-act" data-a="next">Next</button>
         </div>
-        <p class="status" id="mirror-control-status"></p>
+        <p class="status" id="mirror-control-status"></p>` : ""}
       </div>
     `));
-    if (state.image) body.querySelector(".mirror-art").style.backgroundImage = `url("${state.image.replace(/"/g, "%22")}")`;
-    wireControls(body);
+    if (state.artwork) body.querySelector(".mirror-art").style.backgroundImage = `url("${state.artwork.replace(/"/g, "%22")}")`;
+    if (state.controlsSupported) wireControls(body);
 
-    getSyncedLyrics({ artist: state.primaryArtist, track: state.track, album: state.album, durationSec: state.durationMs / 1000 })
-      .then(({ lines }) => { currentLyricLines = lines; updateLyricLine(body, state.progressMs); });
+    // The existing lyrics lookup has always searched on the primary
+    // (first-credited) artist alone, not the joined display string —
+    // preserved exactly via state.primaryArtist rather than state.artist.
+    getSyncedLyrics({
+      artist: state.primaryArtist || state.artist,
+      track: state.track,
+      album: state.album,
+      durationSec: isValidPlaybackNumber(state.durationMs) ? state.durationMs / 1000 : undefined,
+    }).then(({ lines }) => {
+      currentLyricLines = lines;
+      updateLyricLine(body, state.positionMs);
+    });
   }
 
   const fill = body.querySelector("#mirror-progress-fill");
-  if (fill && state.durationMs) fill.style.width = `${Math.min(100, (state.progressMs / state.durationMs) * 100)}%`;
+  if (fill && isValidPlaybackNumber(state.durationMs) && state.durationMs > 0 && isValidPlaybackNumber(state.positionMs)) {
+    fill.style.width = `${Math.min(100, (state.positionMs / state.durationMs) * 100)}%`;
+  }
 
   const playBtn = body.querySelector('[data-a="playpause"]');
-  if (playBtn && playBtn.dataset.pending !== "true") playBtn.textContent = state.playing ? "Pause" : "Play";
+  if (playBtn && playBtn.dataset.pending !== "true") playBtn.textContent = state.isPlaying ? "Pause" : "Play";
 
-  updateLyricLine(body, state.progressMs);
+  updateLyricLine(body, state.positionMs);
 }
 
 function updateLyricLine(body, progressMs) {
   const { el, esc } = renderDeps;
   const host = body.querySelector("#mirror-line");
   if (!host) return;
+
+  // lyrics.js's currentLine() has no way to distinguish "position
+  // unknown" from "position zero" — it just compares numbers, and an
+  // invalid position makes that comparison silently wrong (undefined
+  // returns the LAST line; null returns the FIRST; NaN/negative/Infinity
+  // are untested and no more trustworthy). The guard has to live here,
+  // before ever calling it, for any source that can't report a reliable
+  // position. Inert for Spotify today, since it always provides a valid
+  // finite non-negative number. Zero itself is explicitly valid — a
+  // track that just started is not the same as an unknown position.
+  if (!isValidPlaybackNumber(progressMs)) return;
 
   let text = null;
   let emptyMessage = ""; // still fetching, or before the first lyric — nothing wrong, say nothing
@@ -350,10 +338,10 @@ function wireControls(body) {
     status.textContent = "";
     const wasPlaying = isPlayingNow;
 
-    // Optimistic: flip immediately rather than waiting up to POLL_MS for
-    // the next poll to confirm — a tap should feel instant. Re-anchoring
+    // Optimistic: flip immediately rather than waiting for the next
+    // provider update to confirm — a tap should feel instant. Re-anchoring
     // the clock here keeps the frozen/resumed position from jumping when
-    // the next real poll lands.
+    // the next real update lands.
     isPlayingNow = !wasPlaying;
     btn.textContent = isPlayingNow ? "Pause" : "Play";
     btn.dataset.pending = "true";
@@ -361,7 +349,7 @@ function wireControls(body) {
     syncedAtMs = performance.now();
 
     try {
-      const res = await spotifyFetch(wasPlaying ? "/me/player/pause" : "/me/player/play", { method: "PUT" });
+      const res = await spotifyPlayPause(wasPlaying);
       if (res.status === 404) {
         status.textContent = "No active Spotify device — open Spotify somewhere first.";
         status.className = "status bad";
@@ -392,8 +380,7 @@ function wireControls(body) {
     btn.addEventListener("click", async () => {
       status.textContent = "";
       try {
-        const path = btn.dataset.a === "next" ? "/me/player/next" : "/me/player/previous";
-        const res = await spotifyFetch(path, { method: "POST" });
+        const res = btn.dataset.a === "next" ? await spotifyNext() : await spotifyPrevious();
         if (res.status === 404) {
           status.textContent = "No active Spotify device — open Spotify somewhere first.";
           status.className = "status bad";
