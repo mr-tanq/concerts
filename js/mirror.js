@@ -5,12 +5,17 @@
 // statements elsewhere — a lyric line IS that kind of sentence), and
 // stays completely quiet the rest of the time.
 //
-// As of Phase 1A, Mirror no longer talks to Spotify at all — it consumes
-// a generic CurrentListeningState from whichever provider is active
-// (today, only spotify-listening-provider.js exists). Everything below
-// this line operates on that generic shape: artist, track, artwork,
-// isPlaying, durationMs, positionMs, source, controlsSupported. A future
-// source publishing the same shape needs no changes here.
+// As of Phase 1A, the listening-state and rendering pipeline below no
+// longer knows Spotify's response shape at all — it consumes a generic
+// CurrentListeningState from whichever provider is active (today, only
+// spotify-listening-provider.js exists). Mirror still directly owns
+// Spotify setup/auth (setupPrompt, beginSpotifyLogin) and still calls
+// Spotify's playback-control functions directly when the active state
+// says controlsSupported — those two things are legitimately
+// Spotify-specific today and aren't part of the generic contract.
+// Artist, track, artwork, isPlaying, durationMs, positionMs, source,
+// controlsSupported: a future source publishing that same shape needs no
+// changes to the rendering pipeline below.
 
 import {
   getSpotifyConfig, saveSpotifyConfig, isSpotifyConnected,
@@ -35,6 +40,12 @@ let currentIdentityKey = null;
 let currentLyricLines; // undefined = still fetching · null = confirmed no lyrics · array = loaded
 let syncedProgressMs = 0;   // position as of the last state update
 let syncedAtMs = 0;         // performance.now() when that update was captured
+// Whether syncedProgressMs is currently trustworthy to extrapolate from —
+// kept separate from the raw number itself. A number staying numerically
+// "valid" is not the same as it being the CURRENT track's real position;
+// this flag is what stops a stale number from a previous track quietly
+// continuing to answer estimateProgressMs() after a track change.
+let hasReliablePosition = false;
 let isPlayingNow = false;
 let renderDeps = null; // { el, esc } injected from app.js
 
@@ -177,9 +188,12 @@ function setPollStatus(body, message) {
 }
 
 // Where the track SHOULD be right now, extrapolated from the last known
-// state using wall-clock time — not from that state's number alone,
-// which would only ever change once every provider update.
+// state using wall-clock time. Returns null when there's no reliable
+// anchor to extrapolate FROM — this never synthesizes a number that
+// merely LOOKS valid by carrying a previous track's position forward
+// under a different track's identity.
 function estimateProgressMs() {
+  if (!hasReliablePosition) return null;
   if (!isPlayingNow) return syncedProgressMs;
   return syncedProgressMs + (performance.now() - syncedAtMs);
 }
@@ -233,10 +247,18 @@ async function handleListeningState(body, state) {
 
   // Re-anchor the local clock on every successful state — this is what
   // keeps it correct across seeks, pauses, and any drift, rather than
-  // letting the interpolation wander further off with each cycle. A
-  // source that can't report a position at all just leaves the last
-  // known one in place rather than snapping to 0.
-  if (isValidPlaybackNumber(state.positionMs)) syncedProgressMs = state.positionMs;
+  // letting the interpolation wander further off with each cycle. When
+  // this state's position isn't trustworthy, hasReliablePosition is
+  // explicitly dropped to false — critically, this happens even if a
+  // numerically "valid-looking" syncedProgressMs is still sitting there
+  // from a previous track, so that stale number can never quietly keep
+  // answering estimateProgressMs() under a new track's identity.
+  if (isValidPlaybackNumber(state.positionMs)) {
+    syncedProgressMs = state.positionMs;
+    hasReliablePosition = true;
+  } else {
+    hasReliablePosition = false;
+  }
   syncedAtMs = performance.now();
   isPlayingNow = state.isPlaying;
 
@@ -269,12 +291,18 @@ async function handleListeningState(body, state) {
     // The existing lyrics lookup has always searched on the primary
     // (first-credited) artist alone, not the joined display string —
     // preserved exactly via state.primaryArtist rather than state.artist.
+    const requestKey = key; // which track identity started this lookup
     getSyncedLyrics({
       artist: state.primaryArtist || state.artist,
       track: state.track,
       album: state.album,
       durationSec: isValidPlaybackNumber(state.durationMs) ? state.durationMs / 1000 : undefined,
     }).then(({ lines }) => {
+      // Discard if a different track is active by the time this resolves.
+      // Without this, a slow response for a track the person has since
+      // moved past can arrive AFTER a faster response for the current
+      // one and silently overwrite it with the wrong lyrics.
+      if (requestKey !== currentIdentityKey) return;
       currentLyricLines = lines;
       updateLyricLine(body, state.positionMs);
     });
@@ -338,14 +366,23 @@ function wireControls(body) {
     status.textContent = "";
     const wasPlaying = isPlayingNow;
 
-    // Optimistic: flip immediately rather than waiting for the next
-    // provider update to confirm — a tap should feel instant. Re-anchoring
-    // the clock here keeps the frozen/resumed position from jumping when
-    // the next real update lands.
+    // Captured BEFORE isPlayingNow changes. estimateProgressMs() reads
+    // isPlayingNow to decide whether to add elapsed time since the last
+    // anchor — computing it AFTER the flip meant a pause silently lost
+    // the seconds since the last update (estimateProgressMs saw
+    // isPlayingNow already false and returned the stale anchor instead
+    // of extrapolating), while a resume added the entire paused
+    // duration as though playback had continued through it.
+    const estimated = estimateProgressMs();
+
     isPlayingNow = !wasPlaying;
     btn.textContent = isPlayingNow ? "Pause" : "Play";
     btn.dataset.pending = "true";
-    syncedProgressMs = estimateProgressMs();
+    // estimateProgressMs() can legitimately return null when there's no
+    // reliable anchor yet — in that case there's nothing to re-anchor
+    // to, so syncedProgressMs (and hasReliablePosition) are left exactly
+    // as they were rather than being overwritten with a null.
+    if (estimated != null) syncedProgressMs = estimated;
     syncedAtMs = performance.now();
 
     try {
