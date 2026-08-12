@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-08-12T20:38:55.418Z",
+    "lastUpdated": "2026-08-12T20:38:59.127Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
@@ -88,6 +88,43 @@
       },
       "discoveredAt": "2026-08-03T01:22:12.565Z",
       "lastSeenAt": "2026-08-03T09:31:56.055Z"
+    },
+    {
+      "id": "rec-podiuminfo-465508",
+      "source": "podiuminfo",
+      "sourceId": "465508",
+      "artist": "Johnny Cash",
+      "lineup": [
+        "Johnny Cash"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Johnny Cash"
+      ],
+      "date": "2027-05-25",
+      "time": null,
+      "venue": "Isala Theater",
+      "city": "Capelle aan den IJssel",
+      "country": "??",
+      "isFestival": false,
+      "image": "https://www.podiuminfo.nl/img/podiuminfo-rond.png",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/465508/Johnny-Cash-Memphis-Rose/Isala-Theater/",
+      "match": {
+        "score": 40,
+        "label": "Possible match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Johnny Cash",
+        "matchedArtists": [
+          "Johnny Cash"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-08-03T01:22:12.565Z",
+      "lastSeenAt": "2026-08-03T17:37:01.808Z"
     },
     {
       "id": "rec-podiuminfo-467043",
