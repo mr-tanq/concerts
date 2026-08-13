@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Listening Mirror — Android transport debug</title>
+<style>
+  :root { --bone:#f4f1ea; --void:#0a0a0b; --ember:#ff5a3c; --dim:#8a8a8f; }
+  body { margin:0; padding:22px 18px 60px; background:var(--void); color:var(--bone);
+         font-family:ui-monospace,Menlo,monospace; font-size:13px; line-height:1.55; }
+  h1 { font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--dim); font-weight:400; }
+  h2 { font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--dim);
+       font-weight:400; margin:30px 0 10px; }
+  .row { display:flex; justify-content:space-between; gap:14px; padding:4px 0;
+         border-bottom:1px solid rgba(255,255,255,.05); }
+  .k { color:var(--dim); } .v { text-align:right; word-break:break-all; }
+  .none { color:var(--dim); }
+  input { width:100%; padding:9px; margin:6px 0; background:#151517; color:var(--bone);
+          border:1px solid #2a2a2e; border-radius:4px; font-family:inherit; font-size:13px; }
+  button { padding:9px 16px; background:transparent; color:var(--ember); border:1px solid var(--ember);
+           border-radius:4px; font-family:inherit; font-size:12px; }
+  pre { white-space:pre-wrap; color:var(--dim); font-size:11px; margin:0; }
+  code { color:var(--ember); }
+</style>
+</head>
+<body>
+  <h1>Android transport debug · Phase 1B-2</h1>
+  <h2>Read secret</h2>
+  <div id="secret-box"></div>
+  <h2>Received CurrentListeningState</h2>
+  <div id="state-box"><p class="none">waiting…</p></div>
+  <h2>Log</h2>
+  <pre id="log-box"></pre>
+  <script type="module" src="js/android-debug.js"></script>
+</body>
+</html>
