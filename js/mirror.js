@@ -22,9 +22,12 @@ import {
   beginSpotifyLogin, completeSpotifyLoginIfRedirected,
 } from "./spotify-auth.js";
 import {
-  startSpotifyProvider, stopSpotifyProvider,
   spotifyPlayPause, spotifyNext, spotifyPrevious,
 } from "./spotify-listening-provider.js";
+import {
+  startListeningProvider, stopListeningProvider,
+} from "./listening-source-provider.js";
+import { getReadSecret } from "./relay-config.js";
 import { identityKeyFor, isValidPlaybackNumber } from "./listening-state.js";
 import { getSyncedLyrics, currentLine } from "./lyrics.js";
 
@@ -64,8 +67,11 @@ export function renderMirror(root) {
     root.appendChild(el(`<p class="status bad">Login check failed: ${esc(err.message)}</p>`));
   });
 
-  const hasClientId = !!getSpotifyConfig()?.clientId;
-  const connected = isSpotifyConnected();
+  // Phase 1C: Spotify is no longer a precondition for Mirror. Android/
+  // YouTube must work with Spotify disconnected entirely, so the setup
+  // screen only appears when NEITHER source is available.
+  const spotifyAvailable = !!getSpotifyConfig()?.clientId && isSpotifyConnected();
+  const androidAvailable = !!getReadSecret();
 
   // Anything unexpected here — a bad selector, a storage read failing in
   // an unusual way, anything not already anticipated — now becomes a
@@ -73,12 +79,11 @@ export function renderMirror(root) {
   // blank with no trace. On a phone there's no console to catch this any
   // other way.
   try {
-    if (!hasClientId) {
-      root.appendChild(setupPrompt(root, "clientId"));
-      return;
-    }
-    if (!connected) {
-      root.appendChild(setupPrompt(root, "connect"));
+    if (!spotifyAvailable && !androidAvailable) {
+      // Neither path configured -- fall back to the original Spotify
+      // onboarding, since that's still the primary source we'd want set up.
+      const stage = !getSpotifyConfig()?.clientId ? "clientId" : "connect";
+      root.appendChild(setupPrompt(root, stage));
       return;
     }
 
@@ -174,7 +179,9 @@ function resetMirrorSession() {
 function startPolling(body) {
   resetMirrorSession();
   stopPolling();
-  startSpotifyProvider({
+  startListeningProvider({
+    enableSpotify: !!getSpotifyConfig()?.clientId && isSpotifyConnected(),
+    enableAndroid: !!getReadSecret(),
     onState: (state) => handleListeningState(body, state),
     onError: (err) => handleProviderError(body, err),
   });
@@ -236,7 +243,7 @@ function stopLyricClock() {
 // correctly on its own via the document.hidden check in its own tick, so
 // Mirror doesn't need a second visibility listener duplicating that.
 export function stopPolling() {
-  stopSpotifyProvider();
+  stopListeningProvider();
   stopLyricClock();
 }
 
