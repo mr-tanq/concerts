@@ -1,17 +1,17 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-08-12T20:38:59.127Z",
+    "lastUpdated": "2026-08-13T07:24:09.183Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 0,
-      "daysCached": 366,
+      "daysFresh": 366,
+      "daysCached": 0,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 8,
       "rejectedByLineup": 0
     }
   },
@@ -41,16 +41,17 @@
       ],
       "sourceUrl": "https://www.podiuminfo.nl/concert/484781/Olafur-Arnalds-Falling-Apart-Together/TivoliVredenburg/",
       "match": {
-        "score": 56,
+        "score": 57,
         "label": "Strong match",
         "matchedBy": "direct",
         "reason": "Known artist: Ólafur Arnalds",
         "matchedArtists": [
           "Ólafur Arnalds"
-        ]
+        ],
+        "similarVia": null
       },
       "discoveredAt": "2026-08-10T20:02:13.784Z",
-      "lastSeenAt": "2026-08-10T20:02:13.784Z"
+      "lastSeenAt": "2026-08-13T07:24:09.183Z"
     },
     {
       "id": "rec-podiuminfo-457133",
@@ -87,7 +88,7 @@
         "similarVia": null
       },
       "discoveredAt": "2026-08-03T01:22:12.565Z",
-      "lastSeenAt": "2026-08-03T09:31:56.055Z"
+      "lastSeenAt": "2026-08-13T07:24:09.183Z"
     },
     {
       "id": "rec-podiuminfo-465508",
@@ -124,7 +125,7 @@
         "similarVia": null
       },
       "discoveredAt": "2026-08-03T01:22:12.565Z",
-      "lastSeenAt": "2026-08-03T17:37:01.808Z"
+      "lastSeenAt": "2026-08-13T07:24:09.183Z"
     },
     {
       "id": "rec-podiuminfo-467043",
@@ -161,7 +162,229 @@
         "similarVia": "Paradise Lost"
       },
       "discoveredAt": "2026-08-03T01:22:12.565Z",
-      "lastSeenAt": "2026-08-08T18:27:41.332Z"
+      "lastSeenAt": "2026-08-13T07:24:09.183Z"
+    },
+    {
+      "id": "rec-podiuminfo-480017",
+      "source": "podiuminfo",
+      "sourceId": "480017",
+      "artist": "Turin Brakes",
+      "lineup": [
+        "Turin Brakes"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Turin Brakes"
+      ],
+      "date": "2026-10-14",
+      "time": null,
+      "venue": "Rotown",
+      "city": "Rotterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/543/100_Turin_Brakes_2.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/137858/cd/Turin-Brakes/Rotown/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/480017/Turin-Brakes/Rotown/",
+      "match": {
+        "score": 34,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Elbow",
+        "matchedArtists": [
+          "Turin Brakes"
+        ],
+        "similarVia": "Elbow"
+      },
+      "discoveredAt": "2026-08-13T07:24:09.183Z",
+      "lastSeenAt": "2026-08-13T07:24:09.183Z"
+    },
+    {
+      "id": "rec-podiuminfo-480296",
+      "source": "podiuminfo",
+      "sourceId": "480296",
+      "artist": "Turin Brakes",
+      "lineup": [
+        "Turin Brakes"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Turin Brakes"
+      ],
+      "date": "2026-10-15",
+      "time": null,
+      "venue": "Penninckshuis",
+      "city": "Deventer",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/543/100_Turin_Brakes_1.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/480296/Turin-Brakes/Penninckshuis/",
+      "match": {
+        "score": 34,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Elbow",
+        "matchedArtists": [
+          "Turin Brakes"
+        ],
+        "similarVia": "Elbow"
+      },
+      "discoveredAt": "2026-08-13T07:24:09.183Z",
+      "lastSeenAt": "2026-08-13T07:24:09.183Z"
+    },
+    {
+      "id": "rec-podiuminfo-480244",
+      "source": "podiuminfo",
+      "sourceId": "480244",
+      "artist": "Turin Brakes",
+      "lineup": [
+        "Turin Brakes"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Turin Brakes"
+      ],
+      "date": "2026-10-16",
+      "time": null,
+      "venue": "Grenswerk",
+      "city": "Venlo",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/543/100_Turin_Brakes_3.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/137932/cd/Turin-Brakes/Grenswerk/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/480244/Turin-Brakes/Grenswerk/",
+      "match": {
+        "score": 34,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Elbow",
+        "matchedArtists": [
+          "Turin Brakes"
+        ],
+        "similarVia": "Elbow"
+      },
+      "discoveredAt": "2026-08-13T07:24:09.183Z",
+      "lastSeenAt": "2026-08-13T07:24:09.183Z"
+    },
+    {
+      "id": "rec-podiuminfo-484861",
+      "source": "podiuminfo",
+      "sourceId": "484861",
+      "artist": "Kadavar",
+      "lineup": [
+        "Kadavar"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Kadavar"
+      ],
+      "date": "2026-12-09",
+      "time": null,
+      "venue": "Melkweg",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/70719/100_Kadavar_1.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/139419/cd/Kadavar/Melkweg/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/484861/Kadavar/Melkweg/",
+      "match": {
+        "score": 33,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Hällas",
+        "matchedArtists": [
+          "Kadavar"
+        ],
+        "similarVia": "Hällas"
+      },
+      "discoveredAt": "2026-08-13T07:24:09.183Z",
+      "lastSeenAt": "2026-08-13T07:24:09.183Z"
+    },
+    {
+      "id": "rec-podiuminfo-484971",
+      "source": "podiuminfo",
+      "sourceId": "484971",
+      "artist": "Kadavar",
+      "lineup": [
+        "Kadavar"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Kadavar"
+      ],
+      "date": "2026-12-10",
+      "time": null,
+      "venue": "Cacaofabriek",
+      "city": "Helmond",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/70719/100_Kadavar_2.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/139447/cd/Kadavar/Cacaofabriek/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/484971/Kadavar/Cacaofabriek/",
+      "match": {
+        "score": 33,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Hällas",
+        "matchedArtists": [
+          "Kadavar"
+        ],
+        "similarVia": "Hällas"
+      },
+      "discoveredAt": "2026-08-13T07:24:09.183Z",
+      "lastSeenAt": "2026-08-13T07:24:09.183Z"
+    },
+    {
+      "id": "rec-podiuminfo-481103",
+      "source": "podiuminfo",
+      "sourceId": "481103",
+      "artist": "Editors",
+      "lineup": [
+        "Editors"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Editors"
+      ],
+      "date": "2027-02-18",
+      "time": null,
+      "venue": "Ziggo Dome",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/15086/100_Editors_4.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/138469/cd/Editors-Europe-Tour-2027/Ziggo-Dome/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/481103/Editors/Ziggo-Dome/",
+      "match": {
+        "score": 32,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Elbow",
+        "matchedArtists": [
+          "Editors"
+        ],
+        "similarVia": "Elbow"
+      },
+      "discoveredAt": "2026-08-13T07:24:09.183Z",
+      "lastSeenAt": "2026-08-13T07:24:09.183Z"
     },
     {
       "id": "rec-podiuminfo-447942",
@@ -198,7 +421,7 @@
         "similarVia": "Hällas"
       },
       "discoveredAt": "2026-08-08T18:27:41.332Z",
-      "lastSeenAt": "2026-08-08T18:27:41.332Z"
+      "lastSeenAt": "2026-08-13T07:24:09.183Z"
     }
   ]
 }
