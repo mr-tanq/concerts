@@ -76,18 +76,21 @@
           svg: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.2"></circle><path d="M7.1 9.4c3.5-1 7.2-.7 9.9.8"></path><path d="M7.8 12.4c2.9-.7 5.9-.45 8.2.6"></path><path d="M8.5 15.1c2.2-.5 4.5-.3 6.4.4"></path></svg>`,
         };
       }
+
       if (source === "youtube_android" || source === "youtube_music_android") {
         return {
           label: source === "youtube_music_android" ? "YouTube Music" : "YouTube",
           svg: `<svg width="16" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.55" aria-hidden="true"><rect x="3.5" y="6.5" width="17" height="11" rx="3.2"></rect><path d="M10 9.5l5 3-5 3z" fill="currentColor" stroke="none"></path></svg>`,
         };
       }
+
       if (source === "ambient_audd") {
         return {
           label: "Ambient · radio",
           svg: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 6l10-3"></path><rect x="4" y="7" width="16" height="12" rx="2.4"></rect><path d="M7.5 11h3.3M7.5 14h3.3M7.5 17h2.2"></path><circle cx="15.6" cy="13.1" r="2.35"></circle></svg>`,
         };
       }
+
       return null;
     }
 
@@ -97,6 +100,7 @@
 
       let host = trackRow.querySelector(".mirror-source-indicator");
       const icon = iconFor(source);
+
       if (!icon) {
         host?.remove();
         return;
@@ -105,10 +109,13 @@
       if (!host) {
         host = document.createElement("span");
         host.className = "mirror-source-indicator";
-        host.style.cssText = "display:inline-flex;align-items:center;vertical-align:-3px;margin-right:8px;color:var(--bone-faint);opacity:.9";
+        host.style.cssText =
+          "display:inline-flex;align-items:center;vertical-align:-3px;margin-right:8px;color:var(--bone-faint);opacity:.9";
         trackRow.prepend(host);
       }
+
       if (host.dataset.source === source) return;
+
       host.dataset.source = source;
       host.title = icon.label;
       host.setAttribute("aria-label", icon.label);
@@ -117,9 +124,12 @@
 
     async function refreshSourceIcon() {
       if (refreshInFlight || document.hidden) return;
+
       const trackRow = document.querySelector("#panel-mirror .mirror-track");
       if (!trackRow) return;
+
       refreshInFlight = true;
+
       try {
         // Spotify Web is the only current Mirror source with playback controls.
         if (document.querySelector("#panel-mirror .mirror-controls")) {
@@ -128,25 +138,35 @@
         }
 
         const secret = getReadSecret();
+
         if (!secret) {
           renderSource(null);
           return;
         }
+
         const { payload } = await fetchRelayState(secret);
+
         if (!isFresh(payload) || !payload.present || !payload.state) {
           renderSource(null);
           return;
         }
 
-        const shownTrack = trackRow.querySelector(".mirror-track-name")?.textContent || "";
-        const shownArtist = (trackRow.querySelector(".mirror-track-artist")?.textContent || "")
-          .replace(/^\s*—\s*/, "");
+        const shownTrack =
+          trackRow.querySelector(".mirror-track-name")?.textContent || "";
+
+        const shownArtist =
+          (trackRow.querySelector(".mirror-track-artist")?.textContent || "")
+            .replace(/^\s*—\s*/, "");
+
         const relay = payload.state;
 
         // Only label the DOM when the relay state is the same song Mirror is
         // actually showing. This prevents a stale/non-selected Android source
         // from visually claiming a Spotify-Web track.
-        if (norm(shownTrack) === norm(relay.track) && norm(shownArtist) === norm(relay.artist)) {
+        if (
+          norm(shownTrack) === norm(relay.track) &&
+          norm(shownArtist) === norm(relay.artist)
+        ) {
           renderSource(relay.source);
         } else {
           renderSource(null);
@@ -161,44 +181,70 @@
 
     function scheduleRefresh() {
       if (scheduled) return;
+
       scheduled = true;
+
       queueMicrotask(() => {
         scheduled = false;
         refreshSourceIcon();
       });
     }
 
-    new MutationObserver(scheduleRefresh).observe(document.body, { childList: true, subtree: true });
-    document.addEventListener("visibilitychange", () => { if (!document.hidden) refreshSourceIcon(); });
+    new MutationObserver(scheduleRefresh).observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) refreshSourceIcon();
+    });
+
     setInterval(refreshSourceIcon, ICON_REFRESH_MS);
     refreshSourceIcon();
   </script>
 
-
-  <!-- Phase 2C: remote Ambient ON/OFF from Mirror. The browser gets a
-       separate control credential (bootstrapped once from the existing read
-       credential); Android continues to authenticate with its write secret. -->
+  <!-- Phase 2C: remote Ambient ON/OFF from Mirror.
+       Uses a separate browser control credential. -->
   <script type="module">
-    import { RELAY_URL, RELAY_ANON_KEY, getReadSecret } from "./js/relay-config.js";
+    import {
+      RELAY_URL,
+      RELAY_ANON_KEY,
+      getReadSecret,
+    } from "./js/relay-config.js";
 
     const CONTROL_SECRET_KEY = "lm_ambient_control_secret";
     const CONTROL_POLL_MS = 3000;
+
     let controlBusy = false;
     let controlLast = null;
 
     function storedControlSecret() {
-      try { return localStorage.getItem(CONTROL_SECRET_KEY); } catch { return null; }
+      try {
+        return localStorage.getItem(CONTROL_SECRET_KEY);
+      } catch {
+        return null;
+      }
     }
 
     function saveControlSecret(secret) {
       localStorage.setItem(CONTROL_SECRET_KEY, secret);
     }
 
+    function clearControlSecret() {
+      try {
+        localStorage.removeItem(CONTROL_SECRET_KEY);
+      } catch {}
+    }
+
     function newControlSecret() {
       const bytes = new Uint8Array(32);
       crypto.getRandomValues(bytes);
+
       const b64 = btoa(String.fromCharCode(...bytes))
-        .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=+$/g, "");
+
       return "lmc_" + b64;
     }
 
@@ -212,156 +258,375 @@
         },
         body: JSON.stringify(body),
       });
-      if (!res.ok) throw new Error(`Ambient control HTTP ${res.status}`);
+
+      if (!res.ok) {
+        throw new Error(`Ambient control HTTP ${res.status}`);
+      }
+
       return res.json();
     }
 
+    /*
+     * Self-healing pairing:
+     *
+     * Older Phase 2C builds could leave lm_ambient_control_secret in
+     * localStorage even when no matching control credential existed anymore
+     * in Supabase. In that case the UI could appear to turn ON but subsequent
+     * commands had no authoritative state.
+     *
+     * We now validate the stored credential before using it. Only an explicit
+     * invalid_secret response is treated as stale pairing and cleared.
+     * Ordinary network errors must never destroy a valid pairing.
+     */
     async function ensureControlSecret() {
       const existing = storedControlSecret();
-      if (existing) return existing;
+
+      if (existing) {
+        try {
+          const check = await rpc("read_ambient_control_status", {
+            p_secret: existing,
+          });
+
+          if (check?.ok) {
+            return existing;
+          }
+
+          if (check?.reason !== "invalid_secret") {
+            throw new Error(
+              check?.reason || "Ambient control validation failed."
+            );
+          }
+
+          // Stored browser credential is genuinely stale.
+          clearControlSecret();
+          controlLast = null;
+        } catch (err) {
+          /*
+           * If the credential still exists locally, the failure above was a
+           * network/server failure rather than a confirmed invalid_secret.
+           * Preserve the pairing and surface the error.
+           */
+          if (storedControlSecret()) {
+            throw err;
+          }
+        }
+      }
 
       const readSecret = getReadSecret();
-      if (!readSecret) throw new Error("Relay read secret is not configured.");
+
+      if (!readSecret) {
+        throw new Error("Relay read secret is not configured.");
+      }
 
       const candidate = newControlSecret();
+
       const result = await rpc("provision_ambient_control", {
         p_read_secret: readSecret,
         p_control_secret: candidate,
       });
+
       if (!result?.ok) {
         if (result?.reason === "control_already_provisioned") {
-          throw new Error("Ambient control was already paired in another browser. Re-pairing is required.");
+          throw new Error(
+            "Ambient control is already paired with another browser."
+          );
         }
-        throw new Error(result?.reason || "Could not provision ambient control.");
+
+        throw new Error(
+          result?.reason || "Could not provision ambient control."
+        );
       }
+
       saveControlSecret(candidate);
+
       return candidate;
     }
 
     function ensureControlButton() {
       const stage = document.querySelector("#panel-mirror .mirror-stage");
-      if (!stage || stage.querySelector("#mirror-ambient-control")) return;
+
+      if (!stage || stage.querySelector("#mirror-ambient-control")) {
+        return;
+      }
+
       stage.style.position = "relative";
 
       const button = document.createElement("button");
+
       button.id = "mirror-ambient-control";
       button.type = "button";
       button.setAttribute("aria-label", "Ambient recognition");
+
       button.style.cssText =
         "position:absolute;top:0;right:0;display:inline-flex;align-items:center;gap:7px;" +
         "padding:3px 0 7px 12px;color:var(--bone-faint);line-height:1;";
+
       button.innerHTML = `
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M7 6l10-3"></path><rect x="4" y="7" width="16" height="12" rx="2.4"></rect>
-          <path d="M7.5 11h3.3M7.5 14h3.3M7.5 17h2.2"></path><circle cx="15.6" cy="13.1" r="2.35"></circle>
+        <svg
+          width="17"
+          height="17"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.45"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M7 6l10-3"></path>
+          <rect x="4" y="7" width="16" height="12" rx="2.4"></rect>
+          <path d="M7.5 11h3.3M7.5 14h3.3M7.5 17h2.2"></path>
+          <circle cx="15.6" cy="13.1" r="2.35"></circle>
         </svg>
-        <span class="ambient-control-dot" style="display:block;width:6px;height:6px;border-radius:50%;background:var(--bone-faint);transition:.25s"></span>`;
+
+        <span
+          class="ambient-control-dot"
+          style="
+            display:block;
+            width:6px;
+            height:6px;
+            border-radius:50%;
+            background:var(--bone-faint);
+            transition:.25s;
+          "
+        ></span>
+      `;
 
       button.addEventListener("click", toggleAmbientRemote);
+
       stage.appendChild(button);
+
       renderControl(controlLast);
     }
 
     function renderControl(state, error = null) {
       ensureControlButton();
+
       const button = document.querySelector("#mirror-ambient-control");
+
       if (!button) return;
+
       const dot = button.querySelector(".ambient-control-dot");
 
       if (error) {
         button.style.color = "var(--red)";
         dot.style.background = "var(--red)";
+        dot.style.boxShadow = "none";
+
         button.title = error;
         button.setAttribute("aria-pressed", "false");
+
         return;
       }
 
       button.style.color = "var(--bone-faint)";
+
       if (!state?.present) {
         dot.style.background = "var(--bone-faint)";
         dot.style.boxShadow = "none";
+
         button.title = "Ambient remote · OFF / not paired yet";
         button.setAttribute("aria-pressed", "false");
+
         return;
       }
 
       const desired = !!state.desired_enabled;
-      const acked = state.ack_sequence === state.command_sequence &&
+
+      const acked =
+        state.ack_sequence === state.command_sequence &&
         state.ack_enabled === desired;
 
       if (desired && acked) {
         dot.style.background = "var(--ice)";
         dot.style.boxShadow = "0 0 9px rgba(111,214,234,.65)";
+
         button.title = "Ambient remote · ON";
       } else if (desired) {
         dot.style.background = "var(--ember)";
         dot.style.boxShadow = "0 0 8px rgba(255,122,69,.45)";
-        button.title = "Ambient remote · ON requested · waiting for Companion";
+
+        button.title =
+          "Ambient remote · ON requested · waiting for Companion";
       } else if (acked) {
         dot.style.background = "var(--bone-faint)";
         dot.style.boxShadow = "none";
+
         button.title = "Ambient remote · OFF";
       } else {
         dot.style.background = "var(--ember)";
         dot.style.boxShadow = "none";
-        button.title = "Ambient remote · OFF requested · waiting for Companion";
+
+        button.title =
+          "Ambient remote · OFF requested · waiting for Companion";
       }
-      button.setAttribute("aria-pressed", desired ? "true" : "false");
+
+      button.setAttribute(
+        "aria-pressed",
+        desired ? "true" : "false"
+      );
     }
 
     async function readControlStatus() {
       const secret = storedControlSecret();
-      if (!secret || document.hidden) return;
+
+      if (!secret || document.hidden) {
+        return;
+      }
+
       try {
-        const state = await rpc("read_ambient_control_status", { p_secret: secret });
-        if (!state?.ok) throw new Error(state?.reason || "Ambient status rejected.");
+        const state = await rpc(
+          "read_ambient_control_status",
+          {
+            p_secret: secret,
+          }
+        );
+
+        /*
+         * If Supabase says the locally stored pairing is invalid, clear it.
+         * The next user tap can then provision a fresh control credential.
+         */
+        if (!state?.ok) {
+          if (state?.reason === "invalid_secret") {
+            clearControlSecret();
+            controlLast = null;
+
+            renderControl({
+              ok: true,
+              present: false,
+              desired_enabled: false,
+            });
+
+            return;
+          }
+
+          throw new Error(
+            state?.reason || "Ambient status rejected."
+          );
+        }
+
         controlLast = state;
         renderControl(state);
       } catch (err) {
-        renderControl(controlLast, err.message || "Ambient control unavailable.");
+        renderControl(
+          controlLast,
+          err.message || "Ambient control unavailable."
+        );
       }
     }
 
     async function toggleAmbientRemote() {
       if (controlBusy) return;
+
       controlBusy = true;
-      const button = document.querySelector("#mirror-ambient-control");
-      if (button) button.style.opacity = ".55";
+
+      const button =
+        document.querySelector("#mirror-ambient-control");
+
+      if (button) {
+        button.style.opacity = ".55";
+      }
+
       try {
         const secret = await ensureControlSecret();
-        let current = controlLast;
+
+        /*
+         * Always fetch authoritative server state before deciding whether
+         * this tap means ON or OFF. Never rely only on an optimistic local
+         * controlLast value.
+         */
+        const current = await rpc(
+          "read_ambient_control_status",
+          {
+            p_secret: secret,
+          }
+        );
+
         if (!current?.ok) {
-          current = await rpc("read_ambient_control_status", { p_secret: secret });
+          if (current?.reason === "invalid_secret") {
+            clearControlSecret();
+            controlLast = null;
+
+            throw new Error(
+              "Ambient pairing expired. Tap again to re-pair."
+            );
+          }
+
+          throw new Error(
+            current?.reason ||
+              "Could not read current Ambient state."
+          );
         }
-        const nextEnabled = !(current?.present && current?.desired_enabled === true);
-        const result = await rpc("set_ambient_control", {
-          p_secret: secret,
-          p_enabled: nextEnabled,
-        });
-        if (!result?.ok) throw new Error(result?.reason || "Ambient command rejected.");
-        controlLast = { ...result, present: true };
+
+        const nextEnabled =
+          !(current.present && current.desired_enabled === true);
+
+        const result = await rpc(
+          "set_ambient_control",
+          {
+            p_secret: secret,
+            p_enabled: nextEnabled,
+          }
+        );
+
+        if (!result?.ok) {
+          throw new Error(
+            result?.reason || "Ambient command rejected."
+          );
+        }
+
+        /*
+         * set_ambient_control does not include `present`, while
+         * renderControl expects it. Add it explicitly.
+         */
+        controlLast = {
+          ...result,
+          present: true,
+        };
+
         renderControl(controlLast);
+
+        /*
+         * Companion acknowledgement is asynchronous. Re-read shortly after
+         * the command, and the regular 3 s poll continues from there.
+         */
         setTimeout(readControlStatus, 900);
       } catch (err) {
-        renderControl(controlLast, err.message || "Ambient control failed.");
+        renderControl(
+          controlLast,
+          err.message || "Ambient control failed."
+        );
       } finally {
         controlBusy = false;
-        if (button) button.style.opacity = "1";
+
+        if (button) {
+          button.style.opacity = "1";
+        }
       }
     }
 
-    const controlObserver = new MutationObserver(() => ensureControlButton());
-    controlObserver.observe(document.body, { childList: true, subtree: true });
+    const controlObserver =
+      new MutationObserver(() => ensureControlButton());
+
+    controlObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+
     document.addEventListener("visibilitychange", () => {
       if (!document.hidden) {
         ensureControlButton();
         readControlStatus();
       }
     });
-    setInterval(readControlStatus, CONTROL_POLL_MS);
+
+    setInterval(
+      readControlStatus,
+      CONTROL_POLL_MS
+    );
+
     ensureControlButton();
     readControlStatus();
   </script>
-
 </body>
 </html>
