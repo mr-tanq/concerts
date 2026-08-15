@@ -2,22 +2,33 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1,viewport-fit=cover"
+  />
   <meta name="theme-color" content="#08080a" />
   <title>Listening Mirror</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap"
+    rel="stylesheet"
+  />
 
   <link rel="stylesheet" href="css/style.css" />
 </head>
+
 <body>
-  <!-- A single hairline masthead. The app name is small on purpose: the
-       content is the subject, not the product. -->
   <header class="masthead">
     <span class="masthead-name">Listening Mirror</span>
-    <button class="masthead-settings" id="btn-settings" aria-label="Settings">
+
+    <button
+      class="masthead-settings"
+      id="btn-settings"
+      aria-label="Settings"
+    >
       <span class="settings-dot" id="settings-dot"></span>
     </button>
   </header>
@@ -26,37 +37,53 @@
 
   <main>
     <section id="panel-mirror" class="tab-panel"></section>
-
     <section id="panel-realm" class="tab-panel"></section>
-
     <section id="panel-concerts" class="tab-panel"></section>
-
     <section id="panel-identity" class="tab-panel"></section>
-
     <section id="panel-archive" class="tab-panel"></section>
   </main>
 
-  <!-- Navigation as quiet type, not icons. The active item is marked by a
-       single dot — the smallest possible signal that still reads. -->
   <nav class="rail">
-    <button id="nav-mirror"><span>Mirror</span></button>
-    <button id="nav-realm"><span>Realm</span></button>
-    <button id="nav-concerts"><span>Tonight</span></button>
-    <button id="nav-identity"><span>Self</span></button>
-    <button id="nav-archive"><span>Archive</span></button>
+    <button id="nav-mirror">
+      <span>Mirror</span>
+    </button>
+
+    <button id="nav-realm">
+      <span>Realm</span>
+    </button>
+
+    <button id="nav-concerts">
+      <span>Tonight</span>
+    </button>
+
+    <button id="nav-identity">
+      <span>Self</span>
+    </button>
+
+    <button id="nav-archive">
+      <span>Archive</span>
+    </button>
   </nav>
 
   <script type="module" src="js/app.js"></script>
 
-  <!-- Phase 2B: tiny source provenance mark for Mirror.
-       Kept outside mirror.js so it cannot disturb playback/lyrics/arbitration.
-       Spotify Web is identifiable by Mirror's controls; Android sources are
-       confirmed against the fresh relay state and the track actually shown. -->
+  <!-- =========================================================
+       PHASE 2B
+       Source provenance icon:
+       Spotify / YouTube / Ambient radio
+       ========================================================= -->
   <script type="module">
-    import { getReadSecret } from "./js/relay-config.js";
-    import { fetchRelayState, isFresh } from "./js/relay-client.js";
+    import {
+      getReadSecret
+    } from "./js/relay-config.js";
+
+    import {
+      fetchRelayState,
+      isFresh
+    } from "./js/relay-client.js";
 
     const ICON_REFRESH_MS = 5000;
+
     let refreshInFlight = false;
     let scheduled = false;
 
@@ -70,24 +97,117 @@
     }
 
     function iconFor(source) {
-      if (source === "spotify_web" || source === "spotify_android") {
+      if (
+        source === "spotify_web" ||
+        source === "spotify_android"
+      ) {
         return {
           label: "Spotify",
-          svg: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9.2"></circle><path d="M7.1 9.4c3.5-1 7.2-.7 9.9.8"></path><path d="M7.8 12.4c2.9-.7 5.9-.45 8.2.6"></path><path d="M8.5 15.1c2.2-.5 4.5-.3 6.4.4"></path></svg>`,
+
+          svg: `
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.55"
+              stroke-linecap="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="9.2"></circle>
+
+              <path
+                d="M7.1 9.4c3.5-1 7.2-.7 9.9.8"
+              ></path>
+
+              <path
+                d="M7.8 12.4c2.9-.7 5.9-.45 8.2.6"
+              ></path>
+
+              <path
+                d="M8.5 15.1c2.2-.5 4.5-.3 6.4.4"
+              ></path>
+            </svg>
+          `,
         };
       }
 
-      if (source === "youtube_android" || source === "youtube_music_android") {
+      if (
+        source === "youtube_android" ||
+        source === "youtube_music_android"
+      ) {
         return {
-          label: source === "youtube_music_android" ? "YouTube Music" : "YouTube",
-          svg: `<svg width="16" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.55" aria-hidden="true"><rect x="3.5" y="6.5" width="17" height="11" rx="3.2"></rect><path d="M10 9.5l5 3-5 3z" fill="currentColor" stroke="none"></path></svg>`,
+          label:
+            source === "youtube_music_android"
+              ? "YouTube Music"
+              : "YouTube",
+
+          svg: `
+            <svg
+              width="16"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.55"
+              aria-hidden="true"
+            >
+              <rect
+                x="3.5"
+                y="6.5"
+                width="17"
+                height="11"
+                rx="3.2"
+              ></rect>
+
+              <path
+                d="M10 9.5l5 3-5 3z"
+                fill="currentColor"
+                stroke="none"
+              ></path>
+            </svg>
+          `,
         };
       }
 
       if (source === "ambient_audd") {
         return {
           label: "Ambient · radio",
-          svg: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.55" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 6l10-3"></path><rect x="4" y="7" width="16" height="12" rx="2.4"></rect><path d="M7.5 11h3.3M7.5 14h3.3M7.5 17h2.2"></path><circle cx="15.6" cy="13.1" r="2.35"></circle></svg>`,
+
+          svg: `
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.55"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M7 6l10-3"></path>
+
+              <rect
+                x="4"
+                y="7"
+                width="16"
+                height="12"
+                rx="2.4"
+              ></rect>
+
+              <path
+                d="M7.5 11h3.3M7.5 14h3.3M7.5 17h2.2"
+              ></path>
+
+              <circle
+                cx="15.6"
+                cy="13.1"
+                r="2.35"
+              ></circle>
+            </svg>
+          `,
         };
       }
 
@@ -95,10 +215,20 @@
     }
 
     function renderSource(source) {
-      const trackRow = document.querySelector("#panel-mirror .mirror-track");
-      if (!trackRow) return;
+      const trackRow =
+        document.querySelector(
+          "#panel-mirror .mirror-track"
+        );
 
-      let host = trackRow.querySelector(".mirror-source-indicator");
+      if (!trackRow) {
+        return;
+      }
+
+      let host =
+        trackRow.querySelector(
+          ".mirror-source-indicator"
+        );
+
       const icon = iconFor(source);
 
       if (!icon) {
@@ -108,79 +238,145 @@
 
       if (!host) {
         host = document.createElement("span");
-        host.className = "mirror-source-indicator";
+
+        host.className =
+          "mirror-source-indicator";
+
         host.style.cssText =
-          "display:inline-flex;align-items:center;vertical-align:-3px;margin-right:8px;color:var(--bone-faint);opacity:.9";
+          "display:inline-flex;" +
+          "align-items:center;" +
+          "vertical-align:-3px;" +
+          "margin-right:8px;" +
+          "color:var(--bone-faint);" +
+          "opacity:.9";
+
         trackRow.prepend(host);
       }
 
-      if (host.dataset.source === source) return;
+      if (
+        host.dataset.source === source
+      ) {
+        return;
+      }
 
       host.dataset.source = source;
       host.title = icon.label;
-      host.setAttribute("aria-label", icon.label);
+
+      host.setAttribute(
+        "aria-label",
+        icon.label
+      );
+
       host.innerHTML = icon.svg;
     }
 
     async function refreshSourceIcon() {
-      if (refreshInFlight || document.hidden) return;
+      if (
+        refreshInFlight ||
+        document.hidden
+      ) {
+        return;
+      }
 
-      const trackRow = document.querySelector("#panel-mirror .mirror-track");
-      if (!trackRow) return;
+      const trackRow =
+        document.querySelector(
+          "#panel-mirror .mirror-track"
+        );
+
+      if (!trackRow) {
+        return;
+      }
 
       refreshInFlight = true;
 
       try {
-        // Spotify Web is the only current Mirror source with playback controls.
-        if (document.querySelector("#panel-mirror .mirror-controls")) {
+        /*
+         * Spotify Web is identifiable from
+         * Mirror's own playback controls.
+         */
+        if (
+          document.querySelector(
+            "#panel-mirror .mirror-controls"
+          )
+        ) {
           renderSource("spotify_web");
           return;
         }
 
-        const secret = getReadSecret();
+        const secret =
+          getReadSecret();
 
         if (!secret) {
           renderSource(null);
           return;
         }
 
-        const { payload } = await fetchRelayState(secret);
+        const { payload } =
+          await fetchRelayState(secret);
 
-        if (!isFresh(payload) || !payload.present || !payload.state) {
+        if (
+          !isFresh(payload) ||
+          !payload.present ||
+          !payload.state
+        ) {
           renderSource(null);
           return;
         }
 
         const shownTrack =
-          trackRow.querySelector(".mirror-track-name")?.textContent || "";
+          trackRow
+            .querySelector(
+              ".mirror-track-name"
+            )
+            ?.textContent || "";
 
         const shownArtist =
-          (trackRow.querySelector(".mirror-track-artist")?.textContent || "")
-            .replace(/^\s*—\s*/, "");
+          (
+            trackRow
+              .querySelector(
+                ".mirror-track-artist"
+              )
+              ?.textContent || ""
+          ).replace(
+            /^\s*—\s*/,
+            ""
+          );
 
-        const relay = payload.state;
+        const relay =
+          payload.state;
 
-        // Only label the DOM when the relay state is the same song Mirror is
-        // actually showing. This prevents a stale/non-selected Android source
-        // from visually claiming a Spotify-Web track.
+        /*
+         * Only claim the source if the
+         * relay song is the song that
+         * Mirror is actually showing.
+         */
         if (
-          norm(shownTrack) === norm(relay.track) &&
-          norm(shownArtist) === norm(relay.artist)
+          norm(shownTrack) ===
+            norm(relay.track) &&
+          norm(shownArtist) ===
+            norm(relay.artist)
         ) {
-          renderSource(relay.source);
+          renderSource(
+            relay.source
+          );
         } else {
           renderSource(null);
         }
       } catch (_) {
-        // Provenance is decorative. A network failure must never surface as a
-        // Mirror error or interfere with lyrics/playback.
+        /*
+         * Decorative only.
+         * Source icon failure must never
+         * break Mirror.
+         */
       } finally {
         refreshInFlight = false;
       }
     }
 
     function scheduleRefresh() {
-      if (scheduled) return;
+      if (scheduled) {
+        return;
+      }
 
       scheduled = true;
 
@@ -190,21 +386,46 @@
       });
     }
 
-    new MutationObserver(scheduleRefresh).observe(document.body, {
-      childList: true,
-      subtree: true,
-    });
+    new MutationObserver(
+      scheduleRefresh
+    ).observe(
+      document.body,
+      {
+        childList: true,
+        subtree: true,
+      }
+    );
 
-    document.addEventListener("visibilitychange", () => {
-      if (!document.hidden) refreshSourceIcon();
-    });
+    document.addEventListener(
+      "visibilitychange",
+      () => {
+        if (!document.hidden) {
+          refreshSourceIcon();
+        }
+      }
+    );
 
-    setInterval(refreshSourceIcon, ICON_REFRESH_MS);
+    setInterval(
+      refreshSourceIcon,
+      ICON_REFRESH_MS
+    );
+
     refreshSourceIcon();
   </script>
 
-  <!-- Phase 2C: remote Ambient ON/OFF from Mirror.
-       Uses a separate browser control credential. -->
+  <!-- =========================================================
+       PHASE 2C.1
+       Ambient remote control
+
+       IMPORTANT:
+       No separate control credential anymore.
+
+       Mirror uses its EXISTING relay read credential
+       for status + ON/OFF commands.
+
+       Android continues to use its write credential
+       for command polling + acknowledgement.
+       ========================================================= -->
   <script type="module">
     import {
       RELAY_URL,
@@ -212,154 +433,127 @@
       getReadSecret,
     } from "./js/relay-config.js";
 
-    const CONTROL_SECRET_KEY = "lm_ambient_control_secret";
     const CONTROL_POLL_MS = 3000;
 
     let controlBusy = false;
     let controlLast = null;
 
-    function storedControlSecret() {
-      try {
-        return localStorage.getItem(CONTROL_SECRET_KEY);
-      } catch {
-        return null;
-      }
-    }
+    /*
+     * Delete the obsolete Phase 2C
+     * pairing secret if an older build
+     * left one in this browser.
+     *
+     * It is no longer used at all.
+     */
+    try {
+      localStorage.removeItem(
+        "lm_ambient_control_secret"
+      );
+    } catch {}
 
-    function saveControlSecret(secret) {
-      localStorage.setItem(CONTROL_SECRET_KEY, secret);
-    }
+    async function rpc(
+      name,
+      body
+    ) {
+      const res =
+        await fetch(
+          `${RELAY_URL}/rest/v1/rpc/${name}`,
+          {
+            method: "POST",
 
-    function clearControlSecret() {
-      try {
-        localStorage.removeItem(CONTROL_SECRET_KEY);
-      } catch {}
-    }
+            headers: {
+              "Content-Type":
+                "application/json",
 
-    function newControlSecret() {
-      const bytes = new Uint8Array(32);
-      crypto.getRandomValues(bytes);
+              apikey:
+                RELAY_ANON_KEY,
 
-      const b64 = btoa(String.fromCharCode(...bytes))
-        .replace(/\+/g, "-")
-        .replace(/\//g, "_")
-        .replace(/=+$/g, "");
+              Authorization:
+                `Bearer ${RELAY_ANON_KEY}`,
+            },
 
-      return "lmc_" + b64;
-    }
-
-    async function rpc(name, body) {
-      const res = await fetch(`${RELAY_URL}/rest/v1/rpc/${name}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          apikey: RELAY_ANON_KEY,
-          Authorization: `Bearer ${RELAY_ANON_KEY}`,
-        },
-        body: JSON.stringify(body),
-      });
+            body:
+              JSON.stringify(body),
+          }
+        );
 
       if (!res.ok) {
-        throw new Error(`Ambient control HTTP ${res.status}`);
+        throw new Error(
+          `Ambient control HTTP ${res.status}`
+        );
       }
 
       return res.json();
     }
 
-    /*
-     * Self-healing pairing:
-     *
-     * Older Phase 2C builds could leave lm_ambient_control_secret in
-     * localStorage even when no matching control credential existed anymore
-     * in Supabase. In that case the UI could appear to turn ON but subsequent
-     * commands had no authoritative state.
-     *
-     * We now validate the stored credential before using it. Only an explicit
-     * invalid_secret response is treated as stale pairing and cleared.
-     * Ordinary network errors must never destroy a valid pairing.
-     */
-    async function ensureControlSecret() {
-      const existing = storedControlSecret();
+    function controlSecret() {
+      const secret =
+        getReadSecret();
 
-      if (existing) {
-        try {
-          const check = await rpc("read_ambient_control_status", {
-            p_secret: existing,
-          });
-
-          if (check?.ok) {
-            return existing;
-          }
-
-          if (check?.reason !== "invalid_secret") {
-            throw new Error(
-              check?.reason || "Ambient control validation failed."
-            );
-          }
-
-          // Stored browser credential is genuinely stale.
-          clearControlSecret();
-          controlLast = null;
-        } catch (err) {
-          /*
-           * If the credential still exists locally, the failure above was a
-           * network/server failure rather than a confirmed invalid_secret.
-           * Preserve the pairing and surface the error.
-           */
-          if (storedControlSecret()) {
-            throw err;
-          }
-        }
-      }
-
-      const readSecret = getReadSecret();
-
-      if (!readSecret) {
-        throw new Error("Relay read secret is not configured.");
-      }
-
-      const candidate = newControlSecret();
-
-      const result = await rpc("provision_ambient_control", {
-        p_read_secret: readSecret,
-        p_control_secret: candidate,
-      });
-
-      if (!result?.ok) {
-        if (result?.reason === "control_already_provisioned") {
-          throw new Error(
-            "Ambient control is already paired with another browser."
-          );
-        }
-
+      if (!secret) {
         throw new Error(
-          result?.reason || "Could not provision ambient control."
+          "Relay read secret is not configured."
         );
       }
 
-      saveControlSecret(candidate);
-
-      return candidate;
+      return secret;
     }
 
     function ensureControlButton() {
-      const stage = document.querySelector("#panel-mirror .mirror-stage");
+      const stage =
+        document.querySelector(
+          "#panel-mirror .mirror-stage"
+        );
 
-      if (!stage || stage.querySelector("#mirror-ambient-control")) {
+      if (!stage) {
         return;
       }
 
-      stage.style.position = "relative";
+      if (
+        stage.querySelector(
+          "#mirror-ambient-control"
+        )
+      ) {
+        return;
+      }
 
-      const button = document.createElement("button");
+      stage.style.position =
+        "relative";
 
-      button.id = "mirror-ambient-control";
-      button.type = "button";
-      button.setAttribute("aria-label", "Ambient recognition");
+      const button =
+        document.createElement(
+          "button"
+        );
+
+      button.id =
+        "mirror-ambient-control";
+
+      button.type =
+        "button";
+
+      button.setAttribute(
+        "aria-label",
+        "Ambient recognition"
+      );
+
+      button.setAttribute(
+        "aria-pressed",
+        "false"
+      );
 
       button.style.cssText =
-        "position:absolute;top:0;right:0;display:inline-flex;align-items:center;gap:7px;" +
-        "padding:3px 0 7px 12px;color:var(--bone-faint);line-height:1;";
+        "position:absolute;" +
+        "top:0;" +
+        "right:0;" +
+        "display:inline-flex;" +
+        "align-items:center;" +
+        "gap:7px;" +
+        "padding:3px 0 7px 12px;" +
+        "color:var(--bone-faint);" +
+        "line-height:1;" +
+        "border:0;" +
+        "background:none;" +
+        "cursor:pointer;";
 
       button.innerHTML = `
         <svg
@@ -373,10 +567,27 @@
           stroke-linejoin="round"
           aria-hidden="true"
         >
-          <path d="M7 6l10-3"></path>
-          <rect x="4" y="7" width="16" height="12" rx="2.4"></rect>
-          <path d="M7.5 11h3.3M7.5 14h3.3M7.5 17h2.2"></path>
-          <circle cx="15.6" cy="13.1" r="2.35"></circle>
+          <path
+            d="M7 6l10-3"
+          ></path>
+
+          <rect
+            x="4"
+            y="7"
+            width="16"
+            height="12"
+            rx="2.4"
+          ></rect>
+
+          <path
+            d="M7.5 11h3.3M7.5 14h3.3M7.5 17h2.2"
+          ></path>
+
+          <circle
+            cx="15.6"
+            cy="13.1"
+            r="2.35"
+          ></circle>
         </svg>
 
         <span
@@ -387,238 +598,375 @@
             height:6px;
             border-radius:50%;
             background:var(--bone-faint);
-            transition:.25s;
+            transition:
+              background .25s,
+              box-shadow .25s,
+              opacity .25s;
           "
         ></span>
       `;
 
-      button.addEventListener("click", toggleAmbientRemote);
+      button.addEventListener(
+        "click",
+        toggleAmbientRemote
+      );
 
-      stage.appendChild(button);
+      stage.appendChild(
+        button
+      );
 
-      renderControl(controlLast);
-    }
-
-    function renderControl(state, error = null) {
-      ensureControlButton();
-
-      const button = document.querySelector("#mirror-ambient-control");
-
-      if (!button) return;
-
-      const dot = button.querySelector(".ambient-control-dot");
-
-      if (error) {
-        button.style.color = "var(--red)";
-        dot.style.background = "var(--red)";
-        dot.style.boxShadow = "none";
-
-        button.title = error;
-        button.setAttribute("aria-pressed", "false");
-
-        return;
-      }
-
-      button.style.color = "var(--bone-faint)";
-
-      if (!state?.present) {
-        dot.style.background = "var(--bone-faint)";
-        dot.style.boxShadow = "none";
-
-        button.title = "Ambient remote · OFF / not paired yet";
-        button.setAttribute("aria-pressed", "false");
-
-        return;
-      }
-
-      const desired = !!state.desired_enabled;
-
-      const acked =
-        state.ack_sequence === state.command_sequence &&
-        state.ack_enabled === desired;
-
-      if (desired && acked) {
-        dot.style.background = "var(--ice)";
-        dot.style.boxShadow = "0 0 9px rgba(111,214,234,.65)";
-
-        button.title = "Ambient remote · ON";
-      } else if (desired) {
-        dot.style.background = "var(--ember)";
-        dot.style.boxShadow = "0 0 8px rgba(255,122,69,.45)";
-
-        button.title =
-          "Ambient remote · ON requested · waiting for Companion";
-      } else if (acked) {
-        dot.style.background = "var(--bone-faint)";
-        dot.style.boxShadow = "none";
-
-        button.title = "Ambient remote · OFF";
-      } else {
-        dot.style.background = "var(--ember)";
-        dot.style.boxShadow = "none";
-
-        button.title =
-          "Ambient remote · OFF requested · waiting for Companion";
-      }
-
-      button.setAttribute(
-        "aria-pressed",
-        desired ? "true" : "false"
+      renderControl(
+        controlLast
       );
     }
 
-    async function readControlStatus() {
-      const secret = storedControlSecret();
+    function renderControl(
+      state,
+      error = null
+    ) {
+      ensureControlButton();
 
-      if (!secret || document.hidden) {
+      const button =
+        document.querySelector(
+          "#mirror-ambient-control"
+        );
+
+      if (!button) {
+        return;
+      }
+
+      const dot =
+        button.querySelector(
+          ".ambient-control-dot"
+        );
+
+      if (!dot) {
+        return;
+      }
+
+      /*
+       * Error state.
+       */
+      if (error) {
+        dot.style.background =
+          "#cf665e";
+
+        dot.style.boxShadow =
+          "none";
+
+        button.title =
+          error;
+
+        return;
+      }
+
+      /*
+       * No row yet means OFF.
+       */
+      if (
+        !state ||
+        !state.present
+      ) {
+        dot.style.background =
+          "var(--bone-faint)";
+
+        dot.style.boxShadow =
+          "none";
+
+        dot.style.opacity =
+          ".55";
+
+        button.title =
+          "Ambient remote · OFF";
+
+        button.setAttribute(
+          "aria-pressed",
+          "false"
+        );
+
+        return;
+      }
+
+      const desired =
+        state.desired_enabled === true;
+
+      const acked =
+        state.ack_sequence ===
+          state.command_sequence &&
+        state.ack_enabled ===
+          desired;
+
+      /*
+       * ON and acknowledged by Companion.
+       */
+      if (
+        desired &&
+        acked
+      ) {
+        dot.style.background =
+          "#8bd7df";
+
+        dot.style.boxShadow =
+          "0 0 9px rgba(139,215,223,.65)";
+
+        dot.style.opacity =
+          "1";
+
+        button.title =
+          "Ambient remote · ON";
+
+        button.setAttribute(
+          "aria-pressed",
+          "true"
+        );
+
+        return;
+      }
+
+      /*
+       * ON command sent,
+       * waiting for Android ACK.
+       */
+      if (desired) {
+        dot.style.background =
+          "#d59a67";
+
+        dot.style.boxShadow =
+          "0 0 8px rgba(213,154,103,.4)";
+
+        dot.style.opacity =
+          "1";
+
+        button.title =
+          "Ambient remote · ON requested";
+
+        button.setAttribute(
+          "aria-pressed",
+          "true"
+        );
+
+        return;
+      }
+
+      /*
+       * OFF and acknowledged.
+       */
+      if (acked) {
+        dot.style.background =
+          "var(--bone-faint)";
+
+        dot.style.boxShadow =
+          "none";
+
+        dot.style.opacity =
+          ".55";
+
+        button.title =
+          "Ambient remote · OFF";
+
+        button.setAttribute(
+          "aria-pressed",
+          "false"
+        );
+
+        return;
+      }
+
+      /*
+       * OFF command sent,
+       * waiting for Companion ACK.
+       */
+      dot.style.background =
+        "#d59a67";
+
+      dot.style.boxShadow =
+        "none";
+
+      dot.style.opacity =
+        ".8";
+
+      button.title =
+        "Ambient remote · OFF requested";
+
+      button.setAttribute(
+        "aria-pressed",
+        "false"
+      );
+    }
+
+    async function fetchControlStatus() {
+      const secret =
+        controlSecret();
+
+      const result =
+        await rpc(
+          "read_ambient_control_status",
+          {
+            p_secret:
+              secret,
+          }
+        );
+
+      if (!result?.ok) {
+        throw new Error(
+          result?.reason ||
+          "Ambient status rejected."
+        );
+      }
+
+      return result;
+    }
+
+    async function readControlStatus() {
+      if (document.hidden) {
         return;
       }
 
       try {
-        const state = await rpc(
-          "read_ambient_control_status",
-          {
-            p_secret: secret,
-          }
+        const result =
+          await fetchControlStatus();
+
+        controlLast =
+          result;
+
+        renderControl(
+          result
         );
-
-        /*
-         * If Supabase says the locally stored pairing is invalid, clear it.
-         * The next user tap can then provision a fresh control credential.
-         */
-        if (!state?.ok) {
-          if (state?.reason === "invalid_secret") {
-            clearControlSecret();
-            controlLast = null;
-
-            renderControl({
-              ok: true,
-              present: false,
-              desired_enabled: false,
-            });
-
-            return;
-          }
-
-          throw new Error(
-            state?.reason || "Ambient status rejected."
-          );
-        }
-
-        controlLast = state;
-        renderControl(state);
       } catch (err) {
         renderControl(
           controlLast,
-          err.message || "Ambient control unavailable."
+          err?.message ||
+          "Ambient control unavailable."
         );
       }
     }
 
     async function toggleAmbientRemote() {
-      if (controlBusy) return;
+      if (controlBusy) {
+        return;
+      }
 
       controlBusy = true;
 
       const button =
-        document.querySelector("#mirror-ambient-control");
+        document.querySelector(
+          "#mirror-ambient-control"
+        );
 
       if (button) {
-        button.style.opacity = ".55";
+        button.style.opacity =
+          ".5";
       }
 
       try {
-        const secret = await ensureControlSecret();
+        const secret =
+          controlSecret();
 
         /*
-         * Always fetch authoritative server state before deciding whether
-         * this tap means ON or OFF. Never rely only on an optimistic local
-         * controlLast value.
+         * Always ask Supabase first.
+         *
+         * This means:
+         * first tap:
+         *   false -> true
+         *
+         * second tap:
+         *   true -> false
+         *
+         * No optimistic cached-state guessing.
          */
-        const current = await rpc(
-          "read_ambient_control_status",
-          {
-            p_secret: secret,
-          }
-        );
+        const current =
+          await fetchControlStatus();
 
-        if (!current?.ok) {
-          if (current?.reason === "invalid_secret") {
-            clearControlSecret();
-            controlLast = null;
-
-            throw new Error(
-              "Ambient pairing expired. Tap again to re-pair."
-            );
-          }
-
-          throw new Error(
-            current?.reason ||
-              "Could not read current Ambient state."
-          );
-        }
+        const currentlyEnabled =
+          current.present === true &&
+          current.desired_enabled === true;
 
         const nextEnabled =
-          !(current.present && current.desired_enabled === true);
+          !currentlyEnabled;
 
-        const result = await rpc(
-          "set_ambient_control",
-          {
-            p_secret: secret,
-            p_enabled: nextEnabled,
-          }
-        );
+        const result =
+          await rpc(
+            "set_ambient_control",
+            {
+              p_secret:
+                secret,
+
+              p_enabled:
+                nextEnabled,
+            }
+          );
 
         if (!result?.ok) {
           throw new Error(
-            result?.reason || "Ambient command rejected."
+            result?.reason ||
+            "Ambient command rejected."
           );
         }
 
-        /*
-         * set_ambient_control does not include `present`, while
-         * renderControl expects it. Add it explicitly.
-         */
         controlLast = {
           ...result,
           present: true,
         };
 
-        renderControl(controlLast);
+        renderControl(
+          controlLast
+        );
 
         /*
-         * Companion acknowledgement is asynchronous. Re-read shortly after
-         * the command, and the regular 3 s poll continues from there.
+         * Android ACK is asynchronous.
          */
-        setTimeout(readControlStatus, 900);
+        setTimeout(
+          readControlStatus,
+          800
+        );
+
+        setTimeout(
+          readControlStatus,
+          1800
+        );
       } catch (err) {
         renderControl(
           controlLast,
-          err.message || "Ambient control failed."
+          err?.message ||
+          "Ambient control failed."
         );
       } finally {
         controlBusy = false;
 
         if (button) {
-          button.style.opacity = "1";
+          button.style.opacity =
+            "1";
         }
       }
     }
 
+    /*
+     * Mirror redraws its own DOM,
+     * therefore recreate the small
+     * control if needed.
+     */
     const controlObserver =
-      new MutationObserver(() => ensureControlButton());
-
-    controlObserver.observe(document.body, {
-      childList: true,
-      subtree: true,
-    });
-
-    document.addEventListener("visibilitychange", () => {
-      if (!document.hidden) {
+      new MutationObserver(() => {
         ensureControlButton();
-        readControlStatus();
+      });
+
+    controlObserver.observe(
+      document.body,
+      {
+        childList: true,
+        subtree: true,
       }
-    });
+    );
+
+    document.addEventListener(
+      "visibilitychange",
+      () => {
+        if (!document.hidden) {
+          ensureControlButton();
+          readControlStatus();
+        }
+      }
+    );
 
     setInterval(
       readControlStatus,
