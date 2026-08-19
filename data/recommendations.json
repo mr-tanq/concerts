@@ -1,17 +1,17 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-08-18T21:30:49.669Z",
+    "lastUpdated": "2026-08-19T06:39:18.343Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 0,
-      "daysCached": 366,
+      "daysFresh": 366,
+      "daysCached": 0,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 2,
       "rejectedByLineup": 0
     }
   },
@@ -47,10 +47,88 @@
         "reason": "Known artist: PRO-PAIN",
         "matchedArtists": [
           "PRO-PAIN"
-        ]
+        ],
+        "similarVia": null
       },
       "discoveredAt": "2026-08-18T21:30:49.669Z",
-      "lastSeenAt": "2026-08-18T21:30:49.669Z"
+      "lastSeenAt": "2026-08-19T06:39:18.343Z"
+    },
+    {
+      "id": "rec-podiuminfo-490848",
+      "source": "podiuminfo",
+      "sourceId": "490848",
+      "artist": "The Doors",
+      "lineup": [
+        "The Doors"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "The Doors"
+      ],
+      "date": "2027-02-19",
+      "time": null,
+      "venue": "Concert - Authentic Tribute Band in Jan van Besouw",
+      "city": "Goirle",
+      "country": "??",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/56103/100_The_Doors_in_Concert_1.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/490848/The-Doors-in-Concert-Authentic-Tribute-Band/Jan-van-Besouw/",
+      "match": {
+        "score": 40,
+        "label": "Possible match",
+        "matchedBy": "direct",
+        "reason": "Known artist: The Doors",
+        "matchedArtists": [
+          "The Doors"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-08-19T06:39:18.343Z",
+      "lastSeenAt": "2026-08-19T06:39:18.343Z"
+    },
+    {
+      "id": "rec-podiuminfo-490902",
+      "source": "podiuminfo",
+      "sourceId": "490902",
+      "artist": "High Spirits",
+      "lineup": [
+        "High Spirits",
+        "Savage Master"
+      ],
+      "supportingArtists": [
+        "Savage Master"
+      ],
+      "matchedArtists": [
+        "High Spirits"
+      ],
+      "date": "2027-03-05",
+      "time": null,
+      "venue": "Willemeen",
+      "city": "Arnhem",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.podiuminfo.nl/img/podiuminfo-rond.png",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/490902/High-Spirits-Savage-Master/Willemeen/",
+      "match": {
+        "score": 31,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Hällas",
+        "matchedArtists": [
+          "High Spirits"
+        ],
+        "similarVia": "Hällas"
+      },
+      "discoveredAt": "2026-08-19T06:39:18.343Z",
+      "lastSeenAt": "2026-08-19T06:39:18.343Z"
     }
   ]
 }
