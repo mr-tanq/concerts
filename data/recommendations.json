@@ -1,19 +1,168 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-08-22T07:33:02.314Z",
+    "lastUpdated": "2026-08-22T18:19:38.045Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 366,
-      "daysCached": 0,
+      "daysFresh": 0,
+      "daysCached": 366,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 7,
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-456997",
+      "source": "podiuminfo",
+      "sourceId": "456997",
+      "artist": "Martin Kohlstedt",
+      "lineup": [
+        "Martin Kohlstedt"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Martin Kohlstedt"
+      ],
+      "date": "2026-11-16",
+      "time": null,
+      "venue": "TivoliVredenburg",
+      "city": "Utrecht",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/104987/100_Martin_Kohlstedt_3.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/456997/Martin-Kohlstedt/TivoliVredenburg/",
+      "match": {
+        "score": 36,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Gonzales",
+        "matchedArtists": [
+          "Martin Kohlstedt"
+        ],
+        "similarVia": "Gonzales"
+      },
+      "discoveredAt": "2026-08-22T18:19:38.045Z",
+      "lastSeenAt": "2026-08-22T18:19:38.045Z"
+    },
+    {
+      "id": "rec-podiuminfo-459928",
+      "source": "podiuminfo",
+      "sourceId": "459928",
+      "artist": "Havok",
+      "lineup": [
+        "Havok"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Havok"
+      ],
+      "date": "2026-09-12",
+      "time": null,
+      "venue": "Dynamo",
+      "city": "Eindhoven",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/63904/100_Havok_1.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/459928/Havok/Dynamo/",
+      "match": {
+        "score": 34,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Megadeth",
+        "matchedArtists": [
+          "Havok"
+        ],
+        "similarVia": "Megadeth"
+      },
+      "discoveredAt": "2026-08-22T18:19:38.045Z",
+      "lastSeenAt": "2026-08-22T18:19:38.045Z"
+    },
+    {
+      "id": "rec-podiuminfo-478784",
+      "source": "podiuminfo",
+      "sourceId": "478784",
+      "artist": "Tonic Walter",
+      "lineup": [
+        "Tonic Walter"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Tonic Walter"
+      ],
+      "date": "2026-12-12",
+      "time": null,
+      "venue": "Melkweg",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.podiuminfo.nl/img/podiuminfo-rond.png",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/137421/cd/Tonic-Walter/Melkweg/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/478784/Tonic-Walter/Melkweg/",
+      "match": {
+        "score": 34,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Monolink",
+        "matchedArtists": [
+          "Tonic Walter"
+        ],
+        "similarVia": "Monolink"
+      },
+      "discoveredAt": "2026-08-22T18:19:38.045Z",
+      "lastSeenAt": "2026-08-22T18:19:38.045Z"
+    },
+    {
+      "id": "rec-podiuminfo-456930",
+      "source": "podiuminfo",
+      "sourceId": "456930",
+      "artist": "Des Rocs",
+      "lineup": [
+        "Des Rocs"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Des Rocs"
+      ],
+      "date": "2026-10-15",
+      "time": null,
+      "venue": "Melkweg",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/130214/100_Des_Rocs_1.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/131741/cd/Des-Rocs/Melkweg/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/456930/Des-Rocs/Melkweg/",
+      "match": {
+        "score": 31,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Muse",
+        "matchedArtists": [
+          "Des Rocs"
+        ],
+        "similarVia": "Muse"
+      },
+      "discoveredAt": "2026-08-22T18:19:38.045Z",
+      "lastSeenAt": "2026-08-22T18:19:38.045Z"
+    }
+  ]
 }
