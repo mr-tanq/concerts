@@ -1,21 +1,58 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-08-22T18:19:38.045Z",
+    "lastUpdated": "2026-08-23T06:36:27.567Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 0,
-      "daysCached": 366,
+      "daysFresh": 366,
+      "daysCached": 0,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 7,
+      "concertsOpened": 1,
       "rejectedByLineup": 0
     }
   },
   "concerts": [
+    {
+      "id": "rec-podiuminfo-491303",
+      "source": "podiuminfo",
+      "sourceId": "491303",
+      "artist": "Jacco Wynia",
+      "lineup": [
+        "Jacco Wynia"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Jacco Wynia"
+      ],
+      "date": "2026-09-20",
+      "time": null,
+      "venue": "Schouwburg Concertzaal Tilburg",
+      "city": "Tilburg",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/111108/100_Jacco_Wynia_1.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/491303/Jacco-Wynia-Neo-klassieke-klanken/Schouwburg-Concertzaal-Tilburg/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Jacco Wynia",
+        "matchedArtists": [
+          "Jacco Wynia"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-08-23T06:36:27.567Z",
+      "lastSeenAt": "2026-08-23T06:36:27.567Z"
+    },
     {
       "id": "rec-podiuminfo-456997",
       "source": "podiuminfo",
@@ -51,7 +88,7 @@
         "similarVia": "Gonzales"
       },
       "discoveredAt": "2026-08-22T18:19:38.045Z",
-      "lastSeenAt": "2026-08-22T18:19:38.045Z"
+      "lastSeenAt": "2026-08-23T06:36:27.567Z"
     },
     {
       "id": "rec-podiuminfo-459928",
@@ -88,7 +125,7 @@
         "similarVia": "Megadeth"
       },
       "discoveredAt": "2026-08-22T18:19:38.045Z",
-      "lastSeenAt": "2026-08-22T18:19:38.045Z"
+      "lastSeenAt": "2026-08-23T06:36:27.567Z"
     },
     {
       "id": "rec-podiuminfo-478784",
@@ -125,7 +162,7 @@
         "similarVia": "Monolink"
       },
       "discoveredAt": "2026-08-22T18:19:38.045Z",
-      "lastSeenAt": "2026-08-22T18:19:38.045Z"
+      "lastSeenAt": "2026-08-23T06:36:27.567Z"
     },
     {
       "id": "rec-podiuminfo-456930",
@@ -162,7 +199,7 @@
         "similarVia": "Muse"
       },
       "discoveredAt": "2026-08-22T18:19:38.045Z",
-      "lastSeenAt": "2026-08-22T18:19:38.045Z"
+      "lastSeenAt": "2026-08-23T06:36:27.567Z"
     }
   ]
 }
