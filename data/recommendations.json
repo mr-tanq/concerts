@@ -1,19 +1,57 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-09-01T20:23:12.084Z",
+    "lastUpdated": "2026-09-02T10:30:18.708Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 0,
-      "daysCached": 366,
+      "daysFresh": 366,
+      "daysCached": 0,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 60,
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-492395",
+      "source": "podiuminfo",
+      "sourceId": "492395",
+      "artist": "Charlie Cunningham",
+      "lineup": [
+        "Charlie Cunningham"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Charlie Cunningham"
+      ],
+      "date": "2027-02-14",
+      "time": null,
+      "venue": "Arminius",
+      "city": "Rotterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/85381/100_Charlie_Cunningham_1.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/141154/cd/Charlie-Cunningham/Arminius/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/492395/Charlie-Cunningham/Arminius/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Charlie Cunningham",
+        "matchedArtists": [
+          "Charlie Cunningham"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-09-02T10:30:18.708Z",
+      "lastSeenAt": "2026-09-02T10:30:18.708Z"
+    }
+  ]
 }
