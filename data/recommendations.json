@@ -1,21 +1,58 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-09-02T20:22:55.391Z",
+    "lastUpdated": "2026-09-03T10:38:19.826Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 0,
-      "daysCached": 366,
+      "daysFresh": 366,
+      "daysCached": 0,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 1,
+      "concertsOpened": 4,
       "rejectedByLineup": 0
     }
   },
   "concerts": [
+    {
+      "id": "rec-podiuminfo-492566",
+      "source": "podiuminfo",
+      "sourceId": "492566",
+      "artist": "Charlie Cunningham",
+      "lineup": [
+        "Charlie Cunningham"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Charlie Cunningham"
+      ],
+      "date": "2027-02-13",
+      "time": null,
+      "venue": "Jacobikerk",
+      "city": "Utrecht",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/85381/100_Charlie_Cunningham_3.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/492566/Charlie-Cunningham-Lines/Jacobikerk/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Charlie Cunningham",
+        "matchedArtists": [
+          "Charlie Cunningham"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-09-03T10:38:19.826Z",
+      "lastSeenAt": "2026-09-03T10:38:19.826Z"
+    },
     {
       "id": "rec-podiuminfo-492395",
       "source": "podiuminfo",
@@ -51,7 +88,47 @@
         "similarVia": null
       },
       "discoveredAt": "2026-09-02T10:30:18.708Z",
-      "lastSeenAt": "2026-09-02T20:22:55.391Z"
+      "lastSeenAt": "2026-09-03T10:38:19.826Z"
+    },
+    {
+      "id": "rec-podiuminfo-492571",
+      "source": "podiuminfo",
+      "sourceId": "492571",
+      "artist": "Colour Haze",
+      "lineup": [
+        "Colour Haze",
+        "Smokemaster"
+      ],
+      "supportingArtists": [
+        "Smokemaster"
+      ],
+      "matchedArtists": [
+        "Colour Haze"
+      ],
+      "date": "2027-02-26",
+      "time": null,
+      "venue": "Vera",
+      "city": "Groningen",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.podiuminfo.nl/img/podiuminfo-rond.png",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/492571/Colour-Haze-Smokemaster/Vera/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Colour Haze",
+        "matchedArtists": [
+          "Colour Haze"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-09-03T10:38:19.826Z",
+      "lastSeenAt": "2026-09-03T10:38:19.826Z"
     }
   ]
 }
