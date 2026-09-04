@@ -1,17 +1,17 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-09-03T20:22:34.934Z",
+    "lastUpdated": "2026-09-04T10:32:19.754Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 0,
-      "daysCached": 366,
+      "daysFresh": 366,
+      "daysCached": 0,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 3,
       "rejectedByLineup": 0
     }
   },
@@ -51,7 +51,7 @@
         "similarVia": null
       },
       "discoveredAt": "2026-09-03T10:38:19.826Z",
-      "lastSeenAt": "2026-09-03T20:22:34.934Z"
+      "lastSeenAt": "2026-09-04T10:32:19.754Z"
     },
     {
       "id": "rec-podiuminfo-492395",
@@ -88,7 +88,7 @@
         "similarVia": null
       },
       "discoveredAt": "2026-09-02T10:30:18.708Z",
-      "lastSeenAt": "2026-09-03T20:22:34.934Z"
+      "lastSeenAt": "2026-09-04T10:32:19.754Z"
     },
     {
       "id": "rec-podiuminfo-492571",
@@ -128,7 +128,44 @@
         "similarVia": null
       },
       "discoveredAt": "2026-09-03T10:38:19.826Z",
-      "lastSeenAt": "2026-09-03T20:22:34.934Z"
+      "lastSeenAt": "2026-09-04T10:32:19.754Z"
+    },
+    {
+      "id": "rec-podiuminfo-492796",
+      "source": "podiuminfo",
+      "sourceId": "492796",
+      "artist": "Cult Of Luna",
+      "lineup": [
+        "Cult Of Luna"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Cult Of Luna"
+      ],
+      "date": "2027-03-04",
+      "time": null,
+      "venue": "Muziekgieterij",
+      "city": "Maastricht",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/8704/100_Cult_of_Luna_2.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/492796/Cult-Of-Luna/Muziekgieterij/",
+      "match": {
+        "score": 36,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Sólstafir",
+        "matchedArtists": [
+          "Cult Of Luna"
+        ],
+        "similarVia": "Sólstafir"
+      },
+      "discoveredAt": "2026-09-04T10:32:19.754Z",
+      "lastSeenAt": "2026-09-04T10:32:19.754Z"
     }
   ]
 }
