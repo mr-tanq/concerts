@@ -1,19 +1,57 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-09-04T20:08:50.740Z",
+    "lastUpdated": "2026-09-05T09:54:54.108Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 0,
-      "daysCached": 366,
+      "daysFresh": 366,
+      "daysCached": 0,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 2,
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-492880",
+      "source": "podiuminfo",
+      "sourceId": "492880",
+      "artist": "Emeli Sandé",
+      "lineup": [
+        "Emeli Sandé"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Emeli Sandé"
+      ],
+      "date": "2027-02-24",
+      "time": null,
+      "venue": "Paradiso",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/63545/100_Emeli_Sand___5.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/141285/cd/Emeli-Sande/Paradiso/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/492880/Emeli-Sande/Paradiso/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Emeli Sandé",
+        "matchedArtists": [
+          "Emeli Sandé"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-09-05T09:54:54.108Z",
+      "lastSeenAt": "2026-09-05T09:54:54.108Z"
+    }
+  ]
 }
