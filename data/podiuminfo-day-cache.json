@@ -2,511 +2,6 @@
   "$schema": "Listening Mirror Podiuminfo Day Cache v1",
   "note": "Caches the list of candidate concert ids found on each day's agenda page (podiuminfo.nl/concertagenda/YYYY/MM/DD/), so repeat runs don't re-fetch a day we already scanned recently. This replaced per-artist search after Podiuminfo's 24 July 2026 relaunch moved free-text search to client-side JS, breaking the old ?input_zoek= approach entirely.",
   "entries": {
-    "2026-08-29": {
-      "checkedAt": "2026-08-29T12:55:08.877Z",
-      "candidates": [
-        {
-          "concertId": "457450",
-          "href": "https://www.podiuminfo.nl/concert/457450/The-Fatal-Flowers/Openluchttheater-Amersfoort/",
-          "rawTitle": "The Fatal Flowers"
-        },
-        {
-          "concertId": "462734",
-          "href": "https://www.podiuminfo.nl/concert/462734/Laurens-de-Man/Nicolaikerk/",
-          "rawTitle": "Laurens de Man"
-        },
-        {
-          "concertId": "484016",
-          "href": "https://www.podiuminfo.nl/concert/484016/Lapiano-Creative-Sessions/Muziekgebouw-Eindhoven/",
-          "rawTitle": "Lapiano Creative Sessions"
-        },
-        {
-          "concertId": "488498",
-          "href": "https://www.podiuminfo.nl/concert/488498/Muziek-voor-Oekraine-Benefietconcert/Nienoordkapel/",
-          "rawTitle": "Muziek voor Oekraïne - Benefietconcert"
-        },
-        {
-          "concertId": "480323",
-          "href": "https://www.podiuminfo.nl/concert/480323/Streamborn-Music-Streamer-Showcase/Neushoorn/",
-          "rawTitle": "Streamborn Music Streamer Showcase"
-        },
-        {
-          "concertId": "451324",
-          "href": "https://www.podiuminfo.nl/concert/451324/Ilse-DeLange/Openluchttheater-Caprera/",
-          "rawTitle": "Ilse DeLange"
-        },
-        {
-          "concertId": "479151",
-          "href": "https://www.podiuminfo.nl/concert/479151/Plastilina-Mosh/Toekomstmuziek/",
-          "rawTitle": "Plastilina Mosh"
-        },
-        {
-          "concertId": "483261",
-          "href": "https://www.podiuminfo.nl/concert/483261/Distant-Beach/Colorado-Charlie/",
-          "rawTitle": "Distant Beach"
-        },
-        {
-          "concertId": "480542",
-          "href": "https://www.podiuminfo.nl/concert/480542/The-Jazz-Room-Een-eerbetoon-aan-Frank-Sinatra-Louis-Armstrong/Leeuwenbergh/",
-          "rawTitle": "The Jazz Room: Een eerbetoon aan Frank Sinatra & Louis Armstrong"
-        },
-        {
-          "concertId": "483494",
-          "href": "https://www.podiuminfo.nl/concert/483494/Candlelight-De-vier-jaargetijden-van-Vivaldi/Muziekgebouw-Eindhoven/",
-          "rawTitle": "Candlelight: De vier jaargetijden van Vivaldi"
-        },
-        {
-          "concertId": "491666",
-          "href": "https://www.podiuminfo.nl/concert/491666/Candlelight-Tribute-aan-Michael-Jackson/Thermae-Palace-Hotel/",
-          "rawTitle": "Candlelight: Tribute aan Michael Jackson"
-        },
-        {
-          "concertId": "480955",
-          "href": "https://www.podiuminfo.nl/concert/480955/Candlelight-concerts-Tribute-to-ABBA/Arminius/",
-          "rawTitle": "Candlelight concerts: Tribute to ABBA"
-        },
-        {
-          "concertId": "482530",
-          "href": "https://www.podiuminfo.nl/concert/482530/Candlelight-Coldplay-en-Imagine-Dragons/Concert-Noble/",
-          "rawTitle": "Candlelight: Coldplay en Imagine Dragons"
-        },
-        {
-          "concertId": "483032",
-          "href": "https://www.podiuminfo.nl/concert/483032/Tribute-RD-Burman-Asha-Bhosle-Dum-Maro-Dum/Theater-De-Veste/",
-          "rawTitle": "Tribute RD Burman & Asha Bhosle - Dum Maro Dum"
-        },
-        {
-          "concertId": "448931",
-          "href": "https://www.podiuminfo.nl/concert/448931/Zuiderpark-Live-Someone-Like-Her/Zuiderparktheater/",
-          "rawTitle": "Zuiderpark Live: Someone Like Her"
-        },
-        {
-          "concertId": "474470",
-          "href": "https://www.podiuminfo.nl/concert/474470/De-Stokers-Hobojobos/De-Volharding/",
-          "rawTitle": "De Stokers + Hobojobos"
-        },
-        {
-          "concertId": "486087",
-          "href": "https://www.podiuminfo.nl/concert/486087/Boogie-Beasts-feat-Kenny-Brown-Smokin!/Zik-Zak/",
-          "rawTitle": "Boogie Beasts feat. Kenny Brown + Smokin'!"
-        },
-        {
-          "concertId": "451777",
-          "href": "https://www.podiuminfo.nl/concert/451777/Child-of-Destiny/Chasse-Theater/",
-          "rawTitle": "Child of Destiny"
-        },
-        {
-          "concertId": "452006",
-          "href": "https://www.podiuminfo.nl/concert/452006/Sylvie-Kreusch/Openluchttheater-Rivierenhof/",
-          "rawTitle": "Sylvie Kreusch"
-        },
-        {
-          "concertId": "453594",
-          "href": "https://www.podiuminfo.nl/concert/453594/The-Living-Tombstone/TivoliVredenburg/",
-          "rawTitle": "The Living Tombstone"
-        },
-        {
-          "concertId": "457084",
-          "href": "https://www.podiuminfo.nl/concert/457084/Blof/Concertgebouw/",
-          "rawTitle": "Bløf"
-        },
-        {
-          "concertId": "459787",
-          "href": "https://www.podiuminfo.nl/concert/459787/Matthijs-van-Nieuwkerk-Sven-Hammond-Feelin-Alright-2/Openluchttheater-Valkenburg/",
-          "rawTitle": "Matthijs van Nieuwkerk & Sven Hammond - Feelin’ Alright 2"
-        },
-        {
-          "concertId": "460405",
-          "href": "https://www.podiuminfo.nl/concert/460405/Sparks/De-Roma/",
-          "rawTitle": "Sparks"
-        },
-        {
-          "concertId": "468362",
-          "href": "https://www.podiuminfo.nl/concert/468362/Ellen-ten-Damme-Laguna/Abdijplein/",
-          "rawTitle": "Ellen ten Damme + Laguna"
-        },
-        {
-          "concertId": "470447",
-          "href": "https://www.podiuminfo.nl/concert/470447/Stef-Bos-en-gasten-Landverhuizers/Parktheater/",
-          "rawTitle": "Stef Bos en gasten - Landverhuizers"
-        },
-        {
-          "concertId": "476997",
-          "href": "https://www.podiuminfo.nl/concert/476997/The-Muddy-Waters-Tribute-Band/Dorpshuis-Renesse/",
-          "rawTitle": "The Muddy Waters Tribute Band"
-        },
-        {
-          "concertId": "479854",
-          "href": "https://www.podiuminfo.nl/concert/479854/RANI-zoomeravonden/Artis/",
-          "rawTitle": "RANI - zoomeravonden"
-        },
-        {
-          "concertId": "480818",
-          "href": "https://www.podiuminfo.nl/concert/480818/The-Jazz-Room-Een-eerbetoon-aan-Frank-Sinatra-Louis-Armstrong/Leeuwenbergh/",
-          "rawTitle": "The Jazz Room: Een eerbetoon aan Frank Sinatra & Louis Armstrong"
-        },
-        {
-          "concertId": "482411",
-          "href": "https://www.podiuminfo.nl/concert/482411/Epifyse-Velvet-45/StudioGonz/",
-          "rawTitle": "Epifyse & Velvet 45"
-        },
-        {
-          "concertId": "483498",
-          "href": "https://www.podiuminfo.nl/concert/483498/WALG/Vera/",
-          "rawTitle": "WALG"
-        },
-        {
-          "concertId": "484754",
-          "href": "https://www.podiuminfo.nl/concert/484754/Ooostblok-Jeepers-Creepers/OOGST/",
-          "rawTitle": "Ooostblok + Jeepers Creepers"
-        },
-        {
-          "concertId": "487133",
-          "href": "https://www.podiuminfo.nl/concert/487133/Patatas-Ratas-EP-Release-Party/ACU/",
-          "rawTitle": "Patatas Ratas – EP Release Party"
-        },
-        {
-          "concertId": "490271",
-          "href": "https://www.podiuminfo.nl/concert/490271/Sjef-Hermans/Adriaanskerk/",
-          "rawTitle": "Sjef Hermans"
-        },
-        {
-          "concertId": "451047",
-          "href": "https://www.podiuminfo.nl/concert/451047/Ilse-DeLange/Openluchttheater-Caprera/",
-          "rawTitle": "Ilse DeLange"
-        },
-        {
-          "concertId": "451122",
-          "href": "https://www.podiuminfo.nl/concert/451122/Jet-Airliner/De-Pul/",
-          "rawTitle": "Jet Airliner"
-        },
-        {
-          "concertId": "453472",
-          "href": "https://www.podiuminfo.nl/concert/453472/Polica/Tolhuistuin/",
-          "rawTitle": "Poliça"
-        },
-        {
-          "concertId": "458416",
-          "href": "https://www.podiuminfo.nl/concert/458416/De-Poelepetaten-Op-Fietse-deur-het-Saksenland/Openluchttheater-Nijverdal/",
-          "rawTitle": "De Poelepetaten - Op Fietse deur het Saksenland"
-        },
-        {
-          "concertId": "459150",
-          "href": "https://www.podiuminfo.nl/concert/459150/Danny-Vera/Openluchttheater-Cabrio/",
-          "rawTitle": "Danny Vera"
-        },
-        {
-          "concertId": "459151",
-          "href": "https://www.podiuminfo.nl/concert/459151/ABBA-Lionel-Richie-Tribute/Openluchttheather-Brilmansdennen/",
-          "rawTitle": "ABBA & Lionel Richie Tribute"
-        },
-        {
-          "concertId": "459767",
-          "href": "https://www.podiuminfo.nl/concert/459767/Het-Goede-Doel-Revival-met-Henk-Westbroek/Openluchttheater-Mariahout/",
-          "rawTitle": "Het Goede Doel Revival met Henk Westbroek"
-        },
-        {
-          "concertId": "462137",
-          "href": "https://www.podiuminfo.nl/concert/462137/Magoria/Theater-Naat-Piek/",
-          "rawTitle": "Magoria"
-        },
-        {
-          "concertId": "473004",
-          "href": "https://www.podiuminfo.nl/concert/473004/Nyron-Higor/Tolhuistuin/",
-          "rawTitle": "Nyron Higor"
-        },
-        {
-          "concertId": "474436",
-          "href": "https://www.podiuminfo.nl/concert/474436/Kenny-Mason/Bitterzoet/",
-          "rawTitle": "Kenny Mason"
-        },
-        {
-          "concertId": "475228",
-          "href": "https://www.podiuminfo.nl/concert/475228/2-Meter-Het-Bos-In/Bostheater-Ommen/",
-          "rawTitle": "2 Meter Het Bos"
-        },
-        {
-          "concertId": "477349",
-          "href": "https://www.podiuminfo.nl/concert/477349/Billy-Corgan/De-Doelen/",
-          "rawTitle": "Billy Corgan"
-        },
-        {
-          "concertId": "481249",
-          "href": "https://www.podiuminfo.nl/concert/481249/Peter-Evans-Extra-ft-Petter-Eldh-Jim-Black/Bimhuis/",
-          "rawTitle": "Peter Evans Extra ft. Petter Eldh & Jim Black"
-        },
-        {
-          "concertId": "481288",
-          "href": "https://www.podiuminfo.nl/concert/481288/Candlelight-concerts-Coldplay-Ed-Sheeran/Thermae-Palace-Hotel/",
-          "rawTitle": "Candlelight concerts: Coldplay & Ed Sheeran"
-        },
-        {
-          "concertId": "483443",
-          "href": "https://www.podiuminfo.nl/concert/483443/Xmunashe/Skatecafe/",
-          "rawTitle": "Xmunashe"
-        },
-        {
-          "concertId": "485402",
-          "href": "https://www.podiuminfo.nl/concert/485402/Melisin-Bandosu/Cinetol/",
-          "rawTitle": "Melis'in Bandosu"
-        },
-        {
-          "concertId": "489804",
-          "href": "https://www.podiuminfo.nl/concert/489804/Scar-Dark-Intentions/Little-Devil/",
-          "rawTitle": "Scar + Dark Intentions"
-        },
-        {
-          "concertId": "491041",
-          "href": "https://www.podiuminfo.nl/concert/491041/Queer-Is-Not-Dead-Fest-Benefit-Party/OCCII/",
-          "rawTitle": "Queer Is Not Dead Fest - Benefit Party"
-        },
-        {
-          "concertId": "460053",
-          "href": "https://www.podiuminfo.nl/concert/460053/Candlelight-Concerts-Queen-vs-ABBA/Muziekgebouw-Eindhoven/",
-          "rawTitle": "Candlelight Concerts: Queen vs. ABBA"
-        },
-        {
-          "concertId": "457802",
-          "href": "https://www.podiuminfo.nl/concert/457802/Ayanna-Witter-Johnson/Grounds/",
-          "rawTitle": "Ayanna Witter-Johnson"
-        },
-        {
-          "concertId": "470306",
-          "href": "https://www.podiuminfo.nl/concert/470306/Lemonade-DYKA-Live-in-het-Park/Park-Rams-Woerthe/",
-          "rawTitle": "Lemonade DYKA Live"
-        },
-        {
-          "concertId": "476771",
-          "href": "https://www.podiuminfo.nl/concert/476771/Avril-Lavigne-Tribute/Noordkade-Live/",
-          "rawTitle": "Avril Lavigne Tribute"
-        },
-        {
-          "concertId": "479495",
-          "href": "https://www.podiuminfo.nl/concert/479495/Back-to-Blondie/Foxfarm/",
-          "rawTitle": "Back to Blondie"
-        },
-        {
-          "concertId": "480941",
-          "href": "https://www.podiuminfo.nl/concert/480941/Candlelight-concerts-Ed-Sheeran-Coldplay/Arminius/",
-          "rawTitle": "Candlelight concerts: Ed Sheeran & Coldplay"
-        },
-        {
-          "concertId": "482614",
-          "href": "https://www.podiuminfo.nl/concert/482614/Candlelight-Hommage-aan-Queen/Concert-Noble/",
-          "rawTitle": "Candlelight: Hommage aan Queen"
-        },
-        {
-          "concertId": "478325",
-          "href": "https://www.podiuminfo.nl/concert/478325/Piss/Rotown/",
-          "rawTitle": "Piss"
-        },
-        {
-          "concertId": "478366",
-          "href": "https://www.podiuminfo.nl/concert/478366/Le-Chaleur/Chasse-Theater/",
-          "rawTitle": "Le Chaleur"
-        },
-        {
-          "concertId": "480324",
-          "href": "https://www.podiuminfo.nl/concert/480324/Muovipussi/Spiegeltent-Burgemeester-van-Grunsvenplein-/",
-          "rawTitle": "Muovipussi"
-        },
-        {
-          "concertId": "490121",
-          "href": "https://www.podiuminfo.nl/concert/490121/Harto-Falion-OGR-Bobbin/Skatecafe/",
-          "rawTitle": "Harto Falión, OGR & Bobbin"
-        },
-        {
-          "concertId": "483314",
-          "href": "https://www.podiuminfo.nl/concert/483314/Thijs-Vrolijk/Vera/",
-          "rawTitle": "Thijs Vrolijk"
-        },
-        {
-          "concertId": "489542",
-          "href": "https://www.podiuminfo.nl/concert/489542/Yade-Lauren/Kokorico/",
-          "rawTitle": "Yade Lauren"
-        },
-        {
-          "concertId": "484658",
-          "href": "https://www.podiuminfo.nl/concert/484658/Thyme-Flies/Paard/",
-          "rawTitle": "Thyme Flies"
-        },
-        {
-          "concertId": "491320",
-          "href": "https://www.podiuminfo.nl/concert/491320/The-Afterflow/Colorado-Charlie/",
-          "rawTitle": "The Afterflow"
-        },
-        {
-          "concertId": "478367",
-          "href": "https://www.podiuminfo.nl/concert/478367/Thuishaven-met-Toman-Dean-Turnley-AAT-more/Thuishaven-festivalterrein-/",
-          "rawTitle": "Thuishaven met Toman, Dean Turnley, AAT & more"
-        },
-        {
-          "concertId": "483989",
-          "href": "https://www.podiuminfo.nl/concert/483989/Preview-Bladi/Muziekgebouw-Eindhoven/",
-          "rawTitle": "Preview Bladi"
-        },
-        {
-          "concertId": "489022",
-          "href": "https://www.podiuminfo.nl/concert/489022/AMIMEA-Solo-pianoliedjes-en-subtiele-vocals/PHIL/",
-          "rawTitle": "AMIMEA - Solo pianoliedjes en subtiele vocals"
-        },
-        {
-          "concertId": "464387",
-          "href": "https://www.podiuminfo.nl/concert/464387/Cor-Bakker-en-Maarten-Heijmans-Ramses-enzo/Theater-de-Purmaryn/",
-          "rawTitle": "Cor Bakker en Maarten Heijmans - Ramses enzo"
-        },
-        {
-          "concertId": "485404",
-          "href": "https://www.podiuminfo.nl/concert/485404/Florence-Anne/Willem-Twee-poppodium/",
-          "rawTitle": "Florence Anne"
-        },
-        {
-          "concertId": "491564",
-          "href": "https://www.podiuminfo.nl/concert/491564/Finn-Meijers-Zummer-op-zien-Zundags/De-Amer/",
-          "rawTitle": "Finn Meijers - Zummer op zien Zundags"
-        },
-        {
-          "concertId": "487305",
-          "href": "https://www.podiuminfo.nl/concert/487305/Jamcity/Capsloc/",
-          "rawTitle": "Jamcity"
-        },
-        {
-          "concertId": "450229",
-          "href": "https://www.podiuminfo.nl/concert/450229/Old-Ni-js-De-Cactus-30082026-dialect-Rock-Nl-/Cafe-de-Cactus/",
-          "rawTitle": "Old Ni-js @ De Cactus 30/08/2026 (dialect, Rock, Nl)"
-        },
-        {
-          "concertId": "459835",
-          "href": "https://www.podiuminfo.nl/concert/459835/Lazy-Sunday/Openluchttheater-Ede/",
-          "rawTitle": "Lazy Sunday"
-        },
-        {
-          "concertId": "474610",
-          "href": "https://www.podiuminfo.nl/concert/474610/De-Wannebiezz/Abdijplein/",
-          "rawTitle": "De Wannebiezz"
-        },
-        {
-          "concertId": "477189",
-          "href": "https://www.podiuminfo.nl/concert/477189/CCC-inc-/Vondelpark-Openluchttheater/",
-          "rawTitle": "CCC inc."
-        },
-        {
-          "concertId": "477477",
-          "href": "https://www.podiuminfo.nl/concert/477477/The-Providers/Djingel-Djangel/",
-          "rawTitle": "The Providers"
-        },
-        {
-          "concertId": "487315",
-          "href": "https://www.podiuminfo.nl/concert/487315/Rewind/Het-Schaftlokaal/",
-          "rawTitle": "Rewind"
-        },
-        {
-          "concertId": "479438",
-          "href": "https://www.podiuminfo.nl/concert/479438/StadsOase-Dio-BEATS-BY-BUNKER/Van-Reekumplein/",
-          "rawTitle": "StadsOase: Dio + BEATS BY BUNKER"
-        },
-        {
-          "concertId": "477596",
-          "href": "https://www.podiuminfo.nl/concert/477596/Shirma-Rouse/Groenmarktkerk/",
-          "rawTitle": "Shirma Rouse"
-        },
-        {
-          "concertId": "483317",
-          "href": "https://www.podiuminfo.nl/concert/483317/JESUS-EVIL-HIGHWAY/dBs/",
-          "rawTitle": "JESUS EVIL HIGHWAY"
-        },
-        {
-          "concertId": "489522",
-          "href": "https://www.podiuminfo.nl/concert/489522/Bel-Cobain/PHIL/",
-          "rawTitle": "Bel Cobain"
-        },
-        {
-          "concertId": "480795",
-          "href": "https://www.podiuminfo.nl/concert/480795/Candlelight-concerts-Queen-vs-ABBA/Hotel-Arena/",
-          "rawTitle": "Candlelight concerts: Queen vs. ABBA"
-        },
-        {
-          "concertId": "452979",
-          "href": "https://www.podiuminfo.nl/concert/452979/Danny-Vera-Live-At-Amsterdamse-Bos/Openlucht-Theater-Amsterdamse-Bos/",
-          "rawTitle": "Danny Vera - Live At Amsterdamse Bos"
-        },
-        {
-          "concertId": "453393",
-          "href": "https://www.podiuminfo.nl/concert/453393/Sunday-Jamsession/Poppodium-Phoenix/",
-          "rawTitle": "Sunday Jamsession"
-        },
-        {
-          "concertId": "457394",
-          "href": "https://www.podiuminfo.nl/concert/457394/Hannah-Mae-Openluchttheater-Bosspot/Openluchttheater-Amersfoort/",
-          "rawTitle": "Hannah Mae - Openluchttheater Bosspot"
-        },
-        {
-          "concertId": "482649",
-          "href": "https://www.podiuminfo.nl/concert/482649/Candlelight-Een-tribute-aan-Ludovico-Einaudi/Abdij-van-Herkenrode/",
-          "rawTitle": "Candlelight: Een tribute aan Ludovico Einaudi"
-        },
-        {
-          "concertId": "451343",
-          "href": "https://www.podiuminfo.nl/concert/451343/The-Whitest-Boy-Alive/Ancienne-Belgique-AB-/",
-          "rawTitle": "The Whitest Boy Alive"
-        },
-        {
-          "concertId": "474733",
-          "href": "https://www.podiuminfo.nl/concert/474733/JPK-band/Lokaal42/",
-          "rawTitle": "JPK band"
-        },
-        {
-          "concertId": "480576",
-          "href": "https://www.podiuminfo.nl/concert/480576/Candlelight-concerts-Tribute-aan-Adele/Hotel-Arena/",
-          "rawTitle": "Candlelight concerts: Tribute aan Adele"
-        },
-        {
-          "concertId": "488201",
-          "href": "https://www.podiuminfo.nl/concert/488201/Sabbath-Judas-Sabbath-with-Helstar-s-James-Rivera/Little-Devil/",
-          "rawTitle": "Sabbath Judas Sabbath with Helstar’s James Rivera"
-        },
-        {
-          "concertId": "452151",
-          "href": "https://www.podiuminfo.nl/concert/452151/POLICA/De-Roma/",
-          "rawTitle": "POLIÇA"
-        },
-        {
-          "concertId": "453917",
-          "href": "https://www.podiuminfo.nl/concert/453917/The-Living-Tombstone/TivoliVredenburg/",
-          "rawTitle": "The Living Tombstone"
-        },
-        {
-          "concertId": "457405",
-          "href": "https://www.podiuminfo.nl/concert/457405/OCT/Effenaar/",
-          "rawTitle": "OCT"
-        },
-        {
-          "concertId": "462510",
-          "href": "https://www.podiuminfo.nl/concert/462510/Bert-Heerink-Martijn-van-der-Zande-The-Sense-of-Soul/Stage-5/",
-          "rawTitle": "Bert Heerink & Martijn van der Zande The Sense of Soul"
-        },
-        {
-          "concertId": "462913",
-          "href": "https://www.podiuminfo.nl/concert/462913/BINI-Signals-World-Tour/AFAS-Live/",
-          "rawTitle": "BINI - Signals World Tour"
-        },
-        {
-          "concertId": "482621",
-          "href": "https://www.podiuminfo.nl/concert/482621/Candlelight-Coldplay-Imagine-Dragons-op-de-piano/Abdij-van-Herkenrode/",
-          "rawTitle": "Candlelight: Coldplay & Imagine Dragons op de piano"
-        },
-        {
-          "concertId": "485754",
-          "href": "https://www.podiuminfo.nl/concert/485754/Rockabilly-Square-The-Wanderers/Muziekpodium-DJS/",
-          "rawTitle": "Rockabilly Square: The Wanderers"
-        },
-        {
-          "concertId": "481941",
-          "href": "https://www.podiuminfo.nl/concert/481941/Manu-Chao-Ultra-Acoustic-Tour/Muziekgebouw-Eindhoven/",
-          "rawTitle": "Manu Chao - Ultra Acoustic Tour"
-        }
-      ]
-    },
     "2026-08-30": {
       "checkedAt": "2026-08-30T12:29:35.221Z",
       "candidates": [
@@ -4028,7 +3523,7 @@
       ]
     },
     "2026-09-06": {
-      "checkedAt": "2026-09-05T11:05:06.382Z",
+      "checkedAt": "2026-09-06T10:03:40.288Z",
       "candidates": [
         {
           "concertId": "453562",
@@ -4348,7 +3843,7 @@
       ]
     },
     "2026-09-07": {
-      "checkedAt": "2026-09-05T11:05:07.415Z",
+      "checkedAt": "2026-09-06T10:03:41.428Z",
       "candidates": [
         {
           "concertId": "446277",
@@ -4453,7 +3948,7 @@
       ]
     },
     "2026-09-08": {
-      "checkedAt": "2026-09-05T11:05:08.603Z",
+      "checkedAt": "2026-09-06T10:03:42.630Z",
       "candidates": [
         {
           "concertId": "464919",
@@ -4593,7 +4088,7 @@
       ]
     },
     "2026-09-09": {
-      "checkedAt": "2026-09-05T11:05:09.551Z",
+      "checkedAt": "2026-09-06T10:03:43.851Z",
       "candidates": [
         {
           "concertId": "462808",
@@ -4783,7 +4278,7 @@
       ]
     },
     "2026-09-10": {
-      "checkedAt": "2026-09-05T11:05:10.884Z",
+      "checkedAt": "2026-09-06T10:03:45.229Z",
       "candidates": [
         {
           "concertId": "482413",
@@ -5143,7 +4638,7 @@
       ]
     },
     "2026-09-11": {
-      "checkedAt": "2026-09-05T11:05:12.119Z",
+      "checkedAt": "2026-09-06T10:03:46.443Z",
       "candidates": [
         {
           "concertId": "470312",
@@ -5793,7 +5288,7 @@
       ]
     },
     "2026-09-12": {
-      "checkedAt": "2026-09-05T11:05:13.310Z",
+      "checkedAt": "2026-09-06T10:03:47.422Z",
       "candidates": [
         {
           "concertId": "444892",
@@ -6523,7 +6018,7 @@
       ]
     },
     "2026-09-13": {
-      "checkedAt": "2026-09-05T11:05:14.394Z",
+      "checkedAt": "2026-09-06T10:03:48.871Z",
       "candidates": [
         {
           "concertId": "462709",
@@ -6923,7 +6418,7 @@
       ]
     },
     "2026-09-14": {
-      "checkedAt": "2026-09-05T11:05:15.436Z",
+      "checkedAt": "2026-09-06T10:03:49.884Z",
       "candidates": [
         {
           "concertId": "475020",
@@ -7008,7 +6503,7 @@
       ]
     },
     "2026-09-15": {
-      "checkedAt": "2026-09-05T11:05:16.624Z",
+      "checkedAt": "2026-09-06T10:03:51.028Z",
       "candidates": [
         {
           "concertId": "486877",
@@ -7178,7 +6673,7 @@
       ]
     },
     "2026-09-16": {
-      "checkedAt": "2026-09-05T11:05:17.784Z",
+      "checkedAt": "2026-09-06T10:03:52.317Z",
       "candidates": [
         {
           "concertId": "460195",
@@ -7353,7 +6848,7 @@
       ]
     },
     "2026-09-17": {
-      "checkedAt": "2026-09-05T11:05:19.239Z",
+      "checkedAt": "2026-09-06T10:03:53.633Z",
       "candidates": [
         {
           "concertId": "463001",
@@ -7843,7 +7338,7 @@
       ]
     },
     "2026-09-18": {
-      "checkedAt": "2026-09-05T11:05:20.502Z",
+      "checkedAt": "2026-09-06T10:03:54.887Z",
       "candidates": [
         {
           "concertId": "458420",
@@ -8553,7 +8048,7 @@
       ]
     },
     "2026-09-19": {
-      "checkedAt": "2026-09-05T11:05:21.572Z",
+      "checkedAt": "2026-09-06T10:03:56.017Z",
       "candidates": [
         {
           "concertId": "458421",
@@ -9313,7 +8808,7 @@
       ]
     },
     "2026-09-20": {
-      "checkedAt": "2026-09-05T11:05:22.769Z",
+      "checkedAt": "2026-09-06T10:03:57.064Z",
       "candidates": [
         {
           "concertId": "486881",
@@ -9828,7 +9323,7 @@
       ]
     },
     "2026-09-21": {
-      "checkedAt": "2026-09-05T11:05:23.777Z",
+      "checkedAt": "2026-09-06T10:03:58.278Z",
       "candidates": [
         {
           "concertId": "490003",
@@ -9938,7 +9433,7 @@
       ]
     },
     "2026-09-22": {
-      "checkedAt": "2026-09-05T11:05:24.967Z",
+      "checkedAt": "2026-09-06T10:03:59.480Z",
       "candidates": [
         {
           "concertId": "460229",
@@ -10143,7 +9638,7 @@
       ]
     },
     "2026-09-23": {
-      "checkedAt": "2026-09-05T11:05:26.345Z",
+      "checkedAt": "2026-09-06T10:04:00.761Z",
       "candidates": [
         {
           "concertId": "460197",
@@ -10473,7 +9968,7 @@
       ]
     },
     "2026-09-24": {
-      "checkedAt": "2026-09-05T11:05:27.603Z",
+      "checkedAt": "2026-09-06T10:04:02.181Z",
       "candidates": [
         {
           "concertId": "462955",
@@ -10948,7 +10443,7 @@
       ]
     },
     "2026-09-25": {
-      "checkedAt": "2026-09-05T11:05:28.821Z",
+      "checkedAt": "2026-09-06T10:04:03.505Z",
       "candidates": [
         {
           "concertId": "460230",
@@ -11688,7 +11183,7 @@
       ]
     },
     "2026-09-26": {
-      "checkedAt": "2026-09-05T11:05:30.015Z",
+      "checkedAt": "2026-09-06T10:04:04.600Z",
       "candidates": [
         {
           "concertId": "460231",
@@ -12488,7 +11983,7 @@
       ]
     },
     "2026-09-27": {
-      "checkedAt": "2026-09-05T11:05:31.222Z",
+      "checkedAt": "2026-09-06T10:04:05.290Z",
       "candidates": [
         {
           "concertId": "463002",
@@ -13003,7 +12498,7 @@
       ]
     },
     "2026-09-28": {
-      "checkedAt": "2026-09-05T11:05:32.158Z",
+      "checkedAt": "2026-09-06T10:04:06.652Z",
       "candidates": [
         {
           "concertId": "454050",
@@ -13093,7 +12588,7 @@
       ]
     },
     "2026-09-29": {
-      "checkedAt": "2026-09-05T11:05:33.385Z",
+      "checkedAt": "2026-09-06T10:04:07.887Z",
       "candidates": [
         {
           "concertId": "463918",
@@ -13273,7 +12768,7 @@
       ]
     },
     "2026-09-30": {
-      "checkedAt": "2026-09-05T11:05:34.728Z",
+      "checkedAt": "2026-09-06T10:04:09.194Z",
       "candidates": [
         {
           "concertId": "471782",
@@ -13523,7 +13018,7 @@
       ]
     },
     "2026-10-01": {
-      "checkedAt": "2026-09-05T11:05:35.961Z",
+      "checkedAt": "2026-09-06T10:04:10.494Z",
       "candidates": [
         {
           "concertId": "481769",
@@ -14023,7 +13518,7 @@
       ]
     },
     "2026-10-02": {
-      "checkedAt": "2026-09-05T11:05:37.239Z",
+      "checkedAt": "2026-09-06T10:04:11.682Z",
       "candidates": [
         {
           "concertId": "462810",
@@ -14808,7 +14303,7 @@
       ]
     },
     "2026-10-03": {
-      "checkedAt": "2026-09-05T11:05:38.479Z",
+      "checkedAt": "2026-09-06T10:04:12.926Z",
       "candidates": [
         {
           "concertId": "458836",
@@ -15703,7 +15198,7 @@
       ]
     },
     "2026-10-04": {
-      "checkedAt": "2026-09-05T11:05:39.550Z",
+      "checkedAt": "2026-09-06T10:04:13.933Z",
       "candidates": [
         {
           "concertId": "481949",
@@ -16338,7 +15833,7 @@
       ]
     },
     "2026-10-05": {
-      "checkedAt": "2026-09-05T11:05:40.592Z",
+      "checkedAt": "2026-09-06T10:04:15.150Z",
       "candidates": [
         {
           "concertId": "449265",
@@ -16478,7 +15973,7 @@
       ]
     },
     "2026-10-06": {
-      "checkedAt": "2026-09-05T11:05:41.767Z",
+      "checkedAt": "2026-09-06T10:04:16.357Z",
       "candidates": [
         {
           "concertId": "468370",
@@ -16678,7 +16173,7 @@
       ]
     },
     "2026-10-07": {
-      "checkedAt": "2026-09-05T11:05:43.187Z",
+      "checkedAt": "2026-09-06T10:04:17.581Z",
       "candidates": [
         {
           "concertId": "460232",
@@ -17023,7 +16518,7 @@
       ]
     },
     "2026-10-08": {
-      "checkedAt": "2026-09-05T11:05:44.402Z",
+      "checkedAt": "2026-09-06T10:04:18.787Z",
       "candidates": [
         {
           "concertId": "462958",
@@ -17578,7 +17073,7 @@
       ]
     },
     "2026-10-09": {
-      "checkedAt": "2026-09-05T11:05:45.389Z",
+      "checkedAt": "2026-09-06T10:04:19.814Z",
       "candidates": [
         {
           "concertId": "459853",
@@ -18518,7 +18013,7 @@
       ]
     },
     "2026-10-10": {
-      "checkedAt": "2026-09-05T11:05:46.569Z",
+      "checkedAt": "2026-09-06T10:04:21.253Z",
       "candidates": [
         {
           "concertId": "457927",
@@ -19463,7 +18958,7 @@
       ]
     },
     "2026-10-11": {
-      "checkedAt": "2026-09-05T11:05:48.015Z",
+      "checkedAt": "2026-09-06T10:04:22.265Z",
       "candidates": [
         {
           "concertId": "470379",
@@ -20028,7 +19523,7 @@
       ]
     },
     "2026-10-12": {
-      "checkedAt": "2026-09-05T11:05:49.100Z",
+      "checkedAt": "2026-09-06T10:04:23.529Z",
       "candidates": [
         {
           "concertId": "481950",
@@ -20183,7 +19678,7 @@
       ]
     },
     "2026-10-13": {
-      "checkedAt": "2026-09-05T11:05:50.310Z",
+      "checkedAt": "2026-09-06T10:04:24.750Z",
       "candidates": [
         {
           "concertId": "488435",
@@ -20413,7 +19908,7 @@
       ]
     },
     "2026-10-14": {
-      "checkedAt": "2026-09-05T11:05:51.580Z",
+      "checkedAt": "2026-09-06T10:04:25.928Z",
       "candidates": [
         {
           "concertId": "457860",
@@ -20833,7 +20328,7 @@
       ]
     },
     "2026-10-15": {
-      "checkedAt": "2026-09-05T11:05:52.877Z",
+      "checkedAt": "2026-09-06T10:04:27.219Z",
       "candidates": [
         {
           "concertId": "459009",
@@ -21483,7 +20978,7 @@
       ]
     },
     "2026-10-16": {
-      "checkedAt": "2026-09-05T11:05:54.010Z",
+      "checkedAt": "2026-09-06T10:04:28.452Z",
       "candidates": [
         {
           "concertId": "460200",
@@ -22403,7 +21898,7 @@
       ]
     },
     "2026-10-17": {
-      "checkedAt": "2026-09-05T11:05:55.007Z",
+      "checkedAt": "2026-09-06T10:04:29.604Z",
       "candidates": [
         {
           "concertId": "460233",
@@ -22414,6 +21909,11 @@
           "concertId": "462766",
           "href": "https://www.podiuminfo.nl/concert/462766/Maine-Road/Reflektor/",
           "rawTitle": "Maine Road"
+        },
+        {
+          "concertId": "493048",
+          "href": "https://www.podiuminfo.nl/concert/493048/Nekrotsoulithra/ACU/",
+          "rawTitle": "Nekrotsoulithra"
         },
         {
           "concertId": "461065",
@@ -23348,7 +22848,7 @@
       ]
     },
     "2026-10-18": {
-      "checkedAt": "2026-09-05T11:05:56.415Z",
+      "checkedAt": "2026-09-06T10:04:30.671Z",
       "candidates": [
         {
           "concertId": "460201",
@@ -23963,7 +23463,7 @@
       ]
     },
     "2026-10-19": {
-      "checkedAt": "2026-09-05T11:05:57.341Z",
+      "checkedAt": "2026-09-06T10:04:31.830Z",
       "candidates": [
         {
           "concertId": "472430",
@@ -24093,7 +23593,7 @@
       ]
     },
     "2026-10-20": {
-      "checkedAt": "2026-09-05T11:05:58.608Z",
+      "checkedAt": "2026-09-06T10:04:33.042Z",
       "candidates": [
         {
           "concertId": "484418",
@@ -24313,7 +23813,7 @@
       ]
     },
     "2026-10-21": {
-      "checkedAt": "2026-09-05T11:05:59.998Z",
+      "checkedAt": "2026-09-06T10:04:34.366Z",
       "candidates": [
         {
           "concertId": "460234",
@@ -24743,7 +24243,7 @@
       ]
     },
     "2026-10-22": {
-      "checkedAt": "2026-09-05T11:06:01.227Z",
+      "checkedAt": "2026-09-06T10:04:35.570Z",
       "candidates": [
         {
           "concertId": "460202",
@@ -25288,7 +24788,7 @@
       ]
     },
     "2026-10-23": {
-      "checkedAt": "2026-09-05T11:06:03.072Z",
+      "checkedAt": "2026-09-06T10:04:36.819Z",
       "candidates": [
         {
           "concertId": "457929",
@@ -26153,7 +25653,7 @@
       ]
     },
     "2026-10-24": {
-      "checkedAt": "2026-09-05T11:06:04.116Z",
+      "checkedAt": "2026-09-06T10:04:37.997Z",
       "candidates": [
         {
           "concertId": "458835",
@@ -27063,7 +26563,7 @@
       ]
     },
     "2026-10-25": {
-      "checkedAt": "2026-09-05T11:06:05.239Z",
+      "checkedAt": "2026-09-06T10:04:39.033Z",
       "candidates": [
         {
           "concertId": "477044",
@@ -27528,7 +27028,7 @@
       ]
     },
     "2026-10-26": {
-      "checkedAt": "2026-09-05T11:06:05.976Z",
+      "checkedAt": "2026-09-06T10:04:40.240Z",
       "candidates": [
         {
           "concertId": "476500",
@@ -27693,7 +27193,7 @@
       ]
     },
     "2026-10-27": {
-      "checkedAt": "2026-09-05T11:06:07.476Z",
+      "checkedAt": "2026-09-06T10:04:41.440Z",
       "candidates": [
         {
           "concertId": "481211",
@@ -27908,7 +27408,7 @@
       ]
     },
     "2026-10-28": {
-      "checkedAt": "2026-09-05T11:06:08.730Z",
+      "checkedAt": "2026-09-06T10:04:42.727Z",
       "candidates": [
         {
           "concertId": "481182",
@@ -28268,7 +27768,7 @@
       ]
     },
     "2026-10-29": {
-      "checkedAt": "2026-09-05T11:06:09.763Z",
+      "checkedAt": "2026-09-06T10:04:43.975Z",
       "candidates": [
         {
           "concertId": "464583",
@@ -28883,7 +28383,7 @@
       ]
     },
     "2026-10-30": {
-      "checkedAt": "2026-09-05T11:06:11.234Z",
+      "checkedAt": "2026-09-06T10:04:45.261Z",
       "candidates": [
         {
           "concertId": "462263",
@@ -29838,7 +29338,7 @@
       ]
     },
     "2026-10-31": {
-      "checkedAt": "2026-09-05T11:06:12.456Z",
+      "checkedAt": "2026-09-06T10:04:46.400Z",
       "candidates": [
         {
           "concertId": "462879",
@@ -30813,7 +30313,7 @@
       ]
     },
     "2026-11-01": {
-      "checkedAt": "2026-09-05T11:06:13.579Z",
+      "checkedAt": "2026-09-06T10:04:47.474Z",
       "candidates": [
         {
           "concertId": "482447",
@@ -31393,7 +30893,7 @@
       ]
     },
     "2026-11-02": {
-      "checkedAt": "2026-09-05T11:06:14.608Z",
+      "checkedAt": "2026-09-06T10:04:48.604Z",
       "candidates": [
         {
           "concertId": "490389",
@@ -31543,7 +31043,7 @@
       ]
     },
     "2026-11-03": {
-      "checkedAt": "2026-09-05T11:06:15.971Z",
+      "checkedAt": "2026-09-06T10:04:49.940Z",
       "candidates": [
         {
           "concertId": "475812",
@@ -31773,7 +31273,7 @@
       ]
     },
     "2026-11-04": {
-      "checkedAt": "2026-09-05T11:06:16.928Z",
+      "checkedAt": "2026-09-06T10:04:51.127Z",
       "candidates": [
         {
           "concertId": "462265",
@@ -32133,7 +31633,7 @@
       ]
     },
     "2026-11-05": {
-      "checkedAt": "2026-09-05T11:06:18.352Z",
+      "checkedAt": "2026-09-06T10:04:52.368Z",
       "candidates": [
         {
           "concertId": "490390",
@@ -32718,7 +32218,7 @@
       ]
     },
     "2026-11-06": {
-      "checkedAt": "2026-09-05T11:06:19.569Z",
+      "checkedAt": "2026-09-06T10:04:53.587Z",
       "candidates": [
         {
           "concertId": "462334",
@@ -33578,7 +33078,7 @@
       ]
     },
     "2026-11-07": {
-      "checkedAt": "2026-09-05T11:06:20.840Z",
+      "checkedAt": "2026-09-06T10:04:54.588Z",
       "candidates": [
         {
           "concertId": "460204",
@@ -34041,6 +33541,11 @@
           "rawTitle": "Nathalie Meskens - Meskens"
         },
         {
+          "concertId": "493071",
+          "href": "https://www.podiuminfo.nl/concert/493071/Jeffrey-Schenk-Mooie-Liedjes/Theater-de-Tuyter/",
+          "rawTitle": "Jeffrey Schenk - Mooie Liedjes"
+        },
+        {
           "concertId": "446000",
           "href": "https://www.podiuminfo.nl/concert/446000/Tik-Tok-Tammo-Tammo-zingt-Folk/Theater-de-Voorveghter/",
           "rawTitle": "Tik Tok Tammo - Tammo zingt Folk"
@@ -34159,6 +33664,11 @@
           "concertId": "490734",
           "href": "https://www.podiuminfo.nl/concert/490734/Lezard-Rosie-Stuart-LIFT/De-Warande/",
           "rawTitle": "Lézard + Rosie Stuart - LIFT"
+        },
+        {
+          "concertId": "493070",
+          "href": "https://www.podiuminfo.nl/concert/493070/Legends-of-Classic-Country-Music/Theater-Concordia/",
+          "rawTitle": "Legends of Classic Country Music"
         },
         {
           "concertId": "447124",
@@ -34458,7 +33968,7 @@
       ]
     },
     "2026-11-08": {
-      "checkedAt": "2026-09-05T11:06:21.968Z",
+      "checkedAt": "2026-09-06T10:04:55.956Z",
       "candidates": [
         {
           "concertId": "455595",
@@ -34666,6 +34176,11 @@
           "rawTitle": "Sunday Live"
         },
         {
+          "concertId": "493072",
+          "href": "https://www.podiuminfo.nl/concert/493072/Popkoor-Vocalize-Alphen-ad-Rijn-Jubileumconcert/Parkvilla/",
+          "rawTitle": "Popkoor Vocalize Alphen a/d Rijn - Jubileumconcert"
+        },
+        {
           "concertId": "449994",
           "href": "https://www.podiuminfo.nl/concert/449994/Church-of-Cash/Het-Bolwerk/",
           "rawTitle": "Church of Cash"
@@ -34754,6 +34269,11 @@
           "concertId": "491678",
           "href": "https://www.podiuminfo.nl/concert/491678/Candlelight-Eerbetoon-aan-Michael-Jackson/Zaal-AthenA/",
           "rawTitle": "Candlelight: Eerbetoon aan Michael Jackson"
+        },
+        {
+          "concertId": "493073",
+          "href": "https://www.podiuminfo.nl/concert/493073/Deer-Park-Touching-Ice-The-Healing-Power-Of-Horses/Botanique/",
+          "rawTitle": "Deer Park, Touching Ice & The Healing Power Of Horses"
         },
         {
           "concertId": "457813",
@@ -34963,7 +34483,7 @@
       ]
     },
     "2026-11-09": {
-      "checkedAt": "2026-09-05T11:06:22.940Z",
+      "checkedAt": "2026-09-06T10:04:56.973Z",
       "candidates": [
         {
           "concertId": "455480",
@@ -35071,6 +34591,11 @@
           "rawTitle": "BLOK3"
         },
         {
+          "concertId": "493074",
+          "href": "https://www.podiuminfo.nl/concert/493074/Carolyn-Wonderland-s-birthday-bash/Maloe-Melo/",
+          "rawTitle": "Carolyn Wonderland’s birthday bash"
+        },
+        {
           "concertId": "480259",
           "href": "https://www.podiuminfo.nl/concert/480259/Boo-Seeka/Paradiso/",
           "rawTitle": "Boo Seeka"
@@ -35078,7 +34603,7 @@
       ]
     },
     "2026-11-10": {
-      "checkedAt": "2026-09-05T11:06:24.302Z",
+      "checkedAt": "2026-09-06T10:04:58.318Z",
       "candidates": [
         {
           "concertId": "491347",
@@ -35383,7 +34908,7 @@
       ]
     },
     "2026-11-11": {
-      "checkedAt": "2026-09-05T11:06:25.491Z",
+      "checkedAt": "2026-09-06T10:04:59.512Z",
       "candidates": [
         {
           "concertId": "460205",
@@ -35743,7 +35268,7 @@
       ]
     },
     "2026-11-12": {
-      "checkedAt": "2026-09-05T11:06:26.767Z",
+      "checkedAt": "2026-09-06T10:05:00.823Z",
       "candidates": [
         {
           "concertId": "458240",
@@ -36331,6 +35856,11 @@
           "rawTitle": "MonkeyJam"
         },
         {
+          "concertId": "493075",
+          "href": "https://www.podiuminfo.nl/concert/493075/Stiff-Blusion/Cultuurhuis-Heerlen/",
+          "rawTitle": "Stiff Blusion"
+        },
+        {
           "concertId": "460280",
           "href": "https://www.podiuminfo.nl/concert/460280/Niall-McCabe/TivoliVredenburg/",
           "rawTitle": "Niall McCabe"
@@ -36373,7 +35903,7 @@
       ]
     },
     "2026-11-13": {
-      "checkedAt": "2026-09-05T11:06:28.035Z",
+      "checkedAt": "2026-09-06T10:05:03.083Z",
       "candidates": [
         {
           "concertId": "460236",
@@ -37293,7 +36823,7 @@
       ]
     },
     "2026-11-14": {
-      "checkedAt": "2026-09-05T11:06:29.167Z",
+      "checkedAt": "2026-09-06T10:05:03.639Z",
       "candidates": [
         {
           "concertId": "455383",
@@ -38168,7 +37698,7 @@
       ]
     },
     "2026-11-15": {
-      "checkedAt": "2026-09-05T11:06:30.371Z",
+      "checkedAt": "2026-09-06T10:05:05.528Z",
       "candidates": [
         {
           "concertId": "460237",
@@ -38778,7 +38308,7 @@
       ]
     },
     "2026-11-16": {
-      "checkedAt": "2026-09-05T11:06:31.349Z",
+      "checkedAt": "2026-09-06T10:05:06.161Z",
       "candidates": [
         {
           "concertId": "490017",
@@ -38958,7 +38488,7 @@
       ]
     },
     "2026-11-17": {
-      "checkedAt": "2026-09-05T11:06:32.679Z",
+      "checkedAt": "2026-09-06T10:05:07.531Z",
       "candidates": [
         {
           "concertId": "463818",
@@ -39183,7 +38713,7 @@
       ]
     },
     "2026-11-18": {
-      "checkedAt": "2026-09-05T11:06:33.938Z",
+      "checkedAt": "2026-09-06T10:05:08.811Z",
       "candidates": [
         {
           "concertId": "460238",
@@ -39578,7 +39108,7 @@
       ]
     },
     "2026-11-19": {
-      "checkedAt": "2026-09-05T11:06:35.150Z",
+      "checkedAt": "2026-09-06T10:05:10.055Z",
       "candidates": [
         {
           "concertId": "481962",
@@ -40178,7 +39708,7 @@
       ]
     },
     "2026-11-20": {
-      "checkedAt": "2026-09-05T11:06:36.368Z",
+      "checkedAt": "2026-09-06T10:05:11.176Z",
       "candidates": [
         {
           "concertId": "447361",
@@ -41093,7 +40623,7 @@
       ]
     },
     "2026-11-21": {
-      "checkedAt": "2026-09-05T11:06:37.565Z",
+      "checkedAt": "2026-09-06T10:05:12.674Z",
       "candidates": [
         {
           "concertId": "447362",
@@ -42038,7 +41568,7 @@
       ]
     },
     "2026-11-22": {
-      "checkedAt": "2026-09-05T11:06:38.716Z",
+      "checkedAt": "2026-09-06T10:05:13.545Z",
       "candidates": [
         {
           "concertId": "459985",
@@ -42563,7 +42093,7 @@
       ]
     },
     "2026-11-23": {
-      "checkedAt": "2026-09-05T11:06:39.713Z",
+      "checkedAt": "2026-09-06T10:05:14.505Z",
       "candidates": [
         {
           "concertId": "486040",
@@ -42703,7 +42233,7 @@
       ]
     },
     "2026-11-24": {
-      "checkedAt": "2026-09-05T11:06:40.923Z",
+      "checkedAt": "2026-09-06T10:05:15.729Z",
       "candidates": [
         {
           "concertId": "470908",
@@ -42898,7 +42428,7 @@
       ]
     },
     "2026-11-25": {
-      "checkedAt": "2026-09-05T11:06:42.274Z",
+      "checkedAt": "2026-09-06T10:05:17.028Z",
       "candidates": [
         {
           "concertId": "462814",
@@ -43203,7 +42733,7 @@
       ]
     },
     "2026-11-26": {
-      "checkedAt": "2026-09-05T11:06:43.542Z",
+      "checkedAt": "2026-09-06T10:05:18.258Z",
       "candidates": [
         {
           "concertId": "472238",
@@ -43768,7 +43298,7 @@
       ]
     },
     "2026-11-27": {
-      "checkedAt": "2026-09-05T11:06:44.757Z",
+      "checkedAt": "2026-09-06T10:05:19.504Z",
       "candidates": [
         {
           "concertId": "460239",
@@ -44638,7 +44168,7 @@
       ]
     },
     "2026-11-28": {
-      "checkedAt": "2026-09-05T11:06:45.932Z",
+      "checkedAt": "2026-09-06T10:05:20.712Z",
       "candidates": [
         {
           "concertId": "450384",
@@ -44679,6 +44209,11 @@
           "concertId": "453751",
           "href": "https://www.podiuminfo.nl/concert/453751/Samson-Marie/AFAS-Dome/",
           "rawTitle": "Samson & Marie"
+        },
+        {
+          "concertId": "492881",
+          "href": "https://www.podiuminfo.nl/concert/492881/Chris-Stassy-Presents-USS/Gashouder/",
+          "rawTitle": "Chris Stassy Presents USS"
         },
         {
           "concertId": "467947",
@@ -45059,11 +44594,6 @@
           "concertId": "492818",
           "href": "https://www.podiuminfo.nl/concert/492818/BOOST!/Theater-de-Tuyter/",
           "rawTitle": "BOOST!"
-        },
-        {
-          "concertId": "492881",
-          "href": "https://www.podiuminfo.nl/concert/492881/Chris-Stassy/Gashouder/",
-          "rawTitle": "Chris Stassy"
         },
         {
           "concertId": "447356",
@@ -45483,7 +45013,7 @@
       ]
     },
     "2026-11-29": {
-      "checkedAt": "2026-09-05T11:06:47.107Z",
+      "checkedAt": "2026-09-06T10:05:21.862Z",
       "candidates": [
         {
           "concertId": "450385",
@@ -45654,6 +45184,11 @@
           "concertId": "491132",
           "href": "https://www.podiuminfo.nl/concert/491132/DJ-Jazzy-Jan-s-Vinyl-Cafe/Muziekpodium-DJS/",
           "rawTitle": "DJ Jazzy Jan’s Vinyl Café"
+        },
+        {
+          "concertId": "493061",
+          "href": "https://www.podiuminfo.nl/concert/493061/Taek-Ontvangt-Cinematic-Classics-II/Miluk/",
+          "rawTitle": "Taek Ontvangt: Cinematic Classics II"
         },
         {
           "concertId": "452686",
@@ -46008,7 +45543,7 @@
       ]
     },
     "2026-11-30": {
-      "checkedAt": "2026-09-05T11:06:48.123Z",
+      "checkedAt": "2026-09-06T10:05:22.923Z",
       "candidates": [
         {
           "concertId": "475822",
@@ -46138,7 +45673,7 @@
       ]
     },
     "2026-12-01": {
-      "checkedAt": "2026-09-05T11:06:49.474Z",
+      "checkedAt": "2026-09-06T10:05:24.100Z",
       "candidates": [
         {
           "concertId": "476201",
@@ -46363,7 +45898,7 @@
       ]
     },
     "2026-12-02": {
-      "checkedAt": "2026-09-05T11:06:50.687Z",
+      "checkedAt": "2026-09-06T10:05:25.443Z",
       "candidates": [
         {
           "concertId": "459338",
@@ -46683,7 +46218,7 @@
       ]
     },
     "2026-12-03": {
-      "checkedAt": "2026-09-05T11:06:51.919Z",
+      "checkedAt": "2026-09-06T10:05:26.680Z",
       "candidates": [
         {
           "concertId": "486854",
@@ -46809,6 +46344,11 @@
           "concertId": "486946",
           "href": "https://www.podiuminfo.nl/concert/486946/Cabal-Employed-To-Serve/Trix/",
           "rawTitle": "Cabal / Employed To Serve"
+        },
+        {
+          "concertId": "493062",
+          "href": "https://www.podiuminfo.nl/concert/493062/LoKa-And-The-Moonshiners/Botanique/",
+          "rawTitle": "LoKa And The Moonshiners"
         },
         {
           "concertId": "459611",
@@ -47273,7 +46813,7 @@
       ]
     },
     "2026-12-04": {
-      "checkedAt": "2026-09-05T11:06:53.192Z",
+      "checkedAt": "2026-09-06T10:05:27.917Z",
       "candidates": [
         {
           "concertId": "457935",
@@ -48053,7 +47593,7 @@
       ]
     },
     "2026-12-05": {
-      "checkedAt": "2026-09-05T11:06:54.351Z",
+      "checkedAt": "2026-09-06T10:05:29.053Z",
       "candidates": [
         {
           "concertId": "460240",
@@ -48558,7 +48098,7 @@
       ]
     },
     "2026-12-06": {
-      "checkedAt": "2026-09-05T11:06:55.488Z",
+      "checkedAt": "2026-09-06T10:05:30.242Z",
       "candidates": [
         {
           "concertId": "478033",
@@ -48973,7 +48513,7 @@
       ]
     },
     "2026-12-07": {
-      "checkedAt": "2026-09-05T11:06:56.552Z",
+      "checkedAt": "2026-09-06T10:05:31.292Z",
       "candidates": [
         {
           "concertId": "486045",
@@ -49091,6 +48631,11 @@
           "rawTitle": "Marcel Veenendaal & Jan van Duikeren"
         },
         {
+          "concertId": "493065",
+          "href": "https://www.podiuminfo.nl/concert/493065/TC-KYLIE-x-JOYA/Cinetol/",
+          "rawTitle": "TC.KYLIE x JOYA"
+        },
+        {
           "concertId": "460524",
           "href": "https://www.podiuminfo.nl/concert/460524/The-Scratch/De-Helling/",
           "rawTitle": "The Scratch"
@@ -49118,7 +48663,7 @@
       ]
     },
     "2026-12-08": {
-      "checkedAt": "2026-09-05T11:06:57.789Z",
+      "checkedAt": "2026-09-06T10:05:32.535Z",
       "candidates": [
         {
           "concertId": "465003",
@@ -49303,7 +48848,7 @@
       ]
     },
     "2026-12-09": {
-      "checkedAt": "2026-09-05T11:06:59.074Z",
+      "checkedAt": "2026-09-06T10:05:33.827Z",
       "candidates": [
         {
           "concertId": "460241",
@@ -49648,7 +49193,7 @@
       ]
     },
     "2026-12-10": {
-      "checkedAt": "2026-09-05T11:07:00.310Z",
+      "checkedAt": "2026-09-06T10:05:35.082Z",
       "candidates": [
         {
           "concertId": "460752",
@@ -50178,7 +49723,7 @@
       ]
     },
     "2026-12-11": {
-      "checkedAt": "2026-09-05T11:07:01.639Z",
+      "checkedAt": "2026-09-06T10:05:36.296Z",
       "candidates": [
         {
           "concertId": "462777",
@@ -50194,6 +49739,11 @@
           "concertId": "488188",
           "href": "https://www.podiuminfo.nl/concert/488188/Didier-Super-et-son-groupe-Discount/Reflektor/",
           "rawTitle": "Didier Super et son groupe Discount"
+        },
+        {
+          "concertId": "493066",
+          "href": "https://www.podiuminfo.nl/concert/493066/Trio-Tangata-Aubrey-Snell-Van-Piazzolla-Tot-Bach/Wadway-Theaterkerk/",
+          "rawTitle": "Trio Tangata & Aubrey Snell - Van Piazzolla Tot Bach"
         },
         {
           "concertId": "481346",
@@ -50958,7 +50508,7 @@
       ]
     },
     "2026-12-12": {
-      "checkedAt": "2026-09-05T11:07:02.907Z",
+      "checkedAt": "2026-09-06T10:05:37.497Z",
       "candidates": [
         {
           "concertId": "462651",
@@ -51339,6 +50889,11 @@
           "concertId": "492222",
           "href": "https://www.podiuminfo.nl/concert/492222/Hooverphonic-met-Noemie-Wolfs-30-Years-Anniversary-Tour/C-C-Het-Bolwerk/",
           "rawTitle": "Hooverphonic met Noémie Wolfs - 30 Years Anniversary Tour"
+        },
+        {
+          "concertId": "493067",
+          "href": "https://www.podiuminfo.nl/concert/493067/Licks-Brains-20-jaar-jubileumconcert/Nobel/",
+          "rawTitle": "Licks & Brains - 20 jaar jubileumconcert"
         },
         {
           "concertId": "442024",
@@ -51733,7 +51288,7 @@
       ]
     },
     "2026-12-13": {
-      "checkedAt": "2026-09-05T11:07:03.957Z",
+      "checkedAt": "2026-09-06T10:05:38.460Z",
       "candidates": [
         {
           "concertId": "455611",
@@ -51819,6 +51374,11 @@
           "concertId": "492947",
           "href": "https://www.podiuminfo.nl/concert/492947/Jamsessie-Zandvoort/Theater-De-Krocht/",
           "rawTitle": "Jamsessie Zandvoort"
+        },
+        {
+          "concertId": "493068",
+          "href": "https://www.podiuminfo.nl/concert/493068/Kerst-klinkt-samen/Theater-Hof-88/",
+          "rawTitle": "Kerst klinkt samen"
         },
         {
           "concertId": "473485",
@@ -51919,6 +51479,11 @@
           "concertId": "488847",
           "href": "https://www.podiuminfo.nl/concert/488847/Ghasp/Het-Diekhuus/",
           "rawTitle": "Ghasp"
+        },
+        {
+          "concertId": "493069",
+          "href": "https://www.podiuminfo.nl/concert/493069/Muziekcafe-Funky-Covers/Theater-de-Tuyter/",
+          "rawTitle": "Muziekcafé Funky Covers"
         },
         {
           "concertId": "480765",
@@ -52193,7 +51758,7 @@
       ]
     },
     "2026-12-14": {
-      "checkedAt": "2026-09-05T11:07:04.968Z",
+      "checkedAt": "2026-09-06T10:05:39.688Z",
       "candidates": [
         {
           "concertId": "487159",
@@ -52278,7 +51843,7 @@
       ]
     },
     "2026-12-15": {
-      "checkedAt": "2026-09-05T11:07:06.163Z",
+      "checkedAt": "2026-09-06T10:05:40.920Z",
       "candidates": [
         {
           "concertId": "492250",
@@ -52443,7 +52008,7 @@
       ]
     },
     "2026-12-16": {
-      "checkedAt": "2026-09-05T11:07:07.570Z",
+      "checkedAt": "2026-09-06T10:05:42.296Z",
       "candidates": [
         {
           "concertId": "465937",
@@ -52718,7 +52283,7 @@
       ]
     },
     "2026-12-17": {
-      "checkedAt": "2026-09-05T11:07:08.734Z",
+      "checkedAt": "2026-09-06T10:05:43.450Z",
       "candidates": [
         {
           "concertId": "456278",
@@ -53153,7 +52718,7 @@
       ]
     },
     "2026-12-18": {
-      "checkedAt": "2026-09-05T11:07:09.983Z",
+      "checkedAt": "2026-09-06T10:05:44.716Z",
       "candidates": [
         {
           "concertId": "464740",
@@ -53908,7 +53473,7 @@
       ]
     },
     "2026-12-19": {
-      "checkedAt": "2026-09-05T11:07:11.127Z",
+      "checkedAt": "2026-09-06T10:05:45.875Z",
       "candidates": [
         {
           "concertId": "463931",
@@ -54663,7 +54228,7 @@
       ]
     },
     "2026-12-20": {
-      "checkedAt": "2026-09-05T11:07:12.310Z",
+      "checkedAt": "2026-09-06T10:05:47.078Z",
       "candidates": [
         {
           "concertId": "462653",
@@ -55163,7 +54728,7 @@
       ]
     },
     "2026-12-21": {
-      "checkedAt": "2026-09-05T11:07:13.336Z",
+      "checkedAt": "2026-09-06T10:05:48.092Z",
       "candidates": [
         {
           "concertId": "490207",
@@ -55243,7 +54808,7 @@
       ]
     },
     "2026-12-22": {
-      "checkedAt": "2026-09-05T11:07:14.491Z",
+      "checkedAt": "2026-09-06T10:05:49.294Z",
       "candidates": [
         {
           "concertId": "480353",
@@ -55343,7 +54908,7 @@
       ]
     },
     "2026-12-23": {
-      "checkedAt": "2026-09-05T11:07:15.715Z",
+      "checkedAt": "2026-09-06T10:05:50.503Z",
       "candidates": [
         {
           "concertId": "464773",
@@ -55493,7 +55058,7 @@
       ]
     },
     "2026-12-24": {
-      "checkedAt": "2026-09-05T11:07:16.899Z",
+      "checkedAt": "2026-09-06T10:05:51.699Z",
       "candidates": [
         {
           "concertId": "466020",
@@ -55523,11 +55088,11 @@
       ]
     },
     "2026-12-25": {
-      "checkedAt": "2026-09-05T11:07:18.082Z",
+      "checkedAt": "2026-09-06T10:05:52.873Z",
       "candidates": []
     },
     "2026-12-26": {
-      "checkedAt": "2026-09-05T11:07:19.424Z",
+      "checkedAt": "2026-09-06T10:05:54.125Z",
       "candidates": [
         {
           "concertId": "466059",
@@ -55577,7 +55142,7 @@
       ]
     },
     "2026-12-27": {
-      "checkedAt": "2026-09-05T11:07:20.584Z",
+      "checkedAt": "2026-09-06T10:05:55.312Z",
       "candidates": [
         {
           "concertId": "468410",
@@ -55742,7 +55307,7 @@
       ]
     },
     "2026-12-28": {
-      "checkedAt": "2026-09-05T11:07:21.713Z",
+      "checkedAt": "2026-09-06T10:05:56.507Z",
       "candidates": [
         {
           "concertId": "464764",
@@ -55812,7 +55377,7 @@
       ]
     },
     "2026-12-29": {
-      "checkedAt": "2026-09-05T11:07:22.919Z",
+      "checkedAt": "2026-09-06T10:05:57.697Z",
       "candidates": [
         {
           "concertId": "464766",
@@ -55912,7 +55477,7 @@
       ]
     },
     "2026-12-30": {
-      "checkedAt": "2026-09-05T11:07:24.096Z",
+      "checkedAt": "2026-09-06T10:05:58.963Z",
       "candidates": [
         {
           "concertId": "449684",
@@ -55992,7 +55557,7 @@
       ]
     },
     "2026-12-31": {
-      "checkedAt": "2026-09-05T11:07:25.293Z",
+      "checkedAt": "2026-09-06T10:06:00.080Z",
       "candidates": [
         {
           "concertId": "461619",
@@ -56002,11 +55567,11 @@
       ]
     },
     "2027-01-01": {
-      "checkedAt": "2026-09-05T11:07:26.490Z",
+      "checkedAt": "2026-09-06T10:06:01.389Z",
       "candidates": []
     },
     "2027-01-02": {
-      "checkedAt": "2026-09-05T11:07:27.718Z",
+      "checkedAt": "2026-09-06T10:06:03.009Z",
       "candidates": [
         {
           "concertId": "471944",
@@ -56116,7 +55681,7 @@
       ]
     },
     "2027-01-03": {
-      "checkedAt": "2026-09-05T11:07:28.899Z",
+      "checkedAt": "2026-09-06T10:06:03.832Z",
       "candidates": [
         {
           "concertId": "478044",
@@ -56211,11 +55776,11 @@
       ]
     },
     "2027-01-04": {
-      "checkedAt": "2026-09-05T11:07:30.089Z",
+      "checkedAt": "2026-09-06T10:06:04.946Z",
       "candidates": []
     },
     "2027-01-05": {
-      "checkedAt": "2026-09-05T11:07:31.313Z",
+      "checkedAt": "2026-09-06T10:06:06.120Z",
       "candidates": [
         {
           "concertId": "462043",
@@ -56255,7 +55820,7 @@
       ]
     },
     "2027-01-06": {
-      "checkedAt": "2026-09-05T11:07:32.485Z",
+      "checkedAt": "2026-09-06T10:06:07.380Z",
       "candidates": [
         {
           "concertId": "474648",
@@ -56325,7 +55890,7 @@
       ]
     },
     "2027-01-07": {
-      "checkedAt": "2026-09-05T11:07:33.705Z",
+      "checkedAt": "2026-09-06T10:06:08.542Z",
       "candidates": [
         {
           "concertId": "486809",
@@ -56455,7 +56020,7 @@
       ]
     },
     "2027-01-08": {
-      "checkedAt": "2026-09-05T11:07:35.099Z",
+      "checkedAt": "2026-09-06T10:06:09.946Z",
       "candidates": [
         {
           "concertId": "459855",
@@ -56860,7 +56425,7 @@
       ]
     },
     "2027-01-09": {
-      "checkedAt": "2026-09-05T11:07:36.281Z",
+      "checkedAt": "2026-09-06T10:06:11.066Z",
       "candidates": [
         {
           "concertId": "489296",
@@ -57365,7 +56930,7 @@
       ]
     },
     "2027-01-10": {
-      "checkedAt": "2026-09-05T11:07:37.463Z",
+      "checkedAt": "2026-09-06T10:06:12.141Z",
       "candidates": [
         {
           "concertId": "474651",
@@ -57570,7 +57135,7 @@
       ]
     },
     "2027-01-11": {
-      "checkedAt": "2026-09-05T11:07:38.470Z",
+      "checkedAt": "2026-09-06T10:06:13.300Z",
       "candidates": [
         {
           "concertId": "475538",
@@ -57595,7 +57160,7 @@
       ]
     },
     "2027-01-12": {
-      "checkedAt": "2026-09-05T11:07:39.726Z",
+      "checkedAt": "2026-09-06T10:06:14.521Z",
       "candidates": [
         {
           "concertId": "459804",
@@ -57645,7 +57210,7 @@
       ]
     },
     "2027-01-13": {
-      "checkedAt": "2026-09-05T11:07:40.895Z",
+      "checkedAt": "2026-09-06T10:06:15.723Z",
       "candidates": [
         {
           "concertId": "472620",
@@ -57780,7 +57345,7 @@
       ]
     },
     "2027-01-14": {
-      "checkedAt": "2026-09-05T11:07:42.117Z",
+      "checkedAt": "2026-09-06T10:06:16.926Z",
       "candidates": [
         {
           "concertId": "453265",
@@ -57970,7 +57535,7 @@
       ]
     },
     "2027-01-15": {
-      "checkedAt": "2026-09-05T11:07:43.531Z",
+      "checkedAt": "2026-09-06T10:06:18.272Z",
       "candidates": [
         {
           "concertId": "450405",
@@ -58490,7 +58055,7 @@
       ]
     },
     "2027-01-16": {
-      "checkedAt": "2026-09-05T11:07:44.775Z",
+      "checkedAt": "2026-09-06T10:06:19.516Z",
       "candidates": [
         {
           "concertId": "463017",
@@ -59080,7 +58645,7 @@
       ]
     },
     "2027-01-17": {
-      "checkedAt": "2026-09-05T11:07:45.917Z",
+      "checkedAt": "2026-09-06T10:06:20.620Z",
       "candidates": [
         {
           "concertId": "462657",
@@ -59340,7 +58905,7 @@
       ]
     },
     "2027-01-18": {
-      "checkedAt": "2026-09-05T11:07:46.914Z",
+      "checkedAt": "2026-09-06T10:06:21.735Z",
       "candidates": [
         {
           "concertId": "449816",
@@ -59385,7 +58950,7 @@
       ]
     },
     "2027-01-19": {
-      "checkedAt": "2026-09-05T11:07:48.138Z",
+      "checkedAt": "2026-09-06T10:06:22.926Z",
       "candidates": [
         {
           "concertId": "490901",
@@ -59500,7 +59065,7 @@
       ]
     },
     "2027-01-20": {
-      "checkedAt": "2026-09-05T11:07:49.335Z",
+      "checkedAt": "2026-09-06T10:06:24.146Z",
       "candidates": [
         {
           "concertId": "471489",
@@ -59630,7 +59195,7 @@
       ]
     },
     "2027-01-21": {
-      "checkedAt": "2026-09-05T11:07:50.692Z",
+      "checkedAt": "2026-09-06T10:06:25.446Z",
       "candidates": [
         {
           "concertId": "471490",
@@ -59900,7 +59465,7 @@
       ]
     },
     "2027-01-22": {
-      "checkedAt": "2026-09-05T11:07:51.957Z",
+      "checkedAt": "2026-09-06T10:06:26.688Z",
       "candidates": [
         {
           "concertId": "480580",
@@ -60420,7 +59985,7 @@
       ]
     },
     "2027-01-23": {
-      "checkedAt": "2026-09-05T11:07:53.095Z",
+      "checkedAt": "2026-09-06T10:06:27.858Z",
       "candidates": [
         {
           "concertId": "462659",
@@ -61035,7 +60600,7 @@
       ]
     },
     "2027-01-24": {
-      "checkedAt": "2026-09-05T11:07:54.165Z",
+      "checkedAt": "2026-09-06T10:06:28.926Z",
       "candidates": [
         {
           "concertId": "493023",
@@ -61230,7 +60795,7 @@
       ]
     },
     "2027-01-25": {
-      "checkedAt": "2026-09-05T11:07:55.363Z",
+      "checkedAt": "2026-09-06T10:06:30.131Z",
       "candidates": [
         {
           "concertId": "479072",
@@ -61270,7 +60835,7 @@
       ]
     },
     "2027-01-26": {
-      "checkedAt": "2026-09-05T11:07:56.520Z",
+      "checkedAt": "2026-09-06T10:06:31.301Z",
       "candidates": [
         {
           "concertId": "471949",
@@ -61360,7 +60925,7 @@
       ]
     },
     "2027-01-27": {
-      "checkedAt": "2026-09-05T11:07:57.731Z",
+      "checkedAt": "2026-09-06T10:06:32.537Z",
       "candidates": [
         {
           "concertId": "462783",
@@ -61530,7 +61095,7 @@
       ]
     },
     "2027-01-28": {
-      "checkedAt": "2026-09-05T11:07:59.063Z",
+      "checkedAt": "2026-09-06T10:06:33.822Z",
       "candidates": [
         {
           "concertId": "487297",
@@ -61770,7 +61335,7 @@
       ]
     },
     "2027-01-29": {
-      "checkedAt": "2026-09-05T11:08:00.320Z",
+      "checkedAt": "2026-09-06T10:06:35.087Z",
       "candidates": [
         {
           "concertId": "463739",
@@ -62195,7 +61760,7 @@
       ]
     },
     "2027-01-30": {
-      "checkedAt": "2026-09-05T11:08:01.567Z",
+      "checkedAt": "2026-09-06T10:06:36.265Z",
       "candidates": [
         {
           "concertId": "462660",
@@ -62715,7 +62280,7 @@
       ]
     },
     "2027-01-31": {
-      "checkedAt": "2026-09-05T11:08:03.001Z",
+      "checkedAt": "2026-09-06T10:06:37.334Z",
       "candidates": [
         {
           "concertId": "457534",
@@ -62925,7 +62490,7 @@
       ]
     },
     "2027-02-01": {
-      "checkedAt": "2026-09-05T11:08:03.872Z",
+      "checkedAt": "2026-09-06T10:06:38.543Z",
       "candidates": [
         {
           "concertId": "474182",
@@ -62965,7 +62530,7 @@
       ]
     },
     "2027-02-02": {
-      "checkedAt": "2026-09-05T11:08:04.967Z",
+      "checkedAt": "2026-09-06T10:06:39.717Z",
       "candidates": [
         {
           "concertId": "480006",
@@ -63040,7 +62605,7 @@
       ]
     },
     "2027-02-03": {
-      "checkedAt": "2026-09-05T11:08:06.152Z",
+      "checkedAt": "2026-09-06T10:06:40.900Z",
       "candidates": [
         {
           "concertId": "465760",
@@ -63195,7 +62760,7 @@
       ]
     },
     "2027-02-04": {
-      "checkedAt": "2026-09-05T11:08:07.482Z",
+      "checkedAt": "2026-09-06T10:06:42.276Z",
       "candidates": [
         {
           "concertId": "480120",
@@ -63425,7 +62990,7 @@
       ]
     },
     "2027-02-05": {
-      "checkedAt": "2026-09-05T11:08:08.685Z",
+      "checkedAt": "2026-09-06T10:06:43.478Z",
       "candidates": [
         {
           "concertId": "491908",
@@ -63830,7 +63395,7 @@
       ]
     },
     "2027-02-06": {
-      "checkedAt": "2026-09-05T11:08:09.922Z",
+      "checkedAt": "2026-09-06T10:06:44.673Z",
       "candidates": [
         {
           "concertId": "492563",
@@ -64210,7 +63775,7 @@
       ]
     },
     "2027-02-07": {
-      "checkedAt": "2026-09-05T11:08:11.092Z",
+      "checkedAt": "2026-09-06T10:06:45.823Z",
       "candidates": [
         {
           "concertId": "462661",
@@ -64425,7 +63990,7 @@
       ]
     },
     "2027-02-08": {
-      "checkedAt": "2026-09-05T11:08:12.100Z",
+      "checkedAt": "2026-09-06T10:06:46.920Z",
       "candidates": [
         {
           "concertId": "462662",
@@ -64475,7 +64040,7 @@
       ]
     },
     "2027-02-09": {
-      "checkedAt": "2026-09-05T11:08:13.345Z",
+      "checkedAt": "2026-09-06T10:06:48.112Z",
       "candidates": [
         {
           "concertId": "493027",
@@ -64525,7 +64090,7 @@
       ]
     },
     "2027-02-10": {
-      "checkedAt": "2026-09-05T11:08:14.508Z",
+      "checkedAt": "2026-09-06T10:06:49.338Z",
       "candidates": [
         {
           "concertId": "477515",
@@ -64645,7 +64210,7 @@
       ]
     },
     "2027-02-11": {
-      "checkedAt": "2026-09-05T11:08:15.854Z",
+      "checkedAt": "2026-09-06T10:06:50.640Z",
       "candidates": [
         {
           "concertId": "459431",
@@ -64850,7 +64415,7 @@
       ]
     },
     "2027-02-12": {
-      "checkedAt": "2026-09-05T11:08:17.129Z",
+      "checkedAt": "2026-09-06T10:06:51.852Z",
       "candidates": [
         {
           "concertId": "492498",
@@ -65245,7 +64810,7 @@
       ]
     },
     "2027-02-13": {
-      "checkedAt": "2026-09-05T11:08:18.388Z",
+      "checkedAt": "2026-09-06T10:06:53.048Z",
       "candidates": [
         {
           "concertId": "492567",
@@ -65785,7 +65350,7 @@
       ]
     },
     "2027-02-14": {
-      "checkedAt": "2026-09-05T11:08:19.439Z",
+      "checkedAt": "2026-09-06T10:06:54.249Z",
       "candidates": [
         {
           "concertId": "477093",
@@ -66090,7 +65655,7 @@
       ]
     },
     "2027-02-15": {
-      "checkedAt": "2026-09-05T11:08:20.504Z",
+      "checkedAt": "2026-09-06T10:06:55.304Z",
       "candidates": [
         {
           "concertId": "484236",
@@ -66160,7 +65725,7 @@
       ]
     },
     "2027-02-16": {
-      "checkedAt": "2026-09-05T11:08:21.691Z",
+      "checkedAt": "2026-09-06T10:06:56.548Z",
       "candidates": [
         {
           "concertId": "492228",
@@ -66260,7 +65825,7 @@
       ]
     },
     "2027-02-17": {
-      "checkedAt": "2026-09-05T11:08:22.900Z",
+      "checkedAt": "2026-09-06T10:06:57.728Z",
       "candidates": [
         {
           "concertId": "465958",
@@ -66405,7 +65970,7 @@
       ]
     },
     "2027-02-18": {
-      "checkedAt": "2026-09-05T11:08:24.263Z",
+      "checkedAt": "2026-09-06T10:06:59.032Z",
       "candidates": [
         {
           "concertId": "476523",
@@ -66730,7 +66295,7 @@
       ]
     },
     "2027-02-19": {
-      "checkedAt": "2026-09-05T11:08:25.574Z",
+      "checkedAt": "2026-09-06T10:07:00.307Z",
       "candidates": [
         {
           "concertId": "488664",
@@ -67245,7 +66810,7 @@
       ]
     },
     "2027-02-20": {
-      "checkedAt": "2026-09-05T11:08:26.726Z",
+      "checkedAt": "2026-09-06T10:07:01.575Z",
       "candidates": [
         {
           "concertId": "462663",
@@ -67855,7 +67420,7 @@
       ]
     },
     "2027-02-21": {
-      "checkedAt": "2026-09-05T11:08:27.861Z",
+      "checkedAt": "2026-09-06T10:07:03.002Z",
       "candidates": [
         {
           "concertId": "470390",
@@ -68100,7 +67665,7 @@
       ]
     },
     "2027-02-22": {
-      "checkedAt": "2026-09-05T11:08:28.895Z",
+      "checkedAt": "2026-09-06T10:07:03.850Z",
       "candidates": [
         {
           "concertId": "492309",
@@ -68150,7 +67715,7 @@
       ]
     },
     "2027-02-23": {
-      "checkedAt": "2026-09-05T11:08:30.086Z",
+      "checkedAt": "2026-09-06T10:07:04.927Z",
       "candidates": [
         {
           "concertId": "469885",
@@ -68260,7 +67825,7 @@
       ]
     },
     "2027-02-24": {
-      "checkedAt": "2026-09-05T11:08:31.333Z",
+      "checkedAt": "2026-09-06T10:07:06.134Z",
       "candidates": [
         {
           "concertId": "490348",
@@ -68410,7 +67975,7 @@
       ]
     },
     "2027-02-25": {
-      "checkedAt": "2026-09-05T11:08:32.675Z",
+      "checkedAt": "2026-09-06T10:07:07.484Z",
       "candidates": [
         {
           "concertId": "468200",
@@ -68615,7 +68180,7 @@
       ]
     },
     "2027-02-26": {
-      "checkedAt": "2026-09-05T11:08:33.927Z",
+      "checkedAt": "2026-09-06T10:07:08.667Z",
       "candidates": [
         {
           "concertId": "465119",
@@ -69105,7 +68670,7 @@
       ]
     },
     "2027-02-27": {
-      "checkedAt": "2026-09-05T11:08:35.150Z",
+      "checkedAt": "2026-09-06T10:07:09.880Z",
       "candidates": [
         {
           "concertId": "492574",
@@ -69655,7 +69220,7 @@
       ]
     },
     "2027-02-28": {
-      "checkedAt": "2026-09-05T11:08:36.097Z",
+      "checkedAt": "2026-09-06T10:07:10.894Z",
       "candidates": [
         {
           "concertId": "462686",
@@ -69860,7 +69425,7 @@
       ]
     },
     "2027-03-01": {
-      "checkedAt": "2026-09-05T11:08:37.278Z",
+      "checkedAt": "2026-09-06T10:07:12.100Z",
       "candidates": [
         {
           "concertId": "476761",
@@ -69895,7 +69460,7 @@
       ]
     },
     "2027-03-02": {
-      "checkedAt": "2026-09-05T11:08:38.494Z",
+      "checkedAt": "2026-09-06T10:07:13.334Z",
       "candidates": [
         {
           "concertId": "463944",
@@ -69980,7 +69545,7 @@
       ]
     },
     "2027-03-03": {
-      "checkedAt": "2026-09-05T11:08:39.653Z",
+      "checkedAt": "2026-09-06T10:07:14.543Z",
       "candidates": [
         {
           "concertId": "465962",
@@ -70110,7 +69675,7 @@
       ]
     },
     "2027-03-04": {
-      "checkedAt": "2026-09-05T11:08:41.218Z",
+      "checkedAt": "2026-09-06T10:07:15.842Z",
       "candidates": [
         {
           "concertId": "462664",
@@ -70335,7 +69900,7 @@
       ]
     },
     "2027-03-05": {
-      "checkedAt": "2026-09-05T11:08:42.329Z",
+      "checkedAt": "2026-09-06T10:07:17.105Z",
       "candidates": [
         {
           "concertId": "470374",
@@ -70760,7 +70325,7 @@
       ]
     },
     "2027-03-06": {
-      "checkedAt": "2026-09-05T11:08:43.514Z",
+      "checkedAt": "2026-09-06T10:07:18.347Z",
       "candidates": [
         {
           "concertId": "492750",
@@ -71260,7 +70825,7 @@
       ]
     },
     "2027-03-07": {
-      "checkedAt": "2026-09-05T11:08:44.723Z",
+      "checkedAt": "2026-09-06T10:07:19.484Z",
       "candidates": [
         {
           "concertId": "461809",
@@ -71530,7 +71095,7 @@
       ]
     },
     "2027-03-08": {
-      "checkedAt": "2026-09-05T11:08:45.663Z",
+      "checkedAt": "2026-09-06T10:07:20.546Z",
       "candidates": [
         {
           "concertId": "476525",
@@ -71560,7 +71125,7 @@
       ]
     },
     "2027-03-09": {
-      "checkedAt": "2026-09-05T11:08:46.876Z",
+      "checkedAt": "2026-09-06T10:07:21.907Z",
       "candidates": [
         {
           "concertId": "468840",
@@ -71640,7 +71205,7 @@
       ]
     },
     "2027-03-10": {
-      "checkedAt": "2026-09-05T11:08:48.116Z",
+      "checkedAt": "2026-09-06T10:07:22.952Z",
       "candidates": [
         {
           "concertId": "448857",
@@ -71825,7 +71390,7 @@
       ]
     },
     "2027-03-11": {
-      "checkedAt": "2026-09-05T11:08:49.447Z",
+      "checkedAt": "2026-09-06T10:07:24.288Z",
       "candidates": [
         {
           "concertId": "471521",
@@ -72050,7 +71615,7 @@
       ]
     },
     "2027-03-12": {
-      "checkedAt": "2026-09-05T11:08:50.769Z",
+      "checkedAt": "2026-09-06T10:07:25.471Z",
       "candidates": [
         {
           "concertId": "479694",
@@ -72430,7 +71995,7 @@
       ]
     },
     "2027-03-13": {
-      "checkedAt": "2026-09-05T11:08:51.886Z",
+      "checkedAt": "2026-09-06T10:07:26.705Z",
       "candidates": [
         {
           "concertId": "477309",
@@ -72900,7 +72465,7 @@
       ]
     },
     "2027-03-14": {
-      "checkedAt": "2026-09-05T11:08:52.913Z",
+      "checkedAt": "2026-09-06T10:07:27.739Z",
       "candidates": [
         {
           "concertId": "462687",
@@ -73135,7 +72700,7 @@
       ]
     },
     "2027-03-15": {
-      "checkedAt": "2026-09-05T11:08:54.064Z",
+      "checkedAt": "2026-09-06T10:07:28.922Z",
       "candidates": [
         {
           "concertId": "468440",
@@ -73180,7 +72745,7 @@
       ]
     },
     "2027-03-16": {
-      "checkedAt": "2026-09-05T11:08:55.287Z",
+      "checkedAt": "2026-09-06T10:07:30.135Z",
       "candidates": [
         {
           "concertId": "471665",
@@ -73270,7 +72835,7 @@
       ]
     },
     "2027-03-17": {
-      "checkedAt": "2026-09-05T11:08:56.332Z",
+      "checkedAt": "2026-09-06T10:07:31.368Z",
       "candidates": [
         {
           "concertId": "465965",
@@ -73400,7 +72965,7 @@
       ]
     },
     "2027-03-18": {
-      "checkedAt": "2026-09-05T11:08:57.864Z",
+      "checkedAt": "2026-09-06T10:07:32.644Z",
       "candidates": [
         {
           "concertId": "478829",
@@ -73660,7 +73225,7 @@
       ]
     },
     "2027-03-19": {
-      "checkedAt": "2026-09-05T11:08:59.070Z",
+      "checkedAt": "2026-09-06T10:07:33.883Z",
       "candidates": [
         {
           "concertId": "455748",
@@ -74005,7 +73570,7 @@
       ]
     },
     "2027-03-20": {
-      "checkedAt": "2026-09-05T11:09:00.257Z",
+      "checkedAt": "2026-09-06T10:07:35.027Z",
       "candidates": [
         {
           "concertId": "464542",
@@ -74385,7 +73950,7 @@
       ]
     },
     "2027-03-21": {
-      "checkedAt": "2026-09-05T11:09:01.338Z",
+      "checkedAt": "2026-09-06T10:07:36.115Z",
       "candidates": [
         {
           "concertId": "463021",
@@ -74610,7 +74175,7 @@
       ]
     },
     "2027-03-22": {
-      "checkedAt": "2026-09-05T11:09:02.631Z",
+      "checkedAt": "2026-09-06T10:07:37.304Z",
       "candidates": [
         {
           "concertId": "492307",
@@ -74645,7 +74210,7 @@
       ]
     },
     "2027-03-23": {
-      "checkedAt": "2026-09-05T11:09:03.841Z",
+      "checkedAt": "2026-09-06T10:07:38.517Z",
       "candidates": [
         {
           "concertId": "491770",
@@ -74740,7 +74305,7 @@
       ]
     },
     "2027-03-24": {
-      "checkedAt": "2026-09-05T11:09:05.032Z",
+      "checkedAt": "2026-09-06T10:07:39.728Z",
       "candidates": [
         {
           "concertId": "489503",
@@ -74865,7 +74430,7 @@
       ]
     },
     "2027-03-25": {
-      "checkedAt": "2026-09-05T11:09:06.132Z",
+      "checkedAt": "2026-09-06T10:07:40.957Z",
       "candidates": [
         {
           "concertId": "477100",
@@ -75060,7 +74625,7 @@
       ]
     },
     "2027-03-26": {
-      "checkedAt": "2026-09-05T11:09:07.494Z",
+      "checkedAt": "2026-09-06T10:07:42.252Z",
       "candidates": [
         {
           "concertId": "482758",
@@ -75385,7 +74950,7 @@
       ]
     },
     "2027-03-27": {
-      "checkedAt": "2026-09-05T11:09:08.694Z",
+      "checkedAt": "2026-09-06T10:07:43.441Z",
       "candidates": [
         {
           "concertId": "492890",
@@ -75810,7 +75375,7 @@
       ]
     },
     "2027-03-28": {
-      "checkedAt": "2026-09-05T11:09:09.718Z",
+      "checkedAt": "2026-09-06T10:07:44.522Z",
       "candidates": [
         {
           "concertId": "478068",
@@ -75890,7 +75455,7 @@
       ]
     },
     "2027-03-29": {
-      "checkedAt": "2026-09-05T11:09:10.895Z",
+      "checkedAt": "2026-09-06T10:07:45.715Z",
       "candidates": [
         {
           "concertId": "488390",
@@ -75950,7 +75515,7 @@
       ]
     },
     "2027-03-30": {
-      "checkedAt": "2026-09-05T11:09:12.071Z",
+      "checkedAt": "2026-09-06T10:07:46.943Z",
       "candidates": [
         {
           "concertId": "469921",
@@ -76005,7 +75570,7 @@
       ]
     },
     "2027-03-31": {
-      "checkedAt": "2026-09-05T11:09:13.278Z",
+      "checkedAt": "2026-09-06T10:07:48.129Z",
       "candidates": [
         {
           "concertId": "489799",
@@ -76130,7 +75695,7 @@
       ]
     },
     "2027-04-01": {
-      "checkedAt": "2026-09-05T11:09:14.522Z",
+      "checkedAt": "2026-09-06T10:07:49.342Z",
       "candidates": [
         {
           "concertId": "472480",
@@ -76295,7 +75860,7 @@
       ]
     },
     "2027-04-02": {
-      "checkedAt": "2026-09-05T11:09:15.871Z",
+      "checkedAt": "2026-09-06T10:07:50.673Z",
       "candidates": [
         {
           "concertId": "489763",
@@ -76620,7 +76185,7 @@
       ]
     },
     "2027-04-03": {
-      "checkedAt": "2026-09-05T11:09:17.077Z",
+      "checkedAt": "2026-09-06T10:07:51.838Z",
       "candidates": [
         {
           "concertId": "462672",
@@ -77015,7 +76580,7 @@
       ]
     },
     "2027-04-04": {
-      "checkedAt": "2026-09-05T11:09:18.092Z",
+      "checkedAt": "2026-09-06T10:07:52.959Z",
       "candidates": [
         {
           "concertId": "492751",
@@ -77200,7 +76765,7 @@
       ]
     },
     "2027-04-05": {
-      "checkedAt": "2026-09-05T11:09:19.300Z",
+      "checkedAt": "2026-09-06T10:07:54.078Z",
       "candidates": [
         {
           "concertId": "467836",
@@ -77230,7 +76795,7 @@
       ]
     },
     "2027-04-06": {
-      "checkedAt": "2026-09-05T11:09:20.501Z",
+      "checkedAt": "2026-09-06T10:07:55.312Z",
       "candidates": [
         {
           "concertId": "477106",
@@ -77315,7 +76880,7 @@
       ]
     },
     "2027-04-07": {
-      "checkedAt": "2026-09-05T11:09:21.685Z",
+      "checkedAt": "2026-09-06T10:07:56.511Z",
       "candidates": [
         {
           "concertId": "465969",
@@ -77425,7 +76990,7 @@
       ]
     },
     "2027-04-08": {
-      "checkedAt": "2026-09-05T11:09:22.910Z",
+      "checkedAt": "2026-09-06T10:07:57.729Z",
       "candidates": [
         {
           "concertId": "473522",
@@ -77635,7 +77200,7 @@
       ]
     },
     "2027-04-09": {
-      "checkedAt": "2026-09-05T11:09:24.254Z",
+      "checkedAt": "2026-09-06T10:07:59.057Z",
       "candidates": [
         {
           "concertId": "488675",
@@ -78015,7 +77580,7 @@
       ]
     },
     "2027-04-10": {
-      "checkedAt": "2026-09-05T11:09:25.468Z",
+      "checkedAt": "2026-09-06T10:08:00.267Z",
       "candidates": [
         {
           "concertId": "464608",
@@ -78435,7 +78000,7 @@
       ]
     },
     "2027-04-11": {
-      "checkedAt": "2026-09-05T11:09:26.482Z",
+      "checkedAt": "2026-09-06T10:08:01.348Z",
       "candidates": [
         {
           "concertId": "463024",
@@ -78625,7 +78190,7 @@
       ]
     },
     "2027-04-12": {
-      "checkedAt": "2026-09-05T11:09:27.670Z",
+      "checkedAt": "2026-09-06T10:08:02.751Z",
       "candidates": [
         {
           "concertId": "478071",
@@ -78640,7 +78205,7 @@
       ]
     },
     "2027-04-13": {
-      "checkedAt": "2026-09-05T11:09:28.867Z",
+      "checkedAt": "2026-09-06T10:08:03.582Z",
       "candidates": [
         {
           "concertId": "471286",
@@ -78690,7 +78255,7 @@
       ]
     },
     "2027-04-14": {
-      "checkedAt": "2026-09-05T11:09:30.061Z",
+      "checkedAt": "2026-09-06T10:08:05.076Z",
       "candidates": [
         {
           "concertId": "471982",
@@ -78815,7 +78380,7 @@
       ]
     },
     "2027-04-15": {
-      "checkedAt": "2026-09-05T11:09:31.458Z",
+      "checkedAt": "2026-09-06T10:08:06.338Z",
       "candidates": [
         {
           "concertId": "474550",
@@ -79065,7 +78630,7 @@
       ]
     },
     "2027-04-16": {
-      "checkedAt": "2026-09-05T11:09:32.730Z",
+      "checkedAt": "2026-09-06T10:08:07.503Z",
       "candidates": [
         {
           "concertId": "480102",
@@ -79400,7 +78965,7 @@
       ]
     },
     "2027-04-17": {
-      "checkedAt": "2026-09-05T11:09:33.937Z",
+      "checkedAt": "2026-09-06T10:08:08.653Z",
       "candidates": [
         {
           "concertId": "462674",
@@ -79830,7 +79395,7 @@
       ]
     },
     "2027-04-18": {
-      "checkedAt": "2026-09-05T11:09:34.945Z",
+      "checkedAt": "2026-09-06T10:08:09.751Z",
       "candidates": [
         {
           "concertId": "462673",
@@ -80035,7 +79600,7 @@
       ]
     },
     "2027-04-19": {
-      "checkedAt": "2026-09-05T11:09:36.056Z",
+      "checkedAt": "2026-09-06T10:08:10.910Z",
       "candidates": [
         {
           "concertId": "474447",
@@ -80060,7 +79625,7 @@
       ]
     },
     "2027-04-20": {
-      "checkedAt": "2026-09-05T11:09:37.322Z",
+      "checkedAt": "2026-09-06T10:08:12.108Z",
       "candidates": [
         {
           "concertId": "468610",
@@ -80130,7 +79695,7 @@
       ]
     },
     "2027-04-21": {
-      "checkedAt": "2026-09-05T11:09:38.518Z",
+      "checkedAt": "2026-09-06T10:08:13.342Z",
       "candidates": [
         {
           "concertId": "471550",
@@ -80260,7 +79825,7 @@
       ]
     },
     "2027-04-22": {
-      "checkedAt": "2026-09-05T11:09:39.861Z",
+      "checkedAt": "2026-09-06T10:08:14.688Z",
       "candidates": [
         {
           "concertId": "477114",
@@ -80495,7 +80060,7 @@
       ]
     },
     "2027-04-23": {
-      "checkedAt": "2026-09-05T11:09:41.043Z",
+      "checkedAt": "2026-09-06T10:08:15.868Z",
       "candidates": [
         {
           "concertId": "460104",
@@ -80865,7 +80430,7 @@
       ]
     },
     "2027-04-24": {
-      "checkedAt": "2026-09-05T11:09:42.245Z",
+      "checkedAt": "2026-09-06T10:08:17.039Z",
       "candidates": [
         {
           "concertId": "462675",
@@ -81220,7 +80785,7 @@
       ]
     },
     "2027-04-25": {
-      "checkedAt": "2026-09-05T11:09:43.320Z",
+      "checkedAt": "2026-09-06T10:08:18.105Z",
       "candidates": [
         {
           "concertId": "462901",
@@ -81370,7 +80935,7 @@
       ]
     },
     "2027-04-26": {
-      "checkedAt": "2026-09-05T11:09:44.464Z",
+      "checkedAt": "2026-09-06T10:08:19.304Z",
       "candidates": [
         {
           "concertId": "464612",
@@ -81400,7 +80965,7 @@
       ]
     },
     "2027-04-27": {
-      "checkedAt": "2026-09-05T11:09:45.669Z",
+      "checkedAt": "2026-09-06T10:08:20.510Z",
       "candidates": [
         {
           "concertId": "491936",
@@ -81410,7 +80975,7 @@
       ]
     },
     "2027-04-28": {
-      "checkedAt": "2026-09-05T11:09:46.864Z",
+      "checkedAt": "2026-09-06T10:08:21.682Z",
       "candidates": [
         {
           "concertId": "481922",
@@ -81490,7 +81055,7 @@
       ]
     },
     "2027-04-29": {
-      "checkedAt": "2026-09-05T11:09:48.104Z",
+      "checkedAt": "2026-09-06T10:08:22.943Z",
       "candidates": [
         {
           "concertId": "456824",
@@ -81640,7 +81205,7 @@
       ]
     },
     "2027-04-30": {
-      "checkedAt": "2026-09-05T11:09:49.444Z",
+      "checkedAt": "2026-09-06T10:08:24.224Z",
       "candidates": [
         {
           "concertId": "492308",
@@ -81890,7 +81455,7 @@
       ]
     },
     "2027-05-01": {
-      "checkedAt": "2026-09-05T11:09:50.645Z",
+      "checkedAt": "2026-09-06T10:08:25.453Z",
       "candidates": [
         {
           "concertId": "476229",
@@ -82120,7 +81685,7 @@
       ]
     },
     "2027-05-02": {
-      "checkedAt": "2026-09-05T11:09:51.664Z",
+      "checkedAt": "2026-09-06T10:08:26.490Z",
       "candidates": [
         {
           "concertId": "478077",
@@ -82220,7 +81785,7 @@
       ]
     },
     "2027-05-03": {
-      "checkedAt": "2026-09-05T11:09:52.855Z",
+      "checkedAt": "2026-09-06T10:08:27.701Z",
       "candidates": [
         {
           "concertId": "492891",
@@ -82240,7 +81805,7 @@
       ]
     },
     "2027-05-04": {
-      "checkedAt": "2026-09-05T11:09:54.066Z",
+      "checkedAt": "2026-09-06T10:08:28.905Z",
       "candidates": [
         {
           "concertId": "488086",
@@ -82255,7 +81820,7 @@
       ]
     },
     "2027-05-05": {
-      "checkedAt": "2026-09-05T11:09:55.277Z",
+      "checkedAt": "2026-09-06T10:08:30.102Z",
       "candidates": [
         {
           "concertId": "484996",
@@ -82290,7 +81855,7 @@
       ]
     },
     "2027-05-06": {
-      "checkedAt": "2026-09-05T11:09:56.497Z",
+      "checkedAt": "2026-09-06T10:08:31.334Z",
       "candidates": [
         {
           "concertId": "467148",
@@ -82385,7 +81950,7 @@
       ]
     },
     "2027-05-07": {
-      "checkedAt": "2026-09-05T11:09:57.727Z",
+      "checkedAt": "2026-09-06T10:08:32.533Z",
       "candidates": [
         {
           "concertId": "471556",
@@ -82560,7 +82125,7 @@
       ]
     },
     "2027-05-08": {
-      "checkedAt": "2026-09-05T11:09:59.073Z",
+      "checkedAt": "2026-09-06T10:08:33.739Z",
       "candidates": [
         {
           "concertId": "473163",
@@ -82790,7 +82355,7 @@
       ]
     },
     "2027-05-09": {
-      "checkedAt": "2026-09-05T11:10:00.058Z",
+      "checkedAt": "2026-09-06T10:08:34.923Z",
       "candidates": [
         {
           "concertId": "468766",
@@ -82920,7 +82485,7 @@
       ]
     },
     "2027-05-10": {
-      "checkedAt": "2026-09-05T11:10:01.305Z",
+      "checkedAt": "2026-09-06T10:08:36.076Z",
       "candidates": [
         {
           "concertId": "474549",
@@ -82945,7 +82510,7 @@
       ]
     },
     "2027-05-11": {
-      "checkedAt": "2026-09-05T11:10:04.607Z",
+      "checkedAt": "2026-09-06T10:08:37.305Z",
       "candidates": [
         {
           "concertId": "492136",
@@ -83025,7 +82590,7 @@
       ]
     },
     "2027-05-12": {
-      "checkedAt": "2026-09-05T11:10:05.797Z",
+      "checkedAt": "2026-09-06T10:08:38.537Z",
       "candidates": [
         {
           "concertId": "465791",
@@ -83105,7 +82670,7 @@
       ]
     },
     "2027-05-13": {
-      "checkedAt": "2026-09-05T11:10:06.554Z",
+      "checkedAt": "2026-09-06T10:08:39.734Z",
       "candidates": [
         {
           "concertId": "464543",
@@ -83235,7 +82800,7 @@
       ]
     },
     "2027-05-14": {
-      "checkedAt": "2026-09-05T11:10:08.103Z",
+      "checkedAt": "2026-09-06T10:08:41.022Z",
       "candidates": [
         {
           "concertId": "468293",
@@ -83495,7 +83060,7 @@
       ]
     },
     "2027-05-15": {
-      "checkedAt": "2026-09-05T11:10:08.925Z",
+      "checkedAt": "2026-09-06T10:08:42.551Z",
       "candidates": [
         {
           "concertId": "458272",
@@ -83685,7 +83250,7 @@
       ]
     },
     "2027-05-16": {
-      "checkedAt": "2026-09-05T11:10:09.978Z",
+      "checkedAt": "2026-09-06T10:08:44.468Z",
       "candidates": [
         {
           "concertId": "492157",
@@ -83715,7 +83280,7 @@
       ]
     },
     "2027-05-17": {
-      "checkedAt": "2026-09-05T11:10:11.197Z",
+      "checkedAt": "2026-09-06T10:08:45.426Z",
       "candidates": [
         {
           "concertId": "463504",
@@ -83725,7 +83290,7 @@
       ]
     },
     "2027-05-18": {
-      "checkedAt": "2026-09-05T11:10:12.407Z",
+      "checkedAt": "2026-09-06T10:08:46.092Z",
       "candidates": [
         {
           "concertId": "466452",
@@ -83755,7 +83320,7 @@
       ]
     },
     "2027-05-19": {
-      "checkedAt": "2026-09-05T11:10:13.683Z",
+      "checkedAt": "2026-09-06T10:08:47.333Z",
       "candidates": [
         {
           "concertId": "466518",
@@ -83850,7 +83415,7 @@
       ]
     },
     "2027-05-20": {
-      "checkedAt": "2026-09-05T11:10:14.853Z",
+      "checkedAt": "2026-09-06T10:08:48.480Z",
       "candidates": [
         {
           "concertId": "466519",
@@ -83970,7 +83535,7 @@
       ]
     },
     "2027-05-21": {
-      "checkedAt": "2026-09-05T11:10:15.978Z",
+      "checkedAt": "2026-09-06T10:08:49.727Z",
       "candidates": [
         {
           "concertId": "471995",
@@ -84175,7 +83740,7 @@
       ]
     },
     "2027-05-22": {
-      "checkedAt": "2026-09-05T11:10:17.345Z",
+      "checkedAt": "2026-09-06T10:08:51.010Z",
       "candidates": [
         {
           "concertId": "492156",
@@ -84415,7 +83980,7 @@
       ]
     },
     "2027-05-23": {
-      "checkedAt": "2026-09-05T11:10:18.321Z",
+      "checkedAt": "2026-09-06T10:08:51.960Z",
       "candidates": [
         {
           "concertId": "489975",
@@ -84490,7 +84055,7 @@
       ]
     },
     "2027-05-24": {
-      "checkedAt": "2026-09-05T11:10:19.601Z",
+      "checkedAt": "2026-09-06T10:08:53.281Z",
       "candidates": [
         {
           "concertId": "463582",
@@ -84505,7 +84070,7 @@
       ]
     },
     "2027-05-25": {
-      "checkedAt": "2026-09-05T11:10:20.754Z",
+      "checkedAt": "2026-09-06T10:08:54.474Z",
       "candidates": [
         {
           "concertId": "471016",
@@ -84535,7 +84100,7 @@
       ]
     },
     "2027-05-26": {
-      "checkedAt": "2026-09-05T11:10:22.078Z",
+      "checkedAt": "2026-09-06T10:08:55.659Z",
       "candidates": [
         {
           "concertId": "489544",
@@ -84605,7 +84170,7 @@
       ]
     },
     "2027-05-27": {
-      "checkedAt": "2026-09-05T11:10:23.184Z",
+      "checkedAt": "2026-09-06T10:08:56.907Z",
       "candidates": [
         {
           "concertId": "489011",
@@ -84705,7 +84270,7 @@
       ]
     },
     "2027-05-28": {
-      "checkedAt": "2026-09-05T11:10:24.354Z",
+      "checkedAt": "2026-09-06T10:08:58.172Z",
       "candidates": [
         {
           "concertId": "452254",
@@ -84910,7 +84475,7 @@
       ]
     },
     "2027-05-29": {
-      "checkedAt": "2026-09-05T11:10:25.706Z",
+      "checkedAt": "2026-09-06T10:08:59.437Z",
       "candidates": [
         {
           "concertId": "477123",
@@ -85170,7 +84735,7 @@
       ]
     },
     "2027-05-30": {
-      "checkedAt": "2026-09-05T11:10:26.766Z",
+      "checkedAt": "2026-09-06T10:09:00.558Z",
       "candidates": [
         {
           "concertId": "489979",
@@ -85260,7 +84825,7 @@
       ]
     },
     "2027-05-31": {
-      "checkedAt": "2026-09-05T11:10:27.945Z",
+      "checkedAt": "2026-09-06T10:09:02.124Z",
       "candidates": [
         {
           "concertId": "469619",
@@ -85280,7 +84845,7 @@
       ]
     },
     "2027-06-01": {
-      "checkedAt": "2026-09-05T11:10:29.161Z",
+      "checkedAt": "2026-09-06T10:09:03.205Z",
       "candidates": [
         {
           "concertId": "492258",
@@ -85300,7 +84865,7 @@
       ]
     },
     "2027-06-02": {
-      "checkedAt": "2026-09-05T11:10:30.381Z",
+      "checkedAt": "2026-09-06T10:09:04.219Z",
       "candidates": [
         {
           "concertId": "465972",
@@ -85330,7 +84895,7 @@
       ]
     },
     "2027-06-03": {
-      "checkedAt": "2026-09-05T11:10:31.667Z",
+      "checkedAt": "2026-09-06T10:09:05.335Z",
       "candidates": [
         {
           "concertId": "463511",
@@ -85375,7 +84940,7 @@
       ]
     },
     "2027-06-04": {
-      "checkedAt": "2026-09-05T11:10:32.999Z",
+      "checkedAt": "2026-09-06T10:09:06.531Z",
       "candidates": [
         {
           "concertId": "466986",
@@ -85495,7 +85060,7 @@
       ]
     },
     "2027-06-05": {
-      "checkedAt": "2026-09-05T11:10:34.313Z",
+      "checkedAt": "2026-09-06T10:09:07.713Z",
       "candidates": [
         {
           "concertId": "450110",
@@ -85590,7 +85155,7 @@
       ]
     },
     "2027-06-06": {
-      "checkedAt": "2026-09-05T11:10:35.529Z",
+      "checkedAt": "2026-09-06T10:09:08.910Z",
       "candidates": [
         {
           "concertId": "492281",
@@ -85615,7 +85180,7 @@
       ]
     },
     "2027-06-07": {
-      "checkedAt": "2026-09-05T11:10:36.664Z",
+      "checkedAt": "2026-09-06T10:09:10.082Z",
       "candidates": [
         {
           "concertId": "491308",
@@ -85635,7 +85200,7 @@
       ]
     },
     "2027-06-08": {
-      "checkedAt": "2026-09-05T11:10:37.618Z",
+      "checkedAt": "2026-09-06T10:09:11.296Z",
       "candidates": [
         {
           "concertId": "491309",
@@ -85660,7 +85225,7 @@
       ]
     },
     "2027-06-09": {
-      "checkedAt": "2026-09-05T11:10:38.865Z",
+      "checkedAt": "2026-09-06T10:09:12.492Z",
       "candidates": [
         {
           "concertId": "491931",
@@ -85690,7 +85255,7 @@
       ]
     },
     "2027-06-10": {
-      "checkedAt": "2026-09-05T11:10:40.099Z",
+      "checkedAt": "2026-09-06T10:09:13.729Z",
       "candidates": [
         {
           "concertId": "461090",
@@ -85745,7 +85310,7 @@
       ]
     },
     "2027-06-11": {
-      "checkedAt": "2026-09-05T11:10:41.221Z",
+      "checkedAt": "2026-09-06T10:09:14.908Z",
       "candidates": [
         {
           "concertId": "466608",
@@ -85815,7 +85380,7 @@
       ]
     },
     "2027-06-12": {
-      "checkedAt": "2026-09-05T11:10:42.381Z",
+      "checkedAt": "2026-09-06T10:09:16.107Z",
       "candidates": [
         {
           "concertId": "479110",
@@ -85895,7 +85460,7 @@
       ]
     },
     "2027-06-13": {
-      "checkedAt": "2026-09-05T11:10:43.603Z",
+      "checkedAt": "2026-09-06T10:09:17.298Z",
       "candidates": [
         {
           "concertId": "471905",
@@ -85915,7 +85480,7 @@
       ]
     },
     "2027-06-14": {
-      "checkedAt": "2026-09-05T11:10:44.818Z",
+      "checkedAt": "2026-09-06T10:09:18.485Z",
       "candidates": [
         {
           "concertId": "492311",
@@ -85925,7 +85490,7 @@
       ]
     },
     "2027-06-15": {
-      "checkedAt": "2026-09-05T11:10:45.932Z",
+      "checkedAt": "2026-09-06T10:09:19.666Z",
       "candidates": [
         {
           "concertId": "482919",
@@ -85935,7 +85500,7 @@
       ]
     },
     "2027-06-16": {
-      "checkedAt": "2026-09-05T11:10:47.164Z",
+      "checkedAt": "2026-09-06T10:09:20.870Z",
       "candidates": [
         {
           "concertId": "465973",
@@ -85955,7 +85520,7 @@
       ]
     },
     "2027-06-17": {
-      "checkedAt": "2026-09-05T11:10:48.321Z",
+      "checkedAt": "2026-09-06T10:09:22.082Z",
       "candidates": [
         {
           "concertId": "461086",
@@ -85980,7 +85545,7 @@
       ]
     },
     "2027-06-18": {
-      "checkedAt": "2026-09-05T11:10:49.517Z",
+      "checkedAt": "2026-09-06T10:09:23.283Z",
       "candidates": [
         {
           "concertId": "461087",
@@ -86050,7 +85615,7 @@
       ]
     },
     "2027-06-19": {
-      "checkedAt": "2026-09-05T11:10:50.773Z",
+      "checkedAt": "2026-09-06T10:09:24.478Z",
       "candidates": [
         {
           "concertId": "480651",
@@ -86090,7 +85655,7 @@
       ]
     },
     "2027-06-20": {
-      "checkedAt": "2026-09-05T11:10:51.955Z",
+      "checkedAt": "2026-09-06T10:09:25.703Z",
       "candidates": [
         {
           "concertId": "470996",
@@ -86125,7 +85690,7 @@
       ]
     },
     "2027-06-21": {
-      "checkedAt": "2026-09-05T11:10:53.135Z",
+      "checkedAt": "2026-09-06T10:09:26.857Z",
       "candidates": [
         {
           "concertId": "481428",
@@ -86140,7 +85705,7 @@
       ]
     },
     "2027-06-22": {
-      "checkedAt": "2026-09-05T11:10:54.344Z",
+      "checkedAt": "2026-09-06T10:09:28.076Z",
       "candidates": [
         {
           "concertId": "484528",
@@ -86150,7 +85715,7 @@
       ]
     },
     "2027-06-23": {
-      "checkedAt": "2026-09-05T11:10:55.536Z",
+      "checkedAt": "2026-09-06T10:09:29.274Z",
       "candidates": [
         {
           "concertId": "466989",
@@ -86165,7 +85730,7 @@
       ]
     },
     "2027-06-24": {
-      "checkedAt": "2026-09-05T11:10:56.743Z",
+      "checkedAt": "2026-09-06T10:09:30.493Z",
       "candidates": [
         {
           "concertId": "466990",
@@ -86200,7 +85765,7 @@
       ]
     },
     "2027-06-25": {
-      "checkedAt": "2026-09-05T11:10:57.954Z",
+      "checkedAt": "2026-09-06T10:09:31.677Z",
       "candidates": [
         {
           "concertId": "472790",
@@ -86245,7 +85810,7 @@
       ]
     },
     "2027-06-26": {
-      "checkedAt": "2026-09-05T11:10:59.211Z",
+      "checkedAt": "2026-09-06T10:09:32.935Z",
       "candidates": [
         {
           "concertId": "472791",
@@ -86290,7 +85855,7 @@
       ]
     },
     "2027-06-27": {
-      "checkedAt": "2026-09-05T11:11:00.344Z",
+      "checkedAt": "2026-09-06T10:09:34.059Z",
       "candidates": [
         {
           "concertId": "472792",
@@ -86305,7 +85870,7 @@
       ]
     },
     "2027-06-28": {
-      "checkedAt": "2026-09-05T11:11:01.889Z",
+      "checkedAt": "2026-09-06T10:09:35.287Z",
       "candidates": [
         {
           "concertId": "473796",
@@ -86315,7 +85880,7 @@
       ]
     },
     "2027-06-29": {
-      "checkedAt": "2026-09-05T11:11:03.243Z",
+      "checkedAt": "2026-09-06T10:09:36.499Z",
       "candidates": [
         {
           "concertId": "472793",
@@ -86325,7 +85890,7 @@
       ]
     },
     "2027-06-30": {
-      "checkedAt": "2026-09-05T11:11:04.209Z",
+      "checkedAt": "2026-09-06T10:09:37.708Z",
       "candidates": [
         {
           "concertId": "465974",
@@ -86355,7 +85920,7 @@
       ]
     },
     "2027-07-01": {
-      "checkedAt": "2026-09-05T11:11:05.183Z",
+      "checkedAt": "2026-09-06T10:09:38.859Z",
       "candidates": [
         {
           "concertId": "472498",
@@ -86375,11 +85940,11 @@
       ]
     },
     "2027-07-02": {
-      "checkedAt": "2026-09-05T11:11:06.332Z",
+      "checkedAt": "2026-09-06T10:09:40.072Z",
       "candidates": []
     },
     "2027-07-03": {
-      "checkedAt": "2026-09-05T11:11:07.514Z",
+      "checkedAt": "2026-09-06T10:09:41.266Z",
       "candidates": [
         {
           "concertId": "484062",
@@ -86394,7 +85959,7 @@
       ]
     },
     "2027-07-04": {
-      "checkedAt": "2026-09-05T11:11:08.766Z",
+      "checkedAt": "2026-09-06T10:09:42.354Z",
       "candidates": [
         {
           "concertId": "479457",
@@ -86409,27 +85974,27 @@
       ]
     },
     "2027-07-05": {
-      "checkedAt": "2026-09-05T11:11:09.950Z",
+      "checkedAt": "2026-09-06T10:09:43.669Z",
       "candidates": []
     },
     "2027-07-06": {
-      "checkedAt": "2026-09-05T11:11:11.122Z",
+      "checkedAt": "2026-09-06T10:09:44.873Z",
       "candidates": []
     },
     "2027-07-07": {
-      "checkedAt": "2026-09-05T11:11:12.429Z",
+      "checkedAt": "2026-09-06T10:09:46.049Z",
       "candidates": []
     },
     "2027-07-08": {
-      "checkedAt": "2026-09-05T11:11:13.548Z",
+      "checkedAt": "2026-09-06T10:09:47.272Z",
       "candidates": []
     },
     "2027-07-09": {
-      "checkedAt": "2026-09-05T11:11:14.755Z",
+      "checkedAt": "2026-09-06T10:09:48.458Z",
       "candidates": []
     },
     "2027-07-10": {
-      "checkedAt": "2026-09-05T11:11:16.042Z",
+      "checkedAt": "2026-09-06T10:09:49.733Z",
       "candidates": [
         {
           "concertId": "462209",
@@ -86439,59 +86004,59 @@
       ]
     },
     "2027-07-11": {
-      "checkedAt": "2026-09-05T11:11:17.142Z",
+      "checkedAt": "2026-09-06T10:09:50.907Z",
       "candidates": []
     },
     "2027-07-12": {
-      "checkedAt": "2026-09-05T11:11:18.328Z",
+      "checkedAt": "2026-09-06T10:09:52.109Z",
       "candidates": []
     },
     "2027-07-13": {
-      "checkedAt": "2026-09-05T11:11:19.547Z",
+      "checkedAt": "2026-09-06T10:09:53.271Z",
       "candidates": []
     },
     "2027-07-14": {
-      "checkedAt": "2026-09-05T11:11:20.732Z",
+      "checkedAt": "2026-09-06T10:09:54.489Z",
       "candidates": []
     },
     "2027-07-15": {
-      "checkedAt": "2026-09-05T11:11:21.958Z",
+      "checkedAt": "2026-09-06T10:09:55.669Z",
       "candidates": []
     },
     "2027-07-16": {
-      "checkedAt": "2026-09-05T11:11:23.307Z",
+      "checkedAt": "2026-09-06T10:09:56.868Z",
       "candidates": []
     },
     "2027-07-17": {
-      "checkedAt": "2026-09-05T11:11:24.334Z",
+      "checkedAt": "2026-09-06T10:09:58.058Z",
       "candidates": []
     },
     "2027-07-18": {
-      "checkedAt": "2026-09-05T11:11:25.536Z",
+      "checkedAt": "2026-09-06T10:09:59.294Z",
       "candidates": []
     },
     "2027-07-19": {
-      "checkedAt": "2026-09-05T11:11:26.726Z",
+      "checkedAt": "2026-09-06T10:10:00.478Z",
       "candidates": []
     },
     "2027-07-20": {
-      "checkedAt": "2026-09-05T11:11:28.107Z",
+      "checkedAt": "2026-09-06T10:10:02.883Z",
       "candidates": []
     },
     "2027-07-21": {
-      "checkedAt": "2026-09-05T11:11:29.148Z",
+      "checkedAt": "2026-09-06T10:10:04.013Z",
       "candidates": []
     },
     "2027-07-22": {
-      "checkedAt": "2026-09-05T11:11:30.386Z",
+      "checkedAt": "2026-09-06T10:10:04.827Z",
       "candidates": []
     },
     "2027-07-23": {
-      "checkedAt": "2026-09-05T11:11:31.521Z",
+      "checkedAt": "2026-09-06T10:10:05.786Z",
       "candidates": []
     },
     "2027-07-24": {
-      "checkedAt": "2026-09-05T11:11:32.703Z",
+      "checkedAt": "2026-09-06T10:10:07.050Z",
       "candidates": [
         {
           "concertId": "491271",
@@ -86501,7 +86066,7 @@
       ]
     },
     "2027-07-25": {
-      "checkedAt": "2026-09-05T11:11:34.001Z",
+      "checkedAt": "2026-09-06T10:10:08.169Z",
       "candidates": [
         {
           "concertId": "491272",
@@ -86511,131 +86076,131 @@
       ]
     },
     "2027-07-26": {
-      "checkedAt": "2026-09-05T11:11:35.233Z",
+      "checkedAt": "2026-09-06T10:10:09.362Z",
       "candidates": []
     },
     "2027-07-27": {
-      "checkedAt": "2026-09-05T11:11:36.332Z",
+      "checkedAt": "2026-09-06T10:10:10.521Z",
       "candidates": []
     },
     "2027-07-28": {
-      "checkedAt": "2026-09-05T11:11:37.541Z",
+      "checkedAt": "2026-09-06T10:10:11.726Z",
       "candidates": []
     },
     "2027-07-29": {
-      "checkedAt": "2026-09-05T11:11:38.736Z",
+      "checkedAt": "2026-09-06T10:10:12.934Z",
       "candidates": []
     },
     "2027-07-30": {
-      "checkedAt": "2026-09-05T11:11:39.923Z",
+      "checkedAt": "2026-09-06T10:10:14.127Z",
       "candidates": []
     },
     "2027-07-31": {
-      "checkedAt": "2026-09-05T11:11:41.174Z",
+      "checkedAt": "2026-09-06T10:10:15.333Z",
       "candidates": []
     },
     "2027-08-01": {
-      "checkedAt": "2026-09-05T11:11:42.329Z",
+      "checkedAt": "2026-09-06T10:10:16.506Z",
       "candidates": []
     },
     "2027-08-02": {
-      "checkedAt": "2026-09-05T11:11:43.545Z",
+      "checkedAt": "2026-09-06T10:10:17.702Z",
       "candidates": []
     },
     "2027-08-03": {
-      "checkedAt": "2026-09-05T11:11:44.694Z",
+      "checkedAt": "2026-09-06T10:10:18.907Z",
       "candidates": []
     },
     "2027-08-04": {
-      "checkedAt": "2026-09-05T11:11:45.937Z",
+      "checkedAt": "2026-09-06T10:10:20.136Z",
       "candidates": []
     },
     "2027-08-05": {
-      "checkedAt": "2026-09-05T11:11:47.255Z",
+      "checkedAt": "2026-09-06T10:10:21.297Z",
       "candidates": []
     },
     "2027-08-06": {
-      "checkedAt": "2026-09-05T11:11:48.390Z",
+      "checkedAt": "2026-09-06T10:10:22.484Z",
       "candidates": []
     },
     "2027-08-07": {
-      "checkedAt": "2026-09-05T11:11:49.472Z",
+      "checkedAt": "2026-09-06T10:10:23.714Z",
       "candidates": []
     },
     "2027-08-08": {
-      "checkedAt": "2026-09-05T11:11:50.713Z",
+      "checkedAt": "2026-09-06T10:10:24.927Z",
       "candidates": []
     },
     "2027-08-09": {
-      "checkedAt": "2026-09-05T11:11:51.918Z",
+      "checkedAt": "2026-09-06T10:10:26.131Z",
       "candidates": []
     },
     "2027-08-10": {
-      "checkedAt": "2026-09-05T11:11:53.148Z",
+      "checkedAt": "2026-09-06T10:10:27.305Z",
       "candidates": []
     },
     "2027-08-11": {
-      "checkedAt": "2026-09-05T11:11:54.288Z",
+      "checkedAt": "2026-09-06T10:10:28.501Z",
       "candidates": []
     },
     "2027-08-12": {
-      "checkedAt": "2026-09-05T11:11:55.501Z",
+      "checkedAt": "2026-09-06T10:10:29.693Z",
       "candidates": []
     },
     "2027-08-13": {
-      "checkedAt": "2026-09-05T11:11:56.706Z",
+      "checkedAt": "2026-09-06T10:10:30.878Z",
       "candidates": []
     },
     "2027-08-14": {
-      "checkedAt": "2026-09-05T11:11:57.919Z",
+      "checkedAt": "2026-09-06T10:10:32.097Z",
       "candidates": []
     },
     "2027-08-15": {
-      "checkedAt": "2026-09-05T11:11:59.091Z",
+      "checkedAt": "2026-09-06T10:10:33.288Z",
       "candidates": []
     },
     "2027-08-16": {
-      "checkedAt": "2026-09-05T11:12:00.338Z",
+      "checkedAt": "2026-09-06T10:10:34.490Z",
       "candidates": []
     },
     "2027-08-17": {
-      "checkedAt": "2026-09-05T11:12:01.534Z",
+      "checkedAt": "2026-09-06T10:10:35.678Z",
       "candidates": []
     },
     "2027-08-18": {
-      "checkedAt": "2026-09-05T11:12:03.327Z",
+      "checkedAt": "2026-09-06T10:10:36.873Z",
       "candidates": []
     },
     "2027-08-19": {
-      "checkedAt": "2026-09-05T11:12:04.158Z",
+      "checkedAt": "2026-09-06T10:10:38.074Z",
       "candidates": []
     },
     "2027-08-20": {
-      "checkedAt": "2026-09-05T11:12:05.206Z",
+      "checkedAt": "2026-09-06T10:10:39.282Z",
       "candidates": []
     },
     "2027-08-21": {
-      "checkedAt": "2026-09-05T11:12:06.298Z",
+      "checkedAt": "2026-09-06T10:10:40.478Z",
       "candidates": []
     },
     "2027-08-22": {
-      "checkedAt": "2026-09-05T11:12:07.508Z",
+      "checkedAt": "2026-09-06T10:10:41.676Z",
       "candidates": []
     },
     "2027-08-23": {
-      "checkedAt": "2026-09-05T11:12:08.754Z",
+      "checkedAt": "2026-09-06T10:10:42.878Z",
       "candidates": []
     },
     "2027-08-24": {
-      "checkedAt": "2026-09-05T11:12:09.945Z",
+      "checkedAt": "2026-09-06T10:10:44.101Z",
       "candidates": []
     },
     "2027-08-25": {
-      "checkedAt": "2026-09-05T11:12:11.148Z",
+      "checkedAt": "2026-09-06T10:10:45.290Z",
       "candidates": []
     },
     "2027-08-26": {
-      "checkedAt": "2026-09-05T11:12:12.333Z",
+      "checkedAt": "2026-09-06T10:10:46.486Z",
       "candidates": [
         {
           "concertId": "491655",
@@ -86645,11 +86210,11 @@
       ]
     },
     "2027-08-27": {
-      "checkedAt": "2026-09-05T11:12:13.636Z",
+      "checkedAt": "2026-09-06T10:10:47.670Z",
       "candidates": []
     },
     "2027-08-28": {
-      "checkedAt": "2026-09-05T11:12:14.744Z",
+      "checkedAt": "2026-09-06T10:10:48.924Z",
       "candidates": [
         {
           "concertId": "492080",
@@ -86659,7 +86224,7 @@
       ]
     },
     "2027-08-29": {
-      "checkedAt": "2026-09-05T11:12:15.946Z",
+      "checkedAt": "2026-09-06T10:10:50.109Z",
       "candidates": [
         {
           "concertId": "492081",
@@ -86669,15 +86234,15 @@
       ]
     },
     "2027-08-30": {
-      "checkedAt": "2026-09-05T11:12:17.105Z",
+      "checkedAt": "2026-09-06T10:10:51.304Z",
       "candidates": []
     },
     "2027-08-31": {
-      "checkedAt": "2026-09-05T11:12:18.316Z",
+      "checkedAt": "2026-09-06T10:10:52.481Z",
       "candidates": []
     },
     "2027-09-01": {
-      "checkedAt": "2026-09-05T11:12:19.513Z",
+      "checkedAt": "2026-09-06T10:10:53.693Z",
       "candidates": [
         {
           "concertId": "492477",
@@ -86687,15 +86252,15 @@
       ]
     },
     "2027-09-02": {
-      "checkedAt": "2026-09-05T11:12:20.713Z",
+      "checkedAt": "2026-09-06T10:10:54.911Z",
       "candidates": []
     },
     "2027-09-03": {
-      "checkedAt": "2026-09-05T11:12:21.953Z",
+      "checkedAt": "2026-09-06T10:10:56.114Z",
       "candidates": []
     },
     "2027-09-04": {
-      "checkedAt": "2026-09-05T11:12:23.182Z",
+      "checkedAt": "2026-09-06T10:10:57.289Z",
       "candidates": [
         {
           "concertId": "489730",
@@ -86710,7 +86275,7 @@
       ]
     },
     "2027-09-05": {
-      "checkedAt": "2026-09-05T11:12:24.351Z",
+      "checkedAt": "2026-09-06T10:10:58.484Z",
       "candidates": [
         {
           "concertId": "463028",
@@ -86721,6 +86286,16 @@
           "concertId": "472342",
           "href": "https://www.podiuminfo.nl/concert/472342/Waylon-Time-Jumper/Q-Factory/",
           "rawTitle": "Waylon - Time Jumper"
+        }
+      ]
+    },
+    "2027-09-06": {
+      "checkedAt": "2026-09-06T10:10:59.687Z",
+      "candidates": [
+        {
+          "concertId": "489651",
+          "href": "https://www.podiuminfo.nl/concert/489651/SATSANG-The-Story-of-You/Koninklijk-Circus/",
+          "rawTitle": "SATSANG - The Story of You"
         }
       ]
     }
