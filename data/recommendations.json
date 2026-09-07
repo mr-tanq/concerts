@@ -1,19 +1,57 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-09-06T19:51:43.420Z",
+    "lastUpdated": "2026-09-07T11:24:22.815Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 0,
-      "daysCached": 366,
+      "daysFresh": 366,
+      "daysCached": 0,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 1,
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-493093",
+      "source": "podiuminfo",
+      "sourceId": "493093",
+      "artist": "Alcest",
+      "lineup": [
+        "Alcest"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Alcest"
+      ],
+      "date": "2027-04-02",
+      "time": null,
+      "venue": "SPOT / De Oosterpoort",
+      "city": "Groningen",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/48296/100_Alcest_2.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/493093/Alcest/SPOT-De-Oosterpoort/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Alcest",
+        "matchedArtists": [
+          "Alcest"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-09-07T11:24:22.815Z",
+      "lastSeenAt": "2026-09-07T11:24:22.815Z"
+    }
+  ]
 }
