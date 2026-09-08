@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-09-08T10:32:14.631Z",
+    "lastUpdated": "2026-09-08T12:03:40.421Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
@@ -11,7 +11,7 @@
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 2,
+      "concertsOpened": 1,
       "rejectedByLineup": 0
     }
   },
@@ -51,7 +51,7 @@
         "similarVia": null
       },
       "discoveredAt": "2026-09-08T10:32:14.631Z",
-      "lastSeenAt": "2026-09-08T10:32:14.631Z"
+      "lastSeenAt": "2026-09-08T12:03:40.421Z"
     },
     {
       "id": "rec-podiuminfo-493235",
@@ -88,7 +88,7 @@
         "similarVia": null
       },
       "discoveredAt": "2026-09-08T10:32:14.631Z",
-      "lastSeenAt": "2026-09-08T10:32:14.631Z"
+      "lastSeenAt": "2026-09-08T12:03:40.421Z"
     },
     {
       "id": "rec-podiuminfo-493093",
@@ -125,7 +125,44 @@
         "similarVia": null
       },
       "discoveredAt": "2026-09-07T11:24:22.815Z",
-      "lastSeenAt": "2026-09-08T10:32:14.631Z"
+      "lastSeenAt": "2026-09-08T12:03:40.421Z"
+    },
+    {
+      "id": "rec-podiuminfo-493269",
+      "source": "podiuminfo",
+      "sourceId": "493269",
+      "artist": "Nothing But Thieves",
+      "lineup": [
+        "Nothing But Thieves"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Nothing But Thieves"
+      ],
+      "date": "2026-09-19",
+      "time": null,
+      "venue": "TivoliVredenburg",
+      "city": "Utrecht",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/85352/100_Nothing_But_Thieves_2.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/141451/cd/Nothing-But-Thieves/TivoliVredenburg/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/493269/Nothing-But-Thieves/TivoliVredenburg/",
+      "match": {
+        "score": 38,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Muse",
+        "matchedArtists": [
+          "Nothing But Thieves"
+        ],
+        "similarVia": "Muse"
+      },
+      "discoveredAt": "2026-09-08T12:03:40.421Z",
+      "lastSeenAt": "2026-09-08T12:03:40.421Z"
     }
   ]
 }
