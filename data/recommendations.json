@@ -1,19 +1,94 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-09-09T20:16:49.847Z",
+    "lastUpdated": "2026-09-10T10:30:11.737Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 0,
-      "daysCached": 366,
+      "daysFresh": 366,
+      "daysCached": 0,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 5,
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-493582",
+      "source": "podiuminfo",
+      "sourceId": "493582",
+      "artist": "Warhaus",
+      "lineup": [
+        "Warhaus"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Warhaus"
+      ],
+      "date": "2027-02-20",
+      "time": null,
+      "venue": "Gashouder",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/75893/100_Warhaus_4.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/141597/cd/Warhaus/Gashouder/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/493582/Warhaus/Gashouder/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Warhaus",
+        "matchedArtists": [
+          "Warhaus"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-09-10T10:30:11.737Z",
+      "lastSeenAt": "2026-09-10T10:30:11.737Z"
+    },
+    {
+      "id": "rec-podiuminfo-493535",
+      "source": "podiuminfo",
+      "sourceId": "493535",
+      "artist": "The Pineapple Thief",
+      "lineup": [
+        "The Pineapple Thief"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "The Pineapple Thief"
+      ],
+      "date": "2027-04-24",
+      "time": null,
+      "venue": "013",
+      "city": "Tilburg",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/28604/100_The_Pineapple_Thief_3.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/493535/The-Pineapple-Thief-An-Evening-With-Far-And-Wide/013/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: The Pineapple Thief",
+        "matchedArtists": [
+          "The Pineapple Thief"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-09-10T10:30:11.737Z",
+      "lastSeenAt": "2026-09-10T10:30:11.737Z"
+    }
+  ]
 }
