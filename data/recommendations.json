@@ -1,19 +1,57 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-09-14T07:13:04.366Z",
+    "lastUpdated": "2026-09-14T11:34:02.929Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 0,
-      "daysCached": 366,
+      "daysFresh": 366,
+      "daysCached": 0,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 7,
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-494042",
+      "source": "podiuminfo",
+      "sourceId": "494042",
+      "artist": "RY X",
+      "lineup": [
+        "RY X"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "RY X"
+      ],
+      "date": "2027-04-08",
+      "time": null,
+      "venue": "Gashouder",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/81934/100_RY_X_6.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/141881/cd/RY-X/Gashouder/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/494042/RY-X/Gashouder/",
+      "match": {
+        "score": 52,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: RY X",
+        "matchedArtists": [
+          "RY X"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-09-14T11:34:02.929Z",
+      "lastSeenAt": "2026-09-14T11:34:02.929Z"
+    }
+  ]
 }
