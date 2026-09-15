@@ -1,19 +1,131 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-09-15T09:25:49.998Z",
+    "lastUpdated": "2026-09-15T10:56:42.034Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 0,
-      "daysCached": 366,
+      "daysFresh": 366,
+      "daysCached": 0,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 5,
+      "concertsOpened": 3,
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-494123",
+      "source": "podiuminfo",
+      "sourceId": "494123",
+      "artist": "Ólafur Arnalds",
+      "lineup": [
+        "Ólafur Arnalds"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Ólafur Arnalds"
+      ],
+      "date": "2026-10-15",
+      "time": null,
+      "venue": "Concertgebouw",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/37696/100___lafur_Arnalds_6.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/494123/Olafur-Arnalds-Falling-Apart-Together/Concertgebouw/",
+      "match": {
+        "score": 56,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Ólafur Arnalds",
+        "matchedArtists": [
+          "Ólafur Arnalds"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-09-15T10:56:42.034Z",
+      "lastSeenAt": "2026-09-15T10:56:42.034Z"
+    },
+    {
+      "id": "rec-podiuminfo-494067",
+      "source": "podiuminfo",
+      "sourceId": "494067",
+      "artist": "Oasis",
+      "lineup": [
+        "Oasis"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Oasis"
+      ],
+      "date": "2027-07-16",
+      "time": null,
+      "venue": "Johan Cruijff ArenA",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/review/small/912/912-8.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/494067/Oasis/Johan-Cruijff-ArenA/",
+      "match": {
+        "score": 46,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Oasis",
+        "matchedArtists": [
+          "Oasis"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-09-15T10:56:42.034Z",
+      "lastSeenAt": "2026-09-15T10:56:42.034Z"
+    },
+    {
+      "id": "rec-podiuminfo-494068",
+      "source": "podiuminfo",
+      "sourceId": "494068",
+      "artist": "Oasis",
+      "lineup": [
+        "Oasis"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Oasis"
+      ],
+      "date": "2027-07-17",
+      "time": null,
+      "venue": "Johan Cruijff ArenA",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/review/small/912/912-3.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/494068/Oasis/Johan-Cruijff-ArenA/",
+      "match": {
+        "score": 46,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Oasis",
+        "matchedArtists": [
+          "Oasis"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-09-15T10:56:42.034Z",
+      "lastSeenAt": "2026-09-15T10:56:42.034Z"
+    }
+  ]
 }
