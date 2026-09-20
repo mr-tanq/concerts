@@ -1,13 +1,13 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-09-20T10:17:20.646Z",
+    "lastUpdated": "2026-09-20T10:31:50.585Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 0,
-      "daysCached": 366,
+      "daysFresh": 366,
+      "daysCached": 0,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
@@ -15,42 +15,5 @@
       "rejectedByLineup": 0
     }
   },
-  "concerts": [
-    {
-      "id": "rec-antimatter-boerderij-2026-09-20",
-      "source": "podiuminfo",
-      "sourceId": null,
-      "artist": "Antimatter",
-      "lineup": [],
-      "supportingArtists": [
-        "Sleeping Pulse"
-      ],
-      "matchedArtists": [
-        "Antimatter"
-      ],
-      "date": "2026-09-20",
-      "time": null,
-      "venue": "Boerderij",
-      "city": "Zoetermeer",
-      "country": "NL",
-      "isFestival": false,
-      "image": null,
-      "ticketUrl": "https://www.podiuminfo.nl/ticket/133996/cd/Antimatter-Sleeping-Pulse/Boerderij/",
-      "sourceApis": [
-        "podiuminfo"
-      ],
-      "sourceUrl": null,
-      "match": {
-        "score": 45,
-        "label": "Strong match",
-        "matchedBy": "direct",
-        "reason": "Known artist: Antimatter",
-        "matchedArtists": [
-          "Antimatter"
-        ]
-      },
-      "discoveredAt": "2026-09-20T10:17:20.646Z",
-      "lastSeenAt": "2026-09-20T10:17:20.646Z"
-    }
-  ]
+  "concerts": []
 }
