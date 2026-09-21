@@ -1,19 +1,57 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-09-20T20:07:49.925Z",
+    "lastUpdated": "2026-09-21T11:48:21.927Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 0,
-      "daysCached": 366,
+      "daysFresh": 366,
+      "daysCached": 0,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 1,
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-495100",
+      "source": "podiuminfo",
+      "sourceId": "495100",
+      "artist": "Alexis Ffrench",
+      "lineup": [
+        "Alexis Ffrench"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Alexis Ffrench"
+      ],
+      "date": "2027-06-05",
+      "time": null,
+      "venue": "De Doelen",
+      "city": "Rotterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/114139/100_Alexis_Ffrench_7.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/142228/cd/Alexis-Ffrench/De-Doelen/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/495100/Alexis-Ffrench/De-Doelen/",
+      "match": {
+        "score": 36,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Gonzales",
+        "matchedArtists": [
+          "Alexis Ffrench"
+        ],
+        "similarVia": "Gonzales"
+      },
+      "discoveredAt": "2026-09-21T11:48:21.927Z",
+      "lastSeenAt": "2026-09-21T11:48:21.927Z"
+    }
+  ]
 }
