@@ -1,19 +1,168 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-09-21T23:03:00.417Z",
+    "lastUpdated": "2026-09-22T10:52:13.811Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 0,
-      "daysCached": 366,
+      "daysFresh": 366,
+      "daysCached": 0,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 5,
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-495275",
+      "source": "podiuminfo",
+      "sourceId": "495275",
+      "artist": "Nevermore",
+      "lineup": [
+        "Nevermore"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Nevermore"
+      ],
+      "date": "2027-05-09",
+      "time": null,
+      "venue": "Effenaar",
+      "city": "Eindhoven",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/review/small/1581/odgnpr3byqye2obmu4.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/495275/Nevermore/Effenaar/",
+      "match": {
+        "score": 46,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Nevermore",
+        "matchedArtists": [
+          "Nevermore"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-09-22T10:52:13.811Z",
+      "lastSeenAt": "2026-09-22T10:52:13.811Z"
+    },
+    {
+      "id": "rec-podiuminfo-495209",
+      "source": "podiuminfo",
+      "sourceId": "495209",
+      "artist": "Warhaus",
+      "lineup": [
+        "Warhaus"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Warhaus"
+      ],
+      "date": "2026-10-23",
+      "time": null,
+      "venue": "Cinetol",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/75893/100_Warhaus_1.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/495209/Warhaus-Ha-Ha-Heartbeats/Cinetol/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Warhaus",
+        "matchedArtists": [
+          "Warhaus"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-09-22T10:52:13.811Z",
+      "lastSeenAt": "2026-09-22T10:52:13.811Z"
+    },
+    {
+      "id": "rec-podiuminfo-495157",
+      "source": "podiuminfo",
+      "sourceId": "495157",
+      "artist": "Hooverphonic",
+      "lineup": [
+        "Hooverphonic"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Hooverphonic"
+      ],
+      "date": "2026-12-19",
+      "time": null,
+      "venue": "KunstAs",
+      "city": "Asse",
+      "country": "??",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/116/100_Hooverphonic_1.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/495157/Hooverphonic/KunstAs/",
+      "match": {
+        "score": 41,
+        "label": "Possible match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Hooverphonic",
+        "matchedArtists": [
+          "Hooverphonic"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-09-22T10:52:13.811Z",
+      "lastSeenAt": "2026-09-22T10:52:13.811Z"
+    },
+    {
+      "id": "rec-podiuminfo-495373",
+      "source": "podiuminfo",
+      "sourceId": "495373",
+      "artist": "Alexis Ffrench",
+      "lineup": [
+        "Alexis Ffrench"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Alexis Ffrench"
+      ],
+      "date": "2027-06-06",
+      "time": null,
+      "venue": "SPOT / Stadsschouwburg",
+      "city": "Groningen",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/114139/100_Alexis_Ffrench_3.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/495373/Alexis-Ffrench/SPOT-Stadsschouwburg/",
+      "match": {
+        "score": 36,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Gonzales",
+        "matchedArtists": [
+          "Alexis Ffrench"
+        ],
+        "similarVia": "Gonzales"
+      },
+      "discoveredAt": "2026-09-22T10:52:13.811Z",
+      "lastSeenAt": "2026-09-22T10:52:13.811Z"
+    }
+  ]
 }
