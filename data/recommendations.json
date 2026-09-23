@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-09-23T20:57:05.381Z",
+    "lastUpdated": "2026-09-23T22:14:20.309Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
@@ -15,5 +15,42 @@
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-493116",
+      "source": "podiuminfo",
+      "sourceId": "493116",
+      "artist": "Sister Nancy",
+      "lineup": [
+        "Sister Nancy"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Sister Nancy"
+      ],
+      "date": "2026-09-23",
+      "time": null,
+      "venue": "Skatecafe",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/111648/100_Sister_Nancy_1.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/493116/Sister-Nancy-Extra-Show/Skatecafe/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Sister Nancy",
+        "matchedArtists": [
+          "Sister Nancy"
+        ]
+      },
+      "discoveredAt": "2026-09-23T22:14:20.309Z",
+      "lastSeenAt": "2026-09-23T22:14:20.309Z"
+    }
+  ]
 }
