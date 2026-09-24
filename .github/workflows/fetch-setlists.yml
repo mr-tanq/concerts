@@ -10,6 +10,9 @@ name: Fetch setlists
 # Needs the SETLISTFM_API_KEY secret.
 
 on:
+  push:
+    paths:
+      - data/archive.json
   schedule:
     - cron: "0 3 * * 2"   # weekly; setlists get added long after a show
   workflow_dispatch:
