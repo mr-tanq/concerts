@@ -263,36 +263,54 @@ try {
 
 const today = new Date().toISOString().slice(0, 10);
 const past = (archive.concerts || [])
-  .filter((c) => c.date && c.date <= today)                       // a future show has no setlist yet
-  .sort((a, b) => String(b.date).localeCompare(String(a.date)));  // recent first
+  .filter((c) => c.date && c.date <= today)
+  .sort((a, b) => String(b.date).localeCompare(String(a.date)));
+
+const normArtist = (name) => norm(name);
+const artistsSeen = (c) => {
+  const billed = c.lineup?.length ? c.lineup : [c.artist, ...(c.supportingArtists || [])];
+  const selected = Array.isArray(c.seenArtists) ? c.seenArtists : billed;
+  return [...new Map(selected.filter(Boolean).map((name) => [normArtist(name), name])).values()];
+};
+
+// Migrate existing single-artist results without losing checkedAt or the matching source.
+for (const c of past) {
+  const previous = store.setlists[c.id];
+  if (previous && !previous.artists) {
+    store.setlists[c.id] = { artists: previous.artist ? { [normArtist(previous.artist)]: previous } : {} };
+  }
+}
 
 const queue = [];
 for (const c of past) {
-  const prev = store.setlists[c.id];
-  if (prev?.sets?.length) continue;                               // already have it
-  if (prev && Date.now() - new Date(prev.checkedAt || 0).getTime() < RETRY_MISSES_AFTER_MS) continue;
-  queue.push(c);
+  const entry = store.setlists[c.id];
+  for (const artist of artistsSeen(c)) {
+    const prev = entry?.artists?.[normArtist(artist)];
+    if (prev?.sets?.length) continue;
+    if (prev && Date.now() - new Date(prev.checkedAt || 0).getTime() < RETRY_MISSES_AFTER_MS) continue;
+    queue.push({ concert: c, artist });
+  }
 }
 
 const batch = queue.slice(0, MAX_LOOKUPS_PER_RUN);
-console.log(`${past.length} past concerts, ${queue.length} still to check, doing ${batch.length} this run.`);
+console.log(`${past.length} past concerts, ${queue.length} artist setlists to check, doing ${batch.length} this run.`);
 
 let found = 0;
 let none = 0;
 let errors = 0;
 
-for (const c of batch) {
-  // For a festival the "artist" is the festival name, which setlist.fm
-  // won't know — use the top-billed act instead.
-  const artist = c.isFestival ? (c.lineup?.[0] || c.artist) : c.artist;
+for (const { concert: c, artist } of batch) {
   try {
     const result = await findSetlist(c, artist);
+    const entry = store.setlists[c.id] ||= { artists: {} };
+    entry.artists ||= {};
+    entry.artists[normArtist(artist)] = result
+      ? { ...result, checkedAt: new Date().toISOString() }
+      : { artist, sets: [], checkedAt: new Date().toISOString() };
     if (result) {
-      store.setlists[c.id] = { ...result, checkedAt: new Date().toISOString() };
       found++;
       console.log(`  ✓ ${c.date} ${artist} — ${result.songCount} songs (score ${result.matchScore})`);
     } else {
-      store.setlists[c.id] = { artist, sets: [], checkedAt: new Date().toISOString() };
       none++;
     }
   } catch (err) {
@@ -301,17 +319,18 @@ for (const c of batch) {
   }
 }
 
-const withSets = Object.values(store.setlists).filter((s) => s.sets?.length).length;
+const allResults = Object.values(store.setlists).flatMap((s) => Object.values(s.artists || {}));
+const withSets = allResults.filter((s) => s.sets?.length).length;
 const remaining = Math.max(0, queue.length - batch.length);
 
 await writeFile(
   OUT,
   JSON.stringify(
     {
-      $schema: "Listening Mirror Setlists v1",
+      $schema: "Listening Mirror Setlists v2",
       meta: {
         lastUpdated: new Date().toISOString(),
-        checked: Object.keys(store.setlists).length,
+        checked: allResults.length,
         withSetlist: withSets,
         remaining,
       },
@@ -323,4 +342,4 @@ await writeFile(
 );
 
 console.log(`Found ${found}, no match ${none}, errors ${errors}.`);
-console.log(`${withSets} concerts now have a setlist. ${remaining} left — re-run to continue.`);
+console.log(`${withSets} artist setlists found. ${remaining} left — re-run to continue.`);

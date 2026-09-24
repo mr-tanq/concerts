@@ -833,6 +833,7 @@ function renderLineupPicker(host, status, c, lineup) {
       c.seenArtists = namesToSave;
       const local = archiveConcerts.find((x) => x.id === c.id);
       if (local) local.seenArtists = namesToSave;
+      renderSetlist(document.getElementById("sheet-setlist"), c);
       status.textContent = "Saved.";
       status.className = "status";
     } catch (err) {
@@ -956,33 +957,44 @@ function renderNote(host, c) {
 // not existing — most small shows are never submitted to setlist.fm.
 function renderSetlist(host, c) {
   if (!host) return;
+  host.innerHTML = "";
   const entry = setlists.get(c.id);
-  if (!entry || !entry.sets?.length) return;
+  if (!entry) return;
+  const seen = new Set(actuallySeenArtistsOf(c).map(normalizeKey));
+  const results = entry.artists
+    ? Object.values(entry.artists)
+    : [entry]; // Existing data remains readable until the next fetch workflow.
+  const available = results.filter((result) =>
+    result?.sets?.length && seen.has(normalizeKey(result.artist))
+  );
+  if (!available.length) return;
 
-  const total = entry.songCount || entry.sets.reduce((n, s) => n + s.songs.length, 0);
-  const wrap = el(`
-    <div class="sheet-section">
-      <p class="whisper">What they played · ${total} songs</p>
-    </div>
-  `);
+  for (const result of available) {
+    const total = result.songCount || result.sets.reduce((n, set) => n + set.songs.length, 0);
+    const wrap = el(`
+      <div class="sheet-section">
+        <p class="whisper">What ${esc(result.artist)} played · ${total} songs</p>
+      </div>
+    `);
 
-  for (const set of entry.sets) {
-    const block = el(`<div class="setlist-block"></div>`);
-    if (entry.sets.length > 1 || /encore/i.test(set.name)) {
-      block.appendChild(el(`<div class="setlist-name">${esc(set.name)}</div>`));
+    for (const set of result.sets) {
+      const block = el(`<div class="setlist-block"></div>`);
+      if (result.sets.length > 1 || /encore/i.test(set.name)) {
+        block.appendChild(el(`<div class="setlist-name">${esc(set.name)}</div>`));
+      }
+      const ol = el(`<ol class="setlist-songs"></ol>`);
+      for (const song of set.songs) ol.appendChild(el(`<li>${esc(song)}</li>`));
+      block.appendChild(ol);
+      wrap.appendChild(block);
     }
-    const ol = el(`<ol class="setlist-songs"></ol>`);
-    for (const song of set.songs) ol.appendChild(el(`<li>${esc(song)}</li>`));
-    block.appendChild(ol);
-    wrap.appendChild(block);
-  }
 
-  if (entry.sourceUrl) {
-    const link = el(`<button class="plain-act">Source: setlist.fm</button>`);
-    link.addEventListener("click", () => window.open(entry.sourceUrl, "_blank"));
-    wrap.appendChild(link);
+    if (result.sourceUrl) {
+      const link = el(`<button class="plain-act">Source: setlist.fm</button>`);
+      link.addEventListener("click", () => window.open(result.sourceUrl, "_blank"));
+      wrap.appendChild(link);
+    }
+    host.appendChild(wrap);
   }
-  host.appendChild(wrap);
 }
 
 // ==========================================================================
