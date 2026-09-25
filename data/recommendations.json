@@ -1,13 +1,13 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-09-25T20:07:55.655Z",
+    "lastUpdated": "2026-09-25T20:58:21.848Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 366,
-      "daysCached": 0,
+      "daysFresh": 0,
+      "daysCached": 366,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
@@ -47,10 +47,11 @@
         "reason": "Known artist: Nouvelle Vague",
         "matchedArtists": [
           "Nouvelle Vague"
-        ]
+        ],
+        "similarVia": null
       },
       "discoveredAt": "2026-09-25T20:07:55.655Z",
-      "lastSeenAt": "2026-09-25T20:07:55.655Z"
+      "lastSeenAt": "2026-09-25T20:58:21.848Z"
     }
   ]
 }
