@@ -1,27 +1,29 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-09-27T10:41:39.599Z",
+    "lastUpdated": "2026-09-27T11:17:04.003Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 0,
-      "daysCached": 366,
+      "daysFresh": 366,
+      "daysCached": 0,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 122,
+      "concertsOpened": 0,
       "rejectedByLineup": 0
     }
   },
   "concerts": [
     {
-      "id": "rec-1000mods-effenaar-2026-09-27",
+      "id": "rec-podiuminfo-456803",
       "source": "podiuminfo",
-      "sourceId": null,
+      "sourceId": "456803",
       "artist": "1000mods",
-      "lineup": [],
+      "lineup": [
+        "1000mods"
+      ],
       "supportingArtists": [],
       "matchedArtists": [
         "1000mods"
@@ -32,12 +34,12 @@
       "city": "Eindhoven",
       "country": "NL",
       "isFestival": false,
-      "image": null,
+      "image": "https://www.festivalinfo.nl/img/artist/105948/100_1000MODS_2.jpg",
       "ticketUrl": null,
       "sourceApis": [
         "podiuminfo"
       ],
-      "sourceUrl": null,
+      "sourceUrl": "https://www.podiuminfo.nl/concert/456803/1000mods/Effenaar/",
       "match": {
         "score": 46,
         "label": "Strong match",
@@ -45,10 +47,11 @@
         "reason": "Known artist: 1000mods",
         "matchedArtists": [
           "1000mods"
-        ]
+        ],
+        "similarVia": null
       },
-      "discoveredAt": "2026-09-27T10:41:39.599Z",
-      "lastSeenAt": "2026-09-27T10:41:39.599Z"
+      "discoveredAt": "2026-09-27T11:17:04.003Z",
+      "lastSeenAt": "2026-09-27T11:17:04.003Z"
     }
   ]
 }
