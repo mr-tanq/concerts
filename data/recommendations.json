@@ -1,19 +1,60 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-09-28T04:20:53.318Z",
+    "lastUpdated": "2026-09-28T12:43:49.555Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 0,
-      "daysCached": 366,
+      "daysFresh": 366,
+      "daysCached": 0,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 2,
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-495538",
+      "source": "podiuminfo",
+      "sourceId": "495538",
+      "artist": "King Buffalo",
+      "lineup": [
+        "King Buffalo",
+        "Spirit Mother"
+      ],
+      "supportingArtists": [
+        "Spirit Mother"
+      ],
+      "matchedArtists": [
+        "King Buffalo"
+      ],
+      "date": "2027-03-04",
+      "time": null,
+      "venue": "Patronaat",
+      "city": "Haarlem",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/140395/100_King_Buffalo_2.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/142285/cd/King-Buffalo-Spirit-Mother/Patronaat/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/495538/King-Buffalo-Spirit-Mother/Patronaat/",
+      "match": {
+        "score": 39,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Villagers of Ioannina City",
+        "matchedArtists": [
+          "King Buffalo"
+        ],
+        "similarVia": "Villagers of Ioannina City"
+      },
+      "discoveredAt": "2026-09-28T12:43:49.555Z",
+      "lastSeenAt": "2026-09-28T12:43:49.555Z"
+    }
+  ]
 }
