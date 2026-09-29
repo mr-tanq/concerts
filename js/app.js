@@ -722,7 +722,7 @@ function openSheet(c) {
             ${weekdayShort(c.date)} ${fullDate(c.date)}<br>
             ${esc(c.venue)}, ${esc(c.city)}
           </div>
-          <p class="lede sheet-memory-line">${timesSeenStatement(c)}</p>
+          <p class="lede sheet-memory-line">${planned ? `Going · ${countdownWord(c.date)}` : timesSeenStatement(c)}</p>
         </div>
 
         <dl class="facts">
@@ -731,18 +731,24 @@ function openSheet(c) {
           ${c.country ? `<div class="fact"><dt>Country</dt><dd>${esc(c.country)}</dd></div>` : ""}
         </dl>
 
-        <div class="sheet-section">
-          <p class="whisper">Who did you actually see?</p>
-          <div id="sheet-lineup"></div>
-          <p class="status" id="lineup-status"></p>
-        </div>
-
-        <div class="sheet-section">
-          <p class="whisper">Note to self</p>
-          <div id="sheet-note"></div>
-        </div>
-
-        <div id="sheet-setlist"></div>
+        ${planned ? `
+          <div class="sheet-section">
+            <p class="whisper">Coming up</p>
+            <p class="footnote">${esc([c.artist, ...(c.supportingArtists || [])].filter(Boolean).join(" · "))}</p>
+            ${c.time ? `<p class="footnote">Starts at ${esc(c.time)}</p>` : ""}
+          </div>
+        ` : `
+          <div class="sheet-section">
+            <p class="whisper">Who did you actually see?</p>
+            <div id="sheet-lineup"></div>
+            <p class="status" id="lineup-status"></p>
+          </div>
+          <div class="sheet-section">
+            <p class="whisper">Note to self</p>
+            <div id="sheet-note"></div>
+          </div>
+          <div id="sheet-setlist"></div>
+        `}
 
         ${planned ? `
           <div class="sheet-section">
@@ -790,9 +796,11 @@ function openSheet(c) {
   setPhoto(sheet.querySelector(".sheet-photo"), photo);
   sheet.querySelector(".sheet-close").addEventListener("click", () => { root.innerHTML = ""; });
 
-  renderNote(sheet.querySelector("#sheet-note"), c);
-  renderSetlist(sheet.querySelector("#sheet-setlist"), c);
-  renderLineupPicker(sheet.querySelector("#sheet-lineup"), sheet.querySelector("#lineup-status"), c, lineup);
+  if (!planned) {
+    renderNote(sheet.querySelector("#sheet-note"), c);
+    renderSetlist(sheet.querySelector("#sheet-setlist"), c);
+    renderLineupPicker(sheet.querySelector("#sheet-lineup"), sheet.querySelector("#lineup-status"), c, lineup);
+  }
 }
 
 // Lets the person mark exactly which names on the bill they actually
