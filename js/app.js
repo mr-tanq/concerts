@@ -512,17 +512,21 @@ function openingStatement(view) {
 function anniversaryLine(view) {
   const hits = view.onThisDay;
   if (!hits.length) return null;
-  const c = hits[0];
-  const node = el(`
-    <div class="anniversary">
-      <p class="whisper">On this day</p>
-      <p class="anniversary-line">
-        ${titleCase(spell(c.yearsAgo))} year${c.yearsAgo === 1 ? "" : "s"} ago tonight —
-        ${esc(c.festivalName || c.artist)}<span>, ${esc(c.venue)}</span>
-      </p>
-    </div>
-  `);
-  node.addEventListener("click", () => openSheet(c));
+  const node = el('<div class="anniversary"><p class="whisper">On this day</p></div>');
+  for (const c of hits) {
+    const line = el(`<p class="anniversary-line" role="button" tabindex="0">
+      ${titleCase(spell(c.yearsAgo))} year${c.yearsAgo === 1 ? "" : "s"} ago tonight —
+      ${esc(c.festivalName || c.artist)}<span>, ${esc(c.venue)}</span>
+    </p>`);
+    line.addEventListener("click", () => openSheet(c));
+    line.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        openSheet(c);
+      }
+    });
+    node.appendChild(line);
+  }
   return node;
 }
 
