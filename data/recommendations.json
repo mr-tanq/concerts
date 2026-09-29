@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-09-29T12:03:35.053Z",
+    "lastUpdated": "2026-09-29T13:47:17.392Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
@@ -11,11 +11,48 @@
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 3,
+      "concertsOpened": 2,
       "rejectedByLineup": 0
     }
   },
   "concerts": [
+    {
+      "id": "rec-podiuminfo-469777",
+      "source": "podiuminfo",
+      "sourceId": "469777",
+      "artist": "Hubris.",
+      "lineup": [
+        "Hubris."
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Hubris."
+      ],
+      "date": "2026-10-15",
+      "time": null,
+      "venue": "Altstadt",
+      "city": "Eindhoven",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.podiuminfo.nl/img/podiuminfo-rond.png",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/469777/Hubris-/Altstadt/",
+      "match": {
+        "score": 39,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Oh Hiroshima",
+        "matchedArtists": [
+          "Hubris."
+        ],
+        "similarVia": "Oh Hiroshima"
+      },
+      "discoveredAt": "2026-09-29T13:47:17.392Z",
+      "lastSeenAt": "2026-09-29T13:47:17.392Z"
+    },
     {
       "id": "rec-podiuminfo-496470",
       "source": "podiuminfo",
@@ -51,7 +88,44 @@
         "similarVia": "Anathema"
       },
       "discoveredAt": "2026-09-29T12:03:35.053Z",
-      "lastSeenAt": "2026-09-29T12:03:35.053Z"
+      "lastSeenAt": "2026-09-29T13:47:17.392Z"
+    },
+    {
+      "id": "rec-podiuminfo-470275",
+      "source": "podiuminfo",
+      "sourceId": "470275",
+      "artist": "hubris.",
+      "lineup": [
+        "hubris."
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "hubris."
+      ],
+      "date": "2026-10-16",
+      "time": null,
+      "venue": "Kroepoekfabriek",
+      "city": "Vlaardingen",
+      "country": "??",
+      "isFestival": false,
+      "image": "https://www.podiuminfo.nl/img/podiuminfo-rond.png",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/134723/cd/HUBRIS-MAVEN/Kroepoekfabriek/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/470275/hubris-/Kroepoekfabriek/",
+      "match": {
+        "score": 34,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Oh Hiroshima",
+        "matchedArtists": [
+          "hubris."
+        ],
+        "similarVia": "Oh Hiroshima"
+      },
+      "discoveredAt": "2026-09-29T13:47:17.392Z",
+      "lastSeenAt": "2026-09-29T13:47:17.392Z"
     }
   ]
 }
