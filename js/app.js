@@ -112,6 +112,28 @@ function countdownWord(iso) {
   return `In ${Math.round(d / 30)} months`;
 }
 
+// Ten-day work cycle: 30 Sep 2026 was the second evening shift.
+const WORK_DAYS = [
+  ["1st morning", "orange"], ["2nd morning", "green"],
+  ["1st evening", "red"], ["2nd evening", "red"],
+  ["1st night", "red"], ["2nd night", "red"],
+  ["1st free day", "green"], ["2nd free day", "green"],
+  ["3rd free day", "green"], ["4th free day", "orange"],
+];
+const WORK_COLORS = { green: "#63c786", orange: "#e9a64c", red: "#e86b69" };
+
+function workDayBadge(iso) {
+  const [year, month, day] = String(iso || "").split("-").map(Number);
+  if (!year || !month || !day) return "";
+  const days = Math.round((Date.UTC(year, month - 1, day) - Date.UTC(2026, 8, 30)) / 86400000);
+  const index = ((3 + days) % 10 + 10) % 10;
+  const [label, category] = WORK_DAYS[index];
+  const color = WORK_COLORS[category];
+  return `<span style="display:inline-flex;align-items:center;gap:7px;margin-top:8px;color:${color};font-size:13px">
+    <span aria-hidden="true" style="width:8px;height:8px;border-radius:50%;background:${color}"></span>${label}
+  </span>`;
+}
+
 // Spell small numbers out. "Twenty-five years" belongs in a sentence about a
 // life; "25 years" belongs in a spreadsheet.
 const WORDS = ["zero","one","two","three","four","five","six","seven","eight","nine","ten",
@@ -721,6 +743,7 @@ function openSheet(c) {
           <div class="sheet-when">
             ${weekdayShort(c.date)} ${fullDate(c.date)}<br>
             ${esc(c.venue)}, ${esc(c.city)}
+            ${planned ? `<br>${workDayBadge(c.date)}` : ""}
           </div>
           <p class="lede sheet-memory-line">${planned ? `Going · ${countdownWord(c.date)}` : timesSeenStatement(c)}</p>
         </div>
@@ -1221,6 +1244,7 @@ function upcomingHero(c) {
       <h3 class="entry-artist">${esc(c.artist)}</h3>
       ${support.length ? `<div class="entry-with">with ${esc(support.slice(0, 3).join(", "))}</div>` : ""}
       <div class="entry-place">${esc(c.venue)}<span class="dot">·</span>${esc(c.city)}<span class="dot">·</span>${fullDate(c.date)}</div>
+      <div>${workDayBadge(c.date)}</div>
       <div class="act-row" style="padding-left:0;padding-right:0">
         ${c.ticketUrl ? `<button class="plain-act" data-a="tickets">Tickets</button>` : ""}
         <button class="plain-act" data-a="unplan">Not going after all</button>
@@ -1293,6 +1317,7 @@ function renderUpcoming(body) {
           <div class="who">
             <b>${esc(c.artist)}</b>
             <span>${esc(c.venue)} · ${esc(c.city)} · ${fullDate(c.date)}</span>
+            <div>${workDayBadge(c.date)}</div>
           </div>
         </div>
       `);
