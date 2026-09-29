@@ -122,15 +122,28 @@ const WORK_DAYS = [
 ];
 const WORK_COLORS = { green: "#63c786", orange: "#e9a64c", red: "#e86b69" };
 
-function workDayBadge(iso) {
+function workDayDetails(iso) {
   const [year, month, day] = String(iso || "").split("-").map(Number);
-  if (!year || !month || !day) return "";
+  if (!year || !month || !day) return null;
   const days = Math.round((Date.UTC(year, month - 1, day) - Date.UTC(2026, 8, 30)) / 86400000);
   const index = ((3 + days) % 10 + 10) % 10;
   const [label, category] = WORK_DAYS[index];
-  const color = WORK_COLORS[category];
+  return { label, category };
+}
+
+function workDayBadge(concert) {
+  const shift = workDayDetails(concert.date);
+  if (!shift) return "";
+  const kind = shift.category === "red" ? "freeDay" : shift.category === "orange" ? "lateStart" : null;
+  const confirmed = kind && concert.workArrangement?.kind === kind
+    && concert.workArrangement?.status === "yes";
+  const color = WORK_COLORS[confirmed ? "green" : shift.category];
+  const label = confirmed && kind === "freeDay" ? "Free" : shift.label;
+  const sticker = confirmed && kind === "lateStart"
+    ? '<span style="border:1px solid currentColor;border-radius:999px;padding:1px 6px;font-size:11px">+2</span>'
+    : "";
   return `<span style="display:inline-flex;align-items:center;gap:7px;margin-top:8px;color:${color};font-size:13px">
-    <span aria-hidden="true" style="width:8px;height:8px;border-radius:50%;background:${color}"></span>${label}
+    <span aria-hidden="true" style="width:8px;height:8px;border-radius:50%;background:${color}"></span>${label}${sticker}
   </span>`;
 }
 
@@ -743,7 +756,7 @@ function openSheet(c) {
           <div class="sheet-when">
             ${weekdayShort(c.date)} ${fullDate(c.date)}<br>
             ${esc(c.venue)}, ${esc(c.city)}
-            ${planned ? `<br>${workDayBadge(c.date)}` : ""}
+            ${planned ? `<br>${workDayBadge(c)}` : ""}
           </div>
           <p class="lede sheet-memory-line">${planned ? `Going · ${countdownWord(c.date)}` : timesSeenStatement(c)}</p>
         </div>
@@ -1244,7 +1257,7 @@ function upcomingHero(c) {
       <h3 class="entry-artist">${esc(c.artist)}</h3>
       ${support.length ? `<div class="entry-with">with ${esc(support.slice(0, 3).join(", "))}</div>` : ""}
       <div class="entry-place">${esc(c.venue)}<span class="dot">·</span>${esc(c.city)}<span class="dot">·</span>${fullDate(c.date)}</div>
-      <div>${workDayBadge(c.date)}</div>
+      <div>${workDayBadge(c)}</div>
       <div class="act-row" style="padding-left:0;padding-right:0">
         ${c.ticketUrl ? `<button class="plain-act" data-a="tickets">Tickets</button>` : ""}
         <button class="plain-act" data-a="unplan">Not going after all</button>
@@ -1317,7 +1330,7 @@ function renderUpcoming(body) {
           <div class="who">
             <b>${esc(c.artist)}</b>
             <span>${esc(c.venue)} · ${esc(c.city)} · ${fullDate(c.date)}</span>
-            <div>${workDayBadge(c.date)}</div>
+            <div>${workDayBadge(c)}</div>
           </div>
         </div>
       `);
@@ -1510,8 +1523,74 @@ function pastPlannedConcerts(historyData) {
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
+function askWorkArrangements() {
+  if (!getGithubConfig()) return;
+  const root = document.getElementById("settings-modal-root");
+  if (!root || root.childElementCount) return;
+
+  const today = dutchToday();
+  const reminder = plannedConcerts
+    .map((concert) => workReminderFor(concert, today))
+    .filter(Boolean)
+    .sort((a, b) => a.concert.date.localeCompare(b.concert.date))[0];
+  if (!reminder) return;
+
+  const { concert, kind } = reminder;
+  const question = kind === "freeDay"
+    ? "Did you already ask for a free day?"
+    : "Did you tell work you'll arrive two hours later the next day?";
+  const veil = el(`
+    <div class="veil">
+      <div class="panel">
+        <p class="whisper">Work and concerts</p>
+        <p class="lede">${question}</p>
+        <div class="prompt-photo"></div>
+        <p class="lede" style="font-size:24px;margin-top:20px">${esc(concert.artist)}</p>
+        <p class="footnote" style="margin-top:8px">${weekdayShort(concert.date)} ${fullDate(concert.date)} · ${esc(concert.venue)}, ${esc(concert.city)}</p>
+        <div>${workDayBadge(concert)}</div>
+        <p class="status" id="work-prompt-status"></p>
+        <div class="act-row" style="padding-left:0;padding-right:0;gap:20px;flex-wrap:wrap">
+          <button class="plain-act" id="work-no">I will not go</button>
+          <button class="plain-act" id="work-later">Not yet</button>
+          <button class="plain-act" id="work-yes">Yes I did</button>
+        </div>
+      </div>
+    </div>
+  `);
+  root.appendChild(veil);
+  setPhoto(veil.querySelector(".prompt-photo"), imageFor(concert));
+
+  const buttons = [...veil.querySelectorAll("button")];
+  const status = veil.querySelector("#work-prompt-status");
+  async function answer(choice) {
+    buttons.forEach((button) => { button.disabled = true; });
+    status.textContent = "Saving…";
+    status.className = "status";
+    try {
+      if (choice === "no") {
+        await enqueue(() => removeGoingAfterReminderRemote(concert));
+        plannedConcerts = plannedConcerts.filter((item) => item.id !== concert.id);
+      } else {
+        await enqueue(() => saveWorkArrangementRemote(concert, kind, choice, today));
+        concert.workArrangement = { kind, status: choice, askedOn: today };
+      }
+      renderConcertsShell("going");
+      root.innerHTML = "";
+      askWorkArrangements();
+    } catch (err) {
+      console.error(err);
+      status.textContent = `${err.message}. Please try again.`;
+      status.className = "status bad";
+      buttons.forEach((button) => { button.disabled = false; });
+    }
+  }
+  veil.querySelector("#work-no").addEventListener("click", () => answer("no"));
+  veil.querySelector("#work-later").addEventListener("click", () => answer("notYet"));
+  veil.querySelector("#work-yes").addEventListener("click", () => answer("yes"));
+}
+
 function askAboutPast(queue) {
-  if (!queue.length) return;
+  if (!queue.length) { askWorkArrangements(); return; }
   const root = document.getElementById("settings-modal-root");
   const rec = queue[0];
   const lineup = (rec.lineup?.length ? rec.lineup : [rec.artist, ...(rec.supportingArtists || [])]).filter(Boolean);
@@ -1790,6 +1869,9 @@ async function init() {
     renderRealm(document.getElementById("panel-realm"), originsData, confidentlySeenArtists);
 
     if (getGithubConfig()) askAboutPast(pastPlannedConcerts(historyData));
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) askWorkArrangements();
+    });
   } catch (err) {
     console.error(err);
     document.getElementById("panel-concerts").innerHTML =
