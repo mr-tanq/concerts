@@ -1,19 +1,94 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-09-29T21:44:52.878Z",
+    "lastUpdated": "2026-09-30T11:51:28.705Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 0,
-      "daysCached": 366,
+      "daysFresh": 366,
+      "daysCached": 0,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 5,
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-496712",
+      "source": "podiuminfo",
+      "sourceId": "496712",
+      "artist": "Archive",
+      "lineup": [
+        "Archive"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Archive"
+      ],
+      "date": "2027-09-08",
+      "time": null,
+      "venue": "My Name in PHIL",
+      "city": "Haarlem",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/10776/100_Archive_1.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/142753/cd/Archive/PHIL/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/496712/Archive-Not-in-My-Name/PHIL/",
+      "match": {
+        "score": 49,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Archive",
+        "matchedArtists": [
+          "Archive"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-09-30T11:51:28.705Z",
+      "lastSeenAt": "2026-09-30T11:51:28.705Z"
+    },
+    {
+      "id": "rec-podiuminfo-496713",
+      "source": "podiuminfo",
+      "sourceId": "496713",
+      "artist": "Archive",
+      "lineup": [
+        "Archive"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Archive"
+      ],
+      "date": "2027-09-09",
+      "time": null,
+      "venue": "013",
+      "city": "Tilburg",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/10776/100_Archive_3.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/142750/cd/Archive/013/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/496713/Archive/013/",
+      "match": {
+        "score": 49,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Archive",
+        "matchedArtists": [
+          "Archive"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-09-30T11:51:28.705Z",
+      "lastSeenAt": "2026-09-30T11:51:28.705Z"
+    }
+  ]
 }
