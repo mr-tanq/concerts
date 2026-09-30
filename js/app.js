@@ -1523,6 +1523,66 @@ function pastPlannedConcerts(historyData) {
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
+function dutchToday() {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/Amsterdam", year: "numeric", month: "2-digit", day: "2-digit"
+  }).formatToParts(new Date());
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${values.year}-${values.month}-${values.day}`;
+}
+
+function calendarDaysBetween(from, to) {
+  const number = (iso) => {
+    const [year, month, day] = iso.split("-").map(Number);
+    return Date.UTC(year, month - 1, day) / 86400000;
+  };
+  return number(to) - number(from);
+}
+
+function workReminderFor(concert, today) {
+  if (!concert.date) return null;
+  const shift = workDayDetails(concert.date);
+  if (!shift) return null;
+  const kind = shift.category === "red" ? "freeDay"
+    : shift.category === "orange" ? "lateStart" : null;
+  if (!kind) return null;
+  const remaining = calendarDaysBetween(today, concert.date);
+  if (remaining < 0 || remaining > (kind === "freeDay" ? 40 : 30)) return null;
+  const answer = concert.workArrangement;
+  if (answer?.kind === kind) {
+    if (answer.status === "yes") return null;
+    if (answer.status === "notYet" && answer.askedOn
+      && calendarDaysBetween(answer.askedOn, today) < 2) return null;
+  }
+  return { concert, kind, remaining };
+}
+
+async function saveWorkArrangementRemote(concert, kind, status, today) {
+  const PLANNED = "data/planned.json";
+  await mutate([PLANNED], (files) => {
+    const planned = files[PLANNED];
+    const current = planned.concerts.find((item) => item.id === concert.id);
+    if (!current) throw new Error("Concert no longer in Going");
+    current.workArrangement = { kind, status, askedOn: today };
+    planned.meta.lastUpdated = new Date().toISOString();
+  }, `chore: update work arrangement for ${concert.id} (app)`);
+}
+
+async function removeGoingAfterReminderRemote(concert) {
+  const PLANNED = "data/planned.json";
+  const HIST = "data/recommendation-history.json";
+  await mutate([PLANNED, HIST], (files) => {
+    const planned = files[PLANNED], history = files[HIST];
+    planned.concerts = planned.concerts.filter((item) => item.id !== concert.id);
+    planned.meta.lastUpdated = new Date().toISOString();
+    const recId = concert.recommendationId
+      || String(concert.id || "").replace(/^planned-/, "rec-");
+    history.plannedIds = (history.plannedIds || []).filter((id) => id !== recId);
+    if (!Array.isArray(history.dismissedIds)) history.dismissedIds = [];
+    if (!history.dismissedIds.includes(recId)) history.dismissedIds.push(recId);
+  }, `chore: remove ${concert.id} from Going (app)`);
+}
+
 function askWorkArrangements() {
   if (!getGithubConfig()) return;
   const root = document.getElementById("settings-modal-root");
