@@ -1,13 +1,13 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-09-30T18:07:04.229Z",
+    "lastUpdated": "2026-09-30T21:45:12.215Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 366,
-      "daysCached": 0,
+      "daysFresh": 0,
+      "daysCached": 366,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
@@ -16,42 +16,6 @@
     }
   },
   "concerts": [
-    {
-      "id": "rec-podiuminfo-496713",
-      "source": "podiuminfo",
-      "sourceId": "496713",
-      "artist": "Archive",
-      "lineup": [
-        "Archive"
-      ],
-      "supportingArtists": [],
-      "matchedArtists": [
-        "Archive"
-      ],
-      "date": "2027-09-09",
-      "time": null,
-      "venue": "013",
-      "city": "Tilburg",
-      "country": "NL",
-      "isFestival": false,
-      "image": "https://www.festivalinfo.nl/img/artist/10776/100_Archive_3.jpg",
-      "ticketUrl": "https://www.podiuminfo.nl/ticket/142750/cd/Archive/013/",
-      "sourceApis": [
-        "podiuminfo"
-      ],
-      "sourceUrl": "https://www.podiuminfo.nl/concert/496713/Archive/013/",
-      "match": {
-        "score": 49,
-        "label": "Strong match",
-        "matchedBy": "direct",
-        "reason": "Known artist: Archive",
-        "matchedArtists": [
-          "Archive"
-        ]
-      },
-      "discoveredAt": "2026-09-30T16:17:45.651Z",
-      "lastSeenAt": "2026-09-30T16:17:45.651Z"
-    },
     {
       "id": "rec-podiuminfo-496712",
       "source": "podiuminfo",
@@ -83,10 +47,85 @@
         "reason": "Known artist: Archive",
         "matchedArtists": [
           "Archive"
-        ]
+        ],
+        "similarVia": null
       },
       "discoveredAt": "2026-09-30T16:17:55.013Z",
-      "lastSeenAt": "2026-09-30T16:17:55.013Z"
+      "lastSeenAt": "2026-09-30T21:45:12.215Z"
+    },
+    {
+      "id": "rec-podiuminfo-496713",
+      "source": "podiuminfo",
+      "sourceId": "496713",
+      "artist": "Archive",
+      "lineup": [
+        "Archive"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Archive"
+      ],
+      "date": "2027-09-09",
+      "time": null,
+      "venue": "013",
+      "city": "Tilburg",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/10776/100_Archive_3.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/142750/cd/Archive/013/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/496713/Archive/013/",
+      "match": {
+        "score": 49,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Archive",
+        "matchedArtists": [
+          "Archive"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-09-30T16:17:45.651Z",
+      "lastSeenAt": "2026-09-30T21:45:12.215Z"
+    },
+    {
+      "id": "rec-podiuminfo-474243",
+      "source": "podiuminfo",
+      "sourceId": "474243",
+      "artist": "Hällas",
+      "lineup": [
+        "Hällas"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Hällas"
+      ],
+      "date": "2026-10-06",
+      "time": null,
+      "venue": "Paard",
+      "city": "Den Haag",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/113978/100_H__llas_2.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/135630/cd/HALLAS/Paard/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/474243/Hallas/Paard/",
+      "match": {
+        "score": 46,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Hällas",
+        "matchedArtists": [
+          "Hällas"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-09-30T21:45:12.215Z",
+      "lastSeenAt": "2026-09-30T21:45:12.215Z"
     }
   ]
 }
