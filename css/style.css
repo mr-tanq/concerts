@@ -1543,3 +1543,69 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 }
 
 .insight-empty { padding: 18px 0 6px; }
+/* Concert facts: readable venue and date, with shift as a smaller cue. */
+.work-shift,
+.upcoming-row .who .work-shift {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 9px;
+  color: var(--shift-color);
+  font-family: var(--sans);
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+.work-shift-dot,
+.upcoming-row .who .work-shift-dot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+  border-radius: 50%;
+  background: var(--shift-color);
+}
+.stage-when {
+  color: var(--bone);
+  font-size: 11.5px;
+  letter-spacing: 0.1em;
+  text-shadow: 0 1px 10px #000;
+}
+.stage-venue {
+  color: var(--bone);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.4;
+  text-shadow: 0 1px 10px #000;
+}
+.stage-venue span { color: #d2cec8; }
+.stage-why { margin-top: 5px; }
+.stage .work-shift { text-shadow: 0 1px 8px #000; }
+
+.entry-place {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 12px;
+  row-gap: 2px;
+  font-size: 14px;
+}
+.entry-place .event-venue { color: var(--bone-dim); }
+.entry-place .event-date,
+.upcoming-row .who .event-date {
+  color: var(--bone);
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+.upcoming-row .who .event-meta {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 10px;
+  row-gap: 1px;
+  margin-top: 6px;
+  line-height: 1.45;
+}
+.upcoming-row .who .event-venue {
+  color: var(--bone-dim);
+  font-size: 13px;
+}

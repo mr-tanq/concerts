@@ -142,8 +142,8 @@ function workDayBadge(concert) {
   const sticker = confirmed && kind === "lateStart"
     ? '<span style="border:1px solid currentColor;border-radius:999px;padding:1px 6px;font-size:11px">+2</span>'
     : "";
-  return `<span style="display:inline-flex;align-items:center;gap:7px;margin-top:8px;color:${color};font-size:13px">
-    <span aria-hidden="true" style="width:8px;height:8px;border-radius:50%;background:${color}"></span>${label}${sticker}
+  return `<span class="work-shift" style="--shift-color:${color}">
+    <span class="work-shift-dot" aria-hidden="true"></span>${label}${sticker}
   </span>`;
 }
 
@@ -1108,10 +1108,12 @@ function stageCard(c) {
       <div class="verdict no">Not this one</div>
       <div class="stage-score"><b>${esc(c.match.score)}</b>${esc(c.match.label)}</div>
       <div class="stage-copy">
-        <div class="stage-when">${weekdayShort(c.date)} ${dayMonth(c.date)} ${yearOf(c.date)}${time} · ${esc(c.city)}</div>
+        <div class="stage-when">${weekdayShort(c.date)} ${dayMonth(c.date)} ${yearOf(c.date)}${time}</div>
         <h2 class="stage-artist">${esc(c.artist)}</h2>
         ${support.length ? `<div class="stage-with">with ${esc(support.slice(0, 3).join(", "))}</div>` : ""}
-        <div class="stage-why">${esc(c.venue)}${c.match.matchedBy === "similar" ? ` — ${esc(c.match.reason)}` : ""}</div>
+        <div class="stage-venue">${esc(c.venue)} <span>· ${esc(c.city)}</span></div>
+        ${c.match.matchedBy === "similar" ? `<div class="stage-why">${esc(c.match.reason)}</div>` : ""}
+        <div>${workDayBadge(c)}</div>
       </div>
     </div>
   `);
@@ -1259,7 +1261,7 @@ function upcomingHero(c) {
       <div class="countdown">${countdownWord(c.date)}</div>
       <h3 class="entry-artist">${esc(c.artist)}</h3>
       ${support.length ? `<div class="entry-with">with ${esc(support.slice(0, 3).join(", "))}</div>` : ""}
-      <div class="entry-place">${esc(c.venue)}<span class="dot">·</span>${esc(c.city)}<span class="dot">·</span>${fullDate(c.date)}</div>
+      <div class="entry-place"><span class="event-venue">${esc(c.venue)} · ${esc(c.city)}</span><span class="event-date">${fullDate(c.date)}</span></div>
       <div>${workDayBadge(c)}</div>
       <div class="act-row" style="padding-left:0;padding-right:0">
         ${c.ticketUrl ? `<button class="plain-act" data-a="tickets">Tickets</button>` : ""}
@@ -1332,7 +1334,7 @@ function renderUpcoming(body) {
           <div class="when">${c.date < today ? "Passed" : countdownWord(c.date)}</div>
           <div class="who">
             <b>${esc(c.artist)}</b>
-            <span>${esc(c.venue)} · ${esc(c.city)} · ${fullDate(c.date)}</span>
+            <span class="event-meta"><span class="event-venue">${esc(c.venue)} · ${esc(c.city)}</span><span class="event-date">${fullDate(c.date)}</span></span>
             <div>${workDayBadge(c)}</div>
           </div>
         </div>
