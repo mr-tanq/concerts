@@ -1259,7 +1259,7 @@ function upcomingHero(c) {
     <div class="upcoming-hero">
       <div class="upcoming-photo"></div>
       <div class="countdown">${countdownWord(c.date)}</div>
-      <h3 class="entry-artist">${esc(c.artist)}</h3>
+      <h3 class="entry-artist">${esc(displayPlannedArtist(c.artist))}</h3>
       ${support.length ? `<div class="entry-with">with ${esc(support.slice(0, 3).join(", "))}</div>` : ""}
       <div class="entry-place"><span class="event-venue">${esc(c.venue)} · ${esc(c.city)}</span><span class="event-date">${fullDate(c.date)}</span></div>
       <div>${workDayBadge(c)}</div>
@@ -1306,6 +1306,14 @@ function upcomingHero(c) {
   return node;
 }
 
+function displayPlannedArtist(artist) {
+  const sameArtist = plannedConcerts.find((concert) =>
+    normalizeKey(concert.artist) === normalizeKey(artist)
+    && /\p{Ll}/u.test(concert.artist)
+  );
+  return sameArtist?.artist || artist;
+}
+
 function renderUpcoming(body) {
   body.innerHTML = "";
   const today = new Date().toISOString().slice(0, 10);
@@ -1333,7 +1341,7 @@ function renderUpcoming(body) {
         <div class="upcoming-row">
           <div class="when">${c.date < today ? "Passed" : countdownWord(c.date)}</div>
           <div class="who">
-            <b>${esc(c.artist)}</b>
+            <b>${esc(displayPlannedArtist(c.artist))}</b>
             <span class="event-meta"><span class="event-venue">${esc(c.venue)} · ${esc(c.city)}</span><span class="event-date">${fullDate(c.date)}</span></span>
             <div>${workDayBadge(c)}</div>
           </div>
