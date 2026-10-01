@@ -1634,3 +1634,25 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 .calendar-agenda-row{display:block;width:100%;text-align:left;border-top:1px solid var(--hair);padding:14px 0}
 .calendar-agenda-row strong{display:block;color:var(--bone);font:23px var(--serif)}
 .calendar-agenda-row span,.calendar-empty{display:block;color:var(--bone-dim);font:13px/1.5 var(--sans);margin-top:4px}
+
+/* Calendar: shift colours stay distinct from concert entries. */
+.calendar-shift {
+  display: block;
+  width: auto;
+  height: auto;
+  margin: 0 0 5px 1px;
+  padding-left: 3px;
+  border-left: 2px solid var(--day-shift);
+  border-radius: 0;
+  background: none;
+  color: var(--day-shift);
+  font: 8px/1.3 var(--mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.calendar-event {
+  border-left-color: var(--bone-dim);
+  background: rgba(235, 231, 222, .12);
+  color: var(--bone);
+}

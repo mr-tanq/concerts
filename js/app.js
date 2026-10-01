@@ -1362,11 +1362,15 @@ function renderGoingCalendar(body) {
     const date = `${goingCalendarMonth}-${String(day).padStart(2, "0")}`;
     const concerts = byDate.get(date) || [];
     const shift = workDayDetails(date);
-    const color = WORK_COLORS[shift?.category] || "var(--bone-faint)";
+    const shiftName = shift?.label.replace(/^\d+(st|nd|rd|th) /, "") || "";
+    const color = shiftName === "morning" ? "#83c8ed"
+      : shiftName === "evening" ? "#e9b65e"
+      : shiftName === "night" ? "#af98e8"
+      : shiftName === "free day" ? "#72cf9b" : "var(--bone-faint)";
     const cell = el(`<button class="calendar-day ${date === today ? "is-today" : ""} ${date === selected ? "is-selected" : ""}"
       style="--day-shift:${color}" aria-label="${esc(fullDate(date))}, ${esc(shift?.label || "")}, ${concerts.length} concerts">
       <span class="calendar-number">${day}</span>
-      <span class="calendar-shift" title="${esc(shift?.label || "")}"></span>
+      <span class="calendar-shift" title="${esc(shift?.label || "")}">${esc(shiftName)}</span>
       ${concerts.slice(0, 2).map((c) => `<span class="calendar-event">${esc(displayPlannedArtist(c.artist))}</span>`).join("")}
       ${concerts.length > 2 ? `<span class="calendar-more">+${concerts.length - 2} more</span>` : ""}
     </button>`);
