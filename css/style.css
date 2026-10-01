@@ -1609,3 +1609,28 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
   color: var(--bone-dim);
   font-size: 13px;
 }
+
+/* Going calendar */
+.going-layout{display:flex;justify-content:flex-end;gap:16px;padding:8px var(--gutter) 24px}
+.going-layout button{font:10px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--bone-faint);padding:9px 0;border-bottom:1px solid transparent}
+.going-layout button.on{color:var(--bone);border-color:var(--ember)}
+.going-calendar{padding:0 var(--gutter) 110px}
+.calendar-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.calendar-head h3{font:28px var(--serif);color:var(--bone);text-align:center}
+.calendar-nav{min-width:42px;min-height:44px;font-size:30px;line-height:1;color:var(--bone-dim)}
+.calendar-weekdays,.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.calendar-weekdays{color:var(--bone-faint);font:9px var(--mono);text-align:center;padding-bottom:10px}
+.calendar-weekdays span:last-child{color:var(--ember)}
+.calendar-day{min-width:0;min-height:92px;padding:6px 2px 8px;text-align:left;border-top:1px solid var(--hair);color:var(--bone)}
+.calendar-day.is-outside{opacity:.15}
+.calendar-day.is-selected{background:rgba(255,255,255,.06)}
+.calendar-number{display:block;font:11px var(--mono);margin:0 0 7px 2px}
+.calendar-day.is-today .calendar-number{color:var(--ember)}
+.calendar-shift{display:block;width:4px;height:4px;border-radius:50%;margin:0 0 5px 3px;background:var(--day-shift)}
+.calendar-event{display:block;margin-top:3px;padding:3px 2px;border-left:2px solid var(--ember);color:var(--bone);background:rgba(255,255,255,.07);font:9px/1.15 var(--sans);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.calendar-more{display:block;color:var(--bone-faint);font:9px var(--mono);margin-top:4px}
+.calendar-agenda{margin-top:25px}
+.calendar-agenda .whisper{margin-bottom:12px}
+.calendar-agenda-row{display:block;width:100%;text-align:left;border-top:1px solid var(--hair);padding:14px 0}
+.calendar-agenda-row strong{display:block;color:var(--bone);font:23px var(--serif)}
+.calendar-agenda-row span,.calendar-empty{display:block;color:var(--bone-dim);font:13px/1.5 var(--sans);margin-top:4px}

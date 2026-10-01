@@ -47,6 +47,9 @@ const TABS = ["mirror", "realm", "concerts", "identity", "archive"];
 // fails we surface it and push the card back onto the deck.
 let deckQueue = [];
 let plannedConcerts = [];
+let goingLayout = "list";
+let goingCalendarMonth = null;
+let goingCalendarSelectedDate = null;
 let archiveConcerts = [];
 let archiveView = null;
 let exploreFilter = { mode: "all", value: null };
@@ -1314,8 +1317,97 @@ function displayPlannedArtist(artist) {
   return sameArtist?.artist || artist;
 }
 
+
+function renderGoingCalendar(body) {
+  const today = dutchToday();
+  const future = plannedConcerts.filter((c) => c.date && c.date >= today).sort((a, b) => a.date.localeCompare(b.date));
+  if (!goingCalendarMonth) goingCalendarMonth = (future[0]?.date || today).slice(0, 7);
+  const [year, month] = goingCalendarMonth.split("-").map(Number);
+  const first = new Date(Date.UTC(year, month - 1, 1));
+  const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const offset = (first.getUTCDay() + 6) % 7;
+  const title = first.toLocaleDateString("en-GB", { month: "long", year: "numeric", timeZone: "UTC" });
+  const byDate = new Map();
+  for (const c of plannedConcerts.filter((item) => item.date?.startsWith(goingCalendarMonth))) {
+    if (!byDate.has(c.date)) byDate.set(c.date, []);
+    byDate.get(c.date).push(c);
+  }
+  const selected = goingCalendarSelectedDate?.startsWith(goingCalendarMonth) ? goingCalendarSelectedDate : null;
+  const calendar = el(`<section class="going-calendar" aria-label="Going calendar">
+    <div class="calendar-head">
+      <button class="calendar-nav" data-month="-1" aria-label="Previous month">‹</button>
+      <h3>${esc(title)}</h3>
+      <button class="calendar-nav" data-month="1" aria-label="Next month">›</button>
+    </div>
+    <div class="calendar-weekdays" aria-hidden="true">
+      <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+    </div>
+    <div class="calendar-grid"></div>
+    <div class="calendar-agenda"></div>
+  </section>`);
+  calendar.querySelectorAll("[data-month]").forEach((button) => button.addEventListener("click", () => {
+    const next = new Date(Date.UTC(year, month - 1 + Number(button.dataset.month), 1));
+    goingCalendarMonth = next.toISOString().slice(0, 7);
+    goingCalendarSelectedDate = null;
+    renderUpcoming(body);
+  }));
+  const grid = calendar.querySelector(".calendar-grid");
+  const cells = Math.ceil((offset + daysInMonth) / 7) * 7;
+  for (let i = 0; i < cells; i++) {
+    const day = i - offset + 1;
+    if (day < 1 || day > daysInMonth) {
+      grid.appendChild(el('<div class="calendar-day is-outside" aria-hidden="true"></div>'));
+      continue;
+    }
+    const date = `${goingCalendarMonth}-${String(day).padStart(2, "0")}`;
+    const concerts = byDate.get(date) || [];
+    const shift = workDayDetails(date);
+    const color = WORK_COLORS[shift?.category] || "var(--bone-faint)";
+    const cell = el(`<button class="calendar-day ${date === today ? "is-today" : ""} ${date === selected ? "is-selected" : ""}"
+      style="--day-shift:${color}" aria-label="${esc(fullDate(date))}, ${esc(shift?.label || "")}, ${concerts.length} concerts">
+      <span class="calendar-number">${day}</span>
+      <span class="calendar-shift" title="${esc(shift?.label || "")}"></span>
+      ${concerts.slice(0, 2).map((c) => `<span class="calendar-event">${esc(displayPlannedArtist(c.artist))}</span>`).join("")}
+      ${concerts.length > 2 ? `<span class="calendar-more">+${concerts.length - 2} more</span>` : ""}
+    </button>`);
+    cell.addEventListener("click", () => {
+      goingCalendarSelectedDate = date;
+      renderUpcoming(body);
+      body.querySelector(".calendar-agenda")?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    });
+    grid.appendChild(cell);
+  }
+  const agenda = calendar.querySelector(".calendar-agenda");
+  if (selected) {
+    const concerts = byDate.get(selected) || [];
+    agenda.appendChild(el(`<p class="whisper">${weekdayShort(selected)} ${fullDate(selected)} · ${esc(workDayDetails(selected)?.label || "")}</p>`));
+    if (!concerts.length) agenda.appendChild(el('<p class="calendar-empty">No concerts on this day.</p>'));
+    for (const c of concerts) {
+      const row = el(`<button class="calendar-agenda-row">
+        <strong>${esc(displayPlannedArtist(c.artist))}</strong>
+        <span>${esc(c.venue)} · ${esc(c.city)}${c.time ? ` · ${esc(c.time)}` : ""}</span>
+      </button>`);
+      row.addEventListener("click", () => openSheet(c));
+      agenda.appendChild(row);
+    }
+  } else {
+    agenda.appendChild(el('<p class="calendar-empty">Tap a day for concert details.</p>'));
+  }
+  body.appendChild(calendar);
+}
+
 function renderUpcoming(body) {
   body.innerHTML = "";
+  const layout = el(`<div class="going-layout" role="group" aria-label="Going view">
+    <button data-layout="list" class="${goingLayout === "list" ? "on" : ""}" aria-pressed="${goingLayout === "list"}">List</button>
+    <button data-layout="calendar" class="${goingLayout === "calendar" ? "on" : ""}" aria-pressed="${goingLayout === "calendar"}">Calendar</button>
+  </div>`);
+  layout.querySelectorAll("button").forEach((button) => button.addEventListener("click", () => {
+    goingLayout = button.dataset.layout;
+    renderUpcoming(body);
+  }));
+  body.appendChild(layout);
+  if (goingLayout === "calendar") { renderGoingCalendar(body); return; }
   const today = new Date().toISOString().slice(0, 10);
   const sorted = [...plannedConcerts].sort((a, b) => String(a.date).localeCompare(String(b.date)));
   const upcoming = sorted.filter((c) => c.date >= today);
