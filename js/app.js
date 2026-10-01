@@ -1568,19 +1568,51 @@ async function saveWorkArrangementRemote(concert, kind, status, today) {
   }, `chore: update work arrangement for ${concert.id} (app)`);
 }
 
+function recommendationFromPlanned(concert) {
+  const id = concert.recommendationId || String(concert.id).replace(/^planned-/, "rec-");
+  const now = new Date().toISOString();
+  return {
+    id, source: concert.source || "podiuminfo",
+    sourceId: concert.sourceId ?? null,
+    artist: concert.artist,
+    lineup: concert.lineup || [],
+    supportingArtists: concert.supportingArtists || [],
+    matchedArtists: [concert.artist],
+    date: concert.date, time: concert.time || null,
+    venue: concert.venue, city: concert.city,
+    country: concert.country || "??",
+    isFestival: concert.isFestival || false,
+    image: concert.image || null,
+    ticketUrl: concert.ticketUrl || null,
+    sourceApis: concert.sourceApis || ["podiuminfo"],
+    sourceUrl: concert.sourceUrl || null,
+    match: {
+      score: concert.planning?.originalScore ?? 50,
+      label: "Strong match", matchedBy: "direct",
+      reason: `Known artist: ${concert.artist}`,
+      matchedArtists: [concert.artist]
+    },
+    discoveredAt: now, lastSeenAt: now, dismissedAt: now
+  };
+}
+
 async function removeGoingAfterReminderRemote(concert) {
   const PLANNED = "data/planned.json";
   const HIST = "data/recommendation-history.json";
   await mutate([PLANNED, HIST], (files) => {
     const planned = files[PLANNED], history = files[HIST];
+    const current = planned.concerts.find((item) => item.id === concert.id);
+    if (!current) throw new Error("Concert no longer in Going");
+    const snapshot = recommendationFromPlanned(current);
     planned.concerts = planned.concerts.filter((item) => item.id !== concert.id);
     planned.meta.lastUpdated = new Date().toISOString();
-    const recId = concert.recommendationId
-      || String(concert.id || "").replace(/^planned-/, "rec-");
-    history.plannedIds = (history.plannedIds || []).filter((id) => id !== recId);
+    history.plannedIds = (history.plannedIds || []).filter((id) => id !== snapshot.id);
     if (!Array.isArray(history.dismissedIds)) history.dismissedIds = [];
-    if (!history.dismissedIds.includes(recId)) history.dismissedIds.push(recId);
-  }, `chore: remove ${concert.id} from Going (app)`);
+    if (!history.dismissedIds.includes(snapshot.id)) history.dismissedIds.push(snapshot.id);
+    if (!Array.isArray(history.dismissed)) history.dismissed = [];
+    history.dismissed = history.dismissed.filter((item) => item.id !== snapshot.id);
+    history.dismissed.unshift(snapshot);
+  }, `chore: move ${concert.id} to Set aside (app)`);
 }
 
 function askWorkArrangements() {
@@ -1630,6 +1662,10 @@ function askWorkArrangements() {
       if (choice === "no") {
         await enqueue(() => removeGoingAfterReminderRemote(concert));
         plannedConcerts = plannedConcerts.filter((item) => item.id !== concert.id);
+        const snapshot = recommendationFromPlanned(concert);
+        dismissedConcerts = dismissedConcerts.filter((item) => item.id !== snapshot.id);
+        dismissedConcerts.unshift(snapshot);
+        legacyDismissedIds = legacyDismissedIds.filter((id) => id !== snapshot.id);
       } else {
         await enqueue(() => saveWorkArrangementRemote(concert, kind, choice, today));
         concert.workArrangement = { kind, status: choice, askedOn: today };
