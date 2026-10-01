@@ -1,57 +1,139 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-10-01T11:54:37.270Z",
+    "lastUpdated": "2026-10-01T12:20:18.706Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 0,
-      "daysCached": 366,
+      "daysFresh": 366,
+      "daysCached": 0,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 3,
       "rejectedByLineup": 0
     }
   },
   "concerts": [
     {
-      "id": "rec-podiuminfo-481103",
+      "id": "rec-podiuminfo-460739",
       "source": "podiuminfo",
-      "sourceId": "481103",
-      "artist": "Editors",
+      "sourceId": "460739",
+      "artist": "Caspian",
       "lineup": [
-        "Editors"
+        "And So I Watch You From Afar",
+        "Caspian"
       ],
-      "supportingArtists": [],
+      "supportingArtists": [
+        "And So I Watch You From Afar"
+      ],
       "matchedArtists": [
-        "Editors"
+        "And So I Watch You From Afar",
+        "Caspian"
       ],
-      "date": "2027-02-18",
+      "date": "2026-10-20",
       "time": null,
-      "venue": "Ziggo Dome",
-      "city": "Amsterdam",
+      "venue": "Doornroosje",
+      "city": "Nijmegen",
       "country": "NL",
       "isFestival": false,
-      "image": "https://www.festivalinfo.nl/img/artist/15086/100_Editors_4.jpg",
-      "ticketUrl": "https://www.podiuminfo.nl/ticket/138469/cd/Editors-Europe-Tour-2027/Ziggo-Dome/",
+      "image": "https://www.festivalinfo.nl/img/artist/41810/100_And_So_I_Watch_You_From_Afar_1.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/132287/cd/And-So-I-Watch-You-From-Afar-Caspian/Doornroosje/",
       "sourceApis": [
         "podiuminfo"
       ],
-      "sourceUrl": "https://www.podiuminfo.nl/concert/481103/Editors/Ziggo-Dome/",
+      "sourceUrl": "https://www.podiuminfo.nl/concert/460739/And-So-I-Watch-You-From-Afar-Caspian/Doornroosje/",
       "match": {
-        "score": 32,
-        "label": "Possible match",
-        "matchedBy": "similar",
-        "reason": "Similar to Elbow",
+        "score": 46,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Caspian",
         "matchedArtists": [
-          "Editors"
+          "Caspian",
+          "And So I Watch You From Afar"
         ],
-        "similarVia": "Elbow"
+        "similarVia": null
       },
-      "discoveredAt": "2026-08-13T07:24:09.183Z",
-      "lastSeenAt": "2026-08-13T08:21:49.362Z"
+      "discoveredAt": "2026-10-01T12:20:18.706Z",
+      "lastSeenAt": "2026-10-01T12:20:18.706Z"
+    },
+    {
+      "id": "rec-podiuminfo-496810",
+      "source": "podiuminfo",
+      "sourceId": "496810",
+      "artist": "Holy Fuck",
+      "lineup": [
+        "Holy Fuck"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Holy Fuck"
+      ],
+      "date": "2027-09-30",
+      "time": null,
+      "venue": "Simplon",
+      "city": "Groningen",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/26832/100_Holy_Fuck_16.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/496810/Holy-Fuck/Simplon/",
+      "match": {
+        "score": 46,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Holy Fuck",
+        "matchedArtists": [
+          "Holy Fuck"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-10-01T12:20:18.706Z",
+      "lastSeenAt": "2026-10-01T12:20:18.706Z"
+    },
+    {
+      "id": "rec-podiuminfo-496788",
+      "source": "podiuminfo",
+      "sourceId": "496788",
+      "artist": "Colour Haze",
+      "lineup": [
+        "Colour Haze",
+        "Smokemaster"
+      ],
+      "supportingArtists": [
+        "Smokemaster"
+      ],
+      "matchedArtists": [
+        "Colour Haze"
+      ],
+      "date": "2027-02-21",
+      "time": null,
+      "venue": "Baroeg",
+      "city": "Rotterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.podiuminfo.nl/img/podiuminfo-rond.png",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/496788/Colour-Haze-Smokemaster/Baroeg/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Colour Haze",
+        "matchedArtists": [
+          "Colour Haze"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-10-01T12:20:18.706Z",
+      "lastSeenAt": "2026-10-01T12:20:18.706Z"
     }
   ]
 }
