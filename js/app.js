@@ -1052,9 +1052,12 @@ function renderSetlist(host, c) {
 function renderConcerts(recsData, plannedData, historyData) {
   deckQueue = filterStaleRecommendations(recsData.concerts || [], historyData);
   plannedConcerts = [...(plannedData.concerts || [])];
-  dismissedConcerts = [...(historyData?.dismissed || [])];
-
-  const snapshotIds = new Set(dismissedConcerts.map((d) => d.id));
+  const savedDismissed = [...(historyData?.dismissed || [])];
+  const snapshotIds = new Set(savedDismissed.map((d) => d.id));
+  const today = dutchToday();
+  dismissedConcerts = savedDismissed.filter((c) =>
+    !c.date || calendarDaysBetween(c.date, today) < 3
+  );
   legacyDismissedIds = (historyData?.dismissedIds || []).filter((id) => !snapshotIds.has(id));
 
   renderConcertsShell();
