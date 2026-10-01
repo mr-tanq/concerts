@@ -1,13 +1,13 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-10-01T20:25:36.675Z",
+    "lastUpdated": "2026-10-01T22:13:17.792Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 366,
-      "daysCached": 0,
+      "daysFresh": 0,
+      "daysCached": 366,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
@@ -16,6 +16,43 @@
     }
   },
   "concerts": [
+    {
+      "id": "rec-podiuminfo-458184",
+      "source": "podiuminfo",
+      "sourceId": "458184",
+      "artist": "Kid Francescoli",
+      "lineup": [
+        "Kid Francescoli"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Kid Francescoli"
+      ],
+      "date": "2026-10-16",
+      "time": null,
+      "venue": "Melkweg",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/94069/100_Kid_Francescoli_4.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/131994/cd/Kid-Francescoli/Melkweg/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/458184/Kid-Francescoli/Melkweg/",
+      "match": {
+        "score": 46,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Kid Francescoli",
+        "matchedArtists": [
+          "Kid Francescoli"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-07-27T20:52:26.545Z",
+      "lastSeenAt": "2026-10-01T22:13:17.792Z"
+    },
     {
       "id": "rec-podiuminfo-483148",
       "source": "podiuminfo",
@@ -47,47 +84,11 @@
         "reason": "Known artist: Oi Va Voi",
         "matchedArtists": [
           "Oi Va Voi"
-        ]
-      },
-      "discoveredAt": "2026-07-27T20:52:26.545Z",
-      "lastSeenAt": "2026-07-28T11:27:21.715Z"
-    },
-    {
-      "id": "rec-podiuminfo-458184",
-      "source": "podiuminfo",
-      "sourceId": "458184",
-      "artist": "Kid Francescoli",
-      "lineup": [
-        "Kid Francescoli"
-      ],
-      "supportingArtists": [],
-      "matchedArtists": [
-        "Kid Francescoli"
-      ],
-      "date": "2026-10-16",
-      "time": null,
-      "venue": "Melkweg",
-      "city": "Amsterdam",
-      "country": "NL",
-      "isFestival": false,
-      "image": "https://www.festivalinfo.nl/img/artist/94069/100_Kid_Francescoli_8.jpg",
-      "ticketUrl": "https://www.podiuminfo.nl/ticket/131994/cd/Kid-Francescoli/Melkweg/",
-      "sourceApis": [
-        "podiuminfo"
-      ],
-      "sourceUrl": "https://www.podiuminfo.nl/concert/458184/Kid-Francescoli/Melkweg/",
-      "match": {
-        "score": 46,
-        "label": "Strong match",
-        "matchedBy": "direct",
-        "reason": "Known artist: Kid Francescoli",
-        "matchedArtists": [
-          "Kid Francescoli"
         ],
         "similarVia": null
       },
       "discoveredAt": "2026-07-27T20:52:26.545Z",
-      "lastSeenAt": "2026-08-02T08:18:47.952Z"
+      "lastSeenAt": "2026-10-01T22:13:17.792Z"
     },
     {
       "id": "rec-podiuminfo-474445",
@@ -107,7 +108,7 @@
       "city": "Haarlem",
       "country": "NL",
       "isFestival": false,
-      "image": "https://www.festivalinfo.nl/img/artist/116/100_Hooverphonic_6.jpg",
+      "image": "https://www.festivalinfo.nl/img/artist/116/100_Hooverphonic_7.jpg",
       "ticketUrl": null,
       "sourceApis": [
         "podiuminfo"
@@ -120,10 +121,11 @@
         "reason": "Known artist: Hooverphonic",
         "matchedArtists": [
           "Hooverphonic"
-        ]
+        ],
+        "similarVia": null
       },
       "discoveredAt": "2026-07-27T20:52:26.545Z",
-      "lastSeenAt": "2026-07-28T15:03:07.613Z"
+      "lastSeenAt": "2026-10-01T22:13:17.792Z"
     },
     {
       "id": "rec-podiuminfo-493235",
@@ -160,7 +162,7 @@
         "similarVia": null
       },
       "discoveredAt": "2026-09-08T10:32:14.631Z",
-      "lastSeenAt": "2026-09-08T12:03:40.421Z"
+      "lastSeenAt": "2026-10-01T22:13:17.792Z"
     },
     {
       "id": "rec-podiuminfo-459554",
@@ -180,7 +182,7 @@
       "city": "Amsterdam",
       "country": "NL",
       "isFestival": false,
-      "image": "https://www.festivalinfo.nl/img/artist/705/100_The_Prodigy_2.jpg",
+      "image": "https://www.festivalinfo.nl/img/artist/705/100_The_Prodigy_1.jpg",
       "ticketUrl": "https://www.podiuminfo.nl/ticket/132109/cd/The-Prodigy-European-Tour/Ziggo-Dome/",
       "sourceApis": [
         "podiuminfo"
@@ -197,7 +199,44 @@
         "similarVia": null
       },
       "discoveredAt": "2026-07-27T21:15:25.916Z",
-      "lastSeenAt": "2026-08-01T08:16:51.845Z"
+      "lastSeenAt": "2026-10-01T22:13:17.792Z"
+    },
+    {
+      "id": "rec-podiuminfo-474112",
+      "source": "podiuminfo",
+      "sourceId": "474112",
+      "artist": "Nothing But Thieves",
+      "lineup": [
+        "Nothing But Thieves"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Nothing But Thieves"
+      ],
+      "date": "2027-01-16",
+      "time": null,
+      "venue": "Ziggo Dome",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/85352/100_Nothing_But_Thieves_5.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/135506/cd/Nothing-But-Thieves-The-Stray-Dogs-World-Tour/Ziggo-Dome/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/474112/Nothing-But-Thieves/Ziggo-Dome/",
+      "match": {
+        "score": 39,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Muse",
+        "matchedArtists": [
+          "Nothing But Thieves"
+        ],
+        "similarVia": "Muse"
+      },
+      "discoveredAt": "2026-07-30T16:28:28.177Z",
+      "lastSeenAt": "2026-10-01T22:13:17.792Z"
     },
     {
       "id": "rec-podiuminfo-496470",
@@ -234,81 +273,7 @@
         "similarVia": "Anathema"
       },
       "discoveredAt": "2026-09-29T12:03:35.053Z",
-      "lastSeenAt": "2026-09-29T13:47:17.392Z"
-    },
-    {
-      "id": "rec-podiuminfo-474112",
-      "source": "podiuminfo",
-      "sourceId": "474112",
-      "artist": "Nothing But Thieves",
-      "lineup": [
-        "Nothing But Thieves"
-      ],
-      "supportingArtists": [],
-      "matchedArtists": [
-        "Nothing But Thieves"
-      ],
-      "date": "2027-01-16",
-      "time": null,
-      "venue": "Ziggo Dome",
-      "city": "Amsterdam",
-      "country": "NL",
-      "isFestival": false,
-      "image": "https://www.festivalinfo.nl/img/artist/85352/100_Nothing_But_Thieves_11.jpg",
-      "ticketUrl": "https://www.podiuminfo.nl/ticket/135506/cd/Nothing-But-Thieves-The-Stray-Dogs-World-Tour/Ziggo-Dome/",
-      "sourceApis": [
-        "podiuminfo"
-      ],
-      "sourceUrl": "https://www.podiuminfo.nl/concert/474112/Nothing-But-Thieves/Ziggo-Dome/",
-      "match": {
-        "score": 38,
-        "label": "Possible match",
-        "matchedBy": "similar",
-        "reason": "Similar to Muse",
-        "matchedArtists": [
-          "Nothing But Thieves"
-        ],
-        "similarVia": "Muse"
-      },
-      "discoveredAt": "2026-07-30T16:28:28.177Z",
-      "lastSeenAt": "2026-07-30T19:15:25.168Z"
-    },
-    {
-      "id": "rec-podiuminfo-484861",
-      "source": "podiuminfo",
-      "sourceId": "484861",
-      "artist": "Kadavar",
-      "lineup": [
-        "Kadavar"
-      ],
-      "supportingArtists": [],
-      "matchedArtists": [
-        "Kadavar"
-      ],
-      "date": "2026-12-09",
-      "time": null,
-      "venue": "Melkweg",
-      "city": "Amsterdam",
-      "country": "NL",
-      "isFestival": false,
-      "image": "https://www.festivalinfo.nl/img/artist/70719/100_Kadavar_1.jpg",
-      "ticketUrl": "https://www.podiuminfo.nl/ticket/139419/cd/Kadavar/Melkweg/",
-      "sourceApis": [
-        "podiuminfo"
-      ],
-      "sourceUrl": "https://www.podiuminfo.nl/concert/484861/Kadavar/Melkweg/",
-      "match": {
-        "score": 33,
-        "label": "Possible match",
-        "matchedBy": "similar",
-        "reason": "Similar to Hällas",
-        "matchedArtists": [
-          "Kadavar"
-        ],
-        "similarVia": "Hällas"
-      },
-      "discoveredAt": "2026-08-13T07:24:09.183Z",
-      "lastSeenAt": "2026-08-13T08:21:49.362Z"
+      "lastSeenAt": "2026-10-01T22:13:17.792Z"
     },
     {
       "id": "rec-podiuminfo-482709",
@@ -335,7 +300,7 @@
       ],
       "sourceUrl": "https://www.podiuminfo.nl/concert/482709/Dead-Poet-Society/TivoliVredenburg/",
       "match": {
-        "score": 31,
+        "score": 32,
         "label": "Possible match",
         "matchedBy": "similar",
         "reason": "Similar to Muse",
@@ -345,7 +310,7 @@
         "similarVia": "Muse"
       },
       "discoveredAt": "2026-07-30T16:28:28.177Z",
-      "lastSeenAt": "2026-08-02T08:18:47.952Z"
+      "lastSeenAt": "2026-10-01T22:13:17.792Z"
     }
   ]
 }
