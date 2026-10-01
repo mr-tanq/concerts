@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-01T00:04:35.946Z",
+    "lastUpdated": "2026-10-01T00:08:59.676Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -1493,6 +1493,30 @@
         "kind": "lateStart",
         "status": "notYet",
         "askedOn": "2026-09-30"
+      }
+    },
+    {
+      "id": "planned-podiuminfo-496712",
+      "source": "podiuminfo",
+      "sourceId": "496712",
+      "artist": "Archive",
+      "lineup": [
+        "Archive"
+      ],
+      "supportingArtists": [],
+      "date": "2027-09-08",
+      "time": null,
+      "venue": "My Name in PHIL",
+      "city": "Haarlem",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/10776/100_Archive_1.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/142753/cd/Archive/PHIL/",
+      "sourceUrl": "https://www.podiuminfo.nl/concert/496712/Archive-Not-in-My-Name/PHIL/",
+      "recommendationId": "rec-podiuminfo-496712",
+      "planning": {
+        "plannedAt": "2026-10-01T00:08:59.676Z",
+        "originalScore": 49
       }
     }
   ]
