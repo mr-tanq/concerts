@@ -399,7 +399,7 @@ function buildSky(countries, maxCount, mode) {
           .join("")
       : "";
     return `
-      <g class="realm-star ${isDominant ? "is-dominant" : ""}" data-code="${country.code}" data-idx="${i}" transform="translate(${x},${y})">
+      <g class="realm-star ${isDominant ? "is-dominant" : ""}" role="button" tabindex="0" aria-label="${esc(country.name)}, ${country.count} ${country.count === 1 ? "artist" : "artists"}" data-code="${country.code}" data-idx="${i}" transform="translate(${x},${y})">
         <g class="realm-star-anim" style="animation-delay:${(i * 90)}ms">
           <circle class="realm-star-atmosphere" r="${wgt.atmosphere}" fill="url(#realm-star-glow-${mode})" style="opacity:${wgt.atmosphereOpacity}" />
           <circle class="realm-star-glow" r="${wgt.glow}" style="opacity:${wgt.glowOpacity}" />
@@ -424,6 +424,15 @@ function buildSky(countries, maxCount, mode) {
 
   const wrap = el(`
     <div class="realm-sky-wrap ${isEurope ? "is-europe" : "is-world"}">
+      <label class="realm-country-picker">
+        ${isEurope ? "Explore Europe" : "Explore a country"}
+        <select class="realm-country-select">
+          <option value="" selected disabled>Choose a country</option>
+          ${[...countries].sort((a, b) => a.name.localeCompare(b.name)).map((country) =>
+            `<option value="${country.code}">${esc(country.name)} · ${country.count} ${country.count === 1 ? "artist" : "artists"}</option>`
+          ).join("")}
+        </select>
+      </label>
       <svg class="realm-sky" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <radialGradient id="realm-vignette-${mode}" cx="50%" cy="45%" r="75%">
@@ -443,12 +452,38 @@ function buildSky(countries, maxCount, mode) {
     </div>
   `);
 
-  wrap.querySelectorAll(".realm-star").forEach((starEl) => {
-    starEl.addEventListener("click", () => {
-      const code = starEl.dataset.code;
-      const country = countries.find((c) => c.code === code);
-      if (country) enterFocus(wrap, country, starEl);
+  const starElements = [...wrap.querySelectorAll(".realm-star")];
+  const openStar = (starEl) => {
+    const country = countries.find((c) => c.code === starEl?.dataset.code);
+    if (country) enterFocus(wrap, country, starEl);
+  };
+
+  // Overlapping SVG hit areas must not let a neighbouring country win.
+  // Measure visible dot centres in screen pixels, including map scaling.
+  wrap.querySelector(".realm-sky").addEventListener("click", (event) => {
+    const activated = event.target.closest(".realm-star");
+    if (event.detail === 0 && activated) { openStar(activated); return; }
+    let nearest = null, distance = Infinity;
+    for (const starEl of starElements) {
+      const rect = starEl.querySelector(".realm-star-dot").getBoundingClientRect();
+      const d = Math.hypot(event.clientX - rect.left - rect.width / 2,
+        event.clientY - rect.top - rect.height / 2);
+      if (d < distance) { nearest = starEl; distance = d; }
+    }
+    if (distance <= 24) openStar(nearest);
+  });
+  starElements.forEach((starEl) => {
+    starEl.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      openStar(starEl);
     });
+  });
+  const picker = wrap.querySelector(".realm-country-select");
+  picker.addEventListener("change", () => {
+    const selected = starElements.find((starEl) => starEl.dataset.code === picker.value);
+    picker.value = "";
+    openStar(selected);
   });
 
   return wrap;
@@ -526,8 +561,11 @@ function countryObservation(country, journey) {
 }
 
 function enterFocus(wrap, country, starEl) {
+  if (wrap.classList.contains("is-focused")) return;
   wrap.classList.add("is-focused");
   starEl.classList.add("is-active");
+  wrap.querySelector(".realm-country-select").disabled = true;
+  wrap.querySelectorAll(".realm-star").forEach((star) => star.setAttribute("tabindex", "-1"));
 
   // The rest of the sky dims first — a beat where only this country's
   // light remains — and only then does the detail rise. Isolating a
@@ -547,7 +585,7 @@ function revealFocusPanel(wrap, country, starEl) {
   const journey = journeyForCountry(country);
 
   const panel = el(`
-    <div class="realm-focus" style="transform-origin:${originX}% ${originY}%">
+    <div class="realm-focus" role="region" aria-label="${esc(country.name)} artists" style="transform-origin:${originX}% ${originY}%">
       <button class="realm-focus-close">Back to the sky</button>
       <p class="whisper">${country.artists.length} ${country.artists.length === 1 ? "artist" : "artists"}</p>
       <h2 class="realm-focus-name">${esc(country.name)}</h2>
@@ -607,11 +645,19 @@ const seenSoFar = new Map();
     panel.querySelectorAll("[data-stop]").forEach((stopEl) => stopEl.classList.add("is-visible"));
   }
   
-  panel.querySelector(".realm-focus-close").addEventListener("click", () => {
+  const closeFocus = () => {
     panel.remove();
     wrap.classList.remove("is-focused");
     starEl.classList.remove("is-active");
+    wrap.querySelector(".realm-country-select").disabled = false;
+    wrap.querySelectorAll(".realm-star").forEach((star) => star.setAttribute("tabindex", "0"));
+    starEl.focus({ preventScroll: true });
+  };
+  panel.querySelector(".realm-focus-close").addEventListener("click", closeFocus);
+  panel.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") { event.preventDefault(); closeFocus(); }
   });
 
   wrap.appendChild(panel);
+  panel.querySelector(".realm-focus-close").focus({ preventScroll: true });
 }

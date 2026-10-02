@@ -1656,3 +1656,32 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
   background: rgba(235, 231, 222, .12);
   color: var(--bone);
 }
+
+/* Realm: precise selection and an accessible country list */
+.realm-country-picker {
+  display: block;
+  margin-bottom: 18px;
+  color: var(--bone-dim);
+  font: 11px/1.5 var(--mono);
+}
+.realm-country-select {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  margin-top: 8px;
+  padding: 10px 4px;
+  border: 0;
+  border-bottom: 1px solid var(--hair);
+  border-radius: 0;
+  background: var(--black);
+  color: var(--bone);
+  color-scheme: dark;
+  font: 14px/1.5 var(--sans);
+}
+.realm-star:focus-visible { outline: none; }
+.realm-star:focus-visible .realm-star-dot {
+  fill: var(--bone);
+  stroke: var(--bone);
+  stroke-width: 2;
+}
+.realm-focus-close { color: var(--bone-dim); min-height: 44px; }
