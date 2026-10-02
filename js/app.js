@@ -1708,20 +1708,38 @@ function recommendationFromPlanned(concert) {
 async function removeGoingAfterReminderRemote(concert) {
   const PLANNED = "data/planned.json";
   const HIST = "data/recommendation-history.json";
-  await mutate([PLANNED, HIST], (files) => {
+  const recId = concert.recommendationId || String(concert.id).replace(/^planned-/, "rec-");
+  let savedSnapshot;
+
+  // Save the full snapshot before removing Going; retries can finish safely.
+  await mutate([HIST, PLANNED], (files) => {
     const planned = files[PLANNED], history = files[HIST];
     const current = planned.concerts.find((item) => item.id === concert.id);
-    if (!current) throw new Error("Concert no longer in Going");
-    const snapshot = recommendationFromPlanned(current);
+    const id = current
+      ? current.recommendationId || String(current.id).replace(/^planned-/, "rec-")
+      : recId;
+    const previous = (history.dismissed || []).find((item) => item.id === id);
+    savedSnapshot = current ? recommendationFromPlanned(current) : previous;
+    if (!savedSnapshot) throw new Error("Concert no longer in Going or Set aside");
+    if (previous?.dismissedAt) savedSnapshot.dismissedAt = previous.dismissedAt;
+
+    const alreadySaved = !current
+      && !(history.plannedIds || []).includes(id)
+      && (history.dismissedIds || []).includes(id);
+    if (alreadySaved) return [];
+
+    history.plannedIds = (history.plannedIds || []).filter((value) => value !== id);
+    if (!Array.isArray(history.dismissedIds)) history.dismissedIds = [];
+    if (!history.dismissedIds.includes(id)) history.dismissedIds.push(id);
+    history.dismissed = (history.dismissed || []).filter((item) => item.id !== id);
+    history.dismissed.unshift(savedSnapshot);
+
+    if (!current) return [HIST];
     planned.concerts = planned.concerts.filter((item) => item.id !== concert.id);
     planned.meta.lastUpdated = new Date().toISOString();
-    history.plannedIds = (history.plannedIds || []).filter((id) => id !== snapshot.id);
-    if (!Array.isArray(history.dismissedIds)) history.dismissedIds = [];
-    if (!history.dismissedIds.includes(snapshot.id)) history.dismissedIds.push(snapshot.id);
-    if (!Array.isArray(history.dismissed)) history.dismissed = [];
-    history.dismissed = history.dismissed.filter((item) => item.id !== snapshot.id);
-    history.dismissed.unshift(snapshot);
+    return [HIST, PLANNED];
   }, `chore: move ${concert.id} to Set aside (app)`);
+  return savedSnapshot;
 }
 
 function askWorkArrangements() {
@@ -1769,9 +1787,8 @@ function askWorkArrangements() {
     status.className = "status";
     try {
       if (choice === "no") {
-        await enqueue(() => removeGoingAfterReminderRemote(concert));
+        const snapshot = await enqueue(() => removeGoingAfterReminderRemote(concert));
         plannedConcerts = plannedConcerts.filter((item) => item.id !== concert.id);
-        const snapshot = recommendationFromPlanned(concert);
         dismissedConcerts = dismissedConcerts.filter((item) => item.id !== snapshot.id);
         dismissedConcerts.unshift(snapshot);
         legacyDismissedIds = legacyDismissedIds.filter((id) => id !== snapshot.id);
