@@ -29,10 +29,10 @@ import { actuallySeenArtistsOf } from "./archive-stats.js";
 export function computeListeningLife(timeseries, archiveConcerts, options = {}) {
   const maxTraces = options.maxTraces ?? 10;
   const weekStarts = timeseries?.meta?.weekStarts || [];
-  if (!weekStarts.length) return { years: [], traces: [] };
+  if (!weekStarts.length) return { years: [], traces: [], allTraces: [], lastUpdated: timeseries?.meta?.lastUpdated };
 
   const years = [...new Set(weekStarts.map((w) => Number(w.slice(0, 4))))].sort((a, b) => a - b);
-  if (!years.length) return { years: [], traces: [] };
+  if (!years.length) return { years: [], traces: [], allTraces: [], lastUpdated: timeseries?.meta?.lastUpdated };
   const currentYear = years[years.length - 1];
 
   const artists = timeseries.artists || {};
@@ -117,25 +117,28 @@ export function computeListeningLife(timeseries, archiveConcerts, options = {}) 
     if (!pool.length) continue;
     pool.sort((a, b) => scoreOf(b, cat) - scoreOf(a, cat));
     chosenKeys.add(pool[0].key);
+    pool[0].selectedFor = cat;
     traces.push(pool[0]);
   }
   const remaining = candidates.filter((c) => !chosenKeys.has(c.key)).sort((a, b) => b.totalPlays - a.totalPlays);
   for (const c of remaining) {
     if (traces.length >= maxTraces) break;
     chosenKeys.add(c.key);
+    c.selectedFor = "mostPlayed";
     traces.push(c);
   }
 
   // Intensity normalized against each artist's OWN peak year, not the
   // global peak — otherwise one dominant artist flattens everyone else.
-  for (const t of traces) {
+  for (const t of candidates) {
     const peak = Math.max(1, ...Object.values(t.yearTotals));
     t.yearIntensity = {};
     for (const y of years) t.yearIntensity[y] = Math.min(1, (t.yearTotals[y] || 0) / peak);
   }
 
   traces.sort((a, b) => a.firstYear - b.firstYear || b.totalPlays - a.totalPlays);
-  return { years, traces };
+  const allTraces = [...candidates].sort((a, b) => b.totalPlays - a.totalPlays || a.name.localeCompare(b.name));
+  return { years, traces, allTraces, lastUpdated: timeseries?.meta?.lastUpdated, backfillComplete: timeseries?.meta?.backfillComplete };
 }
 
 // The 3 strongest, most different stories among the CURATED traces (not a
@@ -176,20 +179,20 @@ function momentCopy(m) {
   const t = m.trace;
   switch (m.kind) {
     case "stayed":
-      return { kicker: "Stayed", lines: [`${spellSmall(t.stayed.yearSpan)} years in your listening life.`, `${t.firstYear} — ${t.lastYear}.`] };
+      return { kicker: "Stayed", lines: [`Listening in ${spellSmall(t.stayed.yearSpan)} different years.`, `${t.firstYear} — ${t.lastYear}.`] };
     case "comeback":
-      return { kicker: "Returned", lines: [`${humanizeWeeks(t.comeback.gapWeeks)} disappeared.`, `Then ${monthYear(t.comeback.returnWeekStart)} happened.`] };
+      return { kicker: "Returned", lines: [`${humanizeWeeks(t.comeback.gapWeeks)} without a recorded weekly-chart play.`, `Back in the charts in ${monthYear(t.comeback.returnWeekStart)}.`] };
     case "concert": {
       const ce = t.concertEvent;
       if (ce.type === "postConcertSurge") {
-        return { kicker: "Live changed it", lines: [`You'd barely heard them before the show.`, `Then you saw them live — ${monthYear(ce.concertDate)}.`] };
+        return { kicker: "After the show", lines: [`${ce.afterPlays.toLocaleString("en-US")} recorded plays in the month after the concert.`, `You saw them live in ${monthYear(ce.concertDate)}.`] };
       }
-      return { kicker: "Live changed it", lines: [`${humanizeDays(ce.gapDays)} silent.`, `Then you saw them live — ${monthYear(ce.concertDate)}.`] };
+      return { kicker: "After the show", lines: [`${ce.afterPlays.toLocaleString("en-US")} recorded plays in the two months after the concert.`, `You saw them live in ${monthYear(ce.concertDate)}.`] };
     }
     case "obsession":
-      return { kicker: "The obsession", lines: [`${humanizeWeeks(t.obsession.windowWeeks)} in ${monthYear(t.obsession.windowStart)},`, `almost all you played.`] };
+      return { kicker: "The obsession", lines: [`${t.obsession.windowPlays.toLocaleString("en-US")} plays over ${humanizeWeeks(t.obsession.windowWeeks)}, starting ${monthYear(t.obsession.windowStart)}.`, `${Math.round(t.obsession.share * 100)}% of their recorded plays fell in that stretch.`] };
     case "dormant":
-      return { kicker: "Quiet for now", lines: [`Hasn't come up since ${t.lastYear}.`, `${t.totalPlays.toLocaleString("en-US")} plays before that.`] };
+      return { kicker: "Quiet for now", lines: [`No recorded weekly-chart plays since ${t.lastYear}.`, `${t.totalPlays.toLocaleString("en-US")} recorded plays before that.`] };
     default:
       return { kicker: "", lines: [] };
   }
@@ -223,72 +226,174 @@ function concertMarkers(trace, years) {
   }).join("");
 }
 
+export function listeningStoryReason(trace) {
+  switch (trace.selectedFor) {
+    case "longTerm": return "Listening across many years";
+    case "comeback": return "A return after a long gap";
+    case "recentObsession": return "A concentrated listening stretch";
+    case "dormant": return "An older chapter, quiet lately";
+    case "concertConnected": return "Listening connected to a concert";
+    default: return "One of your most played in the recorded charts";
+  }
+}
+
+export function filterListeningArtists(traces, query = "") {
+  const key = normalizeKey(query);
+  return traces.filter((t) => normalizeKey(t.name).includes(key));
+}
+
+export function listeningSnapshotLabel(value) {
+  const date = new Date(value);
+  if (!value || !Number.isFinite(date.getTime())) return "Update date unavailable";
+  return "Updated " + date.toLocaleDateString("en-GB", {
+    day: "2-digit", month: "short", year: "numeric", timeZone: "Europe/Amsterdam",
+  });
+}
+
 export function renderListeningLife(root, life, deps, onViewArtist) {
   const { el, esc } = deps;
   root.innerHTML = "";
   const { years, traces } = life;
+  const allTraces = life.allTraces || traces;
 
   if (!years.length || !traces.length) {
-    root.appendChild(el(`
-      <div class="life-empty">
-        <p class="footnote">Still gathering — the listening life needs enough weekly history behind it before a shape emerges.</p>
-      </div>
-    `));
+    root.appendChild(el('<div class="life-wrap"><p class="life-note">Still gathering — more weekly listening history is needed.</p></div>'));
     return;
   }
 
-  const wrap = el(`<div class="life-wrap"></div>`);
+  const wrap = el('<div class="life-wrap"></div>');
+  const controls = el('<div class="life-controls" role="group" aria-label="Listening life view"></div>');
+  const storiesButton = el('<button type="button" class="life-mode" aria-pressed="true">Stories</button>');
+  const moreButton = el('<button type="button" class="life-mode" aria-pressed="false">More artists</button>');
+  controls.appendChild(storiesButton);
+  controls.appendChild(moreButton);
+  wrap.appendChild(controls);
 
-  const axis = el(`
-    <div class="life-axis">
-      <span>${years[0]}</span>
-      <span class="life-axis-line"></span>
-      <span>${years[years.length - 1]}</span>
-    </div>
-  `);
-  wrap.appendChild(axis);
+  const snapshot = el('<p class="life-snapshot"></p>');
+  snapshot.textContent = listeningSnapshotLabel(life.lastUpdated);
+  wrap.appendChild(snapshot);
+  const explanation = el('<p class="life-note"></p>');
+  wrap.appendChild(explanation);
 
-  const rows = el(`<div class="life-rows"></div>`);
-  const W = years.length * YEAR_W;
+  const browser = el('<div class="life-browser" hidden></div>');
+  const searchLabel = el('<label class="life-search-label" for="life-artist-search">Find an artist</label>');
+  const search = el('<input id="life-artist-search" class="life-search" type="search" placeholder="Artist name" autocomplete="off" spellcheck="false" />');
+  browser.appendChild(searchLabel);
+  browser.appendChild(search);
+  wrap.appendChild(browser);
 
-  traces.forEach((t, i) => {
-    const row = el(`
-      <div class="life-row" data-key="${esc(t.key)}" style="animation-delay:${i * 60}ms">
-        <div class="life-row-label">${esc(t.name)}</div>
-        <svg class="life-strand" viewBox="0 0 ${W} ${ROW_H}" preserveAspectRatio="none">
-          ${strandSegments(t, years)}
-          ${concertMarkers(t, years)}
-        </svg>
-      </div>
-    `);
-    rows.appendChild(row);
-  });
+  wrap.appendChild(el(
+    '<div class="life-axis"><span>' + years[0] +
+    '</span><span class="life-axis-line"></span><span>' + years[years.length - 1] + '</span></div>'
+  ));
+  const rows = el('<div class="life-rows"></div>');
   wrap.appendChild(rows);
+  const results = el('<p class="life-results" role="status" aria-live="polite"></p>');
+  wrap.appendChild(results);
 
-  const panel = el(`<div class="life-panel" id="life-panel"></div>`);
+  const pager = el('<div class="life-pager" role="group" aria-label="Artist pages" hidden></div>');
+  const previous = el('<button type="button" class="life-page">Previous</button>');
+  const pageLabel = el('<span class="life-page-label"></span>');
+  const next = el('<button type="button" class="life-page">Next</button>');
+  pager.appendChild(previous);
+  pager.appendChild(pageLabel);
+  pager.appendChild(next);
+  wrap.appendChild(pager);
+
+  const panel = el('<div class="life-panel" role="region" aria-label="Selected artist"></div>');
   wrap.appendChild(panel);
+  const method = el('<details class="life-method"></details>');
+  method.appendChild(el('<summary>How these artists are chosen</summary>'));
+  method.appendChild(el('<p>Stories brings together artists heard across many years, returns after gaps, concentrated listening stretches, older chapters and listening linked to concerts. Remaining places go to artists with the most recorded plays.</p>'));
+  method.appendChild(el('<p>More artists includes everyone with at least five recorded plays, ordered by recorded plays. This history uses the top 40 artists in each weekly chart, so counts and gaps may omit quieter listening. Each strand shows activity relative to that artist’s own busiest year; dots mark attended concerts.</p>'));
+  method.appendChild(el('<p>History is scheduled to update every Monday. A new snapshot can keep the same stories.</p>'));
+  wrap.appendChild(method);
+
+  const PAGE_SIZE = 20;
+  const W = years.length * YEAR_W;
+  let mode = "stories", page = 0, visible = [];
+  const selectedByMode = { stories: null, more: null };
 
   function selectTrace(key) {
-    rows.querySelectorAll(".life-row").forEach((r) => r.classList.toggle("is-active", r.dataset.key === key));
-    rows.classList.add("is-focused");
-    const t = traces.find((x) => x.key === key);
+    const t = visible.find((x) => x.key === key);
     if (!t) return;
+    selectedByMode[mode] = key;
+    rows.querySelectorAll(".life-row").forEach((r) => {
+      const active = r.dataset.key === key;
+      r.classList.toggle("is-active", active);
+      r.setAttribute("aria-pressed", String(active));
+    });
     panel.innerHTML = "";
-    panel.appendChild(el(`
-      <div class="life-panel-inner">
-        <h3 class="life-panel-name">${esc(t.name)}</h3>
-        <p class="life-panel-stat">${t.totalPlays.toLocaleString("en-US")} plays</p>
-        <p class="life-panel-stat">${t.firstYear} — ${t.lastYear}</p>
-        ${t.liveCount ? `<p class="life-panel-stat life-panel-live">${spellSmall(t.liveCount)} time${t.liveCount === 1 ? "" : "s"} in the room</p>` : ""}
-        <button class="plain-act life-panel-view">View artist →</button>
-      </div>
-    `));
-    panel.querySelector(".life-panel-view").addEventListener("click", () => onViewArtist?.(t.name));
+    panel.appendChild(el(
+      '<h3 class="life-panel-name">' + esc(t.name) + '</h3>'
+    ));
+    const facts = el('<p class="life-panel-stat"></p>');
+    facts.textContent = t.totalPlays.toLocaleString("en-US") + " recorded plays · " + t.firstYear + "–" + t.lastYear;
+    panel.appendChild(facts);
+    if (mode === "stories") {
+      const reason = el('<p class="life-panel-reason"></p>');
+      reason.textContent = "Why this story: " + listeningStoryReason(t);
+      panel.appendChild(reason);
+    }
+    if (t.liveCount) {
+      const live = el('<p class="life-panel-stat life-panel-live"></p>');
+      live.textContent = spellSmall(t.liveCount) + " time" + (t.liveCount === 1 ? "" : "s") + " in the room";
+      panel.appendChild(live);
+    }
+    const view = el('<button type="button" class="plain-act life-panel-view">View artist →</button>');
+    view.addEventListener("click", () => onViewArtist?.(t.name));
+    panel.appendChild(view);
   }
 
-  rows.querySelectorAll(".life-row").forEach((row) => {
-    row.addEventListener("click", () => selectTrace(row.dataset.key));
-  });
+  function draw() {
+    const browse = mode === "more";
+    browser.hidden = !browse;
+    storiesButton.setAttribute("aria-pressed", String(!browse));
+    moreButton.setAttribute("aria-pressed", String(browse));
+    explanation.textContent = browse
+      ? "Find your artists beyond the stories. Ordered by recorded weekly-chart plays."
+      : traces.length + " listening stories from your history. Select a strand to see why it is here.";
+    const filtered = browse ? filterListeningArtists(allTraces, search.value) : traces;
+    const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+    page = Math.max(0, Math.min(page, pages - 1));
+    visible = browse ? filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE) : filtered;
+    rows.innerHTML = "";
+    panel.innerHTML = "";
+    panel.hidden = !visible.length;
+    visible.forEach((t, i) => {
+      const row = el(
+        '<button type="button" class="life-row" data-key="' + esc(t.key) +
+        '" aria-label="' + esc(t.name) + ', ' + t.totalPlays.toLocaleString("en-US") +
+        ' recorded plays" aria-pressed="false" style="animation-delay:' + i * 25 + 'ms">' +
+        '<span class="life-row-label">' + esc(t.name) + '</span>' +
+        '<svg class="life-strand" aria-hidden="true" viewBox="0 0 ' + W + ' ' + ROW_H +
+        '" preserveAspectRatio="none">' + strandSegments(t, years) + concertMarkers(t, years) + '</svg></button>'
+      );
+      row.addEventListener("click", () => selectTrace(t.key));
+      rows.appendChild(row);
+    });
+    if (!visible.length) {
+      results.textContent = "No artists found. Try another name.";
+    } else if (browse) {
+      results.textContent = (page * PAGE_SIZE + 1) + "–" + Math.min((page + 1) * PAGE_SIZE, filtered.length) +
+        " of " + filtered.length.toLocaleString("en-US") + " artists";
+    } else {
+      results.textContent = filtered.length + " selected stories";
+    }
+    pager.hidden = !browse || pages <= 1;
+    previous.disabled = page === 0;
+    next.disabled = page >= pages - 1;
+    pageLabel.textContent = "Page " + (page + 1) + " of " + pages;
+    if (visible.length) {
+      const remembered = selectedByMode[mode];
+      selectTrace(visible.some((t) => t.key === remembered) ? remembered : visible[0].key);
+    }
+  }
+  storiesButton.addEventListener("click", () => { mode = "stories"; page = 0; draw(); });
+  moreButton.addEventListener("click", () => { mode = "more"; page = 0; draw(); });
+  search.addEventListener("input", () => { page = 0; draw(); });
+  previous.addEventListener("click", () => { page--; draw(); if (previous.disabled) next.focus(); });
+  next.addEventListener("click", () => { page++; draw(); if (next.disabled) previous.focus(); });
 
   // Touch scrub: horizontal-only, confined to the rail — never competes
   // with vertical page scroll unless the gesture is clearly sideways.
@@ -334,11 +439,7 @@ export function renderListeningLife(root, life, deps, onViewArtist) {
   rail.addEventListener("pointercancel", endScrub);
 
   root.appendChild(wrap);
-
-  // First trace focuses by default, so the panel never opens empty —
-  // matches "lately you keep returning to X" already being the hero's
-  // headline elsewhere.
-  if (traces.length) selectTrace(traces[traces.length - 1].key);
+  draw();
 }
 
 // ---------- rendering: the 3 editorial moments ----------
