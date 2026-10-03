@@ -101,7 +101,12 @@ async function fetchAllArtists(period) {
       if (typeof artist.name !== "string" || !artist.name.trim()
         || !Number.isSafeInteger(artist.playcount)
         || artist.playcount < 0 || names.has(artist.name))
-        throw new Error(`Invalid or repeated artist on page ${page} for ${period}`);
+        throw new Error(`Artist validation failed: ${JSON.stringify({
+          period, page, name: artist.name ?? null, playcount: artist.playcount,
+          reason: typeof artist.name !== "string" || !artist.name.trim()
+            ? "missing-name" : !Number.isSafeInteger(artist.playcount) || artist.playcount < 0
+              ? "invalid-playcount" : "repeated-name"
+        })}`);
       names.add(artist.name);
       artists.push(artist);
     }
