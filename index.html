@@ -273,7 +273,8 @@
     async function refreshSourceIcon() {
       if (
         refreshInFlight ||
-        document.hidden
+        document.hidden ||
+        !document.querySelector("#panel-mirror.active")
       ) {
         return;
       }
@@ -313,6 +314,9 @@
 
         const { payload } =
           await fetchRelayState(secret);
+
+        if (document.hidden || !document.querySelector("#panel-mirror.active")
+            || document.querySelector("#panel-mirror .mirror-track") !== trackRow) return;
 
         if (
           !isFresh(payload) ||
@@ -437,6 +441,8 @@
 
     let controlBusy = false;
     let controlLast = null;
+    let controlReadInFlight = false;
+    let controlStatusVersion = 0;
 
     /*
      * Delete the obsolete Phase 2C
@@ -818,26 +824,23 @@
     }
 
     async function readControlStatus() {
-      if (document.hidden) {
-        return;
-      }
+      if (document.hidden || !document.querySelector("#panel-mirror.active")
+          || controlBusy || controlReadInFlight) return;
 
+      controlReadInFlight = true;
+      const version = controlStatusVersion;
       try {
-        const result =
-          await fetchControlStatus();
-
-        controlLast =
-          result;
-
-        renderControl(
-          result
-        );
+        const result = await fetchControlStatus();
+        if (version !== controlStatusVersion || document.hidden
+            || !document.querySelector("#panel-mirror.active")) return;
+        controlLast = result;
+        renderControl(result);
       } catch (err) {
-        renderControl(
-          controlLast,
-          err?.message ||
-          "Ambient control unavailable."
-        );
+        if (version !== controlStatusVersion || document.hidden
+            || !document.querySelector("#panel-mirror.active")) return;
+        renderControl(controlLast, err?.message || "Ambient control unavailable.");
+      } finally {
+        controlReadInFlight = false;
       }
     }
 
@@ -847,6 +850,7 @@
       }
 
       controlBusy = true;
+      controlStatusVersion++;
 
       const button =
         document.querySelector(
