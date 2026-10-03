@@ -101,8 +101,7 @@ function weekdayShort(iso) {
 function yearOf(iso) { return String(iso || "").slice(0, 4); }
 
 function daysUntil(iso) {
-  const today = new Date().toISOString().slice(0, 10);
-  return Math.round((new Date(iso + "T00:00:00") - new Date(today + "T00:00:00")) / 86400000);
+  return calendarDaysBetween(dutchToday(), String(iso || ""));
 }
 function countdownWord(iso) {
   const d = daysUntil(iso);
@@ -496,7 +495,7 @@ function renderSaving() {
 
 function renderArchive(archiveData) {
   archiveConcerts = archiveData.concerts || [];
-  archiveView = buildArchiveView(archiveConcerts);
+  archiveView = buildArchiveView(archiveConcerts, new Date(dutchToday() + "T12:00:00"));
   const root = document.getElementById("panel-archive");
   root.innerHTML = "";
 
@@ -576,14 +575,14 @@ function anniversaryLine(view) {
 // the ones actually worth being reminded of.
 function forgottenMemoryLine() {
   if (!archiveConcerts.length) return null;
-  const todaySeed = new Date().toISOString().slice(0, 10);
+  const todaySeed = dutchToday();
   const seed = [...todaySeed].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) >>> 0, 0);
 
   const undocumented = archiveConcerts.filter((c) => !(c.notes && c.notes.trim()));
   const pool = undocumented.length ? undocumented : archiveConcerts;
   const c = pool[seed % pool.length];
 
-  const yearsAgo = Number(yearOf(new Date().toISOString())) - Number(yearOf(c.date));
+  const yearsAgo = Number(yearOf(todaySeed)) - Number(yearOf(c.date));
   const whenPhrase = yearsAgo > 0 ? `${titleCase(spell(yearsAgo))} year${yearsAgo === 1 ? "" : "s"} ago` : "Earlier this year";
 
   const node = el(`
@@ -1225,7 +1224,7 @@ function stageCard(c) {
 // An empty deck is the normal state most days, so it shouldn't read as a
 // dead end. Show what's genuinely next instead.
 function caughtUp() {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = dutchToday();
   const upcoming = plannedConcerts
     .filter((c) => c.date && c.date >= today)
     .sort((a, b) => a.date.localeCompare(b.date));
@@ -1236,7 +1235,7 @@ function caughtUp() {
     const next = upcoming[0];
     wrap.appendChild(el(`
       <p class="whisper">Nothing left to decide</p>
-      <p class="lede">Next you'll be standing in front of<br><em>${esc(next.artist)}</em>.</p>
+      <p class="lede">Next you'll be standing in front of<br><em>${esc(displayPlannedArtist(next.artist))}</em>.</p>
     `));
     wrap.appendChild(upcomingHero(next));
   } else {
@@ -1413,7 +1412,7 @@ function renderUpcoming(body) {
   }));
   body.appendChild(layout);
   if (goingLayout === "calendar") { renderGoingCalendar(body); return; }
-  const today = new Date().toISOString().slice(0, 10);
+  const today = dutchToday();
   const sorted = [...plannedConcerts].sort((a, b) => String(a.date).localeCompare(String(b.date)));
   const upcoming = sorted.filter((c) => c.date >= today);
   const past = sorted.filter((c) => c.date < today);
@@ -1626,7 +1625,7 @@ async function notAttendedConcertRemote(plannedRec) {
 }
 
 function pastPlannedConcerts(historyData) {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = dutchToday();
   const settled = new Set(historyData?.notAttendedIds || []);
   return plannedConcerts
     .filter((c) => c.date && c.date < today && !settled.has(c.id))

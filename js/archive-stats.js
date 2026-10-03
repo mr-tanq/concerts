@@ -145,7 +145,7 @@ export function filterConcerts(concerts, { mode, value } = {}) {
   }
 }
 
-export function buildArchiveView(concerts) {
+export function buildArchiveView(concerts, today = new Date()) {
   return {
     overview: getOverview(concerts),
     signature: getSignature(concerts),
@@ -153,7 +153,7 @@ export function buildArchiveView(concerts) {
     peakYear: getPeakYear(concerts),
     patterns: getPatterns(concerts),
     timeline: getTimeline(concerts),
-    onThisDay: getOnThisDay(concerts),
+    onThisDay: getOnThisDay(concerts, today),
     explore: getExploreOptions(concerts),
   };
 }
