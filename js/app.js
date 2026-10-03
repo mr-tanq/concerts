@@ -52,6 +52,7 @@ let goingCalendarMonth = null;
 let goingCalendarSelectedDate = null;
 let archiveConcerts = [];
 let archiveView = null;
+let archiveViewData = null;
 let exploreFilter = { mode: "all", value: null };
 let archiveExploreQuery = "";
 let dismissedConcerts = [];
@@ -277,7 +278,7 @@ async function mutate(paths, applyFn, message, attempts = 4) {
 
     try {
       for (const p of touched) await putFile(config, p, jsons[p], files[p].sha, message);
-      return;
+      return jsons;
     } catch (err) {
       if (isConflictError(err) && attempt < attempts - 1) {
         await new Promise((r) => setTimeout(r, 250 * (attempt + 1)));
@@ -442,24 +443,26 @@ async function unplanConcertRemote(plannedRec) {
 
 async function saveConcertNoteRemote(concert, text) {
   const ARCH = "data/archive.json";
-  await mutate([ARCH], (f) => {
+  const saved = await mutate([ARCH], (f) => {
     const archive = f[ARCH];
     const row = archive.concerts.find((x) => x.id === concert.id);
     if (!row) throw new Error("Concert not found in the archive");
     row.notes = text || null;
     if (archive.meta) archive.meta.lastUpdated = new Date().toISOString();
   }, `chore: note on ${concert.id} (app)`);
+  return saved[ARCH];
 }
 
 async function saveSeenArtistsRemote(concert, seenNames) {
   const ARCH = "data/archive.json";
-  await mutate([ARCH], (f) => {
+  const saved = await mutate([ARCH], (f) => {
     const archive = f[ARCH];
     const row = archive.concerts.find((x) => x.id === concert.id);
     if (!row) throw new Error("Concert not found in the archive");
     row.seenArtists = seenNames;
     if (archive.meta) archive.meta.lastUpdated = new Date().toISOString();
   }, `chore: update who was seen at ${concert.id} (app)`);
+  return saved[ARCH];
 }
 
 // For the night the archive simply didn't record everyone who played —
@@ -469,7 +472,7 @@ async function saveSeenArtistsRemote(concert, seenNames) {
 // remember them being there.
 async function addLineupArtistRemote(concert, name) {
   const ARCH = "data/archive.json";
-  await mutate([ARCH], (f) => {
+  const saved = await mutate([ARCH], (f) => {
     const archive = f[ARCH];
     const row = archive.concerts.find((x) => x.id === concert.id);
     if (!row) throw new Error("Concert not found in the archive");
@@ -483,6 +486,7 @@ async function addLineupArtistRemote(concert, name) {
     if (Array.isArray(row.seenArtists) && !row.seenArtists.includes(name)) row.seenArtists.push(name);
     if (archive.meta) archive.meta.lastUpdated = new Date().toISOString();
   }, `chore: add ${name} to ${concert.id} (app)`);
+  return saved[ARCH];
 }
 
 // ---------- saving indicator ----------
@@ -500,6 +504,49 @@ function renderSaving() {
 // ==========================================================================
 // ARCHIVE — the spine
 // ==========================================================================
+
+function refreshArchiveViews(archiveData) {
+  renderArchive(archiveData);
+  if (!archiveViewData) return;
+  const { identityData, originsData, timeseriesData } = archiveViewData;
+  initIdentity({ el, esc }, artistImages, archiveConcerts);
+  const selfPanel = document.getElementById("panel-identity");
+  selfPanel.innerHTML = "";
+
+  const heroRoot = el(`<div id="self-hero-root"></div>`);
+  selfPanel.appendChild(heroRoot);
+  const hasIdentity = renderHero(heroRoot, identityData);
+
+  if (hasIdentity) {
+    selfPanel.appendChild(el(`<div class="section-heading">Your listening life</div>`));
+    const lifeRoot = el(`<div id="self-life-root"></div>`);
+    selfPanel.appendChild(lifeRoot);
+    const life = computeListeningLife(timeseriesData, archiveConcerts, { maxTraces: 10 });
+    renderListeningLife(lifeRoot, life, { el, esc }, (name) => openArtistSheet(name));
+
+    const momentsRoot = el(`<div id="self-moments-root"></div>`);
+    selfPanel.appendChild(momentsRoot);
+    const moments = selectEditorialMoments(life.traces);
+    renderEditorialMoments(momentsRoot, moments, { el, esc }, (name) => openArtistSheet(name));
+
+    const exploreRoot = el(`<div id="self-explore-root"></div>`);
+    selfPanel.appendChild(exploreRoot);
+    renderIdentityExplore(exploreRoot, identityData);
+
+    const rightNowRoot = el(`<div id="self-rightnow-root"></div>`);
+    selfPanel.appendChild(rightNowRoot);
+    renderRightNow(rightNowRoot, identityData);
+  }
+
+  initRealm({ el, esc }, archiveConcerts);
+  const confidentlySeenArtists = new Set();
+  for (const c of archiveConcerts) {
+    for (const name of actuallySeenArtistsOf(c)) {
+      confidentlySeenArtists.add(normalizeKey(name));
+    }
+  }
+  renderRealm(document.getElementById("panel-realm"), originsData, confidentlySeenArtists);
+}
 
 function renderArchive(archiveData) {
   archiveConcerts = archiveData.concerts || [];
@@ -919,10 +966,9 @@ function renderLineupPicker(host, status, c, lineup) {
     saveBtn.disabled = true; saveBtn.textContent = "Saving";
     const namesToSave = lineup.filter((n) => pending.has(normalizeKey(n)));
     try {
-      await enqueue(() => saveSeenArtistsRemote(c, namesToSave));
-      c.seenArtists = namesToSave;
-      const local = archiveConcerts.find((x) => x.id === c.id);
-      if (local) local.seenArtists = namesToSave;
+      const savedArchive = await enqueue(() => saveSeenArtistsRemote(c, namesToSave));
+      Object.assign(c, savedArchive.concerts.find((x) => x.id === c.id));
+      refreshArchiveViews(savedArchive);
       renderSetlist(document.getElementById("sheet-setlist"), c);
       status.textContent = "Saved.";
       status.className = "status";
@@ -964,21 +1010,9 @@ function renderLineupPicker(host, status, c, lineup) {
       if (!getGithubConfig()) { openSettings(); return; }
       addBtn.disabled = true; addBtn.textContent = "Adding";
       try {
-        await enqueue(() => addLineupArtistRemote(c, name));
-        if (c.isFestival) {
-          if (!Array.isArray(c.lineup)) c.lineup = [];
-          c.lineup.push(name);
-        } else {
-          if (!Array.isArray(c.supportingArtists)) c.supportingArtists = [];
-          c.supportingArtists.push(name);
-        }
-        if (Array.isArray(c.seenArtists) && !c.seenArtists.includes(name)) c.seenArtists.push(name);
-        const local = archiveConcerts.find((x) => x.id === c.id);
-        if (local) {
-          local.lineup = c.lineup;
-          local.supportingArtists = c.supportingArtists;
-          local.seenArtists = c.seenArtists;
-        }
+        const savedArchive = await enqueue(() => addLineupArtistRemote(c, name));
+        Object.assign(c, savedArchive.concerts.find((x) => x.id === c.id));
+        refreshArchiveViews(savedArchive);
         status.textContent = `Added ${name}.`;
         status.className = "status";
         renderLineupPicker(host, status, c, artistsOf(c));
@@ -1025,10 +1059,9 @@ function renderNote(host, c) {
       e.target.disabled = true;
       e.target.textContent = "Saving";
       try {
-        await enqueue(() => saveConcertNoteRemote(c, text));
-        c.notes = text;
-        const local = archiveConcerts.find((x) => x.id === c.id);
-        if (local) local.notes = text;
+        const savedArchive = await enqueue(() => saveConcertNoteRemote(c, text));
+        Object.assign(c, savedArchive.concerts.find((x) => x.id === c.id));
+        refreshArchiveViews(savedArchive);
         renderNote(host, c);
       } catch (err) {
         console.error(err);
@@ -1620,7 +1653,7 @@ function archiveRecordFrom(p) {
 async function attendedConcertRemote(plannedRec) {
   const ARCH = "data/archive.json";
   const PLANNED = "data/planned.json";
-  await mutate([ARCH, PLANNED], (f) => {
+  const saved = await mutate([ARCH, PLANNED], (f) => {
     const archive = f[ARCH], planned = f[PLANNED];
     const rec = archiveRecordFrom(plannedRec);
 
@@ -1641,6 +1674,7 @@ async function attendedConcertRemote(plannedRec) {
       planned.meta.lastUpdated = new Date().toISOString();
     }
   }, `chore: archive attended ${plannedRec.id} (app)`);
+  return saved[ARCH];
 }
 
 async function notAttendedConcertRemote(plannedRec) {
@@ -1891,7 +1925,8 @@ function askAboutPast(queue) {
     status.textContent = went ? "Adding to the archive…" : "Removing…";
     status.className = "status";
     try {
-      await enqueue(() => (went ? attendedConcertRemote(rec) : notAttendedConcertRemote(rec)));
+      const savedArchive = await enqueue(() => (went ? attendedConcertRemote(rec) : notAttendedConcertRemote(rec)));
+      if (went) refreshArchiveViews(savedArchive);
       plannedConcerts = plannedConcerts.filter((c) => c.id !== rec.id);
       renderConcertsShell("going");
       next();
@@ -2077,59 +2112,9 @@ async function init() {
       }
     }
 
-    renderArchive(archiveData);
+    archiveViewData = { identityData, originsData, timeseriesData };
     renderConcerts(recsData, plannedData, historyData);
-    initIdentity({ el, esc }, artistImages, archiveConcerts);
-    // SELF — rebuilt around time as the visual object, the same way Realm
-    // is built around geography. Hero first (its own breathing room, no
-    // list immediately after), then the listening-life visualization,
-    // then exactly 3 editorial moments drawn from the SAME curated
-    // traces (so each can carry a real fragment of its own strand), and
-    // only then the conventional rankings, tucked into a tabbed
-    // Explore section. openArtistSheet is untouched — every entry point
-    // into it (list rows, timeline panel, moment blocks) still opens the
-    // exact same artist detail view.
-    const selfPanel = document.getElementById("panel-identity");
-    selfPanel.innerHTML = "";
-
-    const heroRoot = el(`<div id="self-hero-root"></div>`);
-    selfPanel.appendChild(heroRoot);
-    const hasIdentity = renderHero(heroRoot, identityData);
-
-    if (hasIdentity) {
-      selfPanel.appendChild(el(`<div class="section-heading">Your listening life</div>`));
-      const lifeRoot = el(`<div id="self-life-root"></div>`);
-      selfPanel.appendChild(lifeRoot);
-      const life = computeListeningLife(timeseriesData, archiveConcerts, { maxTraces: 10 });
-      renderListeningLife(lifeRoot, life, { el, esc }, (name) => openArtistSheet(name));
-
-      const momentsRoot = el(`<div id="self-moments-root"></div>`);
-      selfPanel.appendChild(momentsRoot);
-      const moments = selectEditorialMoments(life.traces);
-      renderEditorialMoments(momentsRoot, moments, { el, esc }, (name) => openArtistSheet(name));
-
-      const exploreRoot = el(`<div id="self-explore-root"></div>`);
-      selfPanel.appendChild(exploreRoot);
-      renderIdentityExplore(exploreRoot, identityData);
-
-      const rightNowRoot = el(`<div id="self-rightnow-root"></div>`);
-      selfPanel.appendChild(rightNowRoot);
-      renderRightNow(rightNowRoot, identityData);
-    }
-
-    initRealm({ el, esc }, archiveConcerts);
-    // Only counts artists actually confirmed via the "who did you really
-    // see" picker on each concert (or, for concerts never curated, the
-    // full bill — same backward-compatible default actuallySeenArtistsOf
-    // uses everywhere else), so Realm can't claim a festival-lineup name
-    // you never actually caught.
-    const confidentlySeenArtists = new Set();
-    for (const c of archiveConcerts) {
-      for (const name of actuallySeenArtistsOf(c)) {
-        confidentlySeenArtists.add(normalizeKey(name));
-      }
-    }
-    renderRealm(document.getElementById("panel-realm"), originsData, confidentlySeenArtists);
+    refreshArchiveViews(archiveData);
 
     if (getGithubConfig()) askAboutPast(pastPlannedConcerts(historyData));
     document.addEventListener("visibilitychange", () => {
