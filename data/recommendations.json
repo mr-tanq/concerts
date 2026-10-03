@@ -1,19 +1,57 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-10-03T14:56:22.361Z",
+    "lastUpdated": "2026-10-03T20:27:09.402Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 366,
-      "daysCached": 0,
+      "daysFresh": 0,
+      "daysCached": 366,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 2,
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-489544",
+      "source": "podiuminfo",
+      "sourceId": "489544",
+      "artist": "Weezer",
+      "lineup": [
+        "Weezer"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Weezer"
+      ],
+      "date": "2027-05-26",
+      "time": null,
+      "venue": "AFAS Live",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/271/100_Weezer_3.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/140398/cd/Weezer/AFAS-Live/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/489544/Weezer-The-Gathering-Tour/AFAS-Live/",
+      "match": {
+        "score": 31,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Muse",
+        "matchedArtists": [
+          "Weezer"
+        ],
+        "similarVia": "Muse"
+      },
+      "discoveredAt": "2026-10-03T20:27:09.402Z",
+      "lastSeenAt": "2026-10-03T20:27:09.402Z"
+    }
+  ]
 }
