@@ -1705,3 +1705,23 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 .explore .explore-values { padding: 3px 2px; }
 .explore .explore-value { min-height: 44px; }
 .explore .explore-value:focus-visible { outline: 2px solid var(--bone); outline-offset: 1px; }
+
+/* Going controls: easy to tap, with visible keyboard focus. */
+.going-layout button { min-width: 44px; min-height: 44px; }
+.calendar-month-label { min-width: 0; text-align: center; }
+.calendar-month-label h3 { margin: 0; }
+.calendar-today {
+  min-width: 64px;
+  min-height: 44px;
+  padding: 8px 12px;
+  color: var(--bone-dim);
+  font: 10px var(--mono);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.calendar-nav { min-width: 44px; }
+.going-layout button:focus-visible,
+.going-calendar button:focus-visible {
+  outline: 2px solid var(--bone);
+  outline-offset: 2px;
+}

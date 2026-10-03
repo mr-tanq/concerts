@@ -47,7 +47,12 @@ const TABS = ["mirror", "realm", "concerts", "identity", "archive"];
 // fails we surface it and push the card back onto the deck.
 let deckQueue = [];
 let plannedConcerts = [];
-let goingLayout = "list";
+function loadGoingLayout() {
+  try {
+    return localStorage.getItem("lm_going_layout") === "calendar" ? "calendar" : "list";
+  } catch { return "list"; }
+}
+let goingLayout = loadGoingLayout();
 let goingCalendarMonth = null;
 let goingCalendarSelectedDate = null;
 let archiveConcerts = [];
@@ -1410,7 +1415,10 @@ function renderGoingCalendar(body) {
   const calendar = el(`<section class="going-calendar" aria-label="Going calendar">
     <div class="calendar-head">
       <button class="calendar-nav" data-month="-1" aria-label="Previous month">‹</button>
-      <h3>${esc(title)}</h3>
+      <div class="calendar-month-label">
+        <h3 aria-live="polite">${esc(title)}</h3>
+        <button class="calendar-today" aria-label="Show today in calendar">Today</button>
+      </div>
       <button class="calendar-nav" data-month="1" aria-label="Next month">›</button>
     </div>
     <div class="calendar-weekdays" aria-hidden="true">
@@ -1424,7 +1432,14 @@ function renderGoingCalendar(body) {
     goingCalendarMonth = next.toISOString().slice(0, 7);
     goingCalendarSelectedDate = null;
     renderUpcoming(body);
+    body.querySelector(`[data-month="${button.dataset.month}"]`)?.focus({ preventScroll: true });
   }));
+  calendar.querySelector(".calendar-today").addEventListener("click", () => {
+    goingCalendarSelectedDate = dutchToday();
+    goingCalendarMonth = goingCalendarSelectedDate.slice(0, 7);
+    renderUpcoming(body);
+    body.querySelector(".calendar-today")?.focus({ preventScroll: true });
+  });
   const grid = calendar.querySelector(".calendar-grid");
   const cells = Math.ceil((offset + daysInMonth) / 7) * 7;
   for (let i = 0; i < cells; i++) {
@@ -1442,6 +1457,7 @@ function renderGoingCalendar(body) {
       : shiftName === "night" ? "#af98e8"
       : shiftName === "free day" ? "#72cf9b" : "var(--bone-faint)";
     const cell = el(`<button class="calendar-day ${date === today ? "is-today" : ""} ${date === selected ? "is-selected" : ""}"
+      data-date="${date}" aria-pressed="${date === selected}" ${date === today ? 'aria-current="date"' : ""}
       style="--day-shift:${color}" aria-label="${esc(fullDate(date))}, ${esc(shift?.label || "")}, ${concerts.length} concerts">
       <span class="calendar-number">${day}</span>
       <span class="calendar-shift" title="${esc(shift?.label || "")}">${esc(shiftName)}</span>
@@ -1451,6 +1467,7 @@ function renderGoingCalendar(body) {
     cell.addEventListener("click", () => {
       goingCalendarSelectedDate = date;
       renderUpcoming(body);
+      body.querySelector(`[data-date="${date}"]`)?.focus({ preventScroll: true });
       body.querySelector(".calendar-agenda")?.scrollIntoView({ block: "nearest", behavior: "smooth" });
     });
     grid.appendChild(cell);
@@ -1482,7 +1499,9 @@ function renderUpcoming(body) {
   </div>`);
   layout.querySelectorAll("button").forEach((button) => button.addEventListener("click", () => {
     goingLayout = button.dataset.layout;
+    try { localStorage.setItem("lm_going_layout", goingLayout); } catch {}
     renderUpcoming(body);
+    body.querySelector(`[data-layout="${goingLayout}"]`)?.focus({ preventScroll: true });
   }));
   body.appendChild(layout);
   if (goingLayout === "calendar") { renderGoingCalendar(body); return; }
