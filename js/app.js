@@ -73,6 +73,45 @@ let setlists = new Map();
 
 // ---------- tiny helpers ----------
 
+// Required files must never be mistaken for an empty collection.
+async function loadRequiredJSON(path, requiredArray) {
+  const data = await loadJSON(path);
+  if (!data || typeof data !== "object" || Array.isArray(data)
+      || !Array.isArray(data[requiredArray])) {
+    throw new Error(`Invalid data in ${path}`);
+  }
+  if (requiredArray === "dismissedIds") {
+    for (const key of ["dismissed", "plannedIds", "notAttendedIds"]) {
+      if (data[key] != null && !Array.isArray(data[key])) {
+        throw new Error(`Invalid ${key} in ${path}`);
+      }
+    }
+  }
+  return data;
+}
+
+function showTabLoadError(tabs, label) {
+  for (const tab of tabs) {
+    const root = document.getElementById(`panel-${tab}`);
+    root.innerHTML = "";
+    const message = el(`<div style="padding:48px var(--gutter)">
+      <p class="lede" role="status">Couldn't load ${esc(label)}.</p>
+      <p class="footnote">Try loading the page again.</p>
+      <button class="plain-act" style="min-height:44px">Try again</button>
+    </div>`);
+    message.querySelector("button").addEventListener("click", (event) => {
+      if (pendingWrites > 0 || queuedWrites > 0) {
+        message.querySelector(".footnote").textContent = "Wait for saving to finish, then try again.";
+        return;
+      }
+      event.currentTarget.disabled = true;
+      event.currentTarget.textContent = "Reloading";
+      location.reload();
+    });
+    root.appendChild(message);
+  }
+}
+
 async function loadJSON(path) {
   const res = await fetch(path, { cache: "no-store" });
   if (!res.ok) throw new Error(`Failed to load ${path}: ${res.status}`);
@@ -262,9 +301,11 @@ function filterStaleRecommendations(concerts, historyData) {
 // resolved by rebasing rather than overwriting.
 
 let writeChain = Promise.resolve();
+let queuedWrites = 0;
 
 function enqueue(task) {
-  const run = writeChain.then(task, task);
+  queuedWrites++;
+  const run = writeChain.then(task, task).finally(() => { queuedWrites--; });
   writeChain = run.catch(() => {});
   return run;
 }
@@ -2093,12 +2134,12 @@ async function init() {
   setActiveTab(new URLSearchParams(location.search).has("code") ? "mirror" : "concerts");
 
   try {
-    const [archiveData, recsData, plannedData, historyData, concertCache, artistImageData, setlistData, identityData, originsData, timeseriesData] =
-      await Promise.all([
-        loadJSON("data/archive.json"),
-        loadJSON("data/recommendations.json"),
-        loadJSON("data/planned.json"),
-        loadJSON("data/recommendation-history.json").catch(() => ({ dismissed: [], dismissedIds: [] })),
+    const [archiveResult, recsResult, plannedResult, historyResult, cacheResult, imagesResult, setlistsResult, identityResult, originsResult, timeseriesResult] =
+      await Promise.allSettled([
+        loadRequiredJSON("data/archive.json", "concerts"),
+        loadRequiredJSON("data/recommendations.json", "concerts"),
+        loadRequiredJSON("data/planned.json", "concerts"),
+        loadRequiredJSON("data/recommendation-history.json", "dismissedIds"),
         loadJSON("data/podiuminfo-cache.json").catch(() => ({ entries: {} })),
         loadJSON("data/artist-images.json").catch(() => ({ artists: {} })),
         loadJSON("data/setlists.json").catch(() => ({ setlists: {} })),
@@ -2106,6 +2147,13 @@ async function init() {
         loadJSON("data/artist-origins.json").catch(() => ({ artists: {} })),
         loadJSON("data/listening-timeseries.json").catch(() => ({ meta: { weekStarts: [] }, artists: {} })),
       ]);
+
+    const concertCache = cacheResult.value || { entries: {} };
+    const artistImageData = imagesResult.value || { artists: {} };
+    const setlistData = setlistsResult.value || { setlists: {} };
+    const identityData = identityResult.value || { meta: {} };
+    const originsData = originsResult.value || { artists: {} };
+    const timeseriesData = timeseriesResult.value || { meta: { weekStarts: [] }, artists: {} };
 
     setlists = new Map(Object.entries(setlistData.setlists || {}));
 
@@ -2132,17 +2180,38 @@ async function init() {
     }
 
     archiveViewData = { identityData, originsData, timeseriesData };
-    renderConcerts(recsData, plannedData, historyData);
-    refreshArchiveViews(archiveData);
+    let concertsReady = false;
+    let archiveReady = false;
+    const concertResults = [recsResult, plannedResult, historyResult];
+    if (concertResults.every((result) => result.status === "fulfilled")) {
+      try {
+        renderConcerts(recsResult.value, plannedResult.value, historyResult.value);
+        concertsReady = true;
+      } catch (err) { console.error(err); }
+    } else {
+      for (const result of concertResults) {
+        if (result.status === "rejected") console.error(result.reason);
+      }
+    }
+    if (!concertsReady) showTabLoadError(["concerts"], "Tonight");
 
-    if (getGithubConfig()) askAboutPast(pastPlannedConcerts(historyData));
+    if (archiveResult.status === "fulfilled") {
+      try {
+        refreshArchiveViews(archiveResult.value);
+        archiveReady = true;
+      } catch (err) { console.error(err); }
+    } else { console.error(archiveResult.reason); }
+    if (!archiveReady) showTabLoadError(["archive", "identity", "realm"], "your concert archive");
+
+    if (concertsReady && archiveReady && getGithubConfig()) {
+      askAboutPast(pastPlannedConcerts(historyResult.value));
+    }
     document.addEventListener("visibilitychange", () => {
-      if (!document.hidden) askWorkArrangements();
+      if (!document.hidden && concertsReady) askWorkArrangements();
     });
   } catch (err) {
     console.error(err);
-    document.getElementById("panel-concerts").innerHTML =
-      `<p class="void">Couldn't load: ${esc(err.message)}</p>`;
+    showTabLoadError(["concerts", "archive", "identity", "realm"], "app data");
   }
 }
 
