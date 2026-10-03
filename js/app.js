@@ -2059,7 +2059,7 @@ function openSettings() {
       status.innerHTML = `Connected. <a href="#" id="lnk">Copy a setup link</a> to restore this instantly later.`;
       veil.querySelector("#lnk").addEventListener("click", async (ev) => {
         ev.preventDefault();
-        const url = `${location.origin}${location.pathname}?gh=${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/${token}`;
+        const url = githubSetupUrl({ owner, repo, token });
         try { await navigator.clipboard.writeText(url); ev.target.textContent = "Copied — bookmark it"; }
         catch { prompt("Copy this link:", url); }
       });
@@ -2076,21 +2076,38 @@ function markConnected() {
   document.getElementById("settings-dot")?.classList.toggle("live", !!getGithubConfig());
 }
 
-// Config can arrive in the URL once — ?gh=owner/repo/token — then it's saved
-// locally and stripped from the address bar, so one bookmark sets the app up
-// without retyping. It is deliberately never baked into the source: this repo
-// is public, so a committed token would be readable by anyone and GitHub's
-// secret scanning would revoke it within hours.
+// Setup credentials live in the fragment and are removed after opening.
+// Existing query-based bookmarks are still accepted and cleaned up.
+function githubSetupUrl({ owner, repo, token }) {
+  const url = new URL(location.pathname, location.origin);
+  url.hash = new URLSearchParams({ gh: `${owner}/${repo}/${token}` }).toString();
+  return url.href;
+}
+
 function adoptConfigFromUrl() {
   const params = new URLSearchParams(location.search);
-  const gh = params.get("gh");
-  if (!gh) return;
-  const [owner, repo, ...rest] = gh.split("/");
+  const fragment = new URLSearchParams(location.hash.slice(1));
+  const hasFragmentConfig = fragment.has("gh");
+  if (!hasFragmentConfig && !params.has("gh")) return;
+  const gh = hasFragmentConfig ? fragment.get("gh") : params.get("gh");
+  const [owner, repo, ...rest] = String(gh || "").split("/");
   const token = rest.join("/");
-  if (owner && repo && token) saveGithubConfig({ owner, repo, token });
+
+  // Clean the address before saving: storage can be blocked or full.
   params.delete("gh");
   const qs = params.toString();
-  history.replaceState(null, "", location.pathname + (qs ? `?${qs}` : ""));
+  let hash = location.hash;
+  if (hasFragmentConfig) {
+    fragment.delete("gh");
+    hash = fragment.toString() ? `#${fragment}` : "";
+  }
+  history.replaceState(null, "", location.pathname + (qs ? `?${qs}` : "") + hash);
+  if (owner && repo && token) {
+    try { saveGithubConfig({ owner, repo, token }); }
+    catch {
+      showFatalError("Couldn't save your GitHub connection in this browser. Open settings to reconnect.");
+    }
+  }
 }
 
 function storageIsPersistent() {
