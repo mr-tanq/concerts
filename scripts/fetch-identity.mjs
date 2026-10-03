@@ -82,8 +82,9 @@ const profile = {
 // --- top artists: overall + past month ---
 // Full artist counts back every portrait, including artists outside the charts.
 async function fetchAllArtists(period) {
-  const artists = [];
-  const names = new Set();
+  const artists = new Map();
+  const pages = new Set();
+  let rowsRead = 0;
   for (let page = 1; ; page++) {
     const json = await lastfm("user.gettopartists", { period, limit: 500, page });
     const attrs = json?.topartists?.["@attr"];
@@ -99,21 +100,31 @@ async function fetchAllArtists(period) {
       throw new Error(`Incomplete artist page ${page} for ${period}`);
     for (const artist of batch) {
       if (typeof artist.name !== "string" || !artist.name.trim()
-        || !Number.isSafeInteger(artist.playcount)
-        || artist.playcount < 0 || names.has(artist.name))
+        || !Number.isSafeInteger(artist.playcount) || artist.playcount < 0)
         throw new Error(`Artist validation failed: ${JSON.stringify({
           period, page, name: artist.name ?? null, playcount: artist.playcount,
           reason: typeof artist.name !== "string" || !artist.name.trim()
-            ? "missing-name" : !Number.isSafeInteger(artist.playcount) || artist.playcount < 0
-              ? "invalid-playcount" : "repeated-name"
+            ? "missing-name" : "invalid-playcount"
         })}`);
-      names.add(artist.name);
-      artists.push(artist);
+      rowsRead++;
+      const saved = artists.get(artist.name);
+      // A repeated name is one artist, never an extra set of plays.
+      if (!saved || artist.playcount > saved.playcount)
+        artists.set(artist.name, artist);
     }
+    const signature = JSON.stringify(batch.map((artist) => [artist.name, artist.playcount]));
+    if (pages.has(signature))
+      throw new Error(`Repeated entire artist page ${page} for ${period}`);
+    pages.add(signature);
     if (page >= Math.max(1, totalPages)) {
-      if (artists.length !== total)
+      if (rowsRead !== total)
         throw new Error(`Incomplete artist totals for ${period}`);
-      return artists;
+      const complete = artists.size === rowsRead;
+      if (!complete) console.warn(`${period}: repeated artist rows deduplicated; counts are lower bounds.`);
+      return {
+        artists: [...artists.values()].sort((a, b) => b.playcount - a.playcount),
+        complete,
+      };
     }
   }
 }
@@ -127,8 +138,10 @@ function artistCountIndex(artists) {
   return counts;
 }
 
-const topArtistsOverall = await fetchAllArtists("overall");
-const topArtistsMonth = await fetchAllArtists("1month");
+const overallArtistData = await fetchAllArtists("overall");
+const monthArtistData = await fetchAllArtists("1month");
+const topArtistsOverall = overallArtistData.artists;
+const topArtistsMonth = monthArtistData.artists;
 
 function mapArtists(json) {
   const arr = json?.topartists?.artist;
@@ -243,7 +256,10 @@ for (const [key, trackMap] of topTracksByArtistCounts) {
 
 const output = {
   $schema: "Listening Mirror Identity v1",
-  meta: { lastUpdated: new Date().toISOString(), lastfmUser: USER, artistCountsComplete: true },
+  meta: {
+    lastUpdated: new Date().toISOString(), lastfmUser: USER,
+    artistCountsComplete: overallArtistData.complete && monthArtistData.complete,
+  },
   profile,
   topArtistsOverall: topArtistsOverall.slice(0, 12),
   topArtistsMonth: topArtistsMonth.slice(0, 8),

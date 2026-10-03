@@ -81,12 +81,15 @@ function artistKeys(name) {
 function artistCountFor(name, period) {
   const keys = artistKeys(name);
   const index = currentData?.artistCounts?.[period];
-  if (index && currentData?.meta?.artistCountsComplete === true) {
+  if (index) {
+    const complete = currentData?.meta?.artistCountsComplete === true;
+    if (!complete && !keys.some((key) => Object.prototype.hasOwnProperty.call(index, key)))
+      return { count: null, complete: false };
     const values = keys.map((key) =>
       Object.prototype.hasOwnProperty.call(index, key) ? index[key] : 0);
     if (values.some((value) => !Number.isSafeInteger(value) || value < 0))
       return { count: null, complete: false };
-    return { count: values.reduce((sum, value) => sum + value, 0), complete: true };
+    return { count: values.reduce((sum, value) => sum + value, 0), complete };
   }
   const rows = period === "overall" ? currentData?.topArtistsOverall : currentData?.topArtistsMonth;
   const matches = (rows || []).filter((artist) => keys.includes(normalizeArtistKey(artist.name)));
