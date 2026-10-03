@@ -1,17 +1,17 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-10-03T03:27:29.260Z",
+    "lastUpdated": "2026-10-03T11:04:16.599Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 0,
-      "daysCached": 366,
+      "daysFresh": 366,
+      "daysCached": 0,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 4,
       "rejectedByLineup": 0
     }
   },
@@ -51,81 +51,7 @@
         "similarVia": null
       },
       "discoveredAt": "2026-07-27T20:52:26.545Z",
-      "lastSeenAt": "2026-10-02T13:34:52.585Z"
-    },
-    {
-      "id": "rec-podiuminfo-497002",
-      "source": "podiuminfo",
-      "sourceId": "497002",
-      "artist": "Mad Caddies",
-      "lineup": [
-        "Mad Caddies"
-      ],
-      "supportingArtists": [],
-      "matchedArtists": [
-        "Mad Caddies"
-      ],
-      "date": "2027-02-25",
-      "time": null,
-      "venue": "Bibelot",
-      "city": "Dordrecht",
-      "country": "NL",
-      "isFestival": false,
-      "image": "https://www.festivalinfo.nl/img/artist/439/100_Mad_Caddies_1.jpg",
-      "ticketUrl": null,
-      "sourceApis": [
-        "podiuminfo"
-      ],
-      "sourceUrl": "https://www.podiuminfo.nl/concert/497002/Mad-Caddies/Bibelot/",
-      "match": {
-        "score": 45,
-        "label": "Strong match",
-        "matchedBy": "direct",
-        "reason": "Known artist: Mad Caddies",
-        "matchedArtists": [
-          "Mad Caddies"
-        ],
-        "similarVia": null
-      },
-      "discoveredAt": "2026-10-02T11:51:30.406Z",
-      "lastSeenAt": "2026-10-02T13:34:52.585Z"
-    },
-    {
-      "id": "rec-podiuminfo-459554",
-      "source": "podiuminfo",
-      "sourceId": "459554",
-      "artist": "The Prodigy",
-      "lineup": [
-        "The Prodigy"
-      ],
-      "supportingArtists": [],
-      "matchedArtists": [
-        "The Prodigy"
-      ],
-      "date": "2026-11-28",
-      "time": null,
-      "venue": "Ziggo Dome",
-      "city": "Amsterdam",
-      "country": "NL",
-      "isFestival": false,
-      "image": "https://www.festivalinfo.nl/img/artist/705/100_The_Prodigy_1.jpg",
-      "ticketUrl": "https://www.podiuminfo.nl/ticket/132109/cd/The-Prodigy-European-Tour/Ziggo-Dome/",
-      "sourceApis": [
-        "podiuminfo"
-      ],
-      "sourceUrl": "https://www.podiuminfo.nl/concert/459554/The-Prodigy/Ziggo-Dome/",
-      "match": {
-        "score": 45,
-        "label": "Strong match",
-        "matchedBy": "direct",
-        "reason": "Known artist: The Prodigy",
-        "matchedArtists": [
-          "The Prodigy"
-        ],
-        "similarVia": null
-      },
-      "discoveredAt": "2026-07-27T21:15:25.916Z",
-      "lastSeenAt": "2026-10-02T13:34:52.585Z"
+      "lastSeenAt": "2026-10-03T11:04:16.599Z"
     },
     {
       "id": "rec-podiuminfo-493235",
@@ -162,7 +88,81 @@
         "similarVia": null
       },
       "discoveredAt": "2026-09-08T10:32:14.631Z",
-      "lastSeenAt": "2026-10-02T13:34:52.585Z"
+      "lastSeenAt": "2026-10-03T11:04:16.599Z"
+    },
+    {
+      "id": "rec-podiuminfo-459554",
+      "source": "podiuminfo",
+      "sourceId": "459554",
+      "artist": "The Prodigy",
+      "lineup": [
+        "The Prodigy"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "The Prodigy"
+      ],
+      "date": "2026-11-28",
+      "time": null,
+      "venue": "Ziggo Dome",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/705/100_The_Prodigy_1.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/132109/cd/The-Prodigy-European-Tour/Ziggo-Dome/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/459554/The-Prodigy/Ziggo-Dome/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: The Prodigy",
+        "matchedArtists": [
+          "The Prodigy"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-07-27T21:15:25.916Z",
+      "lastSeenAt": "2026-10-03T11:04:16.599Z"
+    },
+    {
+      "id": "rec-podiuminfo-497002",
+      "source": "podiuminfo",
+      "sourceId": "497002",
+      "artist": "Mad Caddies",
+      "lineup": [
+        "Mad Caddies"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Mad Caddies"
+      ],
+      "date": "2027-02-25",
+      "time": null,
+      "venue": "Bibelot",
+      "city": "Dordrecht",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/439/100_Mad_Caddies_1.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/497002/Mad-Caddies/Bibelot/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Mad Caddies",
+        "matchedArtists": [
+          "Mad Caddies"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-10-02T11:51:30.406Z",
+      "lastSeenAt": "2026-10-03T11:04:16.599Z"
     },
     {
       "id": "rec-podiuminfo-474112",
@@ -199,7 +199,7 @@
         "similarVia": "Muse"
       },
       "discoveredAt": "2026-07-30T16:28:28.177Z",
-      "lastSeenAt": "2026-10-02T13:34:52.585Z"
+      "lastSeenAt": "2026-10-03T11:04:16.599Z"
     },
     {
       "id": "rec-podiuminfo-496470",
@@ -236,7 +236,7 @@
         "similarVia": "Anathema"
       },
       "discoveredAt": "2026-09-29T12:03:35.053Z",
-      "lastSeenAt": "2026-10-02T13:34:52.585Z"
+      "lastSeenAt": "2026-10-03T11:04:16.599Z"
     },
     {
       "id": "rec-podiuminfo-482709",
@@ -273,7 +273,7 @@
         "similarVia": "Muse"
       },
       "discoveredAt": "2026-07-30T16:28:28.177Z",
-      "lastSeenAt": "2026-10-02T13:34:52.585Z"
+      "lastSeenAt": "2026-10-03T11:04:16.599Z"
     }
   ]
 }
