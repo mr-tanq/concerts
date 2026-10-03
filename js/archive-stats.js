@@ -64,6 +64,38 @@ export function countByList(concerts, listFn) {
     .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 }
 
+// Match the same artist despite case, accents or extra spaces. Keep
+// punctuation meaningful: similarly named bands must remain separate.
+export function artistKey(name) {
+  return String(name || "").toLowerCase().normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim();
+}
+
+// Count an artist once per concert, preserving an existing spelling for
+// display. The most common spelling wins; ties are stable across sorting.
+export function countArtists(concerts) {
+  const groups = new Map();
+  for (const c of concerts) {
+    const night = new Map();
+    for (const name of actuallySeenArtistsOf(c)) {
+      const key = artistKey(name);
+      if (!key) continue;
+      if (!night.has(key)) night.set(key, new Set());
+      night.get(key).add(String(name).trim().replace(/\s+/g, " "));
+    }
+    for (const [key, names] of night) {
+      if (!groups.has(key)) groups.set(key, { count: 0, names: new Map() });
+      const group = groups.get(key);
+      group.count++;
+      for (const name of names) group.names.set(name, (group.names.get(name) || 0) + 1);
+    }
+  }
+  return [...groups.values()].map(({ count, names }) => ({
+    name: [...names].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0))[0][0],
+    count,
+  })).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+}
+
 export function getOverview(concerts) {
   return {
     totalConcerts: concerts.length,
@@ -75,7 +107,7 @@ export function getOverview(concerts) {
 
 export function getSignature(concerts) {
   return {
-    topArtist: countByList(concerts, actuallySeenArtistsOf)[0] || null,
+    topArtist: countArtists(concerts)[0] || null,
     topVenue: countBy(concerts, venueKey)[0] || null,
     topCity: countBy(concerts, (c) => c.city)[0] || null,
   };
@@ -95,7 +127,7 @@ export function getPeakYear(concerts) {
 
 export function getPatterns(concerts, topN = 5) {
   return {
-    mostSeenArtists: countByList(concerts, actuallySeenArtistsOf).slice(0, topN),
+    mostSeenArtists: countArtists(concerts).slice(0, topN),
     recurringRooms: countBy(concerts, venueKey).slice(0, topN),
     topCities: countBy(concerts, (c) => c.city).slice(0, topN),
   };
@@ -123,7 +155,7 @@ export function getOnThisDay(concerts, today = new Date()) {
 export function getExploreOptions(concerts) {
   return {
     year: countBy(concerts, (c) => String(c.date || "").slice(0, 4)),
-    artist: countByList(concerts, actuallySeenArtistsOf),
+    artist: countArtists(concerts),
     city: countBy(concerts, (c) => c.city),
     venue: countBy(concerts, venueKey),
   };
@@ -135,7 +167,7 @@ export function filterConcerts(concerts, { mode, value } = {}) {
     case "year":
       return concerts.filter((c) => String(c.date || "").slice(0, 4) === String(value));
     case "artist":
-      return concerts.filter((c) => actuallySeenArtistsOf(c).some((n) => n === value));
+      return concerts.filter((c) => actuallySeenArtistsOf(c).some((n) => artistKey(n) === artistKey(value)));
     case "city":
       return concerts.filter((c) => c.city === value);
     case "venue":
