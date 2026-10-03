@@ -79,15 +79,57 @@ const profile = {
   url: info?.user?.url || `https://www.last.fm/user/${USER}`,
 };
 
-// --- top artists: overall + this month ---
-const topArtistsOverall = await lastfm("user.gettopartists", { period: "overall", limit: 12 });
-const topArtistsMonth = await lastfm("user.gettopartists", { period: "1month", limit: 8 });
+// --- top artists: overall + past month ---
+// Full artist counts back every portrait, including artists outside the charts.
+async function fetchAllArtists(period) {
+  const artists = [];
+  const names = new Set();
+  for (let page = 1; ; page++) {
+    const json = await lastfm("user.gettopartists", { period, limit: 500, page });
+    const attrs = json?.topartists?.["@attr"];
+    const totalPages = Number(attrs?.totalPages);
+    const total = Number(attrs?.total);
+    if (attrs?.totalPages == null || attrs?.total == null
+      || !Number.isSafeInteger(totalPages) || totalPages < 0
+      || !Number.isSafeInteger(total) || total < 0
+      || (total > 0 && totalPages < 1))
+      throw new Error(`Invalid artist pagination for ${period}`);
+    const batch = mapArtists(json);
+    if (!batch.length && total > 0)
+      throw new Error(`Incomplete artist page ${page} for ${period}`);
+    for (const artist of batch) {
+      if (typeof artist.name !== "string" || !artist.name.trim()
+        || !Number.isSafeInteger(artist.playcount)
+        || artist.playcount < 0 || names.has(artist.name))
+        throw new Error(`Invalid or repeated artist on page ${page} for ${period}`);
+      names.add(artist.name);
+      artists.push(artist);
+    }
+    if (page >= Math.max(1, totalPages)) {
+      if (artists.length !== total)
+        throw new Error(`Incomplete artist totals for ${period}`);
+      return artists;
+    }
+  }
+}
+
+function artistCountIndex(artists) {
+  const counts = Object.create(null);
+  for (const artist of artists) {
+    const key = normalizeArtistKey(artist.name);
+    counts[key] = (counts[key] || 0) + artist.playcount;
+  }
+  return counts;
+}
+
+const topArtistsOverall = await fetchAllArtists("overall");
+const topArtistsMonth = await fetchAllArtists("1month");
 
 function mapArtists(json) {
   const arr = json?.topartists?.artist;
   return (Array.isArray(arr) ? arr : arr ? [arr] : []).map((a) => ({
     name: a.name,
-    playcount: Number(a.playcount) || 0,
+    playcount: a.playcount == null || String(a.playcount).trim() === "" ? NaN : Number(a.playcount),
     url: a.url || null,
   }));
 }
@@ -180,7 +222,8 @@ for (const t of allScrobbles) {
   if (!t.date?.uts) continue; // skip now-playing
   const artistName = t.artist?.["#text"] || "";
   if (!artistName || !t.name) continue;
-  const key = normalizeArtistKey(artistName);
+  const normalizedKey = normalizeArtistKey(artistName);
+  const key = normalizedKey === "gonzales" ? "chilly gonzales" : normalizedKey;
   if (!topTracksByArtistCounts.has(key)) topTracksByArtistCounts.set(key, new Map());
   const trackMap = topTracksByArtistCounts.get(key);
   trackMap.set(t.name, (trackMap.get(t.name) || 0) + 1);
@@ -195,10 +238,14 @@ for (const [key, trackMap] of topTracksByArtistCounts) {
 
 const output = {
   $schema: "Listening Mirror Identity v1",
-  meta: { lastUpdated: new Date().toISOString(), lastfmUser: USER },
+  meta: { lastUpdated: new Date().toISOString(), lastfmUser: USER, artistCountsComplete: true },
   profile,
-  topArtistsOverall: mapArtists(topArtistsOverall),
-  topArtistsMonth: mapArtists(topArtistsMonth),
+  topArtistsOverall: topArtistsOverall.slice(0, 12),
+  topArtistsMonth: topArtistsMonth.slice(0, 8),
+  artistCounts: {
+    overall: artistCountIndex(topArtistsOverall),
+    month: artistCountIndex(topArtistsMonth),
+  },
   topTracksByArtist,
   topTracks,
   topAlbums,

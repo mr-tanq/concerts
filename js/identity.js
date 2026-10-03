@@ -49,8 +49,7 @@ function withCommas(n) {
 }
 
 function photoFor(artistName) {
-  const key = normalizeArtistKey(artistName);
-  return artistPhotos.get(key) || null;
+  return artistKeys(artistName).map((key) => artistPhotos.get(key)).find(Boolean) || null;
 }
 
 function normalizeArtistKey(name) {
@@ -70,6 +69,47 @@ function keysLikelyMatch(a, b) {
   const shorter = a.length <= b.length ? a : b;
   const longer = a.length <= b.length ? b : a;
   return longer.startsWith(shorter + " ") || longer.endsWith(" " + shorter);
+}
+
+// Explicit aliases prevent similarly named bands from sharing counts.
+function artistKeys(name) {
+  const key = normalizeArtistKey(name);
+  return key === "gonzales" || key === "chilly gonzales"
+    ? ["chilly gonzales", "gonzales"] : [key];
+}
+
+function artistCountFor(name, period) {
+  const keys = artistKeys(name);
+  const index = currentData?.artistCounts?.[period];
+  if (index && currentData?.meta?.artistCountsComplete === true) {
+    const values = keys.map((key) =>
+      Object.prototype.hasOwnProperty.call(index, key) ? index[key] : 0);
+    if (values.some((value) => !Number.isSafeInteger(value) || value < 0))
+      return { count: null, complete: false };
+    return { count: values.reduce((sum, value) => sum + value, 0), complete: true };
+  }
+  const rows = period === "overall" ? currentData?.topArtistsOverall : currentData?.topArtistsMonth;
+  const matches = (rows || []).filter((artist) => keys.includes(normalizeArtistKey(artist.name)));
+  if (!matches.length || matches.some((artist) =>
+    !Number.isSafeInteger(artist.playcount) || artist.playcount < 0))
+    return { count: null, complete: false };
+  return {
+    count: matches.reduce((sum, artist) => sum + artist.playcount, 0),
+    complete: keys.every((key) => matches.some((artist) => normalizeArtistKey(artist.name) === key))
+  };
+}
+
+function artistTracksFor(name) {
+  const tracks = new Map();
+  for (const key of artistKeys(name)) {
+    for (const track of currentData?.topTracksByArtist?.[key] || []) {
+      const trackKey = normalizeArtistKey(track.name);
+      const saved = tracks.get(trackKey);
+      if (saved) saved.playcount += track.playcount;
+      else tracks.set(trackKey, { ...track });
+    }
+  }
+  return [...tracks.values()].sort((a, b) => b.playcount - a.playcount).slice(0, 8);
 }
 
 // ---------- HERO ----------
@@ -108,6 +148,7 @@ export function renderHero(root, data) {
         ${lately ? `<em>Lately, you keep returning to ${esc(lately)}.</em>` : ""}
       </p>
       ${span >= 2 ? `<p class="hero-footnote">${titleCaseSmall(spellSmallLong(span))} years of arrivals, disappearances and returns.</p>` : ""}
+      <p class="hero-footnote">Updated ${esc(timeAgo(data.meta.lastUpdated))} · Last.fm snapshot</p>
     </div>
   `));
   return true;
@@ -165,7 +206,7 @@ function renderExploreArtists(host, data) {
     <div class="identity-modes">
       <div class="explore-modes">
         <button class="explore-mode ${mode === "overall" ? "on" : ""}" data-m="overall">All time</button>
-        <button class="explore-mode ${mode === "month" ? "on" : ""}" data-m="month">This month</button>
+        <button class="explore-mode ${mode === "month" ? "on" : ""}" data-m="month">Past month</button>
       </div>
     </div>
   `);
@@ -177,7 +218,7 @@ function renderExploreArtists(host, data) {
   const list = el(`<div></div>`);
   const artists = mode === "month" ? data.topArtistsMonth : data.topArtistsOverall;
   if (!artists?.length) {
-    list.appendChild(el(`<p class="void">${mode === "month" ? "Nothing tracked yet this month." : "Nothing tracked yet."}</p>`));
+    list.appendChild(el(`<p class="void">${mode === "month" ? "Nothing tracked over the past month." : "Nothing tracked yet."}</p>`));
   } else {
     const shown = exploreArtistsShowAll ? artists : artists.slice(0, 10);
     shown.forEach((a, i) => {
@@ -238,7 +279,10 @@ export function renderRightNow(root, data) {
   root.innerHTML = "";
   if (!data.recentTracks?.length) return;
 
-  root.appendChild(el(`<div class="section-heading">Right now</div>`));
+  root.appendChild(el(`<div class="section-heading">Recent listening</div>`));
+  if (data.meta?.lastUpdated) {
+    root.appendChild(el(`<p class="footnote">Snapshot updated ${esc(timeAgo(data.meta.lastUpdated))}.</p>`));
+  }
   const list = el(`<div></div>`);
   const count = rightNowExpanded ? 10 : Math.min(5, data.recentTracks.length);
   data.recentTracks.slice(0, count).forEach((t) => {
@@ -319,10 +363,13 @@ function shortDateWithYear(iso) {
   return y ? `${Number(d)} ${MONTHS[Number(m) - 1]} ${y}` : "";
 }
 
-function portraitStatement(overallCount, monthCount, liveCount) {
+function portraitStatement(overall, month, liveCount) {
   const parts = [];
-  parts.push(`${withCommas(overallCount)} play${overallCount === 1 ? "" : "s"}`);
-  if (monthCount > 0) parts.push(`${monthCount} of those this month alone`);
+  if (overall.count !== null)
+    parts.push(`${overall.complete ? "" : "At least "}${withCommas(overall.count)} play${overall.count === 1 ? "" : "s"}`);
+  else parts.push("Listening total unavailable in this snapshot");
+  if (month.count > 0)
+    parts.push(`${month.complete ? "" : "at least "}${withCommas(month.count)} play${month.count === 1 ? "" : "s"} over the past month`);
   let sentence = parts.join(" — ") + ".";
   if (liveCount > 0) {
     sentence += ` <em>You've stood in the room ${spellSmall(liveCount)} time${liveCount === 1 ? "" : "s"}.</em>`;
@@ -339,10 +386,9 @@ export function openArtistSheet(artistName) {
   const { el, esc } = renderDeps;
   const root = document.getElementById("settings-modal-root");
   const photo = photoFor(artistName);
-  const key = normalizeArtistKey(artistName);
-  const tracks = currentData?.topTracksByArtist?.[key] || [];
-  const overallCount = currentData?.topArtistsOverall?.find((a) => normalizeArtistKey(a.name) === key)?.playcount || 0;
-  const monthCount = currentData?.topArtistsMonth?.find((a) => normalizeArtistKey(a.name) === key)?.playcount || 0;
+  const tracks = artistTracksFor(artistName);
+  const overallCount = artistCountFor(artistName, "overall");
+  const monthCount = artistCountFor(artistName, "month");
   const liveShows = concertsFeaturing(artistName);
 
   root.innerHTML = "";
@@ -357,6 +403,7 @@ export function openArtistSheet(artistName) {
         </div>
         <div class="sheet-head" style="margin-top:22px">
           <p class="lede portrait-statement">${portraitStatement(overallCount, monthCount, liveShows.length)}</p>
+          ${currentData?.meta?.lastUpdated ? `<p class="footnote">Snapshot updated ${esc(timeAgo(currentData.meta.lastUpdated))}.</p>` : ""}
         </div>
 
         ${liveShows.length ? `
