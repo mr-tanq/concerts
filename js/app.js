@@ -232,6 +232,11 @@ function markRecentlyHandled(id) {
   map[id] = Date.now();
   try { localStorage.setItem(RECENT_KEY, JSON.stringify(map)); } catch {}
 }
+function clearRecentlyHandled(ids) {
+  const map = loadRecentlyHandled();
+  for (const id of ids) delete map[id];
+  try { localStorage.setItem(RECENT_KEY, JSON.stringify(map)); } catch {}
+}
 function filterStaleRecommendations(concerts, historyData) {
   const excluded = new Set([
     ...(historyData?.dismissedIds || []),
@@ -374,6 +379,7 @@ async function restoreConcertsRemote(recsToRestore, legacyIdsToRestore = []) {
     recs.concerts.sort((a, b) => (b.match?.score ?? 0) - (a.match?.score ?? 0));
     recs.meta.lastUpdated = new Date().toISOString();
   }, `chore: restore ${restoringIds.size} concert(s) (app)`);
+  clearRecentlyHandled(restoringIds);
 }
 
 async function unplanConcertRemote(plannedRec) {
@@ -429,6 +435,7 @@ async function unplanConcertRemote(plannedRec) {
     }
   }, `chore: unplan ${plannedRec.id} (app)`);
 
+  clearRecentlyHandled([recId]);
   return recId;
 }
 
@@ -1185,6 +1192,7 @@ function stageCard(c) {
         console.error(err);
         syncError = `Couldn't save ${c.artist}`;
         // Undo the optimistic change so the UI can't drift from the repo.
+        clearRecentlyHandled([c.id]);
         deckQueue.push(c);
         if (action === "plan") {
           const i = plannedConcerts.findIndex((p) => p.recommendationId === c.id);
