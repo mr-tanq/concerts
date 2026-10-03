@@ -554,7 +554,7 @@ function anniversaryLine(view) {
   for (const c of hits) {
     const line = el(`<p class="anniversary-line" role="button" tabindex="0">
       ${titleCase(spell(c.yearsAgo))} year${c.yearsAgo === 1 ? "" : "s"} ago tonight —
-      ${esc(c.festivalName || c.artist)}<span>, ${esc(c.venue)}</span>
+      ${esc(c.festivalName || displayPlannedArtist(c.artist))}<span>, ${esc(c.venue)}</span>
     </p>`);
     line.addEventListener("click", () => openSheet(c));
     line.addEventListener("keydown", (event) => {
@@ -591,7 +591,7 @@ function forgottenMemoryLine() {
       <p class="whisper">From the archive</p>
       <p class="anniversary-line">
         ${whenPhrase} —
-        ${esc(c.festivalName || c.artist)}<span>, ${esc(c.venue)}</span>
+        ${esc(c.festivalName || displayPlannedArtist(c.artist))}<span>, ${esc(c.venue)}</span>
       </p>
     </div>
   `);
@@ -688,7 +688,7 @@ function archiveEntry(c) {
     <article class="entry ${c.isFestival ? "is-festival" : ""}">
       <div class="entry-text">
         <div class="entry-date">${weekdayShort(c.date)} · ${dayMonth(c.date)}${firstTimeTag}</div>
-        <h3 class="entry-artist">${esc(c.festivalName || c.artist)}</h3>
+        <h3 class="entry-artist">${esc(c.festivalName || displayPlannedArtist(c.artist))}</h3>
         ${withLine}
         <div class="entry-place">${esc(c.venue)}<span class="dot">·</span>${esc(c.city)}</div>
       </div>
@@ -755,7 +755,7 @@ function openSheet(c) {
       <div class="sheet-inner">
         <div class="sheet-photo ${photo ? "" : "is-empty"}"></div>
         <div class="sheet-head">
-          <h2 class="sheet-artist">${esc(c.festivalName || c.artist)}</h2>
+          <h2 class="sheet-artist">${esc(c.festivalName || displayPlannedArtist(c.artist))}</h2>
           <div class="sheet-when">
             ${weekdayShort(c.date)} ${fullDate(c.date)}<br>
             ${esc(c.venue)}, ${esc(c.city)}
@@ -1112,7 +1112,7 @@ function stageCard(c) {
       <div class="stage-score"><b>${esc(c.match.score)}</b>${esc(c.match.label)}</div>
       <div class="stage-copy">
         <div class="stage-when">${weekdayShort(c.date)} ${dayMonth(c.date)} ${yearOf(c.date)}${time}</div>
-        <h2 class="stage-artist">${esc(c.artist)}</h2>
+        <h2 class="stage-artist">${esc(displayPlannedArtist(c.artist))}</h2>
         ${support.length ? `<div class="stage-with">with ${esc(support.slice(0, 3).join(", "))}</div>` : ""}
         <div class="stage-venue">${esc(c.venue)} <span>· ${esc(c.city)}</span></div>
         ${c.match.matchedBy === "similar" ? `<div class="stage-why">${esc(c.match.reason)}</div>` : ""}
@@ -1310,6 +1310,7 @@ function upcomingHero(c) {
 }
 
 function displayPlannedArtist(artist) {
+  if (normalizeKey(artist) === "hallas") return "Hällas";
   const sameArtist = plannedConcerts.find((concert) =>
     normalizeKey(concert.artist) === normalizeKey(artist)
     && /\p{Ll}/u.test(concert.artist)
@@ -1480,7 +1481,7 @@ function renderAside(body) {
       <div class="aside-row">
         <div class="entry-photo"></div>
         <div class="who">
-          <b>${esc(rec.artist)}</b>
+          <b>${esc(displayPlannedArtist(rec.artist))}</b>
           <span>${esc(rec.venue)} · ${esc(rec.city)} · ${fullDate(rec.date)}</span>
         </div>
         <button class="plain-act">Back</button>
@@ -1764,7 +1765,7 @@ function askWorkArrangements() {
         <p class="whisper">Work and concerts</p>
         <p class="lede">${question}</p>
         <div class="prompt-photo"></div>
-        <p class="lede" style="font-size:24px;margin-top:20px">${esc(concert.artist)}</p>
+        <p class="lede" style="font-size:24px;margin-top:20px">${esc(displayPlannedArtist(concert.artist))}</p>
         <p class="footnote" style="margin-top:8px">${weekdayShort(concert.date)} ${fullDate(concert.date)} · ${esc(concert.venue)}, ${esc(concert.city)}</p>
         <div>${workDayBadge(concert)}</div>
         <p class="status" id="work-prompt-status"></p>
@@ -1824,7 +1825,7 @@ function askAboutPast(queue) {
         <p class="whisper">${queue.length > 1 ? `${queue.length} nights to confirm` : "One night to confirm"}</p>
         <p class="lede">Were you there?</p>
         <div class="prompt-photo"></div>
-        <p class="lede" style="font-size:24px;margin-top:20px">${esc(rec.artist)}</p>
+        <p class="lede" style="font-size:24px;margin-top:20px">${esc(displayPlannedArtist(rec.artist))}</p>
         <p class="footnote" style="margin-top:8px">${weekdayShort(rec.date)} ${fullDate(rec.date)} · ${esc(rec.venue)}, ${esc(rec.city)}</p>
         ${lineup.length > 1 ? `<p class="prompt-lineup">${esc(lineup.join(" · "))}</p>` : ""}
         <p class="status" id="prompt-status"></p>
