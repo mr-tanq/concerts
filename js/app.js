@@ -53,6 +53,7 @@ let goingCalendarSelectedDate = null;
 let archiveConcerts = [];
 let archiveView = null;
 let exploreFilter = { mode: "all", value: null };
+let archiveExploreQuery = "";
 let dismissedConcerts = [];
 let legacyDismissedIds = [];
 let pendingWrites = 0;
@@ -616,24 +617,56 @@ function renderExplore() {
 
   for (const [mode, label] of MODES) {
     const b = el(`<button class="explore-mode ${exploreFilter.mode === mode ? "on" : ""}">${label}</button>`);
-    b.addEventListener("click", () => { exploreFilter = { mode, value: null }; renderExplore(); });
+    b.addEventListener("click", () => {
+      exploreFilter = { mode, value: null };
+      archiveExploreQuery = "";
+      renderExplore();
+    });
     modes.appendChild(b);
   }
 
   if (exploreFilter.mode !== "all") {
     const values = archiveView.explore[exploreFilter.mode] || [];
+    const labels = { year: "years", artist: "artists", city: "cities", venue: "rooms" };
+    const label = `Search ${labels[exploreFilter.mode]}`;
+    const search = el(`<input class="archive-filter-search" type="search" aria-label="${label}" placeholder="${label}" autocomplete="off" spellcheck="false">`);
+    search.value = archiveExploreQuery;
     const row = el(`<div class="explore-values"></div>`);
-    // A horizontal scroll rather than a wall of wrapped pills: 400 artists
-    // should be a drawer you pull through, not a page you fall down.
-    for (const { name, count } of values.slice(0, 60)) {
-      const v = el(`<button class="explore-value ${exploreFilter.value === name ? "on" : ""}">${esc(name)}<i>${count}</i></button>`);
-      v.addEventListener("click", () => {
-        exploreFilter = { mode: exploreFilter.mode, value: exploreFilter.value === name ? null : name };
-        renderExplore();
-      });
-      row.appendChild(v);
-    }
+    const status = el(`<p class="archive-filter-status" role="status"></p>`);
+    const buttons = [];
+
+    const renderValues = () => {
+      row.innerHTML = "";
+      buttons.length = 0;
+      const query = normalizeKey(archiveExploreQuery);
+      const matches = values.filter(({ name }) => normalizeKey(String(name)).includes(query));
+      for (const { name, count } of matches) {
+        const selected = exploreFilter.value === name;
+        const v = el(`<button class="explore-value ${selected ? "on" : ""}" aria-pressed="${selected}">${esc(name)}<i>${count}</i></button>`);
+        buttons.push({ node: v, name });
+        v.addEventListener("click", () => {
+          exploreFilter = { mode: exploreFilter.mode, value: exploreFilter.value === name ? null : name };
+          for (const button of buttons) {
+            const active = exploreFilter.value === button.name;
+            button.node.classList.toggle("on", active);
+            button.node.setAttribute("aria-pressed", String(active));
+          }
+          renderSpine();
+        });
+        row.appendChild(v);
+      }
+      status.textContent = query
+        ? matches.length ? `${matches.length} match${matches.length === 1 ? "" : "es"}` : "No matches"
+        : `${values.length} ${labels[exploreFilter.mode]}`;
+    };
+    search.addEventListener("input", () => {
+      archiveExploreQuery = search.value;
+      renderValues();
+    });
+    bar.appendChild(search);
     bar.appendChild(row);
+    bar.appendChild(status);
+    renderValues();
   }
 
   host.appendChild(bar);

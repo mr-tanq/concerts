@@ -1685,3 +1685,23 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
   stroke-width: 2;
 }
 .realm-focus-close { color: var(--bone-dim); min-height: 44px; }
+
+/* Search every Archive filter option. */
+.archive-filter-search {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  margin-top: 12px;
+  padding: 10px 0;
+  border: 0;
+  border-bottom: 1px solid var(--hair);
+  background: transparent;
+  color: var(--bone);
+  font: 16px var(--sans);
+}
+.archive-filter-search::placeholder { color: var(--bone-dim); }
+.archive-filter-search:focus-visible { outline: 2px solid var(--bone); outline-offset: 3px; }
+.archive-filter-status { margin: 6px 0 0; color: var(--bone-dim); font: 12px/1.5 var(--sans); }
+.explore .explore-values { padding: 3px 2px; }
+.explore .explore-value { min-height: 44px; }
+.explore .explore-value:focus-visible { outline: 2px solid var(--bone); outline-offset: 1px; }
