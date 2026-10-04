@@ -8,11 +8,30 @@
 // Pandora are both TivoliVredenburg. Counting raw room names instead would
 // scatter 33 visits across three entries and hide the recurring room
 // entirely, so every venue statistic goes through this.
+// Exact aliases for confirmed venues; never merge by partial name.
+const VENUE_NAMES = [
+  ["dB’s", ["dB’s", "dB's"]],
+  ["Technopolis", ["Technopolis", "Technopolis City of Athens"]],
+  ["Poppodium 013", ["Poppodium 013", "013", "013 Poppodium"]],
+];
+function venueNameKey(name) {
+  return String(name || "").normalize("NFKD").toLowerCase()
+    .replace(/[\u0300-\u036f]/g, "").replace(/['’‘ʼ]/g, "'")
+    .replace(/\s+/g, " ").trim();
+}
+function canonicalVenueName(name) {
+  if (typeof name !== "string") return name;
+  const key = venueNameKey(name);
+  const group = VENUE_NAMES.find(([, aliases]) => aliases.some(alias => venueNameKey(alias) === key));
+  return group ? group[0] : name;
+}
 export function venueKey(c) {
-  const name = c.venueFamily || c.venue || null;
-  // The same Utrecht venue arrives with straight or typographic apostrophes.
-  if (typeof name === "string" && /^db['’‘ʼ]s$/i.test(name.trim())) return "dB’s";
-  return name;
+  return canonicalVenueName(c.venueFamily || c.venue || null);
+}
+export function venueSearchNames(name) {
+  const canonical = canonicalVenueName(name);
+  const group = VENUE_NAMES.find(([display]) => display === canonical);
+  return group ? group[1] : [name];
 }
 
 // Everyone who played, not just the billed headliner. Support and festival

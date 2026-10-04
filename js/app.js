@@ -1,4 +1,4 @@
-import { buildArchiveView, filterConcerts, artistsOf, actuallySeenArtistsOf, venueKey } from "./archive-stats.js?v=archive-dbs-20261004";
+import { buildArchiveView, filterConcerts, artistsOf, actuallySeenArtistsOf, venueKey, venueSearchNames } from "./archive-stats.js?v=archive-venues-20261004";
 import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, isConflictError } from "./github-api.js";
 import { initMirror, renderMirror, stopPolling as stopMirrorPolling } from "./mirror.js";
 import { initIdentity, renderHero, renderExplore as renderIdentityExplore, renderRightNow, openArtistSheet } from "./identity.js";
@@ -736,7 +736,10 @@ function renderExplore() {
         return exploreFilter.mode === "venue" ? key.replace(/['’‘ʼ]/g, "") : key;
       };
       const query = searchKey(archiveExploreQuery);
-      const matches = values.filter(({ name }) => searchKey(name).includes(query));
+      const matches = values.filter(({ name }) => {
+        const names = exploreFilter.mode === "venue" ? venueSearchNames(name) : [name];
+        return names.some(value => searchKey(value).includes(query));
+      });
       for (const { name, count } of matches) {
         const selected = exploreFilter.value === name;
         const v = el(`<button class="explore-value ${selected ? "on" : ""}" aria-pressed="${selected}">${esc(name)}<i>${count}</i></button>`);
