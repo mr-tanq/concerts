@@ -1,19 +1,106 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-10-04T10:55:24.872Z",
+    "lastUpdated": "2026-10-04T11:46:17.259Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 0,
-      "daysCached": 366,
+      "daysFresh": 366,
+      "daysCached": 0,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 2,
+      "concertsOpened": 4,
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-497224",
+      "source": "podiuminfo",
+      "sourceId": "497224",
+      "artist": "Igorrr",
+      "lineup": [
+        "Igorrr",
+        "Secret Chief 3",
+        "Fange"
+      ],
+      "supportingArtists": [
+        "Secret Chief 3",
+        "Fange"
+      ],
+      "matchedArtists": [
+        "Igorrr"
+      ],
+      "date": "2027-04-02",
+      "time": null,
+      "venue": "Muziekgieterij",
+      "city": "Maastricht",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/81563/100_Igorrr_2.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/497224/Igorrr-Secret-Chief-3-Fange/Muziekgieterij/",
+      "match": {
+        "score": 46,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Igorrr",
+        "matchedArtists": [
+          "Igorrr"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-10-04T11:46:17.259Z",
+      "lastSeenAt": "2026-10-04T11:46:17.259Z"
+    },
+    {
+      "id": "rec-podiuminfo-497084",
+      "source": "podiuminfo",
+      "sourceId": "497084",
+      "artist": "Heretoir",
+      "lineup": [
+        "Heretoir",
+        "Unreqvited",
+        "Nidare"
+      ],
+      "supportingArtists": [
+        "Unreqvited",
+        "Nidare"
+      ],
+      "matchedArtists": [
+        "Heretoir",
+        "Unreqvited"
+      ],
+      "date": "2026-10-25",
+      "time": null,
+      "venue": "De Pit",
+      "city": "Terneuzen",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.podiuminfo.nl/img/podiuminfo-rond.png",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/497084/Heretoir-Unreqvited-Nidare/De-Pit/",
+      "match": {
+        "score": 42,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Sólstafir",
+        "matchedArtists": [
+          "Heretoir",
+          "Unreqvited"
+        ],
+        "similarVia": "Sólstafir"
+      },
+      "discoveredAt": "2026-10-04T11:46:17.259Z",
+      "lastSeenAt": "2026-10-04T11:46:17.259Z"
+    }
+  ]
 }
