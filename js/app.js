@@ -3,7 +3,7 @@ import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, is
 import { initMirror, renderMirror, stopPolling as stopMirrorPolling } from "./mirror.js";
 import { initIdentity, renderHero, renderExplore as renderIdentityExplore, renderRightNow, openArtistSheet } from "./identity.js";
 import { initRealm, renderRealm } from "./realm.js";
-import { computeListeningLife, selectEditorialMoments, renderListeningLife, renderEditorialMoments } from "./self-timeline.js";
+import { computeListeningLife, selectEditorialMoments, renderListeningLife, renderEditorialMoments } from "./self-timeline.js?v=self-20261003-1";
 
 // ---------- global error visibility ----------
 //
