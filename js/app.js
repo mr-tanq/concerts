@@ -1,4 +1,4 @@
-import { buildArchiveView, filterConcerts, artistsOf, actuallySeenArtistsOf, venueKey } from "./archive-stats.js";
+import { buildArchiveView, filterConcerts, artistsOf, actuallySeenArtistsOf, venueKey } from "./archive-stats.js?v=archive-dbs-20261004";
 import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, isConflictError } from "./github-api.js";
 import { initMirror, renderMirror, stopPolling as stopMirrorPolling } from "./mirror.js";
 import { initIdentity, renderHero, renderExplore as renderIdentityExplore, renderRightNow, openArtistSheet } from "./identity.js";
@@ -654,7 +654,7 @@ function anniversaryLine(view) {
   for (const c of hits) {
     const line = el(`<p class="anniversary-line" role="button" tabindex="0">
       ${titleCase(spell(c.yearsAgo))} year${c.yearsAgo === 1 ? "" : "s"} ago tonight —
-      ${esc(c.festivalName || displayPlannedArtist(c.artist))}<span>, ${esc(c.venue)}</span>
+      ${esc(c.festivalName || displayPlannedArtist(c.artist))}<span>, ${esc(venueKey({ venue: c.venue }))}</span>
     </p>`);
     line.addEventListener("click", () => openSheet(c));
     line.addEventListener("keydown", (event) => {
@@ -691,7 +691,7 @@ function forgottenMemoryLine() {
       <p class="whisper">From the archive</p>
       <p class="anniversary-line">
         ${whenPhrase} —
-        ${esc(c.festivalName || displayPlannedArtist(c.artist))}<span>, ${esc(c.venue)}</span>
+        ${esc(c.festivalName || displayPlannedArtist(c.artist))}<span>, ${esc(venueKey({ venue: c.venue }))}</span>
       </p>
     </div>
   `);
@@ -731,8 +731,12 @@ function renderExplore() {
     const renderValues = () => {
       row.innerHTML = "";
       buttons.length = 0;
-      const query = normalizeKey(archiveExploreQuery);
-      const matches = values.filter(({ name }) => normalizeKey(String(name)).includes(query));
+      const searchKey = text => {
+        const key = normalizeKey(String(text));
+        return exploreFilter.mode === "venue" ? key.replace(/['’‘ʼ]/g, "") : key;
+      };
+      const query = searchKey(archiveExploreQuery);
+      const matches = values.filter(({ name }) => searchKey(name).includes(query));
       for (const { name, count } of matches) {
         const selected = exploreFilter.value === name;
         const v = el(`<button class="explore-value ${selected ? "on" : ""}" aria-pressed="${selected}">${esc(name)}<i>${count}</i></button>`);
@@ -822,7 +826,7 @@ function archiveEntry(c) {
         <div class="entry-date">${weekdayShort(c.date)} · ${dayMonth(c.date)}${firstTimeTag}</div>
         <h3 class="entry-artist">${esc(c.festivalName || displayPlannedArtist(c.artist))}</h3>
         ${withLine}
-        <div class="entry-place">${esc(c.venue)}<span class="dot">·</span>${esc(c.city)}</div>
+        <div class="entry-place">${esc(venueKey({ venue: c.venue }))}<span class="dot">·</span>${esc(c.city)}</div>
       </div>
       <div class="entry-photo"></div>
     </article>
@@ -890,7 +894,7 @@ function openSheet(c) {
           <h2 class="sheet-artist">${esc(c.festivalName || displayPlannedArtist(c.artist))}</h2>
           <div class="sheet-when">
             ${weekdayShort(c.date)} ${fullDate(c.date)}<br>
-            ${esc(c.venue)}, ${esc(c.city)}
+            ${esc(venueKey({ venue: c.venue }))}, ${esc(c.city)}
             ${planned ? `<br>${workDayBadge(c)}` : ""}
           </div>
           <p class="lede sheet-memory-line">${planned ? `Going · ${countdownWord(c.date)}` : timesSeenStatement(c)}</p>
@@ -898,7 +902,7 @@ function openSheet(c) {
 
         <dl class="facts">
           <div class="fact"><dt>Billing</dt><dd>${c.isFestival ? "Festival" : "Own show"}</dd></div>
-          ${room && room !== c.venue ? `<div class="fact"><dt>Part of</dt><dd>${esc(room)}</dd></div>` : ""}
+          ${room && room !== venueKey({ venue: c.venue }) ? `<div class="fact"><dt>Part of</dt><dd>${esc(room)}</dd></div>` : ""}
           ${c.country ? `<div class="fact"><dt>Country</dt><dd>${esc(c.country)}</dd></div>` : ""}
         </dl>
 

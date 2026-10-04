@@ -9,7 +9,10 @@
 // scatter 33 visits across three entries and hide the recurring room
 // entirely, so every venue statistic goes through this.
 export function venueKey(c) {
-  return c.venueFamily || c.venue || null;
+  const name = c.venueFamily || c.venue || null;
+  // The same Utrecht venue arrives with straight or typographic apostrophes.
+  if (typeof name === "string" && /^db['’‘ʼ]s$/i.test(name.trim())) return "dB’s";
+  return name;
 }
 
 // Everyone who played, not just the billed headliner. Support and festival
@@ -171,7 +174,7 @@ export function filterConcerts(concerts, { mode, value } = {}) {
     case "city":
       return concerts.filter((c) => c.city === value);
     case "venue":
-      return concerts.filter((c) => venueKey(c) === value);
+      return concerts.filter((c) => venueKey(c) === venueKey({ venue: value }));
     default:
       return concerts;
   }
