@@ -26,8 +26,46 @@ import { actuallySeenArtistsOf } from "./archive-stats.js";
 // Curated, not "top 10 by playcount" — tries to include one strong
 // representative of each listening-life archetype the brief asked for,
 // then fills any remaining slots by total plays for breadth.
+const DAY_MS = 86400000;
+
+// A Dutch calendar week, independent of the browser's timezone and DST.
+export function listeningStoryWeek(now = new Date()) {
+  const date = new Date(now);
+  if (!Number.isFinite(date.getTime())) throw new TypeError("Invalid story date");
+  const parts = Object.fromEntries(new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/Amsterdam", year: "numeric", month: "2-digit", day: "2-digit",
+  }).formatToParts(date).map(p => [p.type, p.value]));
+  const day = new Date(Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day)));
+  day.setUTCDate(day.getUTCDate() - (day.getUTCDay() + 6) % 7);
+  return { start: day.toISOString().slice(0, 10), index: Math.floor((day.getTime() - Date.UTC(2020, 0, 6)) / (7 * DAY_MS)) };
+}
+
+function storyDate(trace, category) {
+  if (category === "comeback") return trace.comeback?.returnWeekStart;
+  if (category === "recentObsession") return trace.obsession?.windowStart;
+  if (category === "concertConnected") return trace.concertEvent?.concertDate;
+  return trace.lastActiveWeek;
+}
+
+function recentlyRecorded(date, week) {
+  const age = (Date.parse(week.start) - Date.parse(date)) / DAY_MS;
+  return Number.isFinite(age) && age >= 0 && age <= 180;
+}
+
+// Two weeks favour current chapters; every third week revisits older ones.
+function storyPool(pool, category, score, week) {
+  const recent = pool.filter(t => recentlyRecorded(storyDate(t, category), week));
+  const older = pool.filter(t => !recentlyRecorded(storyDate(t, category), week));
+  const preferred = week.index % 3 !== 0 ? recent : older;
+  const ranked = [...(preferred.length ? preferred : pool)].sort((a, b) =>
+    score(b) - score(a) || b.totalPlays - a.totalPlays || a.key.localeCompare(b.key));
+  const threshold = (score(ranked[0]) || 0) * 0.5;
+  return ranked.filter(t => score(t) >= threshold).slice(0, 12);
+}
+
 export function computeListeningLife(timeseries, archiveConcerts, options = {}) {
   const maxTraces = options.maxTraces ?? 10;
+  const storyWeek = listeningStoryWeek(options.now);
   const weekStarts = timeseries?.meta?.weekStarts || [];
   if (!weekStarts.length) return { years: [], traces: [], allTraces: [], lastUpdated: timeseries?.meta?.lastUpdated };
 
@@ -95,12 +133,14 @@ export function computeListeningLife(timeseries, archiveConcerts, options = {}) 
 
     candidates.push({
       name: displayName, key, totalPlays, yearTotals, firstYear, lastYear, peakYear,
+      lastActiveWeek: series.filter(w => w.playcount > 0).at(-1)?.weekStart,
       liveCount: concerts.length, concerts,
       archetypes, stayed, comeback, obsession, concertEvent,
     });
   }
 
-  const CATEGORIES = ["longTerm", "comeback", "recentObsession", "dormant", "concertConnected"];
+  const CATEGORIES = ["longTerm", "comeback", "recentObsession", "concertConnected"];
+  if (storyWeek.index % 3 === 0) CATEGORIES.push("dormant");
   const scoreOf = (c, cat) => {
     if (cat === "longTerm") return c.stayed?.score ?? 0;
     if (cat === "comeback") return c.comeback?.score ?? 0;
@@ -108,24 +148,35 @@ export function computeListeningLife(timeseries, archiveConcerts, options = {}) 
     if (cat === "concertConnected") return c.concertEvent?.score ?? 0;
     return c.totalPlays;
   };
-
-  const chosenKeys = new Set();
-  const traces = [];
+  const chosenKeys = new Set(), traces = [];
+  const choose = (trace, category) => {
+    trace.selectedFor = category;
+    chosenKeys.add(trace.key);
+    traces.push(trace);
+  };
   for (const cat of CATEGORIES) {
     if (traces.length >= maxTraces) break;
-    const pool = candidates.filter((c) => c.archetypes.includes(cat) && !chosenKeys.has(c.key));
+    const pool = candidates.filter(c => c.archetypes.includes(cat) && !chosenKeys.has(c.key));
     if (!pool.length) continue;
-    pool.sort((a, b) => scoreOf(b, cat) - scoreOf(a, cat));
-    chosenKeys.add(pool[0].key);
-    pool[0].selectedFor = cat;
-    traces.push(pool[0]);
+    const meaningful = pool.filter(c => c.totalPlays >= 20);
+    const rotating = storyPool(meaningful.length ? meaningful : pool, cat, c => scoreOf(c, cat), storyWeek);
+    const cycle = Math.floor(storyWeek.index / 3);
+    const rotation = storyWeek.index % 3 === 0 ? cycle : cycle * 2 + storyWeek.index % 3 - 1;
+    choose(rotating[((rotation % rotating.length) + rotating.length) % rotating.length], cat);
   }
-  const remaining = candidates.filter((c) => !chosenKeys.has(c.key)).sort((a, b) => b.totalPlays - a.totalPlays);
-  for (const c of remaining) {
-    if (traces.length >= maxTraces) break;
-    chosenKeys.add(c.key);
-    c.selectedFor = "mostPlayed";
-    traces.push(c);
+  let remaining = candidates.filter(c => !chosenKeys.has(c.key));
+  if (storyWeek.index % 3 !== 0) {
+    const active = remaining.filter(c => !c.archetypes.includes("dormant"));
+    if (active.length >= maxTraces - traces.length) remaining = active;
+  }
+  const recent = remaining.filter(c => recentlyRecorded(c.lastActiveWeek, storyWeek));
+  if (storyWeek.index % 3 !== 0 && recent.length >= maxTraces - traces.length) remaining = recent;
+  remaining.sort((a, b) => b.totalPlays - a.totalPlays || a.key.localeCompare(b.key));
+  const breadth = remaining.slice(0, Math.max(30, maxTraces));
+  const places = Math.min(maxTraces - traces.length, breadth.length);
+  for (let i = 0; i < places; i++) {
+    const offset = ((storyWeek.index * Math.max(1, places) + i) % breadth.length + breadth.length) % breadth.length;
+    choose(breadth[offset], "mostPlayed");
   }
 
   // Intensity normalized against each artist's OWN peak year, not the
@@ -138,41 +189,47 @@ export function computeListeningLife(timeseries, archiveConcerts, options = {}) 
 
   traces.sort((a, b) => a.firstYear - b.firstYear || b.totalPlays - a.totalPlays);
   const allTraces = [...candidates].sort((a, b) => b.totalPlays - a.totalPlays || a.name.localeCompare(b.name));
-  return { years, traces, allTraces, lastUpdated: timeseries?.meta?.lastUpdated, backfillComplete: timeseries?.meta?.backfillComplete };
+  return { years, traces, allTraces, storyWeek, lastUpdated: timeseries?.meta?.lastUpdated, backfillComplete: timeseries?.meta?.backfillComplete };
 }
 
 // The 3 strongest, most different stories among the CURATED traces (not a
 // separate pool) — so each can carry a real fragment of its own visible
 // strand. Says less than 3 if fewer genuinely distinct stories exist.
-export function selectEditorialMoments(traces) {
-  const used = new Set();
-  const pick = (predicate, scoreFn) => {
-    const pool = traces.filter((t) => !used.has(t.key) && predicate(t));
-    if (!pool.length) return null;
-    pool.sort((a, b) => scoreFn(b) - scoreFn(a));
-    used.add(pool[0].key);
-    return pool[0];
-  };
-
-  const moments = [];
-  const stayedPick = pick((t) => t.stayed, (t) => t.stayed.score);
-  if (stayedPick) moments.push({ kind: "stayed", trace: stayedPick });
-
-  const comebackPick = pick((t) => t.comeback, (t) => t.comeback.score);
-  if (comebackPick) moments.push({ kind: "comeback", trace: comebackPick });
-
-  const concertPick = pick((t) => t.concertEvent, (t) => t.concertEvent.score);
-  if (concertPick) moments.push({ kind: "concert", trace: concertPick });
-
-  if (moments.length < 3) {
-    const obsessionPick = pick((t) => t.obsession, (t) => t.obsession.score);
-    if (obsessionPick) moments.push({ kind: "obsession", trace: obsessionPick });
+export function selectEditorialMoments(traces, options = {}) {
+  const week = options.storyWeek || listeningStoryWeek(options.now);
+  const kinds = [
+    ["stayed", "longTerm", t => t.stayed],
+    ["comeback", "comeback", t => t.comeback],
+    ["obsession", "recentObsession", t => t.obsession],
+    ["concert", "concertConnected", t => t.concertEvent],
+    ["dormant", "dormant", t => t.archetypes.includes("dormant")],
+  ];
+  const moments = [], used = new Set();
+  const ordered = kinds.map(([kind, category, qualifies], i) => {
+    const representative = traces.find(t => t.selectedFor === category && qualifies(t));
+    return { kind, category, qualifies, representative, order: (i - week.index % 4 + 4) % 4,
+      recent: category !== "dormant" && category !== "longTerm" && representative && recentlyRecorded(storyDate(representative, category), week) };
+  }).sort((a, b) => Number(Boolean(b.recent)) - Number(Boolean(a.recent)) || a.order - b.order);
+  for (const item of ordered) {
+    if (moments.length === 3) break;
+    const trace = item.representative;
+    if (trace && !used.has(trace.key)) {
+      moments.push({ kind: item.kind, trace });
+      used.add(trace.key);
+    }
   }
-  if (moments.length < 3) {
-    const dormantPick = pick((t) => t.archetypes.includes("dormant"), (t) => t.totalPlays);
-    if (dormantPick) moments.push({ kind: "dormant", trace: dormantPick });
+  for (const item of ordered) {
+    if (moments.length === 3) break;
+    if (moments.some(m => m.kind === item.kind)) continue;
+    const pool = traces.filter(t => !used.has(t.key) && item.qualifies(t));
+    pool.sort((a, b) => b.totalPlays - a.totalPlays || a.key.localeCompare(b.key));
+    if (pool.length) {
+      const trace = pool[((week.index % pool.length) + pool.length) % pool.length];
+      moments.push({ kind: item.kind, trace });
+      used.add(trace.key);
+    }
   }
-  return moments.slice(0, 3);
+  return moments;
 }
 
 function momentCopy(m) {
@@ -304,9 +361,9 @@ export function renderListeningLife(root, life, deps, onViewArtist) {
   wrap.appendChild(panel);
   const method = el('<details class="life-method"></details>');
   method.appendChild(el('<summary>How these artists are chosen</summary>'));
-  method.appendChild(el('<p>Stories brings together artists heard across many years, returns after gaps, concentrated listening stretches, older chapters and listening linked to concerts. Remaining places go to artists with the most recorded plays.</p>'));
+  method.appendChild(el('<p>Stories rotates weekly through artists heard across many years, returns after gaps, concentrated listening stretches and listening linked to concerts. Recent chapters receive priority; every third week also revisits older chapters. Remaining places rotate among your most played in the recorded charts.</p>'));
   method.appendChild(el('<p>More artists includes everyone with at least five recorded plays, ordered by recorded plays. This history uses the top 40 artists in each weekly chart, so counts and gaps may omit quieter listening. Each strand shows activity relative to that artist’s own busiest year; dots mark attended concerts.</p>'));
-  method.appendChild(el('<p>History is scheduled to update every Monday. A new snapshot can keep the same stories.</p>'));
+  method.appendChild(el('<p>Stories changes on Mondays using the week in the Netherlands. The same history gives the same selection within that week. History has its own scheduled Monday update; its snapshot date is shown above.</p>'));
   wrap.appendChild(method);
 
   const PAGE_SIZE = 20;
@@ -352,7 +409,7 @@ export function renderListeningLife(root, life, deps, onViewArtist) {
     moreButton.setAttribute("aria-pressed", String(browse));
     explanation.textContent = browse
       ? "Find your artists beyond the stories. Ordered by recorded weekly-chart plays."
-      : traces.length + " listening stories from your history. Select a strand to see why it is here.";
+      : traces.length + " stories for this week. Recent chapters and older discoveries, changing on Mondays. Select a strand to see why it is here.";
     const filtered = browse ? filterListeningArtists(allTraces, search.value) : traces;
     const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
     page = Math.max(0, Math.min(page, pages - 1));
@@ -378,7 +435,7 @@ export function renderListeningLife(root, life, deps, onViewArtist) {
       results.textContent = (page * PAGE_SIZE + 1) + "–" + Math.min((page + 1) * PAGE_SIZE, filtered.length) +
         " of " + filtered.length.toLocaleString("en-US") + " artists";
     } else {
-      results.textContent = filtered.length + " selected stories";
+      results.textContent = filtered.length + " stories this week";
     }
     pager.hidden = !browse || pages <= 1;
     previous.disabled = page === 0;

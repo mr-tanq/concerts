@@ -3,7 +3,7 @@ import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, is
 import { initMirror, renderMirror, stopPolling as stopMirrorPolling } from "./mirror.js";
 import { initIdentity, renderHero, renderExplore as renderIdentityExplore, renderRightNow, openArtistSheet } from "./identity.js";
 import { initRealm, renderRealm } from "./realm.js";
-import { computeListeningLife, selectEditorialMoments, renderListeningLife, renderEditorialMoments } from "./self-timeline.js?v=self-20261003-1";
+import { computeListeningLife, selectEditorialMoments, renderListeningLife, renderEditorialMoments } from "./self-timeline.js?v=self-20261004-rotation";
 
 // ---------- global error visibility ----------
 //
@@ -572,7 +572,7 @@ function refreshArchiveViews(archiveData) {
 
     const momentsRoot = el(`<div id="self-moments-root"></div>`);
     selfPanel.appendChild(momentsRoot);
-    const moments = selectEditorialMoments(life.traces);
+    const moments = selectEditorialMoments(life.traces, { storyWeek: life.storyWeek });
     renderEditorialMoments(momentsRoot, moments, { el, esc }, (name) => openArtistSheet(name));
 
     const exploreRoot = el(`<div id="self-explore-root"></div>`);
