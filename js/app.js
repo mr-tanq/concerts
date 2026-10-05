@@ -1,3 +1,4 @@
+import { mountSchedule, clearScheduleClock, syncScheduleClock } from "./concert-schedule.js?v=schedule-20261005";
 import { buildArchiveView, filterConcerts, artistsOf, actuallySeenArtistsOf, venueKey, venueSearchNames } from "./archive-stats.js?v=archive-venues-20261004";
 import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, isConflictError } from "./github-api.js";
 import { initMirror, renderMirror, stopPolling as stopMirrorPolling } from "./mirror.js";
@@ -1192,6 +1193,7 @@ function renderConcerts(recsData, plannedData, historyData) {
 }
 
 function renderConcertsShell(view = "stage") {
+  clearScheduleClock();
   const root = document.getElementById("panel-concerts");
   root.innerHTML = "";
 
@@ -1382,16 +1384,17 @@ function caughtUp() {
   return wrap;
 }
 
-function upcomingHero(c) {
+function upcomingHero(c, withSchedule = false) {
   const support = (c.supportingArtists || []).filter(Boolean);
   const node = el(`
     <div class="upcoming-hero">
       <div class="upcoming-photo"></div>
-      <div class="countdown">${countdownWord(c.date)}</div>
+      <div class="countdown">${withSchedule && c.date < dutchToday() ? "Tonight" : countdownWord(c.date)}</div>
       <h3 class="entry-artist">${esc(displayPlannedArtist(c.artist))}</h3>
       ${support.length ? `<div class="entry-with">with ${esc(support.slice(0, 3).join(", "))}</div>` : ""}
       <div class="entry-place"><span class="event-venue">${esc(c.venue)} · ${esc(c.city)}</span><span class="event-date">${fullDate(c.date)}</span></div>
       <div>${workDayBadge(c)}</div>
+      ${withSchedule ? `<div class="schedule-host" data-concert-id="${esc(c.id)}"></div>` : ""}
       <div class="act-row" style="padding-left:0;padding-right:0">
         ${c.ticketUrl ? `<button class="plain-act" data-a="tickets">Tickets</button>` : ""}
         <button class="plain-act" data-a="unplan">Not going after all</button>
@@ -1399,6 +1402,7 @@ function upcomingHero(c) {
     </div>
   `);
   setPhoto(node.querySelector(".upcoming-photo"), imageFor(c));
+  if (withSchedule) mountSchedule(node.querySelector(".schedule-host"), { ...c, artist: displayPlannedArtist(c.artist) });
 
   node.querySelector('[data-a="tickets"]')?.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -1433,6 +1437,28 @@ function upcomingHero(c) {
   });
 
   return node;
+}
+
+// Actions commits do not trigger a Pages rebuild. Read fresh schedules once
+// on entering Going / returning to the app, never on countdown ticks.
+let scheduleFetchAt = 0;
+let scheduleFetchPromise = null;
+async function refreshGoingSchedule(concert, host) {
+  try {
+    const wait = concert.schedule?.lastCheckedAt ? 15 * 60000 : 60000;
+    if (!scheduleFetchPromise && Date.now() - scheduleFetchAt > wait) {
+      scheduleFetchAt = Date.now();
+      scheduleFetchPromise = loadRequiredJSON(`https://raw.githubusercontent.com/mr-tanq/concerts/main/data/planned.json?schedule=${Date.now()}`, "concerts")
+        .then(data => {
+          for (const local of plannedConcerts) {
+            const remote = data.concerts.find(c => c.id === local.id && c.date === local.date && normalizeKey(c.artist) === normalizeKey(local.artist) && normalizeKey(c.venue) === normalizeKey(local.venue));
+            if (remote?.schedule?.date === local.date && (!local.schedule || Date.parse(remote.schedule.lastAttemptAt) >= Date.parse(local.schedule.lastAttemptAt || 0))) local.schedule = remote.schedule;
+          }
+        }).finally(() => { scheduleFetchPromise = null; });
+    }
+    if (scheduleFetchPromise) await scheduleFetchPromise;
+    if (host?.isConnected) mountSchedule(host, { ...concert, artist: displayPlannedArtist(concert.artist) });
+  } catch (err) { console.warn("Schedule snapshot unavailable", err); }
 }
 
 function displayPlannedArtist(artist) {
@@ -1540,6 +1566,7 @@ function renderGoingCalendar(body) {
 }
 
 function renderUpcoming(body) {
+  clearScheduleClock();
   body.innerHTML = "";
   const layout = el(`<div class="going-layout" role="group" aria-label="Going view">
     <button data-layout="list" class="${goingLayout === "list" ? "on" : ""}" aria-pressed="${goingLayout === "list"}">List</button>
@@ -1555,8 +1582,9 @@ function renderUpcoming(body) {
   if (goingLayout === "calendar") { renderGoingCalendar(body); return; }
   const today = dutchToday();
   const sorted = [...plannedConcerts].sort((a, b) => String(a.date).localeCompare(String(b.date)));
-  const upcoming = sorted.filter((c) => c.date >= today);
-  const past = sorted.filter((c) => c.date < today);
+  const stillUpcoming = c => c.date >= today || (c.schedule?.date === c.date && Date.parse(c.schedule.end?.at) > Date.now());
+  const upcoming = sorted.filter(stillUpcoming);
+  const past = sorted.filter(c => !stillUpcoming(c));
 
   if (!sorted.length) {
     body.appendChild(el(`<p class="void">Nothing planned. Swipe right on something.</p>`));
@@ -1567,7 +1595,9 @@ function renderUpcoming(body) {
   // A flat list of equal cards hides the only thing that matters — what's soon.
   if (upcoming.length) {
     body.appendChild(el(`<div style="padding:0 var(--gutter)"><p class="whisper">Next</p></div>`));
-    body.appendChild(upcomingHero(upcoming[0]));
+    body.appendChild(upcomingHero(upcoming[0], true));
+    syncScheduleClock();
+    refreshGoingSchedule(upcoming[0], body.querySelector(".schedule-host"));
   }
 
   const rest = [...upcoming.slice(1), ...past];
@@ -2142,6 +2172,12 @@ function setActiveTab(name) {
   // not switching to a different in-app tab.
   if (name === "mirror") renderMirror(document.getElementById("panel-mirror"));
   else stopMirrorPolling();
+  syncScheduleClock();
+  if (name === "concerts") {
+    const host = document.querySelector("#panel-concerts .schedule-host");
+    const next = plannedConcerts.find(c => c.id === host?.dataset.concertId);
+    if (host && next) refreshGoingSchedule(next, host);
+  }
 }
 
 async function init() {
@@ -2231,7 +2267,13 @@ async function init() {
       askAboutPast(pastPlannedConcerts(historyResult.value));
     }
     document.addEventListener("visibilitychange", () => {
+      syncScheduleClock();
       if (!document.hidden && concertsReady) askWorkArrangements();
+      if (!document.hidden) {
+        const host = document.querySelector("#panel-concerts.active .schedule-host");
+        const next = plannedConcerts.find(c => c.id === host?.dataset.concertId);
+        if (host && next) refreshGoingSchedule(next, host);
+      }
     });
   } catch (err) {
     console.error(err);

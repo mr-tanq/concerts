@@ -36,6 +36,10 @@ const r = recs.concerts[idx];
 
 const plannedRecord = {
   id: `planned-${r.id.replace(/^rec-/, "")}`,
+  source: r.source || "podiuminfo",
+  sourceId: r.sourceId || null,
+  sourceUrl: r.sourceUrl || null,
+  lineup: r.lineup || [],
   artist: r.artist,
   supportingArtists: r.supportingArtists || [],
   date: r.date,

@@ -1,0 +1,41 @@
+name: Refresh concert schedules
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  push:
+    branches: [main]
+    paths:
+      - scripts/enrich-concert-schedules.mjs
+      - scripts/sources/concert-schedule.mjs
+      - js/concert-schedule.js
+      - .github/workflows/enrich-concert-schedules.yml
+      - data/planned.json
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: concert-schedules
+  cancel-in-progress: false
+
+jobs:
+  schedules:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Validate schedule logic
+        run: node --test scripts/concert-schedule.test.mjs
+      - name: Check sources and save schedules
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # Re-read the latest Contents SHA and merge only schedule fields;
+        # concurrent Going/work-arrangement writes are preserved.
+        run: node scripts/enrich-concert-schedules.mjs --publish

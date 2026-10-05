@@ -1725,3 +1725,21 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
   outline: 2px solid var(--bone);
   outline-offset: 2px;
 }
+
+
+/* NEXT concert: published times, venue-local clock and source provenance. */
+.concert-schedule{margin-top:28px;padding-top:22px;border-top:1px solid var(--hair)}
+.concert-schedule .whisper{margin-bottom:14px}
+.concert-schedule dl{margin:0}
+.schedule-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;padding:9px 0}
+.schedule-row dt,.schedule-row dd{margin:0;color:var(--bone);font:13px/1.5 var(--mono)}
+.schedule-row dt{overflow-wrap:anywhere;text-transform:uppercase}
+.schedule-row dd{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.schedule-row small{display:block;color:var(--bone-dim);font:10px/1.5 var(--mono);letter-spacing:1px}
+.schedule-row dt small{margin-top:2px}
+.schedule-live{color:#a4dce8;font:16px/1.5 var(--mono);margin:0 0 18px;overflow-wrap:anywhere}
+.schedule-live[hidden]{display:none}
+.schedule-check{color:var(--bone-dim);font:11px/1.6 var(--mono);margin:16px 0 0}
+.schedule-sources{margin-top:4px;color:var(--bone-dim);font:12px/1.6 var(--sans)}
+.schedule-sources summary{cursor:pointer;min-height:44px;display:list-item;padding:12px 0}
+.schedule-sources a{display:block;color:var(--bone-dim);min-height:44px;padding:12px 0;overflow-wrap:anywhere}
