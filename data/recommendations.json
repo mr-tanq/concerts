@@ -1,19 +1,57 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-10-04T20:46:04.234Z",
+    "lastUpdated": "2026-10-05T13:23:50.459Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 0,
-      "daysCached": 366,
+      "daysFresh": 366,
+      "daysCached": 0,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 4,
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-496863",
+      "source": "podiuminfo",
+      "sourceId": "496863",
+      "artist": "Emeli Sandé",
+      "lineup": [
+        "Emeli Sandé"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Emeli Sandé"
+      ],
+      "date": "2027-02-26",
+      "time": null,
+      "venue": "Melkweg",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/63545/100_Emeli_Sand___3.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/142872/cd/Emeli-Sande/Melkweg/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/496863/Emeli-Sande/Melkweg/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Emeli Sandé",
+        "matchedArtists": [
+          "Emeli Sandé"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-10-05T13:23:50.459Z",
+      "lastSeenAt": "2026-10-05T13:23:50.459Z"
+    }
+  ]
 }
