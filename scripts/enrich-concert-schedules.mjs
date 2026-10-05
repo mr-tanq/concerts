@@ -123,6 +123,8 @@ async function main() {
     const changed=updates.length ? await publishUpdates(updates,request,process.env.GITHUB_REF_NAME || "main") : false;
     if(process.env.GITHUB_OUTPUT) await appendFile(process.env.GITHUB_OUTPUT,`changed=${changed}\n`);
   } else if(applyUpdates(data,updates)) await writeFile(file,JSON.stringify(data,null,2)+"\n");
-  if(updates.some(u=>u.schedule.lastError)) process.exitCode=1;
+  for (const update of updates.filter(u => u.schedule.lastError)) {
+    console.warn(`${update.artist}: schedule unavailable; keeping TBA/previous confirmed times for the next check.`);
+  }
 }
 if(process.argv[1] && path.resolve(process.argv[1])===fileURLToPath(import.meta.url)) main().catch(e=>{console.error(e.message);process.exitCode=1;});
