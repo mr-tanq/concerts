@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-05T10:46:00.159Z",
+    "lastUpdated": "2026-10-05T15:07:40.404Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -197,6 +197,29 @@
         "kind": "freeDay",
         "status": "notYet",
         "askedOn": "2026-10-04"
+      },
+      "schedule": {
+        "version": 1,
+        "date": "2026-10-11",
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": null
+        },
+        "support": [],
+        "main": {
+          "name": "The Strokes",
+          "time": null
+        },
+        "end": {
+          "name": "END",
+          "time": null
+        },
+        "sources": [],
+        "lastCheckedAt": null,
+        "lastAttemptAt": "2026-10-05T15:07:35.327Z",
+        "checks": {},
+        "lastError": "No matching source could be checked"
       }
     },
     {
@@ -861,6 +884,77 @@
       "planning": {
         "plannedAt": "2026-08-08T20:38:26.806Z",
         "originalScore": 57
+      },
+      "schedule": {
+        "version": 1,
+        "date": "2026-10-08",
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": "19:30",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://hall-fame.nl/programma/hallas-panorama-fall-tour-2026-111628041",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-05T15:07:35.327Z",
+          "evidence": "19:30ZAAL OPEN",
+          "at": "2026-10-08T17:30:00.000Z"
+        },
+        "support": [
+          {
+            "name": "EARTH TONGUE",
+            "time": "20:30",
+            "dayOffset": 0,
+            "status": "confirmed",
+            "sourceUrl": "https://hall-fame.nl/programma/hallas-panorama-fall-tour-2026-111628041",
+            "sourceKind": "official",
+            "checkedAt": "2026-10-05T15:07:35.327Z",
+            "evidence": "20:30 - 21:00EARTH TONGUE",
+            "at": "2026-10-08T18:30:00.000Z"
+          }
+        ],
+        "main": {
+          "name": "HÄLLAS",
+          "time": "21:30",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://hall-fame.nl/programma/hallas-panorama-fall-tour-2026-111628041",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-05T15:07:35.327Z",
+          "evidence": "21:30 - 23:00HÄLLAS",
+          "at": "2026-10-08T19:30:00.000Z"
+        },
+        "end": {
+          "name": "END",
+          "time": "23:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://hall-fame.nl/programma/hallas-panorama-fall-tour-2026-111628041",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-05T15:07:35.327Z",
+          "evidence": "21:30 - 23:00HÄLLAS",
+          "at": "2026-10-08T21:00:00.000Z"
+        },
+        "sources": [
+          {
+            "url": "https://www.podiuminfo.nl/concert/474246/HALLAS-Panorama-Fall-Tour/Hall-Of-Fame/",
+            "kind": "secondary",
+            "label": "podiuminfo.nl",
+            "checkedAt": "2026-10-05T15:07:35.327Z"
+          },
+          {
+            "url": "https://hall-fame.nl/programma/hallas-panorama-fall-tour-2026-111628041",
+            "kind": "official",
+            "label": "hall-fame.nl",
+            "checkedAt": "2026-10-05T15:07:35.327Z"
+          }
+        ],
+        "lastCheckedAt": "2026-10-05T15:07:35.327Z",
+        "lastAttemptAt": "2026-10-05T15:07:35.327Z",
+        "checks": {
+          "initial": "2026-10-05T15:07:35.327Z"
+        },
+        "lastError": null
       }
     },
     {
