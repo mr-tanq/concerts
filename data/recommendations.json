@@ -1,17 +1,17 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-10-06T13:58:04.086Z",
+    "lastUpdated": "2026-10-06T22:07:55.242Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 366,
-      "daysCached": 0,
+      "daysFresh": 0,
+      "daysCached": 366,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 1,
+      "concertsOpened": 2,
       "rejectedByLineup": 0
     }
   },
@@ -51,7 +51,81 @@
         "similarVia": null
       },
       "discoveredAt": "2026-10-06T12:41:29.683Z",
-      "lastSeenAt": "2026-10-06T13:58:04.086Z"
+      "lastSeenAt": "2026-10-06T22:07:55.242Z"
+    },
+    {
+      "id": "rec-podiuminfo-496633",
+      "source": "podiuminfo",
+      "sourceId": "496633",
+      "artist": "Freddie Mercury",
+      "lineup": [
+        "Freddie Mercury"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Freddie Mercury"
+      ],
+      "date": "2027-03-22",
+      "time": null,
+      "venue": "Concertgebouw",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/158559/100_Bernd_van_den_Bos_1.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/142773/cd/FREDDIE-MERCURY-The-Legend-lives-on/Concertgebouw/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/496633/Freddie-Mercury-The-Legend-lives-on/Concertgebouw/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "similar",
+        "reason": "Similar to Queen",
+        "matchedArtists": [
+          "Freddie Mercury"
+        ],
+        "similarVia": "Queen"
+      },
+      "discoveredAt": "2026-10-06T22:07:55.242Z",
+      "lastSeenAt": "2026-10-06T22:07:55.242Z"
+    },
+    {
+      "id": "rec-podiuminfo-496634",
+      "source": "podiuminfo",
+      "sourceId": "496634",
+      "artist": "Freddie Mercury",
+      "lineup": [
+        "Freddie Mercury"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Freddie Mercury"
+      ],
+      "date": "2027-03-23",
+      "time": null,
+      "venue": "Concertgebouw",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/158559/100_Bernd_van_den_Bos_1.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/142774/cd/FREDDIE-MERCURY-The-Legend-lives-on/Concertgebouw/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/496634/Freddie-Mercury-The-Legend-lives-on/Concertgebouw/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "similar",
+        "reason": "Similar to Queen",
+        "matchedArtists": [
+          "Freddie Mercury"
+        ],
+        "similarVia": "Queen"
+      },
+      "discoveredAt": "2026-10-06T22:07:55.242Z",
+      "lastSeenAt": "2026-10-06T22:07:55.242Z"
     },
     {
       "id": "rec-podiuminfo-497423",
@@ -88,7 +162,7 @@
         "similarVia": null
       },
       "discoveredAt": "2026-10-06T12:41:29.683Z",
-      "lastSeenAt": "2026-10-06T13:58:04.086Z"
+      "lastSeenAt": "2026-10-06T22:07:55.242Z"
     },
     {
       "id": "rec-podiuminfo-497443",
@@ -125,7 +199,7 @@
         "similarVia": "Paradise Lost"
       },
       "discoveredAt": "2026-10-06T13:58:04.086Z",
-      "lastSeenAt": "2026-10-06T13:58:04.086Z"
+      "lastSeenAt": "2026-10-06T22:07:55.242Z"
     }
   ]
 }
