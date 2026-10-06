@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-10-06T12:41:29.683Z",
+    "lastUpdated": "2026-10-06T13:58:04.086Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
@@ -11,7 +11,7 @@
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 3,
+      "concertsOpened": 1,
       "rejectedByLineup": 0
     }
   },
@@ -51,7 +51,7 @@
         "similarVia": null
       },
       "discoveredAt": "2026-10-06T12:41:29.683Z",
-      "lastSeenAt": "2026-10-06T12:41:29.683Z"
+      "lastSeenAt": "2026-10-06T13:58:04.086Z"
     },
     {
       "id": "rec-podiuminfo-497423",
@@ -88,7 +88,44 @@
         "similarVia": null
       },
       "discoveredAt": "2026-10-06T12:41:29.683Z",
-      "lastSeenAt": "2026-10-06T12:41:29.683Z"
+      "lastSeenAt": "2026-10-06T13:58:04.086Z"
+    },
+    {
+      "id": "rec-podiuminfo-497443",
+      "source": "podiuminfo",
+      "sourceId": "497443",
+      "artist": "Moonspell",
+      "lineup": [
+        "Moonspell"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Moonspell"
+      ],
+      "date": "2027-03-07",
+      "time": null,
+      "venue": "Effenaar",
+      "city": "Eindhoven",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/review/small/231/231-23.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/497443/Moonspell/Effenaar/",
+      "match": {
+        "score": 42,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Paradise Lost",
+        "matchedArtists": [
+          "Moonspell"
+        ],
+        "similarVia": "Paradise Lost"
+      },
+      "discoveredAt": "2026-10-06T13:58:04.086Z",
+      "lastSeenAt": "2026-10-06T13:58:04.086Z"
     }
   ]
 }
