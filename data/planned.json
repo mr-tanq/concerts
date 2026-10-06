@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-06T09:54:16.781Z",
+    "lastUpdated": "2026-10-06T17:12:58.680Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -108,6 +108,29 @@
       "planning": {
         "plannedAt": "2026-07-27T15:13:49.176Z",
         "originalScore": 47
+      },
+      "schedule": {
+        "version": 1,
+        "date": "2026-10-13",
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": null
+        },
+        "support": [],
+        "main": {
+          "name": "Fat Freddy's Drop",
+          "time": null
+        },
+        "end": {
+          "name": "END",
+          "time": null
+        },
+        "sources": [],
+        "lastCheckedAt": null,
+        "lastAttemptAt": "2026-10-06T17:12:53.653Z",
+        "checks": {},
+        "lastError": "No matching source could be checked"
       }
     },
     {
@@ -720,6 +743,53 @@
       "planning": {
         "plannedAt": "2026-08-03T16:34:11.798Z",
         "originalScore": 46
+      },
+      "schedule": {
+        "version": 1,
+        "date": "2026-10-13",
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": null
+        },
+        "support": [
+          {
+            "name": "Sons of the Town Hall",
+            "time": null
+          },
+          {
+            "name": "Sons of Town Hall",
+            "time": null
+          }
+        ],
+        "main": {
+          "name": "DeVotchKa",
+          "time": null
+        },
+        "end": {
+          "name": "END",
+          "time": null
+        },
+        "sources": [
+          {
+            "url": "https://www.podiuminfo.nl/concert/460254/DeVotchKa-A-Celebration-of-the-Music-of-Little-Miss-Sunshine/Melkweg/",
+            "kind": "secondary",
+            "label": "podiuminfo.nl",
+            "checkedAt": "2026-10-06T17:12:53.653Z"
+          },
+          {
+            "url": "https://www.melkweg.nl/nl/agenda/devotchka-13-10-2026/",
+            "kind": "official",
+            "label": "melkweg.nl",
+            "checkedAt": "2026-10-06T17:12:53.653Z"
+          }
+        ],
+        "lastCheckedAt": "2026-10-06T17:12:53.653Z",
+        "lastAttemptAt": "2026-10-06T17:12:53.653Z",
+        "checks": {
+          "initial": "2026-10-06T17:12:53.653Z"
+        },
+        "lastError": null
       }
     },
     {
