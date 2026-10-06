@@ -1,4 +1,4 @@
-import { mountSchedule, clearScheduleClock, syncScheduleClock } from "./concert-schedule.js?v=schedule-20261005";
+import { mountSchedule, clearScheduleClock, syncScheduleClock } from "./concert-schedule.js?v=schedule-ux-20261005";
 import { buildArchiveView, filterConcerts, artistsOf, actuallySeenArtistsOf, venueKey, venueSearchNames } from "./archive-stats.js?v=archive-venues-20261004";
 import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, isConflictError } from "./github-api.js";
 import { initMirror, renderMirror, stopPolling as stopMirrorPolling } from "./mirror.js";
@@ -1387,7 +1387,7 @@ function caughtUp() {
 function upcomingHero(c, withSchedule = false) {
   const support = (c.supportingArtists || []).filter(Boolean);
   const node = el(`
-    <div class="upcoming-hero">
+    <div class="upcoming-hero${withSchedule ? " has-schedule" : ""}">
       <div class="upcoming-photo"></div>
       <div class="countdown">${withSchedule && c.date < dutchToday() ? "Tonight" : countdownWord(c.date)}</div>
       <h3 class="entry-artist">${esc(displayPlannedArtist(c.artist))}</h3>
@@ -1395,7 +1395,7 @@ function upcomingHero(c, withSchedule = false) {
       <div class="entry-place"><span class="event-venue">${esc(c.venue)} · ${esc(c.city)}</span><span class="event-date">${fullDate(c.date)}</span></div>
       <div>${workDayBadge(c)}</div>
       ${withSchedule ? `<div class="schedule-host" data-concert-id="${esc(c.id)}"></div>` : ""}
-      <div class="act-row" style="padding-left:0;padding-right:0">
+      <div class="act-row upcoming-actions" style="padding-left:0;padding-right:0">
         ${c.ticketUrl ? `<button class="plain-act" data-a="tickets">Tickets</button>` : ""}
         <button class="plain-act" data-a="unplan">Not going after all</button>
       </div>

@@ -1728,18 +1728,38 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 
 
 /* NEXT concert: published times, venue-local clock and source provenance. */
-.concert-schedule{margin-top:28px;padding-top:22px;border-top:1px solid var(--hair)}
-.concert-schedule .whisper{margin-bottom:14px}
+.concert-schedule{margin-top:22px;padding-top:17px;border-top:1px solid var(--hair)}
+.concert-schedule .whisper{margin-bottom:10px;color:var(--bone-dim)}
 .concert-schedule dl{margin:0}
-.schedule-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;padding:9px 0}
-.schedule-row dt,.schedule-row dd{margin:0;color:var(--bone);font:13px/1.5 var(--mono)}
-.schedule-row dt{overflow-wrap:anywhere;text-transform:uppercase}
-.schedule-row dd{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
-.schedule-row small{display:block;color:var(--bone-dim);font:10px/1.5 var(--mono);letter-spacing:1px}
-.schedule-row dt small{margin-top:2px}
-.schedule-live{color:#a4dce8;font:16px/1.5 var(--mono);margin:0 0 18px;overflow-wrap:anywhere}
+.schedule-row{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:16px;padding:7px 0}
+.schedule-row dt,.schedule-row dd{margin:0;color:var(--bone-dim);font:12px/1.4 var(--mono)}
+.schedule-row dt{overflow-wrap:anywhere}
+.schedule-row dd{text-align:right;font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.schedule-row--support dt{color:var(--bone);font:14px/1.35 var(--sans)}
+.schedule-row--support dd{color:var(--bone)}
+.schedule-row--main{padding:10px 0}
+.schedule-row--main dt{color:var(--bone);font:23px/1.1 var(--serif)}
+.schedule-row--main dd{color:var(--bone);font-size:18px;font-weight:600}
+.schedule-row small{display:block;color:var(--bone-dim);font:9px/1.4 var(--mono);letter-spacing:1px}
+.schedule-row dt small{margin-top:3px}
+.schedule-row .schedule-tba{color:var(--bone-dim);font-size:12px;font-weight:400}
+.schedule-row[aria-current="step"]::before{content:"";position:absolute;left:-10px;top:7px;bottom:7px;width:2px;background:#a4dce8}
+.schedule-row[aria-current="step"] dt,.schedule-row[aria-current="step"] dd{color:#a4dce8}
+.schedule-live{color:#a4dce8;font:500 17px/1.4 var(--mono);margin:0 0 12px;overflow-wrap:anywhere}
 .schedule-live[hidden]{display:none}
-.schedule-check{color:var(--bone-dim);font:11px/1.6 var(--mono);margin:16px 0 0}
-.schedule-sources{margin-top:4px;color:var(--bone-dim);font:12px/1.6 var(--sans)}
-.schedule-sources summary{cursor:pointer;min-height:44px;display:list-item;padding:12px 0}
-.schedule-sources a{display:block;color:var(--bone-dim);min-height:44px;padding:12px 0;overflow-wrap:anywhere}
+.schedule-check{color:var(--bone-dim);font:10px/1.5 var(--mono);margin:0}
+.schedule-unchecked{margin-top:12px}
+.schedule-sources{margin-top:8px;color:var(--bone-dim);font:12px/1.5 var(--sans)}
+.schedule-sources summary{cursor:pointer;min-height:44px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px 12px;padding:8px 0;list-style:none}
+.schedule-sources summary::-webkit-details-marker{display:none}
+.schedule-source-toggle{display:flex;align-items:center;gap:7px;color:var(--bone-dim)}
+.schedule-source-toggle span{display:inline-block;transition:transform .2s}
+.schedule-sources[open] .schedule-source-toggle span{transform:rotate(180deg)}
+.schedule-source-list{padding:4px 0 8px;border-top:1px solid var(--hair-soft)}
+.schedule-source-list .schedule-check{padding-top:8px}
+.schedule-sources a{display:block;color:var(--bone);min-height:44px;padding:12px 0;overflow-wrap:anywhere}
+.schedule-sources summary:focus-visible,.schedule-sources a:focus-visible,.has-schedule .plain-act:focus-visible{outline:2px solid var(--bone);outline-offset:4px}
+.has-schedule .upcoming-actions{padding-top:14px;gap:22px;flex-wrap:wrap}
+.has-schedule .plain-act{min-height:44px;letter-spacing:.12em}
+.has-schedule .plain-act[data-a="tickets"]{color:var(--bone);border-bottom-color:var(--bone-dim)}
+.has-schedule .plain-act[data-a="unplan"]{color:var(--bone-dim)}
