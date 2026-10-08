@@ -1,19 +1,94 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-10-07T22:31:10.641Z",
+    "lastUpdated": "2026-10-08T12:43:58.457Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 0,
-      "daysCached": 366,
+      "daysFresh": 366,
+      "daysCached": 0,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 3,
+      "concertsOpened": 4,
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-497728",
+      "source": "podiuminfo",
+      "sourceId": "497728",
+      "artist": "The Ocean",
+      "lineup": [
+        "The Ocean"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "The Ocean"
+      ],
+      "date": "2027-01-24",
+      "time": null,
+      "venue": "Vera",
+      "city": "Groningen",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/15944/100_The_Ocean_1.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/497728/The-Ocean/Vera/",
+      "match": {
+        "score": 49,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: The Ocean",
+        "matchedArtists": [
+          "The Ocean"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-10-08T12:43:58.457Z",
+      "lastSeenAt": "2026-10-08T12:43:58.457Z"
+    },
+    {
+      "id": "rec-podiuminfo-497730",
+      "source": "podiuminfo",
+      "sourceId": "497730",
+      "artist": "The Ocean",
+      "lineup": [
+        "The Ocean"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "The Ocean"
+      ],
+      "date": "2027-01-27",
+      "time": null,
+      "venue": "Doornroosje",
+      "city": "Nijmegen",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/15944/100_The_Ocean_2.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/497730/The-Ocean-Solaris/Doornroosje/",
+      "match": {
+        "score": 49,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: The Ocean",
+        "matchedArtists": [
+          "The Ocean"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-10-08T12:43:58.457Z",
+      "lastSeenAt": "2026-10-08T12:43:58.457Z"
+    }
+  ]
 }
