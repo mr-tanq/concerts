@@ -56,7 +56,7 @@ function b64DecodeUtf8(str) {
 }
 
 export async function getFile(config, path) {
-  const data = await ghRequest(config, path);
+  const data = await ghRequest(config, path, { cache: "no-store" });
   const content = b64DecodeUtf8(data.content.replace(/\n/g, ""));
   return { json: JSON.parse(content), sha: data.sha };
 }

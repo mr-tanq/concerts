@@ -1,0 +1,29 @@
+name: Search a concert
+on:
+  push:
+    branches: [main]
+    paths: [data/concert-search-request.json]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: manual-concert-search
+  cancel-in-progress: false
+jobs:
+  search:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install --ignore-scripts
+      - name: Find and verify concerts
+        run: node scripts/search-concerts.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}

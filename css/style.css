@@ -1614,6 +1614,30 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 .going-layout{display:flex;justify-content:flex-end;gap:16px;padding:8px var(--gutter) 24px}
 .going-layout button{font:10px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--bone-faint);padding:9px 0;border-bottom:1px solid transparent}
 .going-layout button.on{color:var(--bone);border-color:var(--ember)}
+.going-layout .going-add{margin-right:auto;color:var(--bone);letter-spacing:.12em}
+dialog.concert-search{box-sizing:border-box;width:min(560px,calc(100% - 24px));max-height:calc(100dvh - 40px);padding:24px;background:var(--black);color:var(--bone);border:1px solid var(--hair);overflow:auto;overscroll-behavior:contain;font-family:var(--sans)}
+dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
+.concert-search-head{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.concert-search-head .whisper{margin:0}
+.concert-search-close{min-width:44px;min-height:44px;font:28px var(--sans);color:var(--bone-dim)}
+.concert-search h2{font:38px/1.1 var(--serif);margin:12px 0 16px}
+.concert-search-form{margin-top:24px}
+.concert-search .field label{color:var(--bone-dim);letter-spacing:.07em}
+.concert-search .field input{box-sizing:border-box;width:100%;min-height:48px;font:16px var(--sans)}
+.concert-search .plain-act{min-height:44px;color:var(--bone);text-align:left}
+.concert-search .plain-act:disabled{color:var(--bone-dim);cursor:default}
+.concert-search-status{min-height:24px;margin:20px 0 8px}
+.concert-search-status.bad{color:var(--red)}
+.concert-search-result{border-top:1px solid var(--hair);padding:20px 0;display:grid;gap:8px}
+.concert-search-result h3{margin:0;font:29px/1.15 var(--serif);overflow-wrap:anywhere}
+.concert-search-result p{margin:0}
+.concert-search-date{font:12px/1.5 var(--mono);color:var(--bone)}
+.concert-search-source{font:12px/1.5 var(--sans);color:var(--bone-dim);min-height:32px;display:flex;align-items:center;width:fit-content}
+.concert-search-result .plain-act{justify-self:start}
+.concert-search-deciding{margin-top:8px}
+.concert-search [hidden]{display:none!important}
+.concert-search button:focus-visible,.concert-search a:focus-visible,.going-add:focus-visible{outline:2px solid var(--ember);outline-offset:4px}
+@media(max-width:380px){dialog.concert-search{padding:20px}.concert-search h2{font-size:32px}}
 .going-calendar{padding:0 var(--gutter) 110px}
 .calendar-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
 .calendar-head h3{font:28px var(--serif);color:var(--bone);text-align:center}

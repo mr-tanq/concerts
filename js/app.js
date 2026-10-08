@@ -1,6 +1,8 @@
 import { mountSchedule, clearScheduleClock, syncScheduleClock } from "./concert-schedule.js?v=schedule-ux-20261005";
 import { buildArchiveView, filterConcerts, artistsOf, actuallySeenArtistsOf, venueKey, venueSearchNames } from "./archive-stats.js?v=archive-venues-20261004";
 import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, isConflictError } from "./github-api.js";
+import { openConcertSearch } from "./concert-search.js?v=manual-search-20261007";
+import { concertSearchState } from "./concert-search-model.js?v=manual-search-20261007";
 import { initMirror, renderMirror, stopPolling as stopMirrorPolling } from "./mirror.js";
 import { initIdentity, renderHero, renderExplore as renderIdentityExplore, renderRightNow, openArtistSheet } from "./identity.js";
 import { initRealm, renderRealm } from "./realm.js";
@@ -355,9 +357,40 @@ function plannedRecordFrom(rec) {
     image: rec.image || null,
     ticketUrl: rec.ticketUrl || null,
     sourceUrl: rec.sourceUrl || null,
+    ...(rec.manualSearch ? { manualSearch: rec.manualSearch } : {}),
+    ...(rec.officialUrl ? { officialUrl: rec.officialUrl } : {}),
     recommendationId: rec.id,
     planning: { plannedAt: new Date().toISOString(), originalScore: rec.match?.score ?? null },
   };
+}
+
+async function addSearchConcertRemote(concert) {
+  const RECS = "data/recommendations.json", PLANNED = "data/planned.json";
+  const HIST = "data/recommendation-history.json", ARCHIVE = "data/archive.json";
+  if (!concert.id || !concert.artist || !concert.venue || !concert.city || !/^\d{4}-\d{2}-\d{2}$/.test(concert.date) || concert.date < dutchToday()) throw new Error("This concert is no longer upcoming. Please search again.");
+  pendingWrites++; renderSaving();
+  try {
+    const saved = await enqueue(() => mutate([RECS, PLANNED, HIST, ARCHIVE], files => {
+      const history = files[HIST];
+      const existing = concertSearchState(concert, {
+        recommendations: files[RECS].concerts, planned: files[PLANNED].concerts,
+        dismissed: history.dismissed || [], archived: files[ARCHIVE].concerts,
+        dismissedIds: history.dismissedIds || [], plannedIds: history.plannedIds || [],
+      });
+      if (existing) {
+        const error = new Error(existing === "In Set aside" ? "This is in Set aside. Bring it back from there." : existing);
+        error.concertState = existing;
+        throw error;
+      }
+      const now = new Date().toISOString();
+      files[RECS].concerts.unshift({ ...concert, discoveredAt: now, lastSeenAt: now });
+      files[RECS].meta.lastUpdated = now;
+      return [RECS];
+    }, `chore: add ${concert.id} to Deciding (app)`));
+    clearRecentlyHandled([concert.id]);
+    deckQueue = filterStaleRecommendations(saved[RECS].concerts, saved[HIST]);
+    document.querySelector('#panel-concerts [data-v="stage"] i')?.replaceChildren(String(deckQueue.length));
+  } finally { pendingWrites--; renderSaving(); }
 }
 
 async function planConcertRemote(rec) {
@@ -469,6 +502,8 @@ async function unplanConcertRemote(plannedRec) {
         ticketUrl: plannedRec.ticketUrl || null,
         sourceApis: plannedRec.sourceApis || ["podiuminfo"],
         sourceUrl: plannedRec.sourceUrl || null,
+        ...(plannedRec.manualSearch ? { manualSearch: plannedRec.manualSearch } : {}),
+        ...(plannedRec.officialUrl ? { officialUrl: plannedRec.officialUrl } : {}),
         match: {
           score: plannedRec.planning?.originalScore ?? 50,
           label: "Strong match",
@@ -1236,7 +1271,7 @@ function stageCard(c) {
       <div class="stage-veil"></div>
       <div class="verdict yes">Going</div>
       <div class="verdict no">Not this one</div>
-      <div class="stage-score"><b>${esc(c.match.score)}</b>${esc(c.match.label)}</div>
+      <div class="stage-score">${c.manualSearch ? "Added by you" : `<b>${esc(c.match.score)}</b>${esc(c.match.label)}`}</div>
       <div class="stage-copy">
         <div class="stage-when">${weekdayShort(c.date)} ${dayMonth(c.date)} ${yearOf(c.date)}${time}</div>
         <h2 class="stage-artist">${esc(displayPlannedArtist(c.artist))}</h2>
@@ -1579,6 +1614,15 @@ function renderUpcoming(body) {
     body.querySelector(`[data-layout="${goingLayout}"]`)?.focus({ preventScroll: true });
   }));
   body.appendChild(layout);
+  const add = el(`<button type="button" class="going-add" aria-label="Find a concert to add to Deciding">+ Add</button>`);
+  add.addEventListener("click", () => openConcertSearch({
+    button: add,
+    connect: openSettings,
+    stateFor: c => concertSearchState(c, { recommendations: deckQueue, planned: plannedConcerts, dismissed: dismissedConcerts, archived: archiveConcerts, dismissedIds: legacyDismissedIds }),
+    addConcert: addSearchConcertRemote,
+    showDeciding: () => renderConcertsShell("stage"),
+  }));
+  layout.prepend(add);
   if (goingLayout === "calendar") { renderGoingCalendar(body); return; }
   const today = dutchToday();
   const sorted = [...plannedConcerts].sort((a, b) => String(a.date).localeCompare(String(b.date)));
@@ -1867,6 +1911,8 @@ function recommendationFromPlanned(concert) {
     ticketUrl: concert.ticketUrl || null,
     sourceApis: concert.sourceApis || ["podiuminfo"],
     sourceUrl: concert.sourceUrl || null,
+    ...(concert.manualSearch ? { manualSearch: concert.manualSearch } : {}),
+    ...(concert.officialUrl ? { officialUrl: concert.officialUrl } : {}),
     match: {
       score: concert.planning?.originalScore ?? 50,
       label: "Strong match", matchedBy: "direct",

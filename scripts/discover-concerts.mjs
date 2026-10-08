@@ -35,6 +35,7 @@
 
 import { readFile, writeFile, rename } from "node:fs/promises";
 import path from "node:path";
+import { preserveManualConcerts, sameSearchConcert } from "../js/concert-search-model.js";
 import {
   discoverEvents,
   normalizeArtistName,
@@ -67,6 +68,7 @@ async function writeJsonAtomic(filePath, obj) {
 
 const CONFIG = JSON.parse(await readFile(path.join(ROOT, "data/config.json"), "utf8"));
 const ARCHIVE = JSON.parse(await readFile(path.join(ROOT, "data/archive.json"), "utf8"));
+const PLANNED = JSON.parse(await readFile(path.join(ROOT, "data/planned.json"), "utf8"));
 const HISTORY = JSON.parse(await readFile(path.join(ROOT, "data/recommendation-history.json"), "utf8"));
 
 let DAY_CACHE = await loadJsonSafe(DAY_CACHE_PATH, { entries: {} });
@@ -513,7 +515,7 @@ async function main() {
   );
 
   const nowIso = new Date().toISOString();
-  const results = [];
+  let results = [];
 
   // Funnel counters — when the output is unexpectedly empty, these say
   // exactly which stage ate the events instead of leaving us guessing.
@@ -539,6 +541,8 @@ async function main() {
 
     if (alreadyInArchive(event, ARCHIVE.concerts)) { dropped.alreadyInArchive++; trace("already in the archive"); continue; }
     if (isExcluded(event, excludedIds)) { dropped.previouslyHandled++; trace("already dismissed or planned before"); continue; }
+    const manualHandled = [...(HISTORY.dismissed || []), ...(PLANNED.concerts || [])].filter(c => c.manualSearch);
+    if (manualHandled.some(c => sameSearchConcert(c, { source: "podiuminfo", sourceId: event.concertId, artist: event.matchedTracked[0], lineup: event.lineup, date: event.date, venue: event.venue, city: event.city }))) { dropped.previouslyHandled++; continue; }
 
     const { displayArtist, match } = scoreEvent(event, signalByName, similarByName, CONFIG);
     if (isDebugTarget) console.log(`[debug] ${event.date} ${event.venue}: score ${match.score} (${match.matchedBy}) — ${match.reason}`);
@@ -582,7 +586,8 @@ async function main() {
     });
   }
 
-  results.sort((a, b) => b.match.score - a.match.score || a.date.localeCompare(b.date));
+  results = preserveManualConcerts(results, EXISTING_RECS.concerts || [], { today, history: HISTORY, archive: ARCHIVE.concerts });
+  results.sort((a, b) => Number(!!b.manualSearch) - Number(!!a.manualSearch) || b.match.score - a.match.score || a.date.localeCompare(b.date));
 
   // --- Prune caches (never drop anything still referenced) ---
   const protectedConcertIds = new Set(results.map((r) => String(r.sourceId)));

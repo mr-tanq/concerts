@@ -389,6 +389,33 @@ export function detectCountry(city) {
  * Returns { events, stats } — stats lets the caller judge whether the
  * crawl was complete enough to publish.
  */
+// Manual search uses the complete day catalogue, including untracked artists.
+// Always re-open a selected candidate's own page; a cached title is not proof.
+export async function searchCachedArtist({ artist, startDate, endDate, dayCacheEntries, fetcher = fetchPage, deadline = Infinity }) {
+  const trackedSet = new Set([normalizeArtistName(artist)]), candidates = new Map();
+  let coveredDays = 0, failures = 0;
+  for (const [date, entry] of Object.entries(dayCacheEntries || {})) {
+    if (date < startDate || date > endDate || !Array.isArray(entry.candidates)) continue;
+    coveredDays++;
+    for (const c of entry.candidates) if (splitLineup(c.rawTitle, trackedSet).some(n => isTrackedName(n, trackedSet))) candidates.set(String(c.concertId), c.href);
+  }
+  const events = []; let truncated = candidates.size > 40;
+  for (const [concertId, href] of [...candidates].slice(0, 40)) {
+    if (Date.now() > deadline - 32000) { truncated = true; break; }
+    try {
+      const url = new URL(href, 'https://www.podiuminfo.nl');
+      if (url.protocol !== 'https:' || !['podiuminfo.nl', 'www.podiuminfo.nl'].includes(url.hostname) || !/^\/concert\/\d+\//.test(url.pathname)) continue;
+      const html = await fetcher(url.href), parsed = parseConcertPageTitle(html, trackedSet);
+      const heading = cheerio.load(html)('h1').first().text();
+      if (/afgelast|geannuleerd|cancelled|canceled/i.test(heading)) continue;
+      if (!parsed || !parsed.lineup.some(n => isTrackedName(n, trackedSet))) { failures++; continue; }
+      if (parsed.date < startDate || parsed.date > endDate) continue;
+      events.push({ concertId, url: url.href, ...parsed, matchedTracked: parsed.lineup.filter(n => isTrackedName(n, trackedSet)), country: detectCountry(parsed.city) });
+    } catch { failures++; }
+  }
+  return { events, coveredDays, failures, truncated };
+}
+
 export async function discoverEvents({
   trackedArtistNames,
   startDate,
