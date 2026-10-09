@@ -54,6 +54,7 @@ export function openConcertSearch({ button, stateFor, addConcert, showDeciding, 
     for (const c of concerts) {
       const row=node('div','','concert-search-result');
       row.append(node('h3',c.artist),node('p',`${c.venue} · ${c.city}`,'footnote'));
+      if (c.supportingArtists?.length) row.appendChild(node('p',`With ${c.supportingArtists.join(' · ')}`,'footnote'));
       const date=new Date(`${c.date}T12:00:00Z`);
       row.appendChild(node('p',Number.isFinite(date.getTime())?new Intl.DateTimeFormat('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric',timeZone:'UTC'}).format(date):c.date,'concert-search-date'));
       const source=safeLink(c.officialUrl || c.sourceUrl);

@@ -40,9 +40,12 @@ function eventDate(value, country) {
 }
 function namedDate(value) {
   const months = ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
+  const short = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
   const m = searchKey(value).match(/\b(\d{1,2}) (\w+) (\d{4})\b/);
-  if (!m || !months.includes(m[2])) return null;
-  const date = `${m[3]}-${String(months.indexOf(m[2])+1).padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+  if (!m) return null;
+  const month = months.includes(m[2]) ? months.indexOf(m[2]) : short.indexOf(m[2]);
+  if (month < 0) return null;
+  const date = `${m[3]}-${String(month+1).padStart(2,'0')}-${m[1].padStart(2,'0')}`;
   return validDate(date) ? date : null;
 }
 export function parseOfficialEvents(html, url, venue, artist) {
@@ -80,17 +83,44 @@ export function parseOfficialEvents(html, url, venue, artist) {
       output.push({ artist:displayArtist, eventName:heading, lineup:[displayArtist], supportingArtists:[], date, venue:name, city, country, sourceUrl:url, image:safeURL($('meta[property="og:image"]').attr('content')), ticketUrl:safeURL($('a.button--tickets').first().attr('href')) });
     }
   }
+  // Effenaar's Event data names only the headliner and a room, without a
+  // city. Its own bill confirms support acts; only its two in-house halls
+  // can use the registered venue/city. Other locations remain unverified.
+  if (!output.length && domain === 'effenaar.nl' && officialURL(url,domain) && /^\/agenda\/[^/]+\/?$/.test(new URL(url).pathname)) {
+    const heading = $('h1.header-title').first().text().replace(/\s+/g,' ').trim();
+    const subtitle = $('.header-subtitle').first().text().replace(/\s+/g,' ').trim();
+    const support = subtitle.match(/(?:^|\|)\s*\+\s*(.+)$/)?.[1] || '';
+    const lineup = [...new Map([...splitLineup(heading),...splitLineup(support)].map(n=>[searchKey(n),n])).values()];
+    const date = namedDate($('.header-meta-date').first().text());
+    const room = $('.event-bar-item.location').first().text().trim();
+    const cancelled = /afgelast|cancelled|geannuleerd|verplaatst/i.test($('.header-meta-status').text()+' '+heading);
+    const event = events.find(e=>searchKey(e.name) === searchKey(heading) && eventDate(e.startDate,country) === date &&
+      !/EventCancelled|EventPostponed/.test(e.eventStatus || '') && [e.location].flat().length === 1 &&
+      searchKey([e.location].flat()[0]?.name) === searchKey(room));
+    if (event && date && /^(Grote zaal|Kleine zaal)$/i.test(room) && !cancelled && lineup.some(n=>artistInTitle(n,artist))) {
+      const rawImage = typeof event.image === 'string' ? event.image : Array.isArray(event.image) ? event.image[0] : event.image?.url;
+      output.push({artist:heading,eventName:heading,lineup,supportingArtists:lineup.filter(n=>searchKey(n)!==searchKey(heading)),date,venue:name,city,country,sourceUrl:url,image:safeURL(rawImage),ticketUrl:safeURL([event.offers].flat().find(o=>o?.url)?.url)});
+    }
+  }
   return output;
 }
-async function fetchHTML(url, domain) {
+export async function fetchHTML(url, domain, fetcher = fetch) {
+  // Effenaar embeds several MB of application data even on event pages.
+  // Bound the downloaded bytes while allowing its verified current size.
+  const maxBytes = domain === 'effenaar.nl' ? 8000000 : 2500000;
   for (let attempt=0; attempt<2; attempt++) {
     try {
-      const response = await fetch(url, { signal:AbortSignal.timeout(15000), headers:{'User-Agent':'ListeningMirror/1.0 (personal concert search)'} });
+      const response = await fetcher(url, { signal:AbortSignal.timeout(15000), headers:{'User-Agent':'ListeningMirror/1.0 (personal concert search)'} });
       if (!officialURL(response.url,domain)) throw new Error('Unexpected redirect');
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      if (Number(response.headers.get('content-length') || 0) > 2500000) throw new Error('Page too large');
-      const html = await response.text(); if (html.length > 2500000) throw new Error('Page too large');
-      return html;
+      if (Number(response.headers.get('content-length') || 0) > maxBytes) throw new Error('Page too large');
+      const chunks = []; let bytes = 0;
+      for await (const chunk of response.body) {
+        bytes += chunk.byteLength;
+        if (bytes > maxBytes) throw new Error('Page too large');
+        chunks.push(Buffer.from(chunk));
+      }
+      return Buffer.concat(chunks).toString('utf8');
     } catch (error) { if (attempt) throw error; await new Promise(r => setTimeout(r,600)); }
   }
 }
@@ -134,7 +164,7 @@ export async function searchConcerts(request, { dayCacheEntries, startDate, endD
     // Keep Podiuminfo's canonical id even when adding the venue's source URL.
     if (previous) { if (c.source === 'official') { previous.officialUrl=c.sourceUrl; previous.image ||= c.image; } continue; }
     const id = c.source === 'podiuminfo' ? `rec-podiuminfo-${c.sourceId}` : `rec-official-${createHash('sha256').update(c.sourceId).digest('hex').slice(0,16)}`;
-    concerts.push({ ...c,id,time:null,isFestival:false,sourceApis:[c.source],match:{score:0,label:'Added by you',matchedBy:'manual',reason:'Found by your search',matchedArtists:[c.artist]} });
+    concerts.push({ ...c,id,time:null,isFestival:false,sourceApis:[c.source],match:{score:0,label:'Added by you',matchedBy:'manual',reason:'Found by your search',matchedArtists:(c.lineup || [c.artist]).filter(n=>artistInTitle(n,artist))} });
   }
   return { concerts:concerts.sort((a,b)=>a.date.localeCompare(b.date)), warnings:[...new Set(warnings)], coverage:{startDate,endDate,catalogueDays:catalogue.coveredDays,officialVenues:venues.map(v=>v[0])} };
 }
