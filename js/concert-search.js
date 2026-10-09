@@ -1,5 +1,6 @@
 import { getGithubConfig, getFile, putFile, isConflictError } from './github-api.js';
-import { validateSearchRequest } from './concert-search-model.js?v=nationwide-search-20261009';
+import { validateSearchRequest } from './concert-search-model.js?v=country-search-20261009';
+import { searchLocation, countryCode, countryName } from './concert-countries.js?v=country-search-20261009';
 const REQUEST_PATH = 'data/concert-search-request.json';
 const delay = ms => new Promise(resolve=>setTimeout(resolve,ms));
 export async function submitConcertSearch(config, request) {
@@ -30,8 +31,8 @@ export function openConcertSearch({ button, stateFor, addConcert, showDeciding, 
     <p class="footnote">Find a show and add it to Deciding. You can choose Going or Pass afterwards.</p>
     <form class="concert-search-form">
       <div class="field"><label for="concert-search-artist">Artist or band</label><input id="concert-search-artist" name="artist" required minlength="2" maxlength="100" placeholder="Groundation" autocomplete="off"></div>
-      <div class="field"><label for="concert-search-place">Venue or city (optional)</label><input id="concert-search-place" name="place" minlength="2" maxlength="120" placeholder="All Netherlands" autocomplete="off" aria-describedby="concert-search-scope"></div>
-      <p id="concert-search-scope" class="footnote">Leave blank to search across the Netherlands, including venues outside our list.</p>
+      <div class="field"><label for="concert-search-place">Country, venue or city (optional)</label><input id="concert-search-place" name="place" minlength="2" maxlength="120" placeholder="Netherlands (default), Greece…" autocomplete="off" aria-describedby="concert-search-scope"></div>
+      <p id="concert-search-scope" class="footnote">Leave blank for the Netherlands. Enter a country, or a city and country such as Athens, Greece.</p>
       <button type="submit" class="plain-act">Search</button>
     </form>
     <p class="concert-search-status footnote" role="status" aria-live="polite"></p>
@@ -50,8 +51,9 @@ export function openConcertSearch({ button, stateFor, addConcert, showDeciding, 
     results.replaceChildren(); results.setAttribute('aria-busy','false');
     if (result.status==='error') {say(result.message || 'Search could not finish. Please try again.',true);return;}
     const concerts=Array.isArray(result.concerts) ? result.concerts : [];
-    const scope = request.place ? '' : ' in the Netherlands';
-    say(concerts.length ? `${concerts.length} ${concerts.length===1?'show':'shows'} found${scope}. Choose the date and venue you want.` : `No verified matches found${scope} in the next 12 months. Try the full artist name${request.place ? ' or another venue or city' : ''}.`);
+    const location = searchLocation(request.place), scope = location.country ? ` in ${location.label}` : '';
+    say(concerts.length ? `${concerts.length} ${concerts.length===1?'show':'shows'} found${scope}. Choose the date and venue you want.` : `No verified matches found${scope} in the next 12 months. Try the full artist name${request.place ? ' or another country, venue or city' : ''}.`);
+    if (!concerts.length && result.coverage?.unavailable) say('The concert sources could not be checked. Please try again.',true);
     const warnings = Array.isArray(result.warnings) ? [...new Set(result.warnings.filter(w=>typeof w==='string' && w.trim()))] : [];
     if (warnings.length) {
       const coverage=node('details','','concert-search-coverage');
@@ -61,12 +63,12 @@ export function openConcertSearch({ button, stateFor, addConcert, showDeciding, 
     }
     for (const c of concerts) {
       const row=node('div','','concert-search-result');
-      row.append(node('h3',c.artist),node('p',`${c.venue} · ${c.city}`,'footnote'));
+      row.append(node('h3',c.artist),node('p',`${c.venue} · ${c.city}${countryCode(c.country) && countryCode(c.country)!=='NL' ? ` · ${countryName(c.country)}` : ''}`,'footnote'));
       if (c.supportingArtists?.length) row.appendChild(node('p',`With ${c.supportingArtists.join(' · ')}`,'footnote'));
       const date=new Date(`${c.date}T12:00:00Z`);
       row.appendChild(node('p',Number.isFinite(date.getTime())?new Intl.DateTimeFormat('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric',timeZone:'UTC'}).format(date):c.date,'concert-search-date'));
       const source=safeLink(c.officialUrl || c.sourceUrl);
-      if (source) {const link=node('a',c.officialUrl || c.source==='official'?'Official event ↗':'Podiuminfo ↗','concert-search-source');link.href=source;link.target='_blank';link.rel='noopener noreferrer';row.appendChild(link);}
+      if (source) {const link=node('a',c.officialUrl || c.source==='official'?'Official event ↗':c.source==='songkick'?'Songkick ↗':c.source==='more'?'More.com ↗':'Podiuminfo ↗','concert-search-source');link.href=source;link.target='_blank';link.rel='noopener noreferrer';row.appendChild(link);}
       const action=node('button',stateFor(c) || 'Add to Deciding','plain-act');action.type='button';action.disabled=!!stateFor(c);row.appendChild(action);
       if (action.textContent==='In Set aside') row.appendChild(node('p','You can bring this back from Set aside.','footnote'));
       action.addEventListener('click',async()=>{
@@ -87,7 +89,8 @@ export function openConcertSearch({ button, stateFor, addConcert, showDeciding, 
   }
   async function poll(request, token) {
     const started=Date.now(); results.setAttribute('aria-busy','true');
-    say(request.place ? 'Checking the concert sources… This can take a minute. You can close this window and return to Add.' : 'Checking concert sources across the Netherlands… This can take a few minutes. You can close this window and return to Add.');
+    const location = searchLocation(request.place);
+    say(`Checking concert sources${location.country ? ` in ${location.label}` : ''}… This can take a few minutes. You can close this window and return to Add.`);
     while(!closed && generation===token && Date.now()-started<timeoutMs) {
       try {
         const result=await api.read(config,request.id);

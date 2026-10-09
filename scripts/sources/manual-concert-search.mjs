@@ -3,6 +3,8 @@ import { createHash } from 'node:crypto';
 import { searchKey, sameSearchConcert, validateSearchRequest } from '../../js/concert-search-model.js';
 import { searchCachedArtist, splitLineup, isTrackedName, normalizeArtistName, detectCountry } from './podiuminfo.mjs';
 import { validDate, localDate } from '../../js/concert-schedule.js';
+import { searchLocation, matchesLocation } from '../../js/concert-countries.js';
+import { searchInternationalConcerts } from './international-concert-search.mjs';
 
 // Only venue-owned sites. Location comes from Event data; registry defaults
 // are used only by explicit, venue-specific single-event adapters.
@@ -142,16 +144,18 @@ export async function searchOfficialVenue(venue, artist, fetcher = fetchHTML, de
   }
   return { events:output, failures, truncated };
 }
-export async function searchConcerts(request, { dayCacheEntries, startDate, endDate, podiumFetcher, officialFetcher } = {}) {
+export async function searchConcerts(request, { dayCacheEntries, startDate, endDate, podiumFetcher, officialFetcher, internationalFetcher } = {}) {
   const { artist,place } = validateSearchRequest(request), warnings = [];
-  const nationwide = !place;
+  const scope = searchLocation(place), nationwide = scope.country === 'NL' && !scope.place;
   const deadline = Date.now() + 420000;
+  if (scope.country && scope.country !== 'NL') return searchInternationalConcerts({artist,scope,startDate,endDate,deadline,fetcher:internationalFetcher || fetchHTML});
+  const inLocation = c => scope.country ? matchesLocation(c,scope) : placeMatches(c,place);
   const catalogue = await searchCachedArtist({ artist,startDate,endDate,dayCacheEntries,deadline, fetcher:podiumFetcher || (async url=>{await new Promise(r=>setTimeout(r,1200));return fetchHTML(url,'podiuminfo.nl');}) });
   const expectedDays = Math.round((Date.parse(endDate)-Date.parse(startDate))/86400000)+1;
   if (catalogue.coveredDays < expectedDays) warnings.push(`The catalogue covers ${catalogue.coveredDays} of ${expectedDays} days in this search range. These results may be incomplete.`);
   if (catalogue.failures || catalogue.truncated) warnings.push('Some matching catalogue events could not be checked. These results may be incomplete.');
   const raw = catalogue.events.map(e => ({ artist:e.matchedTracked[0], lineup:e.lineup, supportingArtists:e.lineup.filter(n=>!isTrackedName(n,new Set([normalizeArtistName(artist)]))), date:e.date, venue:e.venue, city:e.city, country:e.country || '??', image:e.image, ticketUrl:e.ticketUrl, source:'podiuminfo',sourceId:e.concertId, sourceUrl:e.url }));
-  const venues = SEARCH_VENUES.filter(v => nationwide ? v[2] === 'NL' : placeMatches({venue:v[0],city:v[1]},place));
+  const venues = SEARCH_VENUES.filter(v => inLocation({venue:v[0],city:v[1],country:v[2]}));
   // Different venue domains can be checked in parallel. Podiuminfo requests
   // above remain sequential to respect its stricter rate limit.
   const results = new Array(venues.length); let cursor = 0;
@@ -172,12 +176,12 @@ export async function searchConcerts(request, { dayCacheEntries, startDate, endD
   }
   if (nationwide && raw.some(c=>!c.country || c.country === '??')) warnings.push('Some locations could not be confirmed as Dutch and were left out. These results may be incomplete.');
   const concerts = [];
-  for (const c of raw.filter(c => c.date >= startDate && c.date <= endDate && (nationwide ? c.country === 'NL' : placeMatches(c,place)))) {
+  for (const c of raw.filter(c => c.date >= startDate && c.date <= endDate && inLocation(c))) {
     const previous = concerts.find(x=>sameSearchConcert(x,c));
     // Keep Podiuminfo's canonical id even when adding the venue's source URL.
     if (previous) { if (c.source === 'official') { previous.officialUrl=c.sourceUrl; previous.image ||= c.image; } continue; }
     const id = c.source === 'podiuminfo' ? `rec-podiuminfo-${c.sourceId}` : `rec-official-${createHash('sha256').update(c.sourceId).digest('hex').slice(0,16)}`;
     concerts.push({ ...c,id,time:null,isFestival:false,sourceApis:[c.source],match:{score:0,label:'Added by you',matchedBy:'manual',reason:'Found by your search',matchedArtists:(c.lineup || [c.artist]).filter(n=>artistInTitle(n,artist))} });
   }
-  return { concerts:concerts.sort((a,b)=>a.date.localeCompare(b.date)), warnings:[...new Set(warnings)], coverage:{startDate,endDate,country:nationwide ? 'NL' : null,catalogueDays:catalogue.coveredDays,officialVenues:venues.map(v=>v[0])} };
+  return { concerts:concerts.sort((a,b)=>a.date.localeCompare(b.date)), warnings:[...new Set(warnings)], coverage:{startDate,endDate,country:scope.country,catalogueDays:catalogue.coveredDays,officialVenues:venues.map(v=>v[0])} };
 }

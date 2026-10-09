@@ -10,7 +10,7 @@ export { parseSchedule, mergeSchedule, normalize } from "./sources/concert-sched
 import { parseSchedule, mergeSchedule, normalize, matchName, venueConfig, zoneFor, allowedURL } from "./sources/concert-schedule.mjs";
 
 export function checkPhase(concert, now = Date.now(), force = false) {
-  if (!validDate(concert.date)) return null;
+  if (!validDate(concert.date) || !zoneFor(concert)) return null;
   const today = localDate(now,zoneFor(concert)), s = concert.schedule?.date === concert.date ? concert.schedule : null;
   if (concert.date < today) return null;
   if (s?.lastAttemptAt && now - Date.parse(s.lastAttemptAt) < 50*60000) return null;
@@ -48,7 +48,7 @@ export async function enrichOne(concert, now, phase, fetcher = fetchPage) {
   const add = url => { const u=allowedURL(url,official); if(u) candidates.add(u); };
   for (const url of [concert.officialEventUrl,...(concert.scheduleSourceUrls || []), ...(concert.schedule?.sources || []).filter(s=>s.kind==="official").map(s=>s.url)]) add(url);
   if (allowedURL(concert.sourceUrl,official)) add(concert.sourceUrl);
-  const sourceId = concert.sourceId || String(concert.id || "").match(/podiuminfo-(\d+)/)?.[1];
+  const sourceId = concert.source === "podiuminfo" && /^\d+$/.test(String(concert.sourceId || "")) ? concert.sourceId : String(concert.id || "").match(/podiuminfo-(\d+)/)?.[1];
   const podium = allowedURL(concert.sourceUrl,secondary) || (sourceId ? `https://www.podiuminfo.nl/concert/${sourceId}/` : null);
   if (podium) try {
     const page=await fetcher(podium,secondary), parsed=parseSchedule(page.html,concert,page.url,"secondary",now);

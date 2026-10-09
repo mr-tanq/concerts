@@ -1,4 +1,5 @@
 import * as cheerio from "cheerio";
+import { countryCode, countryZone } from "../../js/concert-countries.js";
 import { localDate, validDate, venueInstant } from "../../js/concert-schedule.js";
 
 export const normalize = s => String(s || "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
@@ -19,9 +20,13 @@ const MONTHS = ["januari|january", "februari|february", "maart|march", "april", 
 const timePattern = /\b([01]?\d|2[0-3])[:.]([0-5]\d)\b/g;
 const times = text => [...String(text).matchAll(timePattern)].map(m => `${m[1].padStart(2,"0")}:${m[2]}`);
 export const matchName = (text, name) => (` ${normalize(text)} `).includes(` ${normalize(name)} `);
-export function venueConfig(c) { return VENUES.find(([name]) => normalize(name) === normalize(c.venue)); }
-export function zoneFor(c) { return c.country === "BE" ? "Europe/Brussels" : "Europe/Amsterdam"; }
+export function venueConfig(c) {
+  const code = countryCode(c.country);
+  return VENUES.find(([name, host]) => normalize(name) === normalize(c.venue) && (!code || code === (host === "botanique.be" ? "BE" : "NL")));
+}
+export function zoneFor(c) { return countryCode(c.country) ? countryZone(c.country) : "Europe/Amsterdam"; }
 function wallTime(value, c) {
+  if (!zoneFor(c)) return null;
   const v = String(value || "");
   if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(v)) {
     if (/(Z|[+-]\d{2}:\d{2})$/i.test(v)) {
@@ -157,7 +162,7 @@ export function mergeSchedule(concert, results, now, phase) {
   if (results.some(r => r.source.kind === "official")) for (const [key,f] of selected) if (f.sourceKind !== "official") selected.delete(key);
   const zone = zoneFor(concert);
   const make = (key, name) => {
-    const f = selected.get(key); if (!f) return { name, time: null };
+    const f = selected.get(key); if (!f || !zone) return { name, time: null };
     const at = venueInstant(concert.date, f.time, zone, f.dayOffset || 0);
     return at ? {...f, at} : {name, time:null};
   };

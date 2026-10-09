@@ -1,3 +1,4 @@
+import { countryCode, locationKey } from './concert-countries.js?v=country-search-20261009';
 // Shared event identity for search, persistence and scheduled discovery.
 export const searchKey = value => String(value || '').normalize('NFKD')
   .replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
@@ -5,11 +6,15 @@ export function sameSearchConcert(a, b) {
   if ((a.id && a.id === b.id) || (a.recommendationId && a.recommendationId === b.id) || (b.recommendationId && b.recommendationId === a.id)) return true;
   if (a.source && a.source === b.source && a.sourceId && b.sourceId) return String(a.sourceId) === String(b.sourceId);
   if (a.date !== b.date || !a.date) return false;
+  if (countryCode(a.country) && countryCode(b.country) && countryCode(a.country) !== countryCode(b.country)) return false;
   // Compare across sources without collapsing two venues in the same city.
   const names = c => [c.artist, ...(c.lineup || []), ...(c.supportingArtists || [])].map(searchKey).filter(Boolean);
   if (!names(a).some(n => names(b).includes(n))) return false;
-  const venue = c => searchKey(c.venue).replace(/^tivoli vredenburg\b/, 'tivolivredenburg');
-  return !!venue(a) && venue(a) === venue(b) && (!a.city || !b.city || searchKey(a.city) === searchKey(b.city));
+  const venue = c => {
+    const name=searchKey(c.venue).replace(/^tivoli vredenburg\b/, 'tivolivredenburg');
+    return countryCode(c.country)==='GR' && name==='floyd live music venue' ? 'floyd' : name;
+  };
+  return !!venue(a) && venue(a) === venue(b) && (!a.city || !b.city || locationKey(a.city) === locationKey(b.city));
 }
 export function concertSearchState(c, { recommendations = [], planned = [], dismissed = [], archived = [], dismissedIds = [], plannedIds = [] }) {
   if (planned.some(x => sameSearchConcert(c, x)) || plannedIds.includes(c.id)) return 'Already in Going';
@@ -34,6 +39,6 @@ export function validateSearchRequest(value) {
   const artist = String(value.artist || '').trim(), place = String(value.place || '').trim();
   if (artist.length < 2 || artist.length > 100 || searchKey(artist).length < 2 ||
     (place && (place.length < 2 || place.length > 120 || searchKey(place).length < 2)) ||
-    /[\r\n\x00-\x1f]/.test(artist + place)) throw new Error('Enter an artist; venue or city is optional');
+    /[\r\n\x00-\x1f]/.test(artist + place)) throw new Error('Enter an artist; country, venue or city is optional');
   return { id: value.id, artist, place };
 }

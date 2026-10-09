@@ -1,8 +1,8 @@
 import { mountSchedule, clearScheduleClock, syncScheduleClock } from "./concert-schedule.js?v=schedule-ux-20261005";
 import { buildArchiveView, filterConcerts, artistsOf, actuallySeenArtistsOf, venueKey, venueSearchNames } from "./archive-stats.js?v=archive-venues-20261004";
 import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, isConflictError } from "./github-api.js";
-import { openConcertSearch } from "./concert-search.js?v=search-sources-20261009";
-import { concertSearchState } from "./concert-search-model.js?v=nationwide-search-20261009";
+import { openConcertSearch } from "./concert-search.js?v=country-search-20261009";
+import { concertSearchState, sameSearchConcert } from "./concert-search-model.js?v=country-search-20261009";
 import { initMirror, renderMirror, stopPolling as stopMirrorPolling } from "./mirror.js";
 import { initIdentity, renderHero, renderExplore as renderIdentityExplore, renderRightNow, openArtistSheet } from "./identity.js";
 import { initRealm, renderRealm } from "./realm.js";
@@ -235,7 +235,7 @@ function imageFor(rec) {
   const cached = concertImageByArtist.get(normalizeKey(rec.artist));
   if (cached) return cached;
 
-  let sid = rec.sourceId ? String(rec.sourceId) : null;
+  let sid = (!rec.source || rec.source === "podiuminfo") && rec.sourceId ? String(rec.sourceId) : null;
   if (!sid) {
     const m = String(rec.id || "").match(/podiuminfo-(\d+)/) ||
               String(rec.recommendationId || "").match(/podiuminfo-(\d+)/);
@@ -408,10 +408,7 @@ async function planConcertRemote(rec) {
     }
 
     const record = plannedRecordFrom(rec);
-    const dup = planned.concerts.some(
-      (c) => (c.sourceId && rec.sourceId && String(c.sourceId) === String(rec.sourceId)) ||
-             (c.artist === record.artist && c.date === record.date && c.venue === record.venue)
-    );
+    const dup = planned.concerts.some(c => sameSearchConcert(c, record));
     if (!dup) planned.concerts.push(record);
     planned.meta.lastUpdated = new Date().toISOString();
 
@@ -1798,10 +1795,7 @@ async function attendedConcertRemote(plannedRec) {
     const archive = f[ARCH], planned = f[PLANNED];
     const rec = archiveRecordFrom(plannedRec);
 
-    const dup = archive.concerts.some(
-      (c) => (c.sourceId && rec.sourceId && String(c.sourceId) === String(rec.sourceId)) ||
-             (c.artist === rec.artist && c.date === rec.date && c.venue === rec.venue)
-    );
+    const dup = archive.concerts.some(c => sameSearchConcert(c, rec));
     if (!dup) archive.concerts.push(rec);
     archive.concerts.sort((a, b) => String(a.date).localeCompare(String(b.date)));
     if (archive.meta) {
