@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-09T14:24:14.760Z",
+    "lastUpdated": "2026-10-09T14:24:34.365Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -1833,6 +1833,44 @@
         "kind": "lateStart",
         "status": "yes",
         "askedOn": "2026-10-02"
+      },
+      "schedule": {
+        "version": 1,
+        "date": "2026-10-16",
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": null
+        },
+        "support": [],
+        "main": {
+          "name": "Kid Francescoli",
+          "time": null
+        },
+        "end": {
+          "name": "END",
+          "time": null
+        },
+        "sources": [
+          {
+            "url": "https://www.podiuminfo.nl/concert/458184/Kid-Francescoli/Melkweg/",
+            "kind": "secondary",
+            "label": "podiuminfo.nl",
+            "checkedAt": "2026-10-09T14:24:32.439Z"
+          },
+          {
+            "url": "https://www.melkweg.nl/nl/agenda/kid-francescoli-16-10-2026/",
+            "kind": "official",
+            "label": "melkweg.nl",
+            "checkedAt": "2026-10-09T14:24:32.439Z"
+          }
+        ],
+        "lastCheckedAt": "2026-10-09T14:24:32.439Z",
+        "lastAttemptAt": "2026-10-09T14:24:32.439Z",
+        "checks": {
+          "initial": "2026-10-09T14:24:32.439Z"
+        },
+        "lastError": null
       }
     },
     {
