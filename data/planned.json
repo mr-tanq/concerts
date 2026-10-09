@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-09T21:53:06.704Z",
+    "lastUpdated": "2026-10-09T21:53:23.521Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -2247,6 +2247,38 @@
       "planning": {
         "plannedAt": "2026-10-09T21:53:06.703Z",
         "originalScore": 34
+      },
+      "schedule": {
+        "version": 1,
+        "date": "2026-10-16",
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": null
+        },
+        "support": [],
+        "main": {
+          "name": "hubris.",
+          "time": null
+        },
+        "end": {
+          "name": "END",
+          "time": null
+        },
+        "sources": [
+          {
+            "url": "https://www.podiuminfo.nl/concert/470275/hubris-/Kroepoekfabriek/",
+            "kind": "secondary",
+            "label": "podiuminfo.nl",
+            "checkedAt": "2026-10-09T21:53:22.328Z"
+          }
+        ],
+        "lastCheckedAt": "2026-10-09T21:53:22.328Z",
+        "lastAttemptAt": "2026-10-09T21:53:22.328Z",
+        "checks": {
+          "initial": "2026-10-09T21:53:22.328Z"
+        },
+        "lastError": null
       }
     }
   ]
