@@ -52,7 +52,13 @@ export function openConcertSearch({ button, stateFor, addConcert, showDeciding, 
     const concerts=Array.isArray(result.concerts) ? result.concerts : [];
     const scope = request.place ? '' : ' in the Netherlands';
     say(concerts.length ? `${concerts.length} ${concerts.length===1?'show':'shows'} found${scope}. Choose the date and venue you want.` : `No verified matches found${scope} in the next 12 months. Try the full artist name${request.place ? ' or another venue or city' : ''}.`);
-    for (const warning of result.warnings || []) results.appendChild(node('p',warning,'footnote concert-search-warning'));
+    const warnings = Array.isArray(result.warnings) ? [...new Set(result.warnings.filter(w=>typeof w==='string' && w.trim()))] : [];
+    if (warnings.length) {
+      const coverage=node('details','','concert-search-coverage');
+      coverage.appendChild(node('summary','Search may be incomplete','footnote'));
+      for (const warning of warnings) coverage.appendChild(node('p',warning,'footnote concert-search-warning'));
+      results.appendChild(coverage);
+    }
     for (const c of concerts) {
       const row=node('div','','concert-search-result');
       row.append(node('h3',c.artist),node('p',`${c.venue} · ${c.city}`,'footnote'));

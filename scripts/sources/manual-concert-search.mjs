@@ -9,14 +9,14 @@ import { validDate, localDate } from '../../js/concert-schedule.js';
 export const SEARCH_VENUES = [
   ['Hall Of Fame','Tilburg','NL','hall-fame.nl','/programma'], ['Paard','Den Haag','NL','paard.nl','/agenda/'],
   ['TivoliVredenburg','Utrecht','NL','tivolivredenburg.nl','/agenda/'], ['013','Tilburg','NL','013.nl','/programma'],
-  ['Paradiso','Amsterdam','NL','paradiso.nl','/nl/programma'], ['Melkweg','Amsterdam','NL','melkweg.nl','/nl/agenda/'],
+  ['Paradiso','Amsterdam','NL','paradiso.nl','/programma'], ['Melkweg','Amsterdam','NL','melkweg.nl','/nl/agenda/'],
   ['Ziggo Dome','Amsterdam','NL','ziggodome.nl','/agenda'], ['Patronaat','Haarlem','NL','patronaat.nl','/programma/'],
   ['Doornroosje','Nijmegen','NL','doornroosje.nl','/programma/'], ['AFAS Live','Amsterdam','NL','afaslive.nl','/agenda'],
-  ["dB's",'Utrecht','NL','dbstudio.nl','/programma/'], ['Vera','Groningen','NL','vera-groningen.nl','/events/'],
-  ['Effenaar','Eindhoven','NL','effenaar.nl','/agenda'], ['Muziekgieterij','Maastricht','NL','muziekgieterij.nl','/agenda/'],
+  ["dB's",'Utrecht','NL','dbstudio.nl','/events/'], ['Vera','Groningen','NL','vera-groningen.nl','/programma/'],
+  ['Effenaar','Eindhoven','NL','effenaar.nl','/agenda'], ['Muziekgieterij','Maastricht','NL','muziekgieterij.nl','/'],
   ['Baroeg','Rotterdam','NL','baroeg.nl','/agenda/'], ['Annabel','Rotterdam','NL','annabel.nu','/agenda/'],
   ['Botanique','Brussels','BE','botanique.be','/en/concerts'], ['Bibelot','Dordrecht','NL','bibelot.net','/agenda/'],
-  ['Grenswerk','Venlo','NL','grenswerk.nl','/agenda/'], ['Willemeen','Arnhem','NL','willemeen.nl','/agenda/'],
+  ['Grenswerk','Venlo','NL','grenswerk.nl','/agenda/'], ['Willemeen','Arnhem','NL','willemeen.nl','/programma/'],
 ];
 const placeKey = value => searchKey(value).replace(/^tivoli vredenburg\b/, 'tivolivredenburg').replace(/^brussel$/, 'brussels');
 export const placeMatches = (c, place) => [c.venue,c.city].some(v => placeKey(v).includes(placeKey(place)));
@@ -148,7 +148,8 @@ export async function searchConcerts(request, { dayCacheEntries, startDate, endD
   const deadline = Date.now() + 420000;
   const catalogue = await searchCachedArtist({ artist,startDate,endDate,dayCacheEntries,deadline, fetcher:podiumFetcher || (async url=>{await new Promise(r=>setTimeout(r,1200));return fetchHTML(url,'podiuminfo.nl');}) });
   const expectedDays = Math.round((Date.parse(endDate)-Date.parse(startDate))/86400000)+1;
-  if (catalogue.coveredDays < expectedDays || catalogue.failures || catalogue.truncated) warnings.push('Some catalogue pages could not be checked. These results may be incomplete.');
+  if (catalogue.coveredDays < expectedDays) warnings.push(`The catalogue covers ${catalogue.coveredDays} of ${expectedDays} days in this search range. These results may be incomplete.`);
+  if (catalogue.failures || catalogue.truncated) warnings.push('Some matching catalogue events could not be checked. These results may be incomplete.');
   const raw = catalogue.events.map(e => ({ artist:e.matchedTracked[0], lineup:e.lineup, supportingArtists:e.lineup.filter(n=>!isTrackedName(n,new Set([normalizeArtistName(artist)]))), date:e.date, venue:e.venue, city:e.city, country:e.country || '??', image:e.image, ticketUrl:e.ticketUrl, source:'podiuminfo',sourceId:e.concertId, sourceUrl:e.url }));
   const venues = SEARCH_VENUES.filter(v => nationwide ? v[2] === 'NL' : placeMatches({venue:v[0],city:v[1]},place));
   // Different venue domains can be checked in parallel. Podiuminfo requests
@@ -165,7 +166,7 @@ export async function searchConcerts(request, { dayCacheEntries, startDate, endD
   for (const [index,venue] of venues.entries()) {
     const found = results[index];
     if (found.timeout) { warnings.push('The search reached its time limit. These results may be incomplete.'); continue; }
-    if (found.failed) { warnings.push(`${venue[0]}'s official programme could not be checked.`); continue; }
+    if (found.failed) { warnings.push(`The official programme for ${venue[0]} could not be checked.`); continue; }
     raw.push(...found.events.map(e=>({...e,source:'official',sourceId:`${e.sourceUrl}|${e.date}|${searchKey(e.eventName)}|${searchKey(e.venue)}`})));
     if (found.failures || found.truncated) warnings.push(`${venue[0]} could not be checked completely.`);
   }

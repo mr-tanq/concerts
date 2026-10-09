@@ -1628,6 +1628,9 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
 .concert-search .plain-act:disabled{color:var(--bone-dim);cursor:default}
 .concert-search-status{min-height:24px;margin:20px 0 8px}
 .concert-search-status.bad{color:var(--red)}
+.concert-search-coverage{margin:0 0 12px}
+.concert-search-coverage summary{cursor:pointer;min-height:44px;padding:10px 0;box-sizing:border-box}
+.concert-search-coverage summary:focus-visible{outline:2px solid var(--ember);outline-offset:4px}
 .concert-search-result{border-top:1px solid var(--hair);padding:20px 0;display:grid;gap:8px}
 .concert-search-result h3{margin:0;font:29px/1.15 var(--serif);overflow-wrap:anywhere}
 .concert-search-result p{margin:0}
