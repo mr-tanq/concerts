@@ -379,6 +379,32 @@ export function detectCountry(city) {
   return null; // UNKNOWN — caller decides
 }
 
+// The search must also cover small Dutch towns outside the city list.
+// Use this concert's own Event address; unrelated events and organisation
+// metadata cannot decide the country. Never default an unknown place to NL.
+export function parseConcertCountry(html, concert) {
+  const $ = cheerio.load(html), countries = [];
+  const visit = value => {
+    if (Array.isArray(value)) return value.forEach(visit);
+    if (!value || typeof value !== 'object') return;
+    if ([value['@type']].flat().some(t=>['Event','MusicEvent'].includes(t)) && String(value.startDate || '').slice(0,10) === concert.date) {
+      for (const location of [value.location].flat().filter(Boolean)) {
+        if (normalizeArtistName(location.name) !== normalizeArtistName(concert.venue) ||
+          normalizeArtistName(location.address?.addressLocality) !== normalizeArtistName(concert.city)) continue;
+        const raw = location.address?.addressCountry;
+        if (!raw) continue;
+        const name = typeof raw === 'object' ? raw.name : raw;
+        const code = /^(NL|Netherlands|Nederland)$/i.test(name) ? 'NL' :
+          /^(BE|Belgium|België|Belgique)$/i.test(name) ? 'BE' : /^[A-Z]{2}$/i.test(name) ? name.toUpperCase() : null;
+        countries.push(code);
+      }
+    }
+    for (const key of ['@graph','itemListElement','item','subEvent']) if (value[key]) visit(value[key]);
+  };
+  $('script[type="application/ld+json"]').each((_,n)=>{try{visit(JSON.parse($(n).text()));}catch{}});
+  return countries.length ? ([...new Set(countries)].length === 1 ? countries[0] : null) : detectCountry(concert.city);
+}
+
 // ---------- Discovery ----------
 
 /**
@@ -410,7 +436,7 @@ export async function searchCachedArtist({ artist, startDate, endDate, dayCacheE
       if (/afgelast|geannuleerd|cancelled|canceled/i.test(heading)) continue;
       if (!parsed || !parsed.lineup.some(n => isTrackedName(n, trackedSet))) { failures++; continue; }
       if (parsed.date < startDate || parsed.date > endDate) continue;
-      events.push({ concertId, url: url.href, ...parsed, matchedTracked: parsed.lineup.filter(n => isTrackedName(n, trackedSet)), country: detectCountry(parsed.city) });
+      events.push({ concertId, url: url.href, ...parsed, matchedTracked: parsed.lineup.filter(n => isTrackedName(n, trackedSet)), country: parseConcertCountry(html,parsed) });
     } catch { failures++; }
   }
   return { events, coveredDays, failures, truncated };

@@ -1,5 +1,5 @@
 import { getGithubConfig, getFile, putFile, isConflictError } from './github-api.js';
-import { validateSearchRequest } from './concert-search-model.js?v=manual-search-20261007';
+import { validateSearchRequest } from './concert-search-model.js?v=nationwide-search-20261009';
 const REQUEST_PATH = 'data/concert-search-request.json';
 const delay = ms => new Promise(resolve=>setTimeout(resolve,ms));
 export async function submitConcertSearch(config, request) {
@@ -30,7 +30,8 @@ export function openConcertSearch({ button, stateFor, addConcert, showDeciding, 
     <p class="footnote">Find a show and add it to Deciding. You can choose Going or Pass afterwards.</p>
     <form class="concert-search-form">
       <div class="field"><label for="concert-search-artist">Artist or band</label><input id="concert-search-artist" name="artist" required minlength="2" maxlength="100" placeholder="Groundation" autocomplete="off"></div>
-      <div class="field"><label for="concert-search-place">Venue or city</label><input id="concert-search-place" name="place" required minlength="2" maxlength="120" placeholder="Patronaat or Haarlem" autocomplete="off"></div>
+      <div class="field"><label for="concert-search-place">Venue or city (optional)</label><input id="concert-search-place" name="place" minlength="2" maxlength="120" placeholder="All Netherlands" autocomplete="off" aria-describedby="concert-search-scope"></div>
+      <p id="concert-search-scope" class="footnote">Leave blank to search across the Netherlands, including venues outside our list.</p>
       <button type="submit" class="plain-act">Search</button>
     </form>
     <p class="concert-search-status footnote" role="status" aria-live="polite"></p>
@@ -49,7 +50,8 @@ export function openConcertSearch({ button, stateFor, addConcert, showDeciding, 
     results.replaceChildren(); results.setAttribute('aria-busy','false');
     if (result.status==='error') {say(result.message || 'Search could not finish. Please try again.',true);return;}
     const concerts=Array.isArray(result.concerts) ? result.concerts : [];
-    say(concerts.length ? `${concerts.length} ${concerts.length===1?'show':'shows'} found. Choose the date and venue you want.` : 'No verified matches found in the next 12 months. Try the full artist name or another venue or city.');
+    const scope = request.place ? '' : ' in the Netherlands';
+    say(concerts.length ? `${concerts.length} ${concerts.length===1?'show':'shows'} found${scope}. Choose the date and venue you want.` : `No verified matches found${scope} in the next 12 months. Try the full artist name${request.place ? ' or another venue or city' : ''}.`);
     for (const warning of result.warnings || []) results.appendChild(node('p',warning,'footnote concert-search-warning'));
     for (const c of concerts) {
       const row=node('div','','concert-search-result');
@@ -79,7 +81,7 @@ export function openConcertSearch({ button, stateFor, addConcert, showDeciding, 
   }
   async function poll(request, token) {
     const started=Date.now(); results.setAttribute('aria-busy','true');
-    say('Checking the concert sources… This can take a minute. You can close this window and return to Add.');
+    say(request.place ? 'Checking the concert sources… This can take a minute. You can close this window and return to Add.' : 'Checking concert sources across the Netherlands… This can take a few minutes. You can close this window and return to Add.');
     while(!closed && generation===token && Date.now()-started<timeoutMs) {
       try {
         const result=await api.read(config,request.id);

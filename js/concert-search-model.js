@@ -32,6 +32,8 @@ export function preserveManualConcerts(generated, previous, { today, history, ar
 export function validateSearchRequest(value) {
   if (!value || !/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(value.id || '')) throw new Error('Invalid search id');
   const artist = String(value.artist || '').trim(), place = String(value.place || '').trim();
-  if (artist.length < 2 || artist.length > 100 || place.length < 2 || place.length > 120 || searchKey(artist).length < 2 || searchKey(place).length < 2 || /[\r\n\x00-\x1f]/.test(artist + place)) throw new Error('Enter an artist and a venue or city');
+  if (artist.length < 2 || artist.length > 100 || searchKey(artist).length < 2 ||
+    (place && (place.length < 2 || place.length > 120 || searchKey(place).length < 2)) ||
+    /[\r\n\x00-\x1f]/.test(artist + place)) throw new Error('Enter an artist; venue or city is optional');
   return { id: value.id, artist, place };
 }

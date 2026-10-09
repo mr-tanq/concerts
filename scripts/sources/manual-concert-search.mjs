@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio';
 import { createHash } from 'node:crypto';
 import { searchKey, sameSearchConcert, validateSearchRequest } from '../../js/concert-search-model.js';
-import { searchCachedArtist, splitLineup, isTrackedName, normalizeArtistName } from './podiuminfo.mjs';
+import { searchCachedArtist, splitLineup, isTrackedName, normalizeArtistName, detectCountry } from './podiuminfo.mjs';
 import { validDate, localDate } from '../../js/concert-schedule.js';
 
 // Only venue-owned sites. Location comes from Event data; registry defaults
@@ -64,7 +64,7 @@ export function parseOfficialEvents(html, url, venue, artist) {
     const location = Array.isArray(e.location) ? e.location[0] : e.location;
     if (!location || typeof location !== 'object' || !location.name || !location.address?.addressLocality) continue;
     const addressCountry = typeof location.address.addressCountry === 'object' ? location.address.addressCountry.name : location.address.addressCountry;
-    const code = /^(BE|Belgium|België|Belgique)$/i.test(addressCountry || '') ? 'BE' : /^(NL|Netherlands|Nederland)$/i.test(addressCountry || '') ? 'NL' : country;
+    const code = /^(BE|Belgium|België|Belgique)$/i.test(addressCountry || '') ? 'BE' : /^(NL|Netherlands|Nederland)$/i.test(addressCountry || '') ? 'NL' : !addressCountry ? detectCountry(location.address.addressLocality) || '??' : '??';
     const date = eventDate(e.startDate,code), sourceUrl = officialURL(e.url || url,domain,url);
     if (!date || !sourceUrl) continue;
     const rawImage = typeof e.image === 'string' ? e.image : Array.isArray(e.image) ? e.image[0] : e.image?.url;
@@ -144,27 +144,39 @@ export async function searchOfficialVenue(venue, artist, fetcher = fetchHTML, de
 }
 export async function searchConcerts(request, { dayCacheEntries, startDate, endDate, podiumFetcher, officialFetcher } = {}) {
   const { artist,place } = validateSearchRequest(request), warnings = [];
+  const nationwide = !place;
   const deadline = Date.now() + 420000;
   const catalogue = await searchCachedArtist({ artist,startDate,endDate,dayCacheEntries,deadline, fetcher:podiumFetcher || (async url=>{await new Promise(r=>setTimeout(r,1200));return fetchHTML(url,'podiuminfo.nl');}) });
   const expectedDays = Math.round((Date.parse(endDate)-Date.parse(startDate))/86400000)+1;
   if (catalogue.coveredDays < expectedDays || catalogue.failures || catalogue.truncated) warnings.push('Some catalogue pages could not be checked. These results may be incomplete.');
   const raw = catalogue.events.map(e => ({ artist:e.matchedTracked[0], lineup:e.lineup, supportingArtists:e.lineup.filter(n=>!isTrackedName(n,new Set([normalizeArtistName(artist)]))), date:e.date, venue:e.venue, city:e.city, country:e.country || '??', image:e.image, ticketUrl:e.ticketUrl, source:'podiuminfo',sourceId:e.concertId, sourceUrl:e.url }));
-  const venues = SEARCH_VENUES.filter(v => placeMatches({venue:v[0],city:v[1]},place));
-  for (const venue of venues) {
-    if (Date.now() > deadline - 32000) { warnings.push('The search reached its time limit. These results may be incomplete.'); break; }
-    try {
-      const found = await searchOfficialVenue(venue,artist,officialFetcher,deadline);
-      raw.push(...found.events.map(e=>({...e,source:'official',sourceId:`${e.sourceUrl}|${e.date}|${searchKey(e.eventName)}|${searchKey(e.venue)}`})));
-      if (found.failures || found.truncated) warnings.push(`${venue[0]} could not be checked completely.`);
-    } catch { warnings.push(`${venue[0]}'s official programme could not be checked.`); }
+  const venues = SEARCH_VENUES.filter(v => nationwide ? v[2] === 'NL' : placeMatches({venue:v[0],city:v[1]},place));
+  // Different venue domains can be checked in parallel. Podiuminfo requests
+  // above remain sequential to respect its stricter rate limit.
+  const results = new Array(venues.length); let cursor = 0;
+  await Promise.all(Array.from({length:Math.min(nationwide ? 3 : 1,venues.length)},async()=>{
+    while (cursor < venues.length) {
+      const index = cursor++, venue = venues[index];
+      if (Date.now() > deadline - 32000) { results[index] = {timeout:true}; continue; }
+      try { results[index] = await searchOfficialVenue(venue,artist,officialFetcher,deadline); }
+      catch { results[index] = {failed:true}; }
+    }
+  }));
+  for (const [index,venue] of venues.entries()) {
+    const found = results[index];
+    if (found.timeout) { warnings.push('The search reached its time limit. These results may be incomplete.'); continue; }
+    if (found.failed) { warnings.push(`${venue[0]}'s official programme could not be checked.`); continue; }
+    raw.push(...found.events.map(e=>({...e,source:'official',sourceId:`${e.sourceUrl}|${e.date}|${searchKey(e.eventName)}|${searchKey(e.venue)}`})));
+    if (found.failures || found.truncated) warnings.push(`${venue[0]} could not be checked completely.`);
   }
+  if (nationwide && raw.some(c=>!c.country || c.country === '??')) warnings.push('Some locations could not be confirmed as Dutch and were left out. These results may be incomplete.');
   const concerts = [];
-  for (const c of raw.filter(c => c.date >= startDate && c.date <= endDate && placeMatches(c,place))) {
+  for (const c of raw.filter(c => c.date >= startDate && c.date <= endDate && (nationwide ? c.country === 'NL' : placeMatches(c,place)))) {
     const previous = concerts.find(x=>sameSearchConcert(x,c));
     // Keep Podiuminfo's canonical id even when adding the venue's source URL.
     if (previous) { if (c.source === 'official') { previous.officialUrl=c.sourceUrl; previous.image ||= c.image; } continue; }
     const id = c.source === 'podiuminfo' ? `rec-podiuminfo-${c.sourceId}` : `rec-official-${createHash('sha256').update(c.sourceId).digest('hex').slice(0,16)}`;
     concerts.push({ ...c,id,time:null,isFestival:false,sourceApis:[c.source],match:{score:0,label:'Added by you',matchedBy:'manual',reason:'Found by your search',matchedArtists:(c.lineup || [c.artist]).filter(n=>artistInTitle(n,artist))} });
   }
-  return { concerts:concerts.sort((a,b)=>a.date.localeCompare(b.date)), warnings:[...new Set(warnings)], coverage:{startDate,endDate,catalogueDays:catalogue.coveredDays,officialVenues:venues.map(v=>v[0])} };
+  return { concerts:concerts.sort((a,b)=>a.date.localeCompare(b.date)), warnings:[...new Set(warnings)], coverage:{startDate,endDate,country:nationwide ? 'NL' : null,catalogueDays:catalogue.coveredDays,officialVenues:venues.map(v=>v[0])} };
 }
