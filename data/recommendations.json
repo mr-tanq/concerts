@@ -1,19 +1,57 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-10-09T10:55:06.793Z",
+    "lastUpdated": "2026-10-09T12:31:30.941Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 0,
-      "daysCached": 366,
+      "daysFresh": 366,
+      "daysCached": 0,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 2,
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-497823",
+      "source": "podiuminfo",
+      "sourceId": "497823",
+      "artist": "Royal Blood",
+      "lineup": [
+        "Royal Blood"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Royal Blood"
+      ],
+      "date": "2027-02-26",
+      "time": null,
+      "venue": "AFAS Live",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/81569/100_Royal_Blood_2.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/143193/cd/Royal-Blood/AFAS-Live/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/497823/Royal-Blood/AFAS-Live/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "similar",
+        "reason": "Similar to Muse",
+        "matchedArtists": [
+          "Royal Blood"
+        ],
+        "similarVia": "Muse"
+      },
+      "discoveredAt": "2026-10-09T12:31:30.941Z",
+      "lastSeenAt": "2026-10-09T12:31:30.941Z"
+    }
+  ]
 }
