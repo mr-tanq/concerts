@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-12T17:57:45.285Z",
+    "lastUpdated": "2026-10-12T18:18:15.077Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -159,22 +159,57 @@
         "timeZone": "Europe/Amsterdam",
         "doors": {
           "name": "DOORS",
-          "time": null
+          "time": "19:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.paradiso.nl/programma/fat-freddys-drop/2654380",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-12T18:18:09.336Z",
+          "evidence": "Zaal open: 19:00",
+          "at": "2026-10-14T17:00:00.000Z"
         },
-        "support": [],
+        "support": [
+          {
+            "name": "DJ Logg Cabin",
+            "time": "19:30",
+            "dayOffset": 0,
+            "status": "confirmed",
+            "sourceUrl": "https://www.paradiso.nl/programma/fat-freddys-drop/2654380",
+            "sourceKind": "official",
+            "checkedAt": "2026-10-12T18:18:09.336Z",
+            "evidence": "Voorprogramma: 19:30",
+            "at": "2026-10-14T17:30:00.000Z"
+          }
+        ],
         "main": {
           "name": "Fat Freddy's Drop",
-          "time": null
+          "time": "20:30",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.paradiso.nl/programma/fat-freddys-drop/2654380",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-12T18:18:09.336Z",
+          "evidence": "Hoofdprogramma: 20:30",
+          "at": "2026-10-14T18:30:00.000Z"
         },
         "end": {
           "name": "END",
           "time": null
         },
-        "sources": [],
-        "lastCheckedAt": null,
-        "lastAttemptAt": "2026-10-12T07:23:23.528Z",
-        "checks": {},
-        "lastError": "No matching source could be checked"
+        "sources": [
+          {
+            "url": "https://www.paradiso.nl/programma/fat-freddys-drop/2654380",
+            "kind": "official",
+            "label": "paradiso.nl",
+            "checkedAt": "2026-10-12T18:18:09.336Z"
+          }
+        ],
+        "lastCheckedAt": "2026-10-12T18:18:09.336Z",
+        "lastAttemptAt": "2026-10-12T18:18:09.336Z",
+        "checks": {
+          "before48h": "2026-10-12T18:18:09.336Z"
+        },
+        "lastError": null
       }
     },
     {
@@ -830,20 +865,21 @@
             "url": "https://www.podiuminfo.nl/concert/460254/DeVotchKa-A-Celebration-of-the-Music-of-Little-Miss-Sunshine/Melkweg/",
             "kind": "secondary",
             "label": "podiuminfo.nl",
-            "checkedAt": "2026-10-11T20:19:09.811Z"
+            "checkedAt": "2026-10-12T18:18:09.336Z"
           },
           {
             "url": "https://www.melkweg.nl/nl/agenda/devotchka-13-10-2026/",
             "kind": "official",
             "label": "melkweg.nl",
-            "checkedAt": "2026-10-11T20:19:09.811Z"
+            "checkedAt": "2026-10-12T18:18:09.336Z"
           }
         ],
-        "lastCheckedAt": "2026-10-11T20:19:09.811Z",
-        "lastAttemptAt": "2026-10-11T20:19:09.811Z",
+        "lastCheckedAt": "2026-10-12T18:18:09.336Z",
+        "lastAttemptAt": "2026-10-12T18:18:09.336Z",
         "checks": {
           "initial": "2026-10-06T17:12:53.653Z",
-          "before48h": "2026-10-11T20:19:09.811Z"
+          "before48h": "2026-10-11T20:19:09.811Z",
+          "before24h": "2026-10-12T18:18:09.336Z"
         },
         "lastError": null
       }
