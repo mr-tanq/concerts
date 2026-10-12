@@ -94,7 +94,7 @@ export async function searchInternationalConcerts({artist,scope,startDate,endDat
     checked.push('Songkick');
   } catch {warnings.push('Songkick could not be checked. These results may be incomplete.');}
   if(failed)warnings.push('Some Songkick artist or event pages could not be checked. These results may be incomplete.');
-  if(scope.country==='GR') {
+  if(scope.country==='GR' || !scope.country) {
     try{
       if(!enoughTime())throw new Error('Time limit');
       const html=await fetcher('https://www.more.com/gr-en/tickets/music/','more.com');

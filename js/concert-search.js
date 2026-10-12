@@ -1,6 +1,6 @@
 import { getGithubConfig, getFile, putFile, isConflictError } from './github-api.js';
-import { validateSearchRequest } from './concert-search-model.js?v=country-search-20261009';
-import { searchLocation, countryCode, countryName } from './concert-countries.js?v=country-search-20261009';
+import { validateSearchRequest } from './concert-search-model.js?v=world-search-20261012';
+import { searchLocation, countryCode, countryName } from './concert-countries.js?v=world-search-20261012';
 const REQUEST_PATH = 'data/concert-search-request.json';
 const delay = ms => new Promise(resolve=>setTimeout(resolve,ms));
 export async function submitConcertSearch(config, request) {
@@ -31,8 +31,8 @@ export function openConcertSearch({ button, stateFor, addConcert, showDeciding, 
     <p class="footnote">Find a show and add it to Deciding. You can choose Going or Pass afterwards.</p>
     <form class="concert-search-form">
       <div class="field"><label for="concert-search-artist">Artist or band</label><input id="concert-search-artist" name="artist" required minlength="2" maxlength="100" placeholder="Groundation" autocomplete="off"></div>
-      <div class="field"><label for="concert-search-place">Country, venue or city (optional)</label><input id="concert-search-place" name="place" minlength="2" maxlength="120" placeholder="Netherlands (default), Greece…" autocomplete="off" aria-describedby="concert-search-scope"></div>
-      <p id="concert-search-scope" class="footnote">Leave blank for the Netherlands. Enter a country, or a city and country such as Athens, Greece.</p>
+      <div class="field"><label for="concert-search-place">Country, venue or city (optional)</label><input id="concert-search-place" name="place" minlength="2" maxlength="120" placeholder="Worldwide (default), Greece…" autocomplete="off" aria-describedby="concert-search-scope"></div>
+      <p id="concert-search-scope" class="footnote">Leave blank to search worldwide. Enter Netherlands, Greece, or a city and country such as Athens, Greece.</p>
       <button type="submit" class="plain-act">Search</button>
     </form>
     <p class="concert-search-status footnote" role="status" aria-live="polite"></p>
@@ -51,7 +51,7 @@ export function openConcertSearch({ button, stateFor, addConcert, showDeciding, 
     results.replaceChildren(); results.setAttribute('aria-busy','false');
     if (result.status==='error') {say(result.message || 'Search could not finish. Please try again.',true);return;}
     const concerts=Array.isArray(result.concerts) ? result.concerts : [];
-    const location = searchLocation(request.place), scope = location.country ? ` in ${location.label}` : '';
+    const location = searchLocation(request.place), scope = !location.place && !location.country ? ' worldwide' : location.country ? ` in ${location.label}` : '';
     say(concerts.length ? `${concerts.length} ${concerts.length===1?'show':'shows'} found${scope}. Choose the date and venue you want.` : `No verified matches found${scope} in the next 12 months. Try the full artist name${request.place ? ' or another country, venue or city' : ''}.`);
     if (!concerts.length && result.coverage?.unavailable) say('The concert sources could not be checked. Please try again.',true);
     const warnings = Array.isArray(result.warnings) ? [...new Set(result.warnings.filter(w=>typeof w==='string' && w.trim()))] : [];
@@ -90,7 +90,7 @@ export function openConcertSearch({ button, stateFor, addConcert, showDeciding, 
   async function poll(request, token) {
     const started=Date.now(); results.setAttribute('aria-busy','true');
     const location = searchLocation(request.place);
-    say(`Checking concert sources${location.country ? ` in ${location.label}` : ''}… This can take a few minutes. You can close this window and return to Add.`);
+    say(`Checking concert sources${!location.place && !location.country ? ' worldwide' : location.country ? ` in ${location.label}` : ''}… This can take a few minutes. You can close this window and return to Add.`);
     while(!closed && generation===token && Date.now()-started<timeoutMs) {
       try {
         const result=await api.read(config,request.id);

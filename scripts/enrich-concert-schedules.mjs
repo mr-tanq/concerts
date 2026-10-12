@@ -46,7 +46,7 @@ export async function enrichOne(concert, now, phase, fetcher = fetchPage) {
   const secondary = ["podiuminfo.nl"];
   const results=[], candidates=new Set(), visited=new Set();
   const add = url => { const u=allowedURL(url,official); if(u) candidates.add(u); };
-  for (const url of [concert.officialEventUrl,...(concert.scheduleSourceUrls || []), ...(concert.schedule?.sources || []).filter(s=>s.kind==="official").map(s=>s.url)]) add(url);
+  for (const url of [concert.officialEventUrl,concert.officialUrl,concert.ticketUrl,...(concert.scheduleSourceUrls || []), ...(concert.schedule?.sources || []).filter(s=>s.kind==="official").map(s=>s.url)]) add(url);
   if (allowedURL(concert.sourceUrl,official)) add(concert.sourceUrl);
   const sourceId = concert.source === "podiuminfo" && /^\d+$/.test(String(concert.sourceId || "")) ? concert.sourceId : String(concert.id || "").match(/podiuminfo-(\d+)/)?.[1];
   const podium = allowedURL(concert.sourceUrl,secondary) || (sourceId ? `https://www.podiuminfo.nl/concert/${sourceId}/` : null);

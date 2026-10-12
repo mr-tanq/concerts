@@ -15,7 +15,7 @@ export function countryCode(value) {
 export const countryName = code => code==='NL' ? 'the Netherlands' : countryCode(code) ? english.of(countryCode(code)) : '';
 export function searchLocation(value) {
   const raw=String(value || '').trim();
-  if (!raw) return {country:'NL',place:'',label:'the Netherlands'};
+  if (!raw) return {country:null,place:'',label:'worldwide'};
   const code=countryCode(raw);
   if (code) return {country:code,place:'',label:countryName(code)};
   const parts=raw.split(',').map(s=>s.trim()), suffix=parts.length>1 ? countryCode(parts.at(-1)) : null;

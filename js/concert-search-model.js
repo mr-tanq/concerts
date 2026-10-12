@@ -1,4 +1,4 @@
-import { countryCode, locationKey } from './concert-countries.js?v=country-search-20261009';
+import { countryCode, locationKey } from './concert-countries.js?v=world-search-20261012';
 // Shared event identity for search, persistence and scheduled discovery.
 export const searchKey = value => String(value || '').normalize('NFKD')
   .replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();

@@ -1,8 +1,8 @@
 import { mountSchedule, clearScheduleClock, syncScheduleClock } from "./concert-schedule.js?v=schedule-ux-20261005";
 import { buildArchiveView, filterConcerts, artistsOf, actuallySeenArtistsOf, venueKey, venueSearchNames } from "./archive-stats.js?v=archive-venues-20261004";
 import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, isConflictError } from "./github-api.js";
-import { openConcertSearch } from "./concert-search.js?v=country-search-20261009";
-import { concertSearchState, sameSearchConcert } from "./concert-search-model.js?v=country-search-20261009";
+import { openConcertSearch } from "./concert-search.js?v=world-search-20261012";
+import { concertSearchState, sameSearchConcert } from "./concert-search-model.js?v=world-search-20261012";
 import { initMirror, renderMirror, stopPolling as stopMirrorPolling } from "./mirror.js";
 import { initIdentity, renderHero, renderExplore as renderIdentityExplore, renderRightNow, openArtistSheet } from "./identity.js";
 import { initRealm, renderRealm } from "./realm.js";

@@ -7,7 +7,7 @@ export const normalize = s => String(s || "").normalize("NFKD").replace(/[\u0300
 const VENUES = [
   ["Hall Of Fame", "hall-fame.nl", "/programma"], ["Paard", "paard.nl", "/agenda/"],
   ["TivoliVredenburg", "tivolivredenburg.nl", "/agenda/"], ["013", "013.nl", "/programma"],
-  ["Paradiso", "paradiso.nl", "/nl/programma"], ["Melkweg", "melkweg.nl", "/nl/agenda/"],
+  ["Paradiso", "paradiso.nl", "/programma"], ["Melkweg", "melkweg.nl", "/nl/agenda/"],
   ["Ziggo Dome", "ziggodome.nl", "/agenda"], ["Patronaat", "patronaat.nl", "/programma/"],
   ["Doornroosje", "doornroosje.nl", "/programma/"], ["AFAS Live", "afaslive.nl", "/agenda"],
   ["dB's", "dbstudio.nl", "/programma/"], ["Vera", "vera-groningen.nl", "/events/"],
@@ -60,6 +60,10 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
   }
   $('script[type="application/ld+json"]').each((_, n) => { try { collect(JSON.parse($(n).text())); } catch {} });
   const matching = events.filter(e => matchName(e.name, concert.artist) && wallTime(e.startDate,concert)?.date === concert.date);
+  const paradiso = new URL(url).hostname.replace(/^www\./, "") === "paradiso.nl";
+  // Event identity must come from this page's structured event, not links to
+  // other nights in the description or the site's embedded programme.
+  if (paradiso && (!/^\/(?:nl\/|en\/)?(?:programma|program)\/[^/]+\/\d+\/?$/.test(new URL(url).pathname) || !matching.length)) return null;
   $("script,style,nav,footer,body > header,aside,[class*='related'],[class*='recommend']").remove();
   const root = $("main").first().length ? $("main").first() : $("body");
   const heading = root.find("h1").first().text() || $("title").text();
@@ -87,10 +91,10 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
     const n = normalize(label);
     if (/^(doors?( open)?|deuren?( open)?|zaal open|opening doors)$/.test(n)) set("doors", "DOORS", ts[0], evidence);
     else if (/^(end|einde|eindtijd|expected end|verwachte eindtijd|show ends?)$/.test(n)) set("end", "END", ts[0], evidence);
-    else if (normalize(label) === normalize(concert.artist) || /^(main act|headliner|hoofdprogramma)$/.test(n)) set("main", concert.artist, ts[0], evidence, ts[1]);
+    else if (normalize(label) === normalize(concert.artist) || /^(main act|main programme|headliner|hoofdprogramma)$/.test(n)) set("main", concert.artist, ts[0], evidence, ts[1]);
     else {
       const known = supportNames.find(name => normalize(label) === normalize(name));
-      if (known || /^(support( act)?|voorprogramma)$/.test(n)) set(`support:${normalize(known || label)}`, known || supportNames[0] || "SUPPORT", ts[0], evidence);
+      if (known || /^(support( act)?|voorprogramma)$/.test(n)) set(`support:${normalize(known || supportNames[0] || label)}`, known || supportNames[0] || "SUPPORT", ts[0], evidence);
       // A named act in an explicit timetable is a support even when discovery omitted it.
       else if (namedTimetable && /^[\p{L}\p{N} '&+.-]{2,70}$/u.test(label.trim()) && !/start|aanvang|time|tijd|date|datum|price|prijs|tickets|bar|curfew|dj|afterparty/i.test(label)) set(`support:${normalize(label)}`, label.trim(), ts[0], evidence);
     }
@@ -107,10 +111,10 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
   // Explicit labelled fields only. Generic "Start", "Time" and JSON-LD startDate are NOT main-act times.
   root.find("p,li,dt,dd,div").each((_, n) => {
     const lines = $(n).html()?.replace(/<br\s*\/?\s*>/gi,"\n"); if (!lines) return;
-    for (const line of cheerio.load(lines).text().split("\n")) {
+    for (const line of cheerio.load(lines).text().split(/\n|,\s*(?=(?:doors?|zaal open|voorprogramma|support|hoofdprogramma|main programme)\s*:)/i)) {
       const clean = line.replace(/\s+/g," ").trim();
       if (clean.length > 150) continue;
-      const m = clean.match(/^(doors?(?: open)?|deuren?(?: open)?|zaal open|end|einde|eindtijd|expected end|verwachte eindtijd|main act|headliner|hoofdprogramma|support(?: act)?|voorprogramma)\s*[:–-]?\s*((?:[01]?\d|2[0-3])[:.][0-5]\d(?:\s*(?:uur|h))?)$/i);
+      const m = clean.match(/^(doors?(?: open)?|deuren?(?: open)?|zaal open|end|einde|eindtijd|expected end|verwachte eindtijd|main act|main programme|headliner|hoofdprogramma|support(?: act)?|voorprogramma)\s*[:–-]?\s*((?:[01]?\d|2[0-3])[:.][0-5]\d(?:\s*(?:uur|h))?)$/i);
       if (m) consume(m[1],m[2],clean);
       // Artist-labelled line: name : 21:30, or 21:30 - Hällas. Whole-line match avoids prose dates.
       for (const name of [concert.artist, ...supportNames]) {
@@ -130,6 +134,9 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
       const next = new Date(`${concert.date}T12:00Z`); next.setUTCDate(next.getUTCDate()+1);
       const wall = wallTime(e.endDate,concert);
       if (wall && [concert.date,next.toISOString().slice(0,10)].includes(wall.date)) {
+        // Contradictory metadata cannot override the visible timetable.
+        const main = values.get("main");
+        if (wall.date === concert.date && main && wall.time <= main.time) continue;
         set("end","END",wall.time,`endDate: ${e.endDate}`);
         if (values.has("end")) values.get("end").dayOffset = wall.date === concert.date ? 0 : 1;
       }
