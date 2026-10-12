@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-12T18:18:15.077Z",
+    "lastUpdated": "2026-10-12T18:26:46.306Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -128,7 +128,7 @@
         },
         "sources": [],
         "lastCheckedAt": null,
-        "lastAttemptAt": "2026-10-12T17:57:40.680Z",
+        "lastAttemptAt": "2026-10-12T18:26:41.459Z",
         "checks": {},
         "lastError": "No matching source could be checked"
       }
@@ -159,57 +159,22 @@
         "timeZone": "Europe/Amsterdam",
         "doors": {
           "name": "DOORS",
-          "time": "19:00",
-          "dayOffset": 0,
-          "status": "confirmed",
-          "sourceUrl": "https://www.paradiso.nl/programma/fat-freddys-drop/2654380",
-          "sourceKind": "official",
-          "checkedAt": "2026-10-12T18:18:09.336Z",
-          "evidence": "Zaal open: 19:00",
-          "at": "2026-10-14T17:00:00.000Z"
+          "time": null
         },
-        "support": [
-          {
-            "name": "DJ Logg Cabin",
-            "time": "19:30",
-            "dayOffset": 0,
-            "status": "confirmed",
-            "sourceUrl": "https://www.paradiso.nl/programma/fat-freddys-drop/2654380",
-            "sourceKind": "official",
-            "checkedAt": "2026-10-12T18:18:09.336Z",
-            "evidence": "Voorprogramma: 19:30",
-            "at": "2026-10-14T17:30:00.000Z"
-          }
-        ],
+        "support": [],
         "main": {
           "name": "Fat Freddy's Drop",
-          "time": "20:30",
-          "dayOffset": 0,
-          "status": "confirmed",
-          "sourceUrl": "https://www.paradiso.nl/programma/fat-freddys-drop/2654380",
-          "sourceKind": "official",
-          "checkedAt": "2026-10-12T18:18:09.336Z",
-          "evidence": "Hoofdprogramma: 20:30",
-          "at": "2026-10-14T18:30:00.000Z"
+          "time": null
         },
         "end": {
           "name": "END",
           "time": null
         },
-        "sources": [
-          {
-            "url": "https://www.paradiso.nl/programma/fat-freddys-drop/2654380",
-            "kind": "official",
-            "label": "paradiso.nl",
-            "checkedAt": "2026-10-12T18:18:09.336Z"
-          }
-        ],
-        "lastCheckedAt": "2026-10-12T18:18:09.336Z",
-        "lastAttemptAt": "2026-10-12T18:18:09.336Z",
-        "checks": {
-          "before48h": "2026-10-12T18:18:09.336Z"
-        },
-        "lastError": null
+        "sources": [],
+        "lastCheckedAt": null,
+        "lastAttemptAt": "2026-10-12T18:26:41.459Z",
+        "checks": {},
+        "lastError": "No matching source could be checked"
       }
     },
     {
@@ -844,17 +809,31 @@
         },
         "support": [
           {
-            "name": "Sons of the Town Hall",
-            "time": null
+            "name": "Sons of Town Hall",
+            "time": "20:00",
+            "dayOffset": 0,
+            "status": "confirmed",
+            "sourceUrl": "https://www.melkweg.nl/nl/agenda/devotchka-13-10-2026/",
+            "sourceKind": "official",
+            "checkedAt": "2026-10-12T18:26:41.459Z",
+            "evidence": "20:00 Sons of Town Hall",
+            "at": "2026-10-13T18:00:00.000Z"
           },
           {
-            "name": "Sons of Town Hall",
+            "name": "Sons of the Town Hall",
             "time": null
           }
         ],
         "main": {
           "name": "DeVotchKa",
-          "time": null
+          "time": "21:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.melkweg.nl/nl/agenda/devotchka-13-10-2026/",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-12T18:26:41.459Z",
+          "evidence": "21:00 DeVotchKa",
+          "at": "2026-10-13T19:00:00.000Z"
         },
         "end": {
           "name": "END",
@@ -865,21 +844,21 @@
             "url": "https://www.podiuminfo.nl/concert/460254/DeVotchKa-A-Celebration-of-the-Music-of-Little-Miss-Sunshine/Melkweg/",
             "kind": "secondary",
             "label": "podiuminfo.nl",
-            "checkedAt": "2026-10-12T18:18:09.336Z"
+            "checkedAt": "2026-10-12T18:26:41.459Z"
           },
           {
             "url": "https://www.melkweg.nl/nl/agenda/devotchka-13-10-2026/",
             "kind": "official",
             "label": "melkweg.nl",
-            "checkedAt": "2026-10-12T18:18:09.336Z"
+            "checkedAt": "2026-10-12T18:26:41.459Z"
           }
         ],
-        "lastCheckedAt": "2026-10-12T18:18:09.336Z",
-        "lastAttemptAt": "2026-10-12T18:18:09.336Z",
+        "lastCheckedAt": "2026-10-12T18:26:41.459Z",
+        "lastAttemptAt": "2026-10-12T18:26:41.459Z",
         "checks": {
           "initial": "2026-10-06T17:12:53.653Z",
           "before48h": "2026-10-11T20:19:09.811Z",
-          "before24h": "2026-10-12T18:18:09.336Z"
+          "before24h": "2026-10-12T18:26:41.459Z"
         },
         "lastError": null
       }
