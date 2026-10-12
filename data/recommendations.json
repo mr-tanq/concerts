@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-10-12T16:31:01.041Z",
+    "lastUpdated": "2026-10-12T23:03:21.999Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
@@ -15,5 +15,40 @@
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-fat-freddy-s-drop-paradiso-2026-10-13",
+      "source": "podiuminfo",
+      "sourceId": null,
+      "artist": "Fat Freddy's Drop",
+      "lineup": [],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Fat Freddy's Drop"
+      ],
+      "date": "2026-10-13",
+      "time": null,
+      "venue": "Paradiso",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": null,
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/125487/cd/Fat-Freddys-Drop/Paradiso/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": null,
+      "match": {
+        "score": 47,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Fat Freddy's Drop",
+        "matchedArtists": [
+          "Fat Freddy's Drop"
+        ]
+      },
+      "discoveredAt": "2026-10-12T23:03:21.999Z",
+      "lastSeenAt": "2026-10-12T23:03:21.999Z"
+    }
+  ]
 }
