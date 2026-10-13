@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-13T17:37:01.080Z",
+    "lastUpdated": "2026-10-13T17:37:24.962Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -2406,6 +2406,41 @@
       "planning": {
         "plannedAt": "2026-10-13T17:37:01.079Z",
         "originalScore": 69
+      },
+      "schedule": {
+        "version": 1,
+        "date": "2026-10-14",
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": null
+        },
+        "support": [],
+        "main": {
+          "name": "Deathchant",
+          "time": null
+        },
+        "end": {
+          "name": "END",
+          "time": null
+        },
+        "sources": [
+          {
+            "url": "https://www.podiuminfo.nl/concert/484229/Deathchant/dBs/",
+            "kind": "secondary",
+            "label": "podiuminfo.nl",
+            "checkedAt": "2026-10-13T17:37:16.687Z"
+          }
+        ],
+        "lastCheckedAt": "2026-10-13T17:37:16.687Z",
+        "lastAttemptAt": "2026-10-13T17:37:16.687Z",
+        "checks": {
+          "before48h": "2026-10-13T17:37:16.687Z"
+        },
+        "lastError": null,
+        "refreshRequestedAt": null,
+        "lastOfficialCheckedAt": null,
+        "checkStatus": "secondary-only"
       }
     }
   ]
