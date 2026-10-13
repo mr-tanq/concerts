@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-13T17:37:24.962Z",
+    "lastUpdated": "2026-10-13T21:51:30.397Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -569,7 +569,14 @@
         "timeZone": "Europe/Amsterdam",
         "doors": {
           "name": "DOORS",
-          "time": null
+          "time": "20:30",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.tivolivredenburg.nl/agenda/27726237/lambert-15-10-2026",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-13T21:51:14.690Z",
+          "evidence": "Deuren open 20:30",
+          "at": "2026-10-15T18:30:00.000Z"
         },
         "support": [],
         "main": {
@@ -578,22 +585,39 @@
         },
         "end": {
           "name": "END",
-          "time": null
+          "time": "22:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.tivolivredenburg.nl/agenda/27726237/lambert-15-10-2026",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-13T21:51:14.690Z",
+          "evidence": "endDate: 2026-10-15T22:00",
+          "at": "2026-10-15T20:00:00.000Z"
         },
         "sources": [
           {
             "url": "https://www.podiuminfo.nl/concert/460016/Lambert/TivoliVredenburg/",
             "kind": "secondary",
             "label": "podiuminfo.nl",
-            "checkedAt": "2026-10-08T16:12:59.709Z"
+            "checkedAt": "2026-10-13T21:51:14.690Z"
+          },
+          {
+            "url": "https://www.tivolivredenburg.nl/agenda/27726237/lambert-15-10-2026",
+            "kind": "official",
+            "label": "tivolivredenburg.nl",
+            "checkedAt": "2026-10-13T21:51:14.690Z"
           }
         ],
-        "lastCheckedAt": "2026-10-08T16:12:59.709Z",
-        "lastAttemptAt": "2026-10-08T16:12:59.709Z",
+        "lastCheckedAt": "2026-10-13T21:51:14.690Z",
+        "lastAttemptAt": "2026-10-13T21:51:14.690Z",
         "checks": {
-          "initial": "2026-10-08T16:12:59.709Z"
+          "initial": "2026-10-08T16:12:59.709Z",
+          "before48h": "2026-10-13T21:51:14.690Z"
         },
-        "lastError": null
+        "lastError": null,
+        "refreshRequestedAt": null,
+        "lastOfficialCheckedAt": "2026-10-13T21:51:14.690Z",
+        "checkStatus": "official"
       }
     },
     {
@@ -811,7 +835,7 @@
           "status": "confirmed",
           "sourceUrl": "https://www.melkweg.nl/nl/agenda/devotchka-13-10-2026/",
           "sourceKind": "official",
-          "checkedAt": "2026-10-13T17:01:15.529Z",
+          "checkedAt": "2026-10-13T21:51:14.690Z",
           "evidence": "19:30 Doors",
           "at": "2026-10-13T17:30:00.000Z"
         },
@@ -823,7 +847,7 @@
             "status": "confirmed",
             "sourceUrl": "https://www.melkweg.nl/nl/agenda/devotchka-13-10-2026/",
             "sourceKind": "official",
-            "checkedAt": "2026-10-13T17:01:15.529Z",
+            "checkedAt": "2026-10-13T21:51:14.690Z",
             "evidence": "20:00 Sons of Town Hall",
             "at": "2026-10-13T18:00:00.000Z"
           }
@@ -835,7 +859,7 @@
           "status": "confirmed",
           "sourceUrl": "https://www.melkweg.nl/nl/agenda/devotchka-13-10-2026/",
           "sourceKind": "official",
-          "checkedAt": "2026-10-13T17:01:15.529Z",
+          "checkedAt": "2026-10-13T21:51:14.690Z",
           "evidence": "21:00 DeVotchKa",
           "at": "2026-10-13T19:00:00.000Z"
         },
@@ -848,27 +872,27 @@
             "url": "https://www.podiuminfo.nl/concert/460254/DeVotchKa-A-Celebration-of-the-Music-of-Little-Miss-Sunshine/Melkweg/",
             "kind": "secondary",
             "label": "podiuminfo.nl",
-            "checkedAt": "2026-10-13T17:01:15.529Z"
+            "checkedAt": "2026-10-13T21:51:14.690Z"
           },
           {
             "url": "https://www.melkweg.nl/nl/agenda/devotchka-13-10-2026/",
             "kind": "official",
             "label": "melkweg.nl",
-            "checkedAt": "2026-10-13T17:01:15.529Z"
+            "checkedAt": "2026-10-13T21:51:14.690Z"
           }
         ],
-        "lastCheckedAt": "2026-10-13T17:01:15.529Z",
-        "lastAttemptAt": "2026-10-13T17:01:15.529Z",
+        "lastCheckedAt": "2026-10-13T21:51:14.690Z",
+        "lastAttemptAt": "2026-10-13T21:51:14.690Z",
         "checks": {
           "initial": "2026-10-06T17:12:53.653Z",
           "before48h": "2026-10-11T20:19:09.811Z",
           "before24h": "2026-10-12T18:26:41.459Z",
-          "sameDay": "2026-10-13T09:25:25.974Z",
+          "sameDay": "2026-10-13T21:51:14.690Z",
           "manual": "2026-10-13T17:01:15.529Z"
         },
         "lastError": null,
         "refreshRequestedAt": "2026-10-13T17:00:44.770Z",
-        "lastOfficialCheckedAt": "2026-10-13T17:01:15.529Z",
+        "lastOfficialCheckedAt": "2026-10-13T21:51:14.690Z",
         "checkStatus": "official"
       }
     },
@@ -1553,15 +1577,19 @@
             "url": "https://www.podiuminfo.nl/concert/469777/Hubris-/Altstadt/",
             "kind": "secondary",
             "label": "podiuminfo.nl",
-            "checkedAt": "2026-10-08T16:12:59.709Z"
+            "checkedAt": "2026-10-13T21:51:14.690Z"
           }
         ],
-        "lastCheckedAt": "2026-10-08T16:12:59.709Z",
-        "lastAttemptAt": "2026-10-08T16:12:59.709Z",
+        "lastCheckedAt": "2026-10-13T21:51:14.690Z",
+        "lastAttemptAt": "2026-10-13T21:51:14.690Z",
         "checks": {
-          "initial": "2026-10-08T16:12:59.709Z"
+          "initial": "2026-10-08T16:12:59.709Z",
+          "before48h": "2026-10-13T21:51:14.690Z"
         },
-        "lastError": null
+        "lastError": null,
+        "refreshRequestedAt": null,
+        "lastOfficialCheckedAt": null,
+        "checkStatus": "secondary-only"
       }
     },
     {
@@ -2340,7 +2368,7 @@
         },
         "sources": [],
         "lastCheckedAt": null,
-        "lastAttemptAt": "2026-10-13T17:01:15.529Z",
+        "lastAttemptAt": "2026-10-13T21:51:14.690Z",
         "checks": {},
         "lastError": "No matching source could be checked",
         "refreshRequestedAt": null,
@@ -2429,13 +2457,14 @@
             "url": "https://www.podiuminfo.nl/concert/484229/Deathchant/dBs/",
             "kind": "secondary",
             "label": "podiuminfo.nl",
-            "checkedAt": "2026-10-13T17:37:16.687Z"
+            "checkedAt": "2026-10-13T21:51:14.690Z"
           }
         ],
-        "lastCheckedAt": "2026-10-13T17:37:16.687Z",
-        "lastAttemptAt": "2026-10-13T17:37:16.687Z",
+        "lastCheckedAt": "2026-10-13T21:51:14.690Z",
+        "lastAttemptAt": "2026-10-13T21:51:14.690Z",
         "checks": {
-          "before48h": "2026-10-13T17:37:16.687Z"
+          "before48h": "2026-10-13T17:37:16.687Z",
+          "before24h": "2026-10-13T21:51:14.690Z"
         },
         "lastError": null,
         "refreshRequestedAt": null,
