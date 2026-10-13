@@ -25,5 +25,6 @@ jobs:
       - name: Find and verify concerts
         run: node scripts/search-concerts.mjs
         env:
+          LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}

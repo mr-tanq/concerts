@@ -144,11 +144,11 @@ export async function searchOfficialVenue(venue, artist, fetcher = fetchHTML, de
   }
   return { events:output, failures, truncated };
 }
-export async function searchConcerts(request, { dayCacheEntries, startDate, endDate, podiumFetcher, officialFetcher, internationalFetcher } = {}) {
+export async function searchConcerts(request, { dayCacheEntries, startDate, endDate, podiumFetcher, officialFetcher, internationalFetcher, deadline = Date.now() + 420000 } = {}) {
   const { artist,place } = validateSearchRequest(request), warnings = [];
+  if (!artist) throw new Error('Artist required for direct search');
   const scope = searchLocation(place), nationwide = scope.country === 'NL' && !scope.place;
-  const deadline = Date.now() + 420000;
-  if (!scope.place && !scope.country || scope.country && scope.country !== 'NL') return searchInternationalConcerts({artist,scope,startDate,endDate,deadline,fetcher:internationalFetcher || fetchHTML});
+  if (!scope.place && !scope.country || scope.country && scope.country !== 'NL' || !scope.country && !SEARCH_VENUES.some(v=>placeMatches({venue:v[0],city:v[1]},place))) return searchInternationalConcerts({artist,scope,startDate,endDate,deadline,fetcher:internationalFetcher || fetchHTML});
   const inLocation = c => scope.country ? matchesLocation(c,scope) : placeMatches(c,place);
   const catalogue = await searchCachedArtist({ artist,startDate,endDate,dayCacheEntries,deadline, fetcher:podiumFetcher || (async url=>{await new Promise(r=>setTimeout(r,1200));return fetchHTML(url,'podiuminfo.nl');}) });
   const expectedDays = Math.round((Date.parse(endDate)-Date.parse(startDate))/86400000)+1;

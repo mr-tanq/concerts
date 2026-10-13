@@ -1,5 +1,5 @@
 import { getGithubConfig, getFile, putFile, isConflictError } from './github-api.js';
-import { validateSearchRequest } from './concert-search-model.js?v=world-search-20261012';
+import { validateSearchRequest } from './concert-search-model.js?v=taste-search-20261013';
 import { searchLocation, countryCode, countryName } from './concert-countries.js?v=world-search-20261012';
 const REQUEST_PATH = 'data/concert-search-request.json';
 const delay = ms => new Promise(resolve=>setTimeout(resolve,ms));
@@ -30,9 +30,9 @@ export function openConcertSearch({ button, stateFor, addConcert, showDeciding, 
     <h2 id="concert-search-title">Something missing?</h2>
     <p class="footnote">Find a show and add it to Deciding. You can choose Going or Pass afterwards.</p>
     <form class="concert-search-form">
-      <div class="field"><label for="concert-search-artist">Artist or band</label><input id="concert-search-artist" name="artist" required minlength="2" maxlength="100" placeholder="Groundation" autocomplete="off"></div>
+      <div class="field"><label for="concert-search-artist">Artist or band (optional)</label><input id="concert-search-artist" name="artist" minlength="2" maxlength="100" placeholder="Groundation" autocomplete="off"></div>
       <div class="field"><label for="concert-search-place">Country, venue or city (optional)</label><input id="concert-search-place" name="place" minlength="2" maxlength="120" placeholder="Worldwide (default), Greece…" autocomplete="off" aria-describedby="concert-search-scope"></div>
-      <p id="concert-search-scope" class="footnote">Leave blank to search worldwide. Enter Netherlands, Greece, or a city and country such as Athens, Greece.</p>
+      <p id="concert-search-scope" class="footnote">Artist only: search worldwide. Location only: discover shows from your listening favourites and similar artists. For cities abroad, enter e.g. Athens, Greece.</p>
       <button type="submit" class="plain-act">Search</button>
     </form>
     <p class="concert-search-status footnote" role="status" aria-live="polite"></p>
@@ -53,6 +53,7 @@ export function openConcertSearch({ button, stateFor, addConcert, showDeciding, 
     const concerts=Array.isArray(result.concerts) ? result.concerts : [];
     const location = searchLocation(request.place), scope = !location.place && !location.country ? ' worldwide' : location.country ? ` in ${location.label}` : '';
     say(concerts.length ? `${concerts.length} ${concerts.length===1?'show':'shows'} found${scope}. Choose the date and venue you want.` : `No verified matches found${scope} in the next 12 months. Try the full artist name${request.place ? ' or another country, venue or city' : ''}.`);
+    if (!request.artist) say(concerts.length ? `${concerts.length} shows matched to your listening in ${request.place}.` : `No verified matches in this focused search for ${request.place}. Try another location or a specific artist.`);
     if (!concerts.length && result.coverage?.unavailable) say('The concert sources could not be checked. Please try again.',true);
     const warnings = Array.isArray(result.warnings) ? [...new Set(result.warnings.filter(w=>typeof w==='string' && w.trim()))] : [];
     if (warnings.length) {
@@ -64,6 +65,7 @@ export function openConcertSearch({ button, stateFor, addConcert, showDeciding, 
     for (const c of concerts) {
       const row=node('div','','concert-search-result');
       row.append(node('h3',c.artist),node('p',`${c.venue} · ${c.city}${countryCode(c.country) && countryCode(c.country)!=='NL' ? ` · ${countryName(c.country)}` : ''}`,'footnote'));
+      if (!request.artist && c.match?.reason) row.appendChild(node('p',c.match.reason,'footnote'));
       if (c.supportingArtists?.length) row.appendChild(node('p',`With ${c.supportingArtists.join(' · ')}`,'footnote'));
       const date=new Date(`${c.date}T12:00:00Z`);
       row.appendChild(node('p',Number.isFinite(date.getTime())?new Intl.DateTimeFormat('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric',timeZone:'UTC'}).format(date):c.date,'concert-search-date'));

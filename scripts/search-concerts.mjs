@@ -1,3 +1,4 @@
+import { searchByTaste } from './sources/taste-concert-search.mjs';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
@@ -27,7 +28,8 @@ async function main() {
   let result;
   try {
     const cache = await readJSON('data/podiuminfo-day-cache.json').catch(()=>({entries:{}}));
-    const found = await searchConcerts(request,{dayCacheEntries:cache.entries || {},startDate,endDate:end.toISOString().slice(0,10)});
+    const options={dayCacheEntries:cache.entries || {},startDate,endDate:end.toISOString().slice(0,10)};
+    const found = String(request.artist || '').trim() ? await searchConcerts(request,options) : await searchByTaste(request,{...options,identity:await readJSON('data/identity.json')});
     result = {requestId:request.id,artist:request.artist,place:request.place,status:'complete',checkedAt:new Date().toISOString(),...found};
   } catch (error) {
     console.error('Search failed:',error.message);
