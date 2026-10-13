@@ -57,6 +57,16 @@ function loadGoingLayout() {
   } catch { return "list"; }
 }
 let goingLayout = loadGoingLayout();
+let goingTicketsOnly = false;
+let goingBody = null;
+function ticketedUpcoming() {
+  return plannedConcerts.filter(c =>
+    c.practical?.ticketBought === true &&
+    (c.date >= dutchToday() ||
+      (c.schedule?.date === c.date &&
+       Date.parse(c.schedule.end?.at) > Date.now()))
+  ).sort((a,b) => a.date.localeCompare(b.date));
+}
 let goingCalendarMonth = null;
 let goingCalendarSelectedDate = null;
 let archiveConcerts = [];
@@ -1442,7 +1452,13 @@ async function saveConcertPractical(c,changes) {
           el.style.color=practical.ticketBought===true?'#d2f3fb':'';
         }
       });
+
+      if (goingBody?.isConnected &&
+          goingBody.querySelector('.going-layout')) {
+        renderUpcoming(goingBody);
+      }
       return practical;
+
     } finally { pendingWrites--; renderSaving(); }
 }
 
@@ -1536,8 +1552,10 @@ function displayPlannedArtist(artist) {
 
 
 function renderGoingCalendar(body) {
+  const visibleConcerts = goingTicketsOnly
+    ? ticketedUpcoming() : plannedConcerts;
   const today = dutchToday();
-  const future = plannedConcerts.filter((c) => c.date && c.date >= today).sort((a, b) => a.date.localeCompare(b.date));
+  const future = visibleConcerts.filter((c) => c.date && c.date >= today).sort((a, b) => a.date.localeCompare(b.date));
   if (!goingCalendarMonth) goingCalendarMonth = (future[0]?.date || today).slice(0, 7);
   const [year, month] = goingCalendarMonth.split("-").map(Number);
   const first = new Date(Date.UTC(year, month - 1, 1));
@@ -1545,7 +1563,7 @@ function renderGoingCalendar(body) {
   const offset = (first.getUTCDay() + 6) % 7;
   const title = first.toLocaleDateString("en-GB", { month: "long", year: "numeric", timeZone: "UTC" });
   const byDate = new Map();
-  for (const c of plannedConcerts.filter((item) => item.date?.startsWith(goingCalendarMonth))) {
+  for (const c of visibleConcerts.filter((item) => item.date?.startsWith(goingCalendarMonth))) {
     if (!byDate.has(c.date)) byDate.set(c.date, []);
     byDate.get(c.date).push(c);
   }
@@ -1630,13 +1648,14 @@ function renderGoingCalendar(body) {
 }
 
 function renderUpcoming(body) {
+  goingBody = body;
   clearScheduleClock();
   body.innerHTML = "";
   const layout = el(`<div class="going-layout" role="group" aria-label="Going view">
     <button data-layout="list" class="${goingLayout === "list" ? "on" : ""}" aria-pressed="${goingLayout === "list"}">List</button>
     <button data-layout="calendar" class="${goingLayout === "calendar" ? "on" : ""}" aria-pressed="${goingLayout === "calendar"}">Calendar</button>
   </div>`);
-  layout.querySelectorAll("button").forEach((button) => button.addEventListener("click", () => {
+  layout.querySelectorAll("[data-layout]").forEach((button) => button.addEventListener("click", () => {
     goingLayout = button.dataset.layout;
     try { localStorage.setItem("lm_going_layout", goingLayout); } catch {}
     renderUpcoming(body);
@@ -1651,10 +1670,43 @@ function renderUpcoming(body) {
     addConcert: addSearchConcertRemote,
     showDeciding: () => renderConcertsShell("stage"),
   }));
+
   layout.prepend(add);
+  const tickets = ticketedUpcoming();
+  const filter = el(`
+    <button type="button"
+      class="going-tickets ${goingTicketsOnly ? 'on' : ''}"
+      aria-pressed="${goingTicketsOnly}"
+      aria-label="Only concerts with tickets: ${tickets.length}"
+      title="Only concerts with tickets">
+      <svg aria-hidden="true" width="18" height="18"
+        viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="1.6">
+        <path d="M3 6h18v4a2 2 0 0 0 0 4v4H3v-4a2 2 0 0 0 0-4Z"/>
+        <path d="m9 12 2 2 4-4"/>
+      </svg>
+      <span>${tickets.length}</span>
+    </button>`);
+  layout.insertBefore(filter, layout.querySelector('[data-layout]'));
+  filter.addEventListener('click', () => {
+    goingTicketsOnly = !goingTicketsOnly;
+    if (goingTicketsOnly) {
+      goingCalendarMonth = (tickets[0]?.date || dutchToday()).slice(0,7);
+      goingCalendarSelectedDate = null;
+    }
+    renderUpcoming(body);
+    body.querySelector('.going-tickets')?.focus({preventScroll:true});
+  });
+  if (goingTicketsOnly && !tickets.length) {
+    body.appendChild(el(
+      '<p class="void">No upcoming concerts marked as ticket bought. Tap the ticket filter to show all concerts.</p>'
+    ));
+    return;
+  }
+
   if (goingLayout === "calendar") { renderGoingCalendar(body); return; }
   const today = dutchToday();
-  const sorted = [...plannedConcerts].sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  const sorted = [...(goingTicketsOnly ? ticketedUpcoming() : plannedConcerts)].sort((a, b) => String(a.date).localeCompare(String(b.date)));
   const stillUpcoming = c => c.date >= today || (c.schedule?.date === c.date && Date.parse(c.schedule.end?.at) > Date.now());
   const upcoming = sorted.filter(stillUpcoming);
   const past = sorted.filter(c => !stillUpcoming(c));

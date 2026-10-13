@@ -1790,3 +1790,29 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
 .has-schedule .plain-act{min-height:44px;letter-spacing:.12em}
 .has-schedule .plain-act[data-a="tickets"]{color:var(--bone);border-bottom-color:var(--bone-dim)}
 .has-schedule .plain-act[data-a="unplan"]{color:var(--bone-dim)}
+
+/* Ticket filter and reliable ticket visibility */
+[data-ticket-id][hidden] {
+  display: none !important;
+}
+[data-ticket-id]:not([hidden]) {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  margin-top: 0;
+}
+.going-layout {
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.going-layout .going-tickets {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  letter-spacing: 0;
+}
+.going-layout .going-tickets.on {
+  color: #9bd6e4;
+  border-bottom-color: #9bd6e4;
+}
