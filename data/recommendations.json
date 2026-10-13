@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-10-13T17:37:01.077Z",
+    "lastUpdated": "2026-10-13T21:57:56.020Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
@@ -15,5 +15,42 @@
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-460254",
+      "source": "podiuminfo",
+      "sourceId": "460254",
+      "artist": "DeVotchKa",
+      "lineup": [
+        "DeVotchKa"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "DeVotchKa"
+      ],
+      "date": "2026-10-13",
+      "time": null,
+      "venue": "Melkweg",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/28770/100_Devotchka_2.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/460254/DeVotchKa-A-Celebration-of-the-Music-of-Little-Miss-Sunshine/Melkweg/",
+      "match": {
+        "score": 46,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: DeVotchKa",
+        "matchedArtists": [
+          "DeVotchKa"
+        ]
+      },
+      "discoveredAt": "2026-10-13T21:57:56.020Z",
+      "lastSeenAt": "2026-10-13T21:57:56.020Z"
+    }
+  ]
 }
