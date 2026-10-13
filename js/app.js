@@ -928,7 +928,7 @@ function openSheet(c) {
       <div class="sheet-inner">
         <div class="sheet-photo ${photo ? "" : "is-empty"}"></div>
         <div class="sheet-head">
-          <h2 class="sheet-artist">${esc(c.festivalName || displayPlannedArtist(c.artist))}</h2>
+          <h2 class="sheet-artist">${esc(c.festivalName || displayPlannedArtist(c.artist))}${planned?ticketMark(planned):""}</h2>
           <div class="sheet-when">
             ${weekdayShort(c.date)} ${fullDate(c.date)}<br>
             ${esc(venueKey({ venue: c.venue }))}, ${esc(c.city)}
@@ -945,6 +945,7 @@ function openSheet(c) {
 
         ${planned ? `
           <div class="sheet-section">
+            <div class="sheet-practical"></div>
             <p class="whisper">Coming up</p>
             <p class="footnote">${esc([c.artist, ...(c.supportingArtists || [])].filter(Boolean).join(" · "))}</p>
             ${c.time ? `<p class="footnote">Starts at ${esc(c.time)}</p>` : ""}
@@ -978,6 +979,7 @@ function openSheet(c) {
   // Unplan is reachable from any planned concert, not just whichever one
   // happens to be next — a mistake buried three deep still has to be undoable.
   if (planned) {
+    mountPractical(sheet.querySelector(".sheet-practical"),planned,changes=>saveConcertPractical(planned,changes));
     sheet.querySelector("#sheet-tickets")?.addEventListener("click", () => window.open(planned.ticketUrl, "_blank"));
     const un = sheet.querySelector("#sheet-unplan");
     un.addEventListener("click", async () => {
@@ -1417,13 +1419,40 @@ function caughtUp() {
   return wrap;
 }
 
+function ticketMark(c) {
+  return `<span data-ticket-id="${esc(c.id)}" ${c.practical?.ticketBought===true?'':'hidden'} title="Ticket bought" aria-label="Ticket bought" style="color:#9bd6e4;margin-left:8px;vertical-align:middle"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h18v4a2 2 0 0 0 0 4v4H3v-4a2 2 0 0 0 0-4Z"/><path d="m9 12 2 2 4-4"/></svg></span>`;
+}
+async function saveConcertPractical(c,changes) {
+    if (!getGithubConfig()) { openSettings(); throw new Error("Connect GitHub first."); }
+    pendingWrites++; renderSaving();
+    try {
+      const saved = await enqueue(()=>mutate(["data/planned.json"],files=>{
+        updatePractical(files["data/planned.json"],c.id,changes);
+      },"chore: update concert essentials (app)"));
+      const practical=saved["data/planned.json"].concerts.find(x=>x.id===c.id).practical;
+      const local=plannedConcerts.find(x=>x.id===c.id);
+      if(local) local.practical=practical;
+
+      document.querySelectorAll('[data-ticket-id]').forEach(el=>{
+        if(el.dataset.ticketId===c.id) el.hidden=practical.ticketBought!==true;
+      });
+      document.querySelectorAll('[data-ticket-event]').forEach(el=>{
+        if(el.dataset.ticketEvent===c.id) {
+          el.style.background=practical.ticketBought===true?'#244d59':'';
+          el.style.color=practical.ticketBought===true?'#d2f3fb':'';
+        }
+      });
+      return practical;
+    } finally { pendingWrites--; renderSaving(); }
+}
+
 function upcomingHero(c, withSchedule = false) {
   const support = (c.supportingArtists || []).filter(Boolean);
   const node = el(`
     <div class="upcoming-hero${withSchedule ? " has-schedule" : ""}">
       <div class="upcoming-photo"></div>
       <div class="countdown">${withSchedule && c.date < dutchToday() ? "Tonight" : countdownWord(c.date)}</div>
-      <h3 class="entry-artist">${esc(displayPlannedArtist(c.artist))}</h3>
+      <h3 class="entry-artist">${esc(displayPlannedArtist(c.artist))}${ticketMark(c)}</h3>
       ${support.length ? `<div class="entry-with">with ${esc(support.slice(0, 3).join(", "))}</div>` : ""}
       <div class="entry-place"><span class="event-venue">${esc(c.venue)} · ${esc(c.city)}</span><span class="event-date">${fullDate(c.date)}</span></div>
       <div>${workDayBadge(c)}</div>
@@ -1437,19 +1466,7 @@ function upcomingHero(c, withSchedule = false) {
   setPhoto(node.querySelector(".upcoming-photo"), imageFor(c));
   if (withSchedule) mountSchedule(node.querySelector(".schedule-host"), { ...c, artist: displayPlannedArtist(c.artist) });
 
-  if (withSchedule) mountPractical(node.querySelector(".practical-host"),c,async changes=>{
-    if (!getGithubConfig()) { openSettings(); throw new Error("Connect GitHub first."); }
-    pendingWrites++; renderSaving();
-    try {
-      const saved = await enqueue(()=>mutate(["data/planned.json"],files=>{
-        updatePractical(files["data/planned.json"],c.id,changes);
-      },"chore: update concert essentials (app)"));
-      const practical=saved["data/planned.json"].concerts.find(x=>x.id===c.id).practical;
-      const local=plannedConcerts.find(x=>x.id===c.id);
-      if(local) local.practical=practical;
-      return practical;
-    } finally { pendingWrites--; renderSaving(); }
-  });
+  if (withSchedule) mountPractical(node.querySelector(".practical-host"),c,changes=>saveConcertPractical(c,changes));
 
   node.querySelector('[data-a="tickets"]')?.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -1582,7 +1599,7 @@ function renderGoingCalendar(body) {
       style="--day-shift:${color}" aria-label="${esc(fullDate(date))}, ${esc(shift?.label || "")}, ${concerts.length} concerts">
       <span class="calendar-number">${day}</span>
       <span class="calendar-shift" title="${esc(shift?.label || "")}">${esc(shiftName)}</span>
-      ${concerts.slice(0, 2).map((c) => `<span class="calendar-event">${esc(displayPlannedArtist(c.artist))}</span>`).join("")}
+      ${concerts.slice(0, 2).map((c) => `<span class="calendar-event" data-ticket-event="${esc(c.id)}" style="${c.practical?.ticketBought===true?'background:#244d59;color:#d2f3fb':''}">${esc(displayPlannedArtist(c.artist))}${ticketMark(c)}</span>`).join("")}
       ${concerts.length > 2 ? `<span class="calendar-more">+${concerts.length - 2} more</span>` : ""}
     </button>`);
     cell.addEventListener("click", () => {
@@ -1600,7 +1617,7 @@ function renderGoingCalendar(body) {
     if (!concerts.length) agenda.appendChild(el('<p class="calendar-empty">No concerts on this day.</p>'));
     for (const c of concerts) {
       const row = el(`<button class="calendar-agenda-row">
-        <strong>${esc(displayPlannedArtist(c.artist))}</strong>
+        <strong>${esc(displayPlannedArtist(c.artist))}${ticketMark(c)}</strong>
         <span>${esc(c.venue)} · ${esc(c.city)}${c.time ? ` · ${esc(c.time)}` : ""}</span>
       </button>`);
       row.addEventListener("click", () => openSheet(c));
@@ -1664,7 +1681,7 @@ function renderUpcoming(body) {
         <div class="upcoming-row">
           <div class="when">${c.date < today ? "Passed" : countdownWord(c.date)}</div>
           <div class="who">
-            <b>${esc(displayPlannedArtist(c.artist))}</b>
+            <b>${esc(displayPlannedArtist(c.artist))}${ticketMark(c)}</b>
             <span class="event-meta"><span class="event-venue">${esc(c.venue)} · ${esc(c.city)}</span><span class="event-date">${fullDate(c.date)}</span></span>
             <div>${workDayBadge(c)}</div>
           </div>
