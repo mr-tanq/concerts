@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-10-13T15:22:52.154Z",
+    "lastUpdated": "2026-10-13T16:58:16.632Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
@@ -15,5 +15,45 @@
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "artist": "Trentemøller",
+      "eventName": "Trentemøller",
+      "lineup": [
+        "Trentemøller"
+      ],
+      "supportingArtists": [],
+      "date": "2027-03-10",
+      "venue": "Muziekgieterij",
+      "city": "Maastricht",
+      "country": "NL",
+      "sourceUrl": "https://muziekgieterij.nl/",
+      "image": "https://muziekgieterij.nl/wp-content/uploads/2026/09/604992552c257e53a7f95b106720ecd3371fe31e04011e9573e084bc07b0d818.webp",
+      "ticketUrl": "https://muziekgieterij.stager.co/shop/concert/events/111698497?utm_campaign=270310-Trentem%C3%B8ller-111698497&utm_source=Muziekgieterij+website&utm_medium=eventpublicity",
+      "source": "official",
+      "id": "rec-official-55f44e9cbecb46b6",
+      "time": null,
+      "isFestival": false,
+      "sourceApis": [
+        "official"
+      ],
+      "match": {
+        "score": 70,
+        "label": "In your listening",
+        "matchedBy": "listening",
+        "reason": "90 plays in your all-time Last.fm snapshot",
+        "matchedArtists": [
+          "trentemøller"
+        ]
+      },
+      "manualSearch": {
+        "artist": "",
+        "place": "Netherlands",
+        "checkedAt": "2026-10-13T15:30:43.208Z",
+        "addedAt": "2026-10-13T16:58:14.435Z"
+      },
+      "discoveredAt": "2026-10-13T16:58:16.632Z",
+      "lastSeenAt": "2026-10-13T16:58:16.632Z"
+    }
+  ]
 }
