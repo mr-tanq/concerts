@@ -13,6 +13,9 @@ export function checkPhase(concert, now = Date.now(), force = false) {
   if (!validDate(concert.date) || !zoneFor(concert)) return null;
   const today = localDate(now,zoneFor(concert)), s = concert.schedule?.date === concert.date ? concert.schedule : null;
   if (concert.date < today) return null;
+  const requested = Date.parse(s?.refreshRequestedAt), attempted = Date.parse(s?.lastAttemptAt);
+  const pending = Number.isFinite(requested) && requested <= now && now-requested < 86400000 && (!Number.isFinite(attempted) || requested > attempted);
+  if (pending && (!Number.isFinite(attempted) || now-attempted >= 5*60000)) return "manual";
   if (s?.lastAttemptAt && now - Date.parse(s.lastAttemptAt) < 50*60000) return null;
   if (force) return "manual";
   if (concert.date === today) {
@@ -82,7 +85,10 @@ export function applyUpdates(data, updates) {
   for(const update of updates) {
     const c=data.concerts.find(c=>c.id===update.id && c.date===update.date && normalize(c.artist)===normalize(update.artist) && normalize(c.venue)===normalize(update.venue));
     if(!c || Date.parse(c.schedule?.lastAttemptAt || 0)>Date.parse(update.schedule.lastAttemptAt)) continue;
-    if(JSON.stringify(c.schedule)!==JSON.stringify(update.schedule)){c.schedule=update.schedule;changed=true;}
+    const schedule = {...update.schedule};
+    // Keep a refresh requested while this fetch was in flight.
+    if (Date.parse(c.schedule?.refreshRequestedAt) > Date.parse(schedule.refreshRequestedAt || 0)) schedule.refreshRequestedAt=c.schedule.refreshRequestedAt;
+    if(JSON.stringify(c.schedule)!==JSON.stringify(schedule)){c.schedule=schedule;changed=true;}
   }
   if(changed){data.meta ||= {};data.meta.lastUpdated=new Date().toISOString();}
   return changed;

@@ -183,6 +183,9 @@ export function mergeSchedule(concert, results, now, phase) {
   for (const r of results) sources.set(r.source.url,r.source);
   const success = results.length > 0;
   const s = {version:1,date:concert.date,timeZone:zone,doors:make("doors","DOORS"),support:names.map(name=>make(`support:${normalize(name)}`,name)),main:make("main",concert.artist),end:make("end","END"),sources:[...sources.values()],lastCheckedAt:success ? now : old.lastCheckedAt || null,lastAttemptAt:now,checks:{...(old.checks || {}),...(success ? {[phase]:now} : {})},lastError:success ? null : "No matching source could be checked"};
+  s.refreshRequestedAt = old.refreshRequestedAt || null;
+  s.lastOfficialCheckedAt = results.some(r=>r.source.kind === "official") ? now : old.lastOfficialCheckedAt || (old.sources || []).filter(x=>x.kind === "official").map(x=>x.checkedAt).sort().at(-1) || null;
+  s.checkStatus = !success ? "failed" : results.some(r=>r.source.kind === "official") ? "official" : "secondary-only";
   // Reject out-of-order schedules rather than guessing which field is wrong.
   const order = [s.doors,...s.support.sort((a,b)=>String(a.at||"z").localeCompare(String(b.at||"z"))),s.main,s.end].filter(f=>f.at);
   if (order.some((f,i)=>i && f.at < order[i-1].at)) for (const f of order) { f.time=null; delete f.at; }

@@ -2,7 +2,7 @@ name: Refresh concert schedules
 
 on:
   schedule:
-    - cron: "17 * * * *"
+    - cron: "17,47 * * * *"
   push:
     branches: [main]
     paths:

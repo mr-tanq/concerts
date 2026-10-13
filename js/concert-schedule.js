@@ -1,3 +1,4 @@
+import { attachScheduleRefresh } from "./schedule-refresh.js?v=20261013";
 // Shared venue-local clock. No inferred performance times.
 export function localDate(now = Date.now(), zone = "Europe/Amsterdam") {
   const p = new Intl.DateTimeFormat("en-CA", { timeZone: zone, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date(now));
@@ -69,12 +70,17 @@ export function scheduleMarkup(concert) {
   const sources = [...new Map((s?.sources || []).filter(x => safeURL(x.url)).map(x => [x.url, x])).values()];
   let checked = "Not checked yet";
   if (Number.isFinite(Date.parse(s?.lastCheckedAt))) checked = `Checked ${new Intl.DateTimeFormat("en-GB", { timeZone: s.timeZone || "Europe/Amsterdam", day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit" }).format(new Date(s.lastCheckedAt))}`;
-  const unavailable = s?.lastAttemptAt && s.lastAttemptAt !== s.lastCheckedAt ? '<p class="schedule-check">Latest check unavailable</p>' : "";
+  const format = value => Number.isFinite(Date.parse(value)) ? new Intl.DateTimeFormat("en-GB", {timeZone:s?.timeZone || "Europe/Amsterdam",day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}).format(new Date(value)) : "Never";
+  const hasUnknown = [s?.doors,s?.main,s?.end,...support].some(f=>!f?.time);
+  const failed = s?.checkStatus === "failed" || (s?.lastAttemptAt && s.lastAttemptAt !== s.lastCheckedAt);
+  const partial = s?.checkStatus === "secondary-only";
+  const explanation = failed ? "Latest check failed. Previously confirmed times are kept." : partial ? "The official timetable could not be verified. Some times may be missing." : !s?.lastCheckedAt ? "No timetable has been checked yet." : hasUnknown ? "TBA: no confirmed time found in the checked sources." : "Times found in the checked sources.";
+  const unavailable = `<p class="schedule-check">${explanation}</p><p class="schedule-check">Last attempt: ${escapeHTML(format(s?.lastAttemptAt))}<br>Last successful check: ${escapeHTML(format(s?.lastCheckedAt))}</p><button type="button" class="text-btn" data-refresh-schedule>Refresh schedule</button><p class="schedule-check" data-refresh-status role="status" aria-live="polite"></p>`;
   const footer = sources.length ? `<details class="schedule-sources"><summary><span class="schedule-check">${escapeHTML(checked)}</span><span class="schedule-source-toggle">Sources <span aria-hidden="true">⌄</span></span></summary><div class="schedule-source-list"><p class="schedule-check">All times are local to the venue (${escapeHTML(s?.timeZone || "Europe/Amsterdam")}).</p>${sources.map(x => `<a href="${escapeHTML(safeURL(x.url))}" target="_blank" rel="noopener noreferrer">${escapeHTML(x.label || new URL(x.url).hostname)}${x.kind === "official" ? " · official" : " · secondary"}</a>`).join("")}</div></details>` : `<p class="schedule-check schedule-unchecked">${escapeHTML(checked)} · venue time</p>`;
   return `<section class="concert-schedule" aria-label="Concert schedule"><p class="whisper">Schedule</p><p class="schedule-live" role="timer" aria-live="off" hidden></p><dl>${rows}</dl>${footer}${unavailable}</section>`;
 }
 
-let mounted = null, timer = null;
+let mounted = null, timer = null, stopRefresh = null;
 function tick() {
   if (!mounted?.host.isConnected || document.hidden || !document.getElementById("panel-concerts")?.classList.contains("active")) return;
   const now = Date.now(), p = mounted.host.querySelector(".schedule-live"), text = scheduleCountdown(mounted.concert, now);
@@ -95,7 +101,8 @@ export function syncScheduleClock() {
   if (!mounted?.host.isConnected || document.hidden || !document.getElementById("panel-concerts")?.classList.contains("active")) return;
   tick(); timer = setInterval(tick, 15000);
 }
-export function clearScheduleClock() { clearInterval(timer); timer = null; mounted = null; }
+export function clearScheduleClock() { clearInterval(timer); timer = null; stopRefresh?.(); stopRefresh = null; mounted = null; }
 export function mountSchedule(host, concert) {
   clearScheduleClock(); host.innerHTML = scheduleMarkup(concert); mounted = { host, concert }; syncScheduleClock();
+  stopRefresh = attachScheduleRefresh(host,concert,fresh=>{Object.assign(concert,fresh);mountSchedule(host,concert);});
 }
