@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-10-13T17:00:57.024Z",
+    "lastUpdated": "2026-10-13T17:31:31.218Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
@@ -15,5 +15,46 @@
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "lineup": [
+        "Deathchant"
+      ],
+      "venue": "dB's",
+      "city": "Utrecht",
+      "date": "2026-10-14",
+      "image": "https://www.podiuminfo.nl/img/podiuminfo-rond.png",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/139334/cd/DEATHCHANT-USA-SHITMAN/dBs/",
+      "parserVersion": 2,
+      "artist": "Deathchant",
+      "supportingArtists": [],
+      "source": "podiuminfo",
+      "sourceId": "484229",
+      "sourceUrl": "https://www.podiuminfo.nl/concert/484229/Deathchant/dBs/",
+      "country": "NL",
+      "id": "rec-podiuminfo-484229",
+      "time": null,
+      "isFestival": false,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "match": {
+        "score": 69,
+        "label": "In your listening",
+        "matchedBy": "listening",
+        "reason": "3 plays in your past-month Last.fm snapshot",
+        "matchedArtists": [
+          "deathchant"
+        ]
+      },
+      "manualSearch": {
+        "artist": "",
+        "place": "Utrecht",
+        "checkedAt": "2026-10-13T17:13:49.232Z",
+        "addedAt": "2026-10-13T17:31:29.312Z"
+      },
+      "discoveredAt": "2026-10-13T17:31:31.218Z",
+      "lastSeenAt": "2026-10-13T17:31:31.218Z"
+    }
+  ]
 }
