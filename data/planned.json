@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-13T21:58:45.517Z",
+    "lastUpdated": "2026-10-13T21:59:04.741Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -2314,6 +2314,67 @@
       "planning": {
         "plannedAt": "2026-10-13T21:58:45.514Z",
         "originalScore": 47
+      },
+      "schedule": {
+        "version": 1,
+        "date": "2026-10-14",
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": "19:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.paradiso.nl/programma/fat-freddys-drop/2654380",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-13T21:59:00.806Z",
+          "evidence": "Zaal open: 19:00",
+          "at": "2026-10-14T17:00:00.000Z"
+        },
+        "support": [
+          {
+            "name": "DJ Logg Cabin",
+            "time": "19:30",
+            "dayOffset": 0,
+            "status": "confirmed",
+            "sourceUrl": "https://www.paradiso.nl/programma/fat-freddys-drop/2654380",
+            "sourceKind": "official",
+            "checkedAt": "2026-10-13T21:59:00.806Z",
+            "evidence": "Voorprogramma: 19:30",
+            "at": "2026-10-14T17:30:00.000Z"
+          }
+        ],
+        "main": {
+          "name": "Fat Freddy's Drop",
+          "time": "20:30",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.paradiso.nl/programma/fat-freddys-drop/2654380",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-13T21:59:00.806Z",
+          "evidence": "Hoofdprogramma: 20:30",
+          "at": "2026-10-14T18:30:00.000Z"
+        },
+        "end": {
+          "name": "END",
+          "time": null
+        },
+        "sources": [
+          {
+            "url": "https://www.paradiso.nl/programma/fat-freddys-drop/2654380",
+            "kind": "official",
+            "label": "paradiso.nl",
+            "checkedAt": "2026-10-13T21:59:00.806Z"
+          }
+        ],
+        "lastCheckedAt": "2026-10-13T21:59:00.806Z",
+        "lastAttemptAt": "2026-10-13T21:59:00.806Z",
+        "checks": {
+          "before24h": "2026-10-13T21:59:00.806Z"
+        },
+        "lastError": null,
+        "refreshRequestedAt": null,
+        "lastOfficialCheckedAt": "2026-10-13T21:59:00.806Z",
+        "checkStatus": "official"
       }
     }
   ]
