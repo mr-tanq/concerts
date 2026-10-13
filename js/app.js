@@ -1,3 +1,4 @@
+import { mountPractical, updatePractical } from "./concert-practical.js?v=20261013";
 import { mountSchedule, clearScheduleClock, syncScheduleClock } from "./concert-schedule.js?v=schedule-refresh-20261013";
 import { buildArchiveView, filterConcerts, artistsOf, actuallySeenArtistsOf, venueKey, venueSearchNames } from "./archive-stats.js?v=archive-venues-20261004";
 import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, isConflictError } from "./github-api.js";
@@ -1426,7 +1427,7 @@ function upcomingHero(c, withSchedule = false) {
       ${support.length ? `<div class="entry-with">with ${esc(support.slice(0, 3).join(", "))}</div>` : ""}
       <div class="entry-place"><span class="event-venue">${esc(c.venue)} · ${esc(c.city)}</span><span class="event-date">${fullDate(c.date)}</span></div>
       <div>${workDayBadge(c)}</div>
-      ${withSchedule ? `<div class="schedule-host" data-concert-id="${esc(c.id)}"></div>` : ""}
+      ${withSchedule ? `<div class="schedule-host" data-concert-id="${esc(c.id)}"></div><div class="practical-host"></div>` : ""}
       <div class="act-row upcoming-actions" style="padding-left:0;padding-right:0">
         ${c.ticketUrl ? `<button class="plain-act" data-a="tickets">Tickets</button>` : ""}
         <button class="plain-act" data-a="unplan">Not going after all</button>
@@ -1435,6 +1436,20 @@ function upcomingHero(c, withSchedule = false) {
   `);
   setPhoto(node.querySelector(".upcoming-photo"), imageFor(c));
   if (withSchedule) mountSchedule(node.querySelector(".schedule-host"), { ...c, artist: displayPlannedArtist(c.artist) });
+
+  if (withSchedule) mountPractical(node.querySelector(".practical-host"),c,async changes=>{
+    if (!getGithubConfig()) { openSettings(); throw new Error("Connect GitHub first."); }
+    pendingWrites++; renderSaving();
+    try {
+      const saved = await enqueue(()=>mutate(["data/planned.json"],files=>{
+        updatePractical(files["data/planned.json"],c.id,changes);
+      },"chore: update concert essentials (app)"));
+      const practical=saved["data/planned.json"].concerts.find(x=>x.id===c.id).practical;
+      const local=plannedConcerts.find(x=>x.id===c.id);
+      if(local) local.practical=practical;
+      return practical;
+    } finally { pendingWrites--; renderSaving(); }
+  });
 
   node.querySelector('[data-a="tickets"]')?.addEventListener("click", (e) => {
     e.stopPropagation();
