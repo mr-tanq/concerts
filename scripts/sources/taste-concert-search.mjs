@@ -1,3 +1,5 @@
+import {searchLocationCatalogue} from './location-catalogue.mjs';
+import {SEARCH_VENUES,placeMatches} from './manual-concert-search.mjs';
 import { searchConcerts, fetchHTML } from './manual-concert-search.mjs';
 import { searchKey, sameSearchConcert } from '../../js/concert-search-model.js';
 import { searchLocation, matchesLocation } from '../../js/concert-countries.js';
@@ -11,6 +13,14 @@ export function listeningCandidates(identity) {
       prev[recent?'recent':'overall']=Number(a.playcount);pool.set(key,prev);
     }
   }
+  for(const [period,recent] of [['overall',false],['month',true]]) {
+    for(const [name,count] of Object.entries(identity.artistCounts?.[period] || {})) {
+      if(!searchKey(name) || !(Number(count)>0))continue;
+      const key=searchKey(name),a=pool.get(key) || {name,overall:0,recent:0};
+      a[recent?'recent':'overall']=Math.max(a[recent?'recent':'overall'],Number(count));
+      pool.set(key,a);
+    }
+  }
   return [...pool.values()].map(a=>({...a,score:60+Math.min(20,Math.log2(1+a.overall)*1.5)+Math.min(20,Math.log2(1+a.recent)*3),reason:a.recent?`${a.recent} plays in your past-month Last.fm snapshot`:`${a.overall} plays in your all-time Last.fm snapshot`,kind:'listened'})).sort((a,b)=>b.score-a.score);
 }
 export async function searchByTaste(request,{identity,dayCacheEntries,startDate,endDate,apiKey=process.env.LASTFM_API_KEY,fetcher=fetch,search=searchConcerts,now=Date.now}={}) {
@@ -18,10 +28,10 @@ export async function searchByTaste(request,{identity,dayCacheEntries,startDate,
   if(!seeds.length)throw new Error('No listening snapshot available');
   const deadline=now()+390000, warnings=[],related=new Map();
   if(apiKey) {
-    for(const seed of seeds.slice(0,4)) {
+    for(const seed of seeds.slice(0,12)) {
       try {
         const url=new URL('https://ws.audioscrobbler.com/2.0/');
-        url.search=new URLSearchParams({method:'artist.getsimilar',artist:seed.name,api_key:apiKey,format:'json',limit:'6',autocorrect:'1'});
+        url.search=new URLSearchParams({method:'artist.getsimilar',artist:seed.name,api_key:apiKey,format:'json',limit:'15',autocorrect:'1'});
         const response=await fetcher(url,{signal:AbortSignal.timeout(10000)});
         if(!response.ok)throw new Error('Unavailable');
         const json=await response.json();if(json.error)throw new Error('Unavailable');
@@ -34,17 +44,23 @@ export async function searchByTaste(request,{identity,dayCacheEntries,startDate,
       } catch {warnings.push('Some similar-artist suggestions could not be loaded.');}
     }
   } else warnings.push('Similar-artist suggestions are unavailable; searching your listening favourites only.');
-  const known=seeds.slice(0,16),similar=[...related.values()].sort((a,b)=>b.score-a.score).slice(0,8);
-  const candidates=[];
-  for(let i=0;i<known.length;i++){candidates.push(known[i]);if(i%2===1 && similar.length)candidates.push(similar.shift());}
-  candidates.push(...similar);
+  const candidates=[...seeds,...[...related.values()].sort((a,b)=>b.score-a.score)];
+  const scope=searchLocation(request.place);
+  const supported=['NL','BE','GR'].includes(scope.country) || !scope.country && (SEARCH_VENUES.some(v=>placeMatches({venue:v[0],city:v[1]},request.place)) || /athens|athina|thessaloniki|αθηνα|θεσσαλονικη/i.test(searchKey(request.place)));
+  if(supported) {
+    const result=await searchLocationCatalogue(request,{candidates,dayCacheEntries,startDate,endDate,deadline});
+    result.warnings=[...warnings,...result.warnings];
+    result.coverage.profileUpdatedAt=identity.meta?.lastUpdated || null;
+    return result;
+  }
+  warnings.push('No location-wide catalogue adapter is available here. Searching artists individually until the time limit.');
   const cache=new Map();
   const page=(url,domain)=>{
     const key=domain+'|'+url;
     if(!cache.has(key))cache.set(key,fetchHTML(url,domain));
     return cache.get(key);
   };
-  const concerts=[],scope=searchLocation(request.place);let checked=0,failed=0;
+  const concerts=[];let checked=0,failed=0;
   for(const candidate of candidates) {
     if(now()>deadline-35000)break;
     try {
@@ -59,7 +75,7 @@ export async function searchByTaste(request,{identity,dayCacheEntries,startDate,
       }
     } catch {failed++;}
   }
-  warnings.push(`Focused search: ${checked} of ${candidates.length} selected artists checked. This is not a complete venue or country listing.`);
+  warnings.push(`Artist fallback: ${checked} of ${candidates.length} artists checked. This is not a complete venue or country listing.`);
   if(failed)warnings.push('Some artist searches failed. Results may be incomplete.');
   return {concerts:concerts.sort((a,b)=>b.match.score-a.match.score || a.date.localeCompare(b.date)),warnings:[...new Set(warnings)],coverage:{mode:'taste',artistsChecked:checked,artistsSelected:candidates.length,unavailable:checked===0,profileUpdatedAt:identity.meta?.lastUpdated || null}};
 }

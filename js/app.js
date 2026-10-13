@@ -2,7 +2,7 @@ import { mountPractical, updatePractical } from "./concert-practical.js?v=202610
 import { mountSchedule, clearScheduleClock, syncScheduleClock } from "./concert-schedule.js?v=schedule-refresh-20261013";
 import { buildArchiveView, filterConcerts, artistsOf, actuallySeenArtistsOf, venueKey, venueSearchNames } from "./archive-stats.js?v=archive-venues-20261004";
 import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, isConflictError } from "./github-api.js";
-import { openConcertSearch } from "./concert-search.js?v=taste-search-20261013";
+import { openConcertSearch } from "./concert-search.js?v=catalogue-search-20261013";
 import { concertSearchState, sameSearchConcert } from "./concert-search-model.js?v=taste-search-20261013";
 import { initMirror, renderMirror, stopPolling as stopMirrorPolling } from "./mirror.js";
 import { initIdentity, renderHero, renderExplore as renderIdentityExplore, renderRightNow, openArtistSheet } from "./identity.js";

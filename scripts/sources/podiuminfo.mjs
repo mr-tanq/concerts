@@ -280,7 +280,7 @@ async function getDayCandidates(dateStr, dayCacheEntries, { forceRefresh = false
 // Expected <title>: "Concert {Artist(s)} in {Venue}, {City} op [weekday] {day} {month} {year}"
 // The weekday is optional — the real <title> usually omits it even though
 // the meta-description includes it.
-function parseConcertPageTitle(html, trackedSet) {
+export function parseConcertPageTitle(html, trackedSet) {
   const $ = cheerio.load(html);
   const titleText = ($("head title").first().text() || $("title").first().text() || "").trim();
 
