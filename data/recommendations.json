@@ -1,19 +1,131 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-10-13T22:09:43.981Z",
+    "lastUpdated": "2026-10-14T11:06:22.352Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 1,
-      "daysCached": 365,
+      "daysFresh": 365,
+      "daysCached": 1,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 5,
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-498423",
+      "source": "podiuminfo",
+      "sourceId": "498423",
+      "artist": "Jean-Michel Blais",
+      "lineup": [
+        "Jean-Michel Blais"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Jean-Michel Blais"
+      ],
+      "date": "2026-10-27",
+      "time": null,
+      "venue": "TivoliVredenburg",
+      "city": "Utrecht",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/123477/100_Jean-Michel_Blais_1.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/498423/Jean-Michel-Blais/TivoliVredenburg/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "similar",
+        "reason": "Similar to Gonzales",
+        "matchedArtists": [
+          "Jean-Michel Blais"
+        ],
+        "similarVia": "Gonzales"
+      },
+      "discoveredAt": "2026-10-14T11:06:22.352Z",
+      "lastSeenAt": "2026-10-14T11:06:22.352Z"
+    },
+    {
+      "id": "rec-podiuminfo-498435",
+      "source": "podiuminfo",
+      "sourceId": "498435",
+      "artist": "Jean-Michel Blais",
+      "lineup": [
+        "Jean-Michel Blais"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Jean-Michel Blais"
+      ],
+      "date": "2027-03-31",
+      "time": null,
+      "venue": "Muziekgebouw Eindhoven",
+      "city": "Eindhoven",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/123477/100_Jean-Michel_Blais_2.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/143489/cd/Jean-michel-Blais/Muziekgebouw-Eindhoven/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/498435/Jean-Michel-Blais/Muziekgebouw-Eindhoven/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "similar",
+        "reason": "Similar to Gonzales",
+        "matchedArtists": [
+          "Jean-Michel Blais"
+        ],
+        "similarVia": "Gonzales"
+      },
+      "discoveredAt": "2026-10-14T11:06:22.352Z",
+      "lastSeenAt": "2026-10-14T11:06:22.352Z"
+    },
+    {
+      "id": "rec-podiuminfo-498392",
+      "source": "podiuminfo",
+      "sourceId": "498392",
+      "artist": "Hazlett",
+      "lineup": [
+        "Hazlett"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Hazlett"
+      ],
+      "date": "2027-03-12",
+      "time": null,
+      "venue": "Paradiso",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.podiuminfo.nl/img/podiuminfo-rond.png",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/143479/cd/Hazlett/Paradiso/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/498392/Hazlett/Paradiso/",
+      "match": {
+        "score": 35,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to RY X",
+        "matchedArtists": [
+          "Hazlett"
+        ],
+        "similarVia": "RY X"
+      },
+      "discoveredAt": "2026-10-14T11:06:22.352Z",
+      "lastSeenAt": "2026-10-14T11:06:22.352Z"
+    }
+  ]
 }
