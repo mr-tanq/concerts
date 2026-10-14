@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-14T09:24:03.941Z",
+    "lastUpdated": "2026-10-14T11:48:01.633Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -2378,6 +2378,30 @@
         "refreshRequestedAt": null,
         "lastOfficialCheckedAt": "2026-10-14T09:23:45.706Z",
         "checkStatus": "official"
+      }
+    },
+    {
+      "id": "planned-podiuminfo-498423",
+      "source": "podiuminfo",
+      "sourceId": "498423",
+      "artist": "Jean-Michel Blais",
+      "lineup": [
+        "Jean-Michel Blais"
+      ],
+      "supportingArtists": [],
+      "date": "2026-10-27",
+      "time": null,
+      "venue": "TivoliVredenburg",
+      "city": "Utrecht",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/123477/100_Jean-Michel_Blais_1.jpg",
+      "ticketUrl": null,
+      "sourceUrl": "https://www.podiuminfo.nl/concert/498423/Jean-Michel-Blais/TivoliVredenburg/",
+      "recommendationId": "rec-podiuminfo-498423",
+      "planning": {
+        "plannedAt": "2026-10-14T11:48:01.632Z",
+        "originalScore": 45
       }
     }
   ]
