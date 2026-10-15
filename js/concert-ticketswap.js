@@ -1,3 +1,4 @@
+import { attachTicketSwapCheck } from './ticketswap-check.js?v=20261015';
 let snapshotPromise;
 
 const identity = c => JSON.stringify([
@@ -141,6 +142,16 @@ export function mountTicketSwap(host, concert) {
   panel.setAttribute('aria-label', 'TicketSwap results');
   panel.setAttribute('aria-live', 'polite');
 
+  const results = document.createElement('div');
+  const controls = document.createElement('div');
+  panel.append(results, controls);
+
+  attachTicketSwapCheck(controls, concert, async data => {
+    snapshotPromise = Promise.resolve(data);
+    results.replaceChildren();
+    await renderTicketSwap(results, concert);
+  });
+
   let loading = false;
 
   button.addEventListener('click', async event => {
@@ -148,11 +159,11 @@ export function mountTicketSwap(host, concert) {
     panel.hidden = !panel.hidden;
     button.setAttribute('aria-expanded', String(!panel.hidden));
 
-    if (panel.hidden || loading || panel.childNodes.length) return;
+    if (panel.hidden || loading || results.childNodes.length) return;
 
     loading = true;
-    panel.textContent = 'Loading saved results…';
-    await renderTicketSwap(panel, concert);
+    results.textContent = 'Loading saved results…';
+    await renderTicketSwap(results, concert);
     loading = false;
   });
 
