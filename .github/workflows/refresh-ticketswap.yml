@@ -1,0 +1,57 @@
+name: Refresh TicketSwap for Going
+
+on:
+  workflow_dispatch:
+    inputs:
+      live:
+        description: 'Call Parse API — uses credits, maximum 3 concerts'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ticketswap-going
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Validate scripts
+        run: |
+          node --check scripts/lib/ticketswap-going.mjs
+          node --check scripts/refresh-ticketswap.mjs
+
+      - name: Preview without API calls
+        if: ${{ !inputs.live }}
+        run: node scripts/refresh-ticketswap.mjs
+
+      - name: Check TicketSwap
+        if: ${{ inputs.live }}
+        env:
+          PARSE_API_KEY: ${{ secrets.PARSE_API_KEY }}
+        run: node scripts/refresh-ticketswap.mjs --live
+
+      - name: Save availability
+        if: ${{ inputs.live }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/ticketswap.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Refresh TicketSwap availability'
+          for attempt in 1 2 3; do
+            git pull --rebase origin main
+            if git push origin HEAD:main; then exit 0; fi
+          done
+          exit 1
