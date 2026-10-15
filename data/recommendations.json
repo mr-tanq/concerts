@@ -1,19 +1,57 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-10-15T00:46:05.337Z",
+    "lastUpdated": "2026-10-15T10:48:02.513Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 0,
-      "daysCached": 366,
+      "daysFresh": 366,
+      "daysCached": 0,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 1,
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-498471",
+      "source": "podiuminfo",
+      "sourceId": "498471",
+      "artist": "Orbital",
+      "lineup": [
+        "Orbital"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Orbital"
+      ],
+      "date": "2027-04-29",
+      "time": null,
+      "venue": "Gashouder",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/90/100_Orbital_2.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/143501/cd/Orbital/Gashouder/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/498471/Orbital/Gashouder/",
+      "match": {
+        "score": 38,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Moby",
+        "matchedArtists": [
+          "Orbital"
+        ],
+        "similarVia": "Moby"
+      },
+      "discoveredAt": "2026-10-15T10:48:02.513Z",
+      "lastSeenAt": "2026-10-15T10:48:02.513Z"
+    }
+  ]
 }
