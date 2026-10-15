@@ -58,7 +58,8 @@ if (!live) {
 
   for (const c of selected) {
     snapshot.entries[c.id] = await checkConcert(
-      c, snapshot.entries[c.id], ticketSwapRequest, now
+      c, snapshot.entries[c.id], ticketSwapRequest, now,
+      requestedMode ? requests[c.id].selectedEventId : null
     );
     if (requestedMode) {
       snapshot.entries[c.id].requestId = requests[c.id].requestId;

@@ -1,4 +1,4 @@
-import { resolveTicketSwap, reviewCandidates } from './ticketswap-matching.mjs';
+import { resolveTicketSwap, reviewCandidates, ticketSwapURL } from './ticketswap-matching.mjs';
 import { summarizeListings } from './ticketswap-summary.mjs';
 
 const norm = value => String(value ?? '')
@@ -53,12 +53,31 @@ function safeURL(value) {
   }
 }
 
-export async function checkConcert(c, old, request, now = new Date()) {
+export async function checkConcert(c, old, request, now = new Date(), selectedEventId = null) {
   const stamp = now.toISOString();
   const same = old?.identity === identity(c);
   let event = same ? old.event : null;
 
   try {
+    if (selectedEventId) {
+      const candidate = same && old?.matchCandidates?.find(item =>
+        item.id === selectedEventId
+        && item.date === c.date
+        && (!item.country || item.country === c.country)
+        && ticketSwapURL(item.url)
+      );
+
+      if (!candidate) throw new Error('Invalid selection');
+
+      event = {
+        id: candidate.id,
+        url: ticketSwapURL(candidate.url),
+        name: candidate.name,
+        date: c.date,
+        confirmedByUser: true
+      };
+    }
+
     if (!event) {
       const search = await request('search_events', { query: c.artist });
       const resolution = resolveTicketSwap(c, search.results, search.page_info);

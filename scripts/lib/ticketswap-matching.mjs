@@ -54,6 +54,7 @@ function artistScore(concert, title) {
   if (position > 0) return 60;
 
   const tail = actual.slice(target.length);
+  if (tail.length && tail.every(word => /^\d+(?:st|nd|rd|th)?$/.test(word))) return 92;
   const descriptors = [
     'tour', 'anniversary', 'live', 'concert', 'show',
     'presents', 'with', 'feat', 'featuring', 'support'

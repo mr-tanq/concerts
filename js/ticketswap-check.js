@@ -17,7 +17,7 @@ async function readOrEmpty(config, path, empty) {
   }
 }
 
-async function requestCheck(config, concert) {
+async function requestCheck(config, concert, selectedEventId = null) {
   for (let attempt = 0; attempt < 3; attempt++) {
     const now = Date.now();
     const [queue, result] = await Promise.all([
@@ -37,10 +37,13 @@ async function requestCheck(config, concert) {
     if (pending?.identity === identity(concert)
       && pending.requestId !== old?.requestId
       && age >= 0 && age < 10 * 60000) {
+      if ((pending.selectedEventId || null) !== selectedEventId) {
+        throw new Error('Another check is running. Wait for it to finish.');
+      }
       return pending;
     }
 
-    if (old?.identity === identity(concert)
+    if (!selectedEventId && old?.identity === identity(concert)
       && now - Date.parse(old?.lastAttemptAt) < 5 * 60000) {
       throw new Error('Please wait five minutes between checks.');
     }
@@ -48,7 +51,8 @@ async function requestCheck(config, concert) {
     const request = {
       requestId: crypto.randomUUID(),
       requestedAt: new Date(now).toISOString(),
-      identity: identity(concert)
+      identity: identity(concert),
+      ...(selectedEventId ? { selectedEventId } : {})
     };
 
     queue.json.requests[concert.id] = request;
@@ -65,11 +69,11 @@ async function requestCheck(config, concert) {
   }
 }
 
-export function attachTicketSwapCheck(host, concert, onUpdate) {
+export function attachTicketSwapCheck(host, concert, onUpdate, options = {}) {
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'plain-act';
-  button.textContent = 'Check TicketSwap';
+  button.textContent = options.label || 'Check TicketSwap';
 
   const status = document.createElement('p');
   status.className = 'footnote';
@@ -93,7 +97,7 @@ export function attachTicketSwapCheck(host, concert, onUpdate) {
     status.textContent = 'Requesting a check…';
 
     try {
-      const request = await requestCheck(config, concert);
+      const request = await requestCheck(config, concert, options.selectedEventId || null);
       if (!host.isConnected) return;
 
       status.textContent = 'Check requested. Waiting for the result…';

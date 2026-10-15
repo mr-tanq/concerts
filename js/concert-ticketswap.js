@@ -1,4 +1,4 @@
-import { attachTicketSwapCheck } from './ticketswap-check.js?v=20261015';
+import { attachTicketSwapCheck } from './ticketswap-check.js?v=universal-ticket-match-20261015';
 let snapshotPromise;
 
 const identity = c => JSON.stringify([
@@ -65,7 +65,7 @@ async function renderTicketSwap(host, concert) {
         }
       }
     } else if (entry.status === 'needs-review') {
-      text = 'Possible matches — please check the event details below.';
+      text = 'Choose the correct event once to check tickets and remember the match.';
     } else if (entry.status === 'search-incomplete') {
       text = 'No verified match in the returned search page. More results may exist.';
     } else if (entry.status === 'not-found') {
@@ -101,6 +101,20 @@ async function renderTicketSwap(host, concert) {
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
         section.append(link);
+
+        if (candidate.id) {
+          const choice = document.createElement('div');
+
+          attachTicketSwapCheck(choice, concert, async updated => {
+            snapshotPromise = Promise.resolve(updated);
+            await renderTicketSwap(host, concert);
+          }, {
+            selectedEventId: candidate.id,
+            label: 'Use this event'
+          });
+
+          section.append(choice);
+        }
       }
     }
 
