@@ -109,7 +109,8 @@ export function mountSupportDiscovery(host, {
   function render() {
     host.replaceChildren();
     host.className = 'support-discovery';
-    host.append(text('p','ALL CAUGHT UP','whisper'));
+    host.parentElement?.classList.add('caughtup-discovery');
+    host.append(text('p','All caught up. Something to explore while you wait.','discovery-status'));
 
     if (!choices.length) {
       host.append(
@@ -125,21 +126,21 @@ export function mountSupportDiscovery(host, {
     host.append(text('p','BEFORE THE HEADLINER','whisper'));
 
     const url = safeURL(imageFor({artist:name}));
-    if (url) {
+    if (url &&
+        !/e23066163f21176a822b54001ee648a2|placeholder|default[-_]artist|no[-_]image/i.test(url)) {
       const img = document.createElement('img');
       img.src = url;
       img.alt = name;
       img.style.cssText =
-        'width:100%;max-height:320px;object-fit:cover;margin:16px 0';
+        'width:100%;max-height:240px;object-fit:cover;margin:16px 0;border-radius:3px';
       img.addEventListener('error', () => img.remove(), {once:true});
       host.append(img);
     }
 
     host.append(
       text('h2',name,'entry-artist'),
-      text('p',`Opening for ${c.artist}`,'lede'),
-      text('p',`${formatDate(c.date)} · ${c.venue} · ${c.city}`,'footnote'),
-      text('p','Get to know the opening act before your night out.','footnote')
+      text('p',`Opening for ${c.artist}`,'discovery-headliner'),
+      text('p',`${formatDate(c.date)} · ${c.venue} · ${c.city}`,'footnote')
     );
 
     const actions = document.createElement('div');
@@ -147,7 +148,7 @@ export function mountSupportDiscovery(host, {
     actions.style.paddingLeft = '0';
 
     const listen = document.createElement('a');
-    listen.className = 'plain-act';
+    listen.className = 'plain-act discovery-listen';
     listen.textContent = 'Listen ↗';
     listen.href = 'https://open.spotify.com/search/' + encodeURIComponent(name);
     listen.target = '_blank';

@@ -1,4 +1,4 @@
-import { mountSupportDiscovery, shareConcertButton } from "./concert-discovery.js?v=20261015";
+import { mountSupportDiscovery, shareConcertButton } from "./concert-discovery.js?v=discovery-polish-20261015";
 import { mountPractical, updatePractical } from "./concert-practical.js?v=20261013";
 import { mountSchedule, clearScheduleClock, syncScheduleClock } from "./concert-schedule.js?v=tivoli-times-20261015";
 import { buildArchiveView, filterConcerts, artistsOf, actuallySeenArtistsOf, venueKey, venueSearchNames } from "./archive-stats.js?v=archive-venues-20261004";

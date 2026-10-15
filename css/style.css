@@ -1861,3 +1861,54 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
   outline: 2px solid var(--bone);
   outline-offset: 4px;
 }
+
+/* Refined support discovery */
+.caughtup.caughtup-discovery {
+  padding-top: 28px;
+  padding-bottom: 100px;
+}
+.support-discovery .discovery-status {
+  margin: 0 0 30px;
+  color: var(--bone-dim);
+  font: 12px/1.6 var(--sans);
+}
+.support-discovery .whisper {
+  color: var(--bone-dim);
+  margin: 0 0 14px;
+}
+.support-discovery .entry-artist {
+  font: 400 clamp(42px, 8vw, 64px)/1.05 var(--serif);
+  color: var(--bone);
+  margin: 18px 0 12px;
+  overflow-wrap: anywhere;
+}
+.support-discovery .discovery-headliner {
+  font: 16px/1.5 var(--sans);
+  color: var(--bone-dim);
+  margin: 0 0 8px;
+}
+.support-discovery .footnote {
+  color: var(--bone-dim);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.support-discovery .act-row {
+  margin-top: 24px;
+  padding-top: 0;
+}
+.support-discovery .plain-act,
+.concert-share .plain-act {
+  color: var(--bone);
+}
+.support-discovery .discovery-listen {
+  color: #9bd6e4;
+  border-bottom-color: #9bd6e4;
+}
+.support-discovery .concert-share {
+  margin-top: 12px;
+  padding-top: 12px;
+}
+.support-discovery > button:last-child {
+  margin-top: 20px;
+  color: var(--bone-dim);
+}
