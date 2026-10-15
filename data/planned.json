@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-15T00:16:35.693Z",
+    "lastUpdated": "2026-10-15T00:31:37.294Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -1406,16 +1406,17 @@
           }
         ],
         "lastCheckedAt": "2026-10-14T23:27:22.253Z",
-        "lastAttemptAt": "2026-10-14T23:27:22.253Z",
+        "lastAttemptAt": "2026-10-15T00:31:18.281Z",
         "checks": {
           "initial": "2026-10-08T16:12:59.709Z",
           "before48h": "2026-10-13T21:51:14.690Z",
           "sameDay": "2026-10-14T23:27:22.253Z"
         },
-        "lastError": null,
+        "lastError": "No matching source could be checked",
+        "noSupport": null,
         "refreshRequestedAt": null,
         "lastOfficialCheckedAt": null,
-        "checkStatus": "secondary-only"
+        "checkStatus": "failed"
       }
     },
     {
@@ -2212,9 +2213,10 @@
         },
         "sources": [],
         "lastCheckedAt": null,
-        "lastAttemptAt": "2026-10-14T23:27:22.253Z",
+        "lastAttemptAt": "2026-10-15T00:31:18.281Z",
         "checks": {},
         "lastError": "No matching source could be checked",
+        "noSupport": null,
         "refreshRequestedAt": null,
         "lastOfficialCheckedAt": null,
         "checkStatus": "failed"
