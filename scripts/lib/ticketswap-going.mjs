@@ -35,6 +35,23 @@ export function selectConcerts(concerts, entries, now = new Date(), limit = 3) {
     .slice(0, limit);
 }
 
+function matchesArtist(concert, title) {
+  if (norm(title) === norm(concert.artist)) return true;
+
+  const names = String(title || '')
+    .split(/\s*\+\s*/)
+    .map(norm);
+
+  const known = new Set([
+    concert.artist,
+    ...(concert.supportingArtists || [])
+  ].map(norm));
+
+  return names.length > 1
+    && names[0] === norm(concert.artist)
+    && names.every(name => name && known.has(name));
+}
+
 export function matchEvent(c, results) {
   if (!Array.isArray(results)) {
     throw new Error('Unexpected event search response');
@@ -42,7 +59,7 @@ export function matchEvent(c, results) {
 
   const matches = results.filter(e =>
     e.__typename === 'EventResult'
-    && norm(e.name) === norm(c.artist)
+    && matchesArtist(c, e.name)
     && e.startDate?.slice(0, 10) === c.date
     && norm(e.locationName) === norm(c.venue)
     && norm(e.cityName) === norm(c.city)
