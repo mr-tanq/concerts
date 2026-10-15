@@ -36,12 +36,25 @@ export function selectConcerts(concerts, entries, now = new Date(), limit = 3) {
 }
 
 function matchesArtist(concert, title) {
-  if (norm(title) === norm(concert.artist)) return true;
+  const raw = String(title || '');
 
-  const names = String(title || '')
-    .split(/\s*\+\s*/)
-    .map(norm);
+  if (/\b(?:upgrade|parking|tribute|afterparty)\b|ticket\s+not\s+included|\bvip\s+package\b/i.test(raw)) {
+    return false;
+  }
 
+  const clean = value => String(value || '')
+    .replace(
+      /\s*[-–—:|]?\s*(?:(?:\d+(?:st|nd|rd|th)?\s+)?anniversary\s+tour|(?:world|european|europe|uk)\s+tour)\s*$/i,
+      ''
+    )
+    .trim();
+
+  if (norm(raw) === norm(concert.artist)
+    || norm(clean(raw)) === norm(concert.artist)) {
+    return true;
+  }
+
+  const names = clean(raw).split(/\s*\+\s*/).map(norm);
   const known = new Set([
     concert.artist,
     ...(concert.supportingArtists || [])
