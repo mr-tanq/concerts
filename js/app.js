@@ -1,6 +1,6 @@
 import { mountSupportDiscovery } from "./concert-discovery.js?v=image-share-20261015";
 import { shareConcertImage } from "./concert-share.js?v=image-share-20261015";
-import { mountTicketSwap } from "./concert-ticketswap.js?v=ticketswap-check-20261015";
+import { mountTicketSwap } from "./concert-ticketswap.js?v=ticketswap-diagnostics-20261015";
 
 function mountConcertShare(heading, concert) {
   if (!heading || heading.parentElement.classList.contains("concert-share-heading")) return;

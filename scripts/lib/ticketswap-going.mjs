@@ -79,6 +79,28 @@ export async function checkConcert(c, old, request, now = new Date()) {
         return {
           identity: identity(c),
           status: 'not-found',
+          searchDiagnostics: {
+            query: c.artist,
+            expected: {
+              artist: c.artist,
+              date: c.date,
+              venue: c.venue,
+              city: c.city,
+              country: c.country
+            },
+            candidates: (search.results || [])
+              .filter(e => e.__typename === 'EventResult')
+              .slice(0, 30)
+              .map(e => ({
+                name: e.name,
+                date: e.startDate,
+                venue: e.locationName,
+                city: e.cityName,
+                country: e.country?.code,
+                url: safeURL(e.uri?.url)
+              })),
+            pageInfo: search.page_info || null
+          },
           lastAttemptAt: stamp,
           checkedAt: stamp
         };

@@ -80,7 +80,7 @@ async function renderTicketSwap(host, concert) {
     const summary = document.createElement('p');
     summary.className = 'footnote';
     summary.textContent = text;
-    section.append(label, summary);
+    section.append(summary);
 
     const checkedAt = Date.parse(entry.checkedAt);
     if (Number.isFinite(checkedAt)) {
