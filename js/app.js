@@ -18,7 +18,7 @@ function mountConcertShare(heading, concert) {
 }
 
 import { mountPractical, updatePractical } from "./concert-practical.js?v=20261013";
-import { mountSchedule, clearScheduleClock, syncScheduleClock } from "./concert-schedule.js?v=tivoli-times-20261015";
+import { mountSchedule, clearScheduleClock, syncScheduleClock } from "./concert-schedule.js?v=going-details-20261015";
 import { buildArchiveView, filterConcerts, artistsOf, actuallySeenArtistsOf, venueKey, venueSearchNames } from "./archive-stats.js?v=archive-venues-20261004";
 import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, isConflictError } from "./github-api.js";
 import { openConcertSearch } from "./concert-search.js?v=catalogue-search-20261013";
@@ -952,7 +952,7 @@ function openSheet(c) {
 
   root.innerHTML = "";
   const sheet = el(`
-    <div class="sheet-root">
+    <div class="sheet-root${planned ? " sheet-going" : ""}">
       <button class="sheet-close">Close</button>
       <div class="sheet-inner">
         <div class="sheet-photo ${photo ? "" : "is-empty"}"></div>
@@ -966,18 +966,17 @@ function openSheet(c) {
           <p class="lede sheet-memory-line">${planned ? `Going · ${countdownWord(c.date)}` : timesSeenStatement(c)}</p>
         </div>
 
-        <dl class="facts">
+        ${!planned ? `<dl class="facts">
           <div class="fact"><dt>Billing</dt><dd>${c.isFestival ? "Festival" : "Own show"}</dd></div>
           ${room && room !== venueKey({ venue: c.venue }) ? `<div class="fact"><dt>Part of</dt><dd>${esc(room)}</dd></div>` : ""}
           ${c.country ? `<div class="fact"><dt>Country</dt><dd>${esc(c.country)}</dd></div>` : ""}
-        </dl>
+        </dl>` : ""}
 
         ${planned ? `
           <div class="sheet-section">
+            <div class="sheet-going-schedule"></div>
             <div class="sheet-practical"></div>
-            <p class="whisper">Coming up</p>
-            <p class="footnote">${esc([c.artist, ...(c.supportingArtists || [])].filter(Boolean).join(" · "))}</p>
-            ${c.time ? `<p class="footnote">Starts at ${esc(c.time)}</p>` : ""}
+            <div class="sheet-going-ticketswap"></div>
           </div>
         ` : `
           <div class="sheet-section">
@@ -1008,7 +1007,18 @@ function openSheet(c) {
   // Unplan is reachable from any planned concert, not just whichever one
   // happens to be next — a mistake buried three deep still has to be undoable.
   if (planned) {
-    mountPractical(sheet.querySelector(".sheet-practical"),planned,changes=>saveConcertPractical(planned,changes));
+    const scheduleHost = sheet.querySelector(".sheet-going-schedule");
+    mountSchedule(scheduleHost, { ...planned, artist: displayPlannedArtist(planned.artist) });
+    refreshGoingSchedule(planned, scheduleHost);
+    const swapHost = sheet.querySelector(".sheet-going-ticketswap");
+    mountTicketSwap(swapHost, planned);
+    mountPractical(sheet.querySelector(".sheet-practical"), planned, async changes => {
+      const practical = await saveConcertPractical(planned, changes);
+      planned.practical = practical;
+      swapHost.replaceChildren();
+      mountTicketSwap(swapHost, planned);
+      return practical;
+    });
     if (planned.date >= dutchToday()) {
       mountConcertShare(sheet.querySelector(".sheet-artist"), planned);
     }
@@ -1040,7 +1050,15 @@ function openSheet(c) {
   }
 
   setPhoto(sheet.querySelector(".sheet-photo"), photo);
-  sheet.querySelector(".sheet-close").addEventListener("click", () => { root.innerHTML = ""; });
+  sheet.querySelector(".sheet-close").addEventListener("click", () => {
+    root.innerHTML = "";
+    if (planned) {
+      clearScheduleClock();
+      const host = document.querySelector("#panel-concerts .schedule-host");
+      const next = plannedConcerts.find(item => item.id === host?.dataset.concertId);
+      if (host && next) mountSchedule(host, { ...next, artist: displayPlannedArtist(next.artist) });
+    }
+  });
 
   if (!planned) {
     renderNote(sheet.querySelector("#sheet-note"), c);

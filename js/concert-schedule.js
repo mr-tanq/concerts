@@ -65,7 +65,11 @@ export function scheduleMarkup(concert) {
     try { if (known) at = venueInstant(concert.date, field.time, s?.timeZone || "Europe/Amsterdam", field.dayOffset || 0); } catch {}
     return `<div class="schedule-row schedule-row--${kind}" data-schedule-kind="${kind}"${at ? ` data-schedule-at="${escapeHTML(at)}"` : ""}><dt>${escapeHTML(role ? artistLabel(label) : label)}${role ? `<small>${role}</small>` : ""}</dt><dd${known ? "" : ' class="schedule-tba"'}>${known ? escapeHTML(field.time) + (field.dayOffset === 1 ? ' <small>+1 day</small>' : "") : "TBA"}${known && field.status === "expected" ? '<small>expected</small>' : ""}</dd></div>`;
   };
-  const support = s?.noSupport ? [] : s?.support?.length ? s.support : (concert.supportingArtists || []).map(name => ({ name }));
+  const supportKey = name => String(name || "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
+  const support = s?.noSupport ? [] : [...(s?.support || [])];
+  for (const name of s?.noSupport ? [] : (concert.supportingArtists || [])) {
+    if (name && !support.some(field => supportKey(field.name) === supportKey(name))) support.push({ name });
+  }
   const rows = row("DOORS", s?.doors, "", "doors") + (support.length ? support.map(f => row(f.name || "SUPPORT", f, "SUPPORT", "support")).join("") : s?.noSupport
           ? ''
           : row("SUPPORT", null, "", "support")) + row(concert.artist || s?.main?.name || "MAIN ACT", s?.main, "MAIN ACT", "main") + row("END", s?.end, "", "end");

@@ -1912,3 +1912,14 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
   margin-top: 20px;
   color: var(--bone-dim);
 }
+
+/* Going detail layout */
+.sheet-going .sheet-section { margin-top:24px; }
+.sheet-going .sheet-when {
+  font-family:var(--sans, sans-serif);
+  font-size:14px;
+  letter-spacing:0;
+  text-transform:none;
+}
+.sheet-going .sheet-memory-line { margin-top:12px; }
+.sheet-going .schedule-row dt small { display:block; }
