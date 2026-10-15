@@ -34,6 +34,7 @@ jobs:
       - name: Validate scripts
         run: |
           node --check scripts/lib/ticketswap-going.mjs
+          node --test scripts/ticketswap-matching.test.mjs
           node --check scripts/refresh-ticketswap.mjs
 
       - name: Preview without API calls

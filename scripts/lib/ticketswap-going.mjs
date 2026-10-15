@@ -1,3 +1,4 @@
+import { resolveTicketSwap, reviewCandidates } from './ticketswap-matching.mjs';
 import { summarizeListings } from './ticketswap-summary.mjs';
 
 const norm = value => String(value ?? '')
@@ -35,52 +36,9 @@ export function selectConcerts(concerts, entries, now = new Date(), limit = 3) {
     .slice(0, limit);
 }
 
-function matchesArtist(concert, title) {
-  const raw = String(title || '');
-
-  if (/\b(?:upgrade|parking|tribute|afterparty)\b|ticket\s+not\s+included|\bvip\s+package\b/i.test(raw)) {
-    return false;
-  }
-
-  const clean = value => String(value || '')
-    .replace(
-      /\s*[-–—:|]?\s*(?:(?:\d+(?:st|nd|rd|th)?\s+)?anniversary\s+tour|(?:world|european|europe|uk)\s+tour)\s*$/i,
-      ''
-    )
-    .trim();
-
-  if (norm(raw) === norm(concert.artist)
-    || norm(clean(raw)) === norm(concert.artist)) {
-    return true;
-  }
-
-  const names = clean(raw).split(/\s*\+\s*/).map(norm);
-  const known = new Set([
-    concert.artist,
-    ...(concert.supportingArtists || [])
-  ].map(norm));
-
-  return names.length > 1
-    && names[0] === norm(concert.artist)
-    && names.every(name => name && known.has(name));
-}
-
 export function matchEvent(c, results) {
-  if (!Array.isArray(results)) {
-    throw new Error('Unexpected event search response');
-  }
-
-  const matches = results.filter(e =>
-    e.__typename === 'EventResult'
-    && matchesArtist(c, e.name)
-    && e.startDate?.slice(0, 10) === c.date
-    && norm(e.locationName) === norm(c.venue)
-    && norm(e.cityName) === norm(c.city)
-    && norm(e.country?.code) === norm(c.country)
-  );
-
-  if (matches.length > 1) throw new Error('Ambiguous event match');
-  return matches[0] || null;
+  const result = resolveTicketSwap(c, results);
+  return result.status === 'matched' ? result.event : null;
 }
 
 function safeURL(value) {
@@ -103,12 +61,14 @@ export async function checkConcert(c, old, request, now = new Date()) {
   try {
     if (!event) {
       const search = await request('search_events', { query: c.artist });
-      const found = matchEvent(c, search.results);
+      const resolution = resolveTicketSwap(c, search.results, search.page_info);
+      const found = resolution.event;
 
       if (!found) {
         return {
           identity: identity(c),
-          status: 'not-found',
+          status: resolution.status,
+          matchCandidates: reviewCandidates(resolution),
           searchDiagnostics: {
             query: c.artist,
             expected: {
@@ -122,6 +82,7 @@ export async function checkConcert(c, old, request, now = new Date()) {
               .filter(e => e.__typename === 'EventResult')
               .slice(0, 30)
               .map(e => ({
+                id: e.id,
                 name: e.name,
                 date: e.startDate,
                 venue: e.locationName,

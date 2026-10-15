@@ -64,6 +64,10 @@ async function renderTicketSwap(host, concert) {
             : ` · lowest seen ${price}`;
         }
       }
+    } else if (entry.status === 'needs-review') {
+      text = 'Possible matches — please check the event details below.';
+    } else if (entry.status === 'search-incomplete') {
+      text = 'No verified match in the returned search page. More results may exist.';
     } else if (entry.status === 'not-found') {
       text = 'No exact event match found';
     }
@@ -81,6 +85,24 @@ async function renderTicketSwap(host, concert) {
     summary.className = 'footnote';
     summary.textContent = text;
     section.append(summary);
+
+    if (entry.status === 'needs-review') {
+      for (const candidate of entry.matchCandidates || []) {
+        const candidateURL = safeURL(candidate.url);
+        if (!candidateURL) continue;
+
+        const link = document.createElement('a');
+        link.className = 'plain-act';
+        link.style.display = 'block';
+        link.textContent = [
+          candidate.name, candidate.date, candidate.venue, candidate.city
+        ].filter(Boolean).join(' · ') + ' ↗';
+        link.href = candidateURL;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        section.append(link);
+      }
+    }
 
     const checkedAt = Date.parse(entry.checkedAt);
     if (Number.isFinite(checkedAt)) {
