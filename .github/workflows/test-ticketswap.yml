@@ -1,0 +1,50 @@
+name: Test TicketSwap
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Search Lambert through Parse
+        env:
+          PARSE_API_KEY: ${{ secrets.PARSE_API_KEY }}
+        run: |
+          node --input-type=module <<'JS'
+          if (!process.env.PARSE_API_KEY) {
+            throw new Error("Missing PARSE_API_KEY secret");
+          }
+
+          const response = await fetch(
+            "https://api.parse.bot/scraper/4a34adf3-5a3c-4e01-ad98-1cc9204d5dbd/search_events",
+            {
+              method: "POST",
+              headers: {
+                "X-API-Key": process.env.PARSE_API_KEY,
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({ query: "Lambert" }),
+              signal: AbortSignal.timeout(60000)
+            }
+          );
+
+          console.log("HTTP status:", response.status);
+          if (!response.ok) {
+            throw new Error(`Parse request failed: HTTP ${response.status}`);
+          }
+
+          const result = await response.json();
+          console.log(JSON.stringify(result, null, 2));
+          if (result.status === "error") {
+            throw new Error("Parse returned an error");
+          }
+          JS
