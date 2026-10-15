@@ -67,3 +67,39 @@ test('unsafe links excluded', () => {
     uri: { url: 'https://ticketswap.com.evil.test' }
   })]), 'not-found');
 });
+
+test('shared lineups match regardless of artist order', () => {
+  for (const name of [
+    'Other Act + Example Band + Third Act',
+    'Other Act+Example Band',
+    'Other Act & Example Band',
+    'Other Act / EXAMPLE BAND',
+    'Third Act + Other Act + Éxample Bánd'
+  ]) assert.equal(result([event({ name })]), 'matched');
+
+  assert.equal(result([event({
+    name: 'Other Act + Example Bandits'
+  })]), 'not-found');
+
+  assert.equal(result([event({
+    name: 'Other Act + Example Band Experiment'
+  })]), 'needs-review');
+
+  assert.equal(result([event({
+    name: 'Other Act presents Example Band'
+  })]), 'needs-review');
+
+  assert.equal(result([event({
+    name: 'Other Act + Example Band VIP Package'
+  })]), 'not-found');
+
+  assert.equal(result([event({
+    name: 'Other Act + Example Band',
+    startDate: '2026-11-04'
+  })]), 'not-found');
+
+  assert.equal(result([
+    event({ name: 'Other Act + Example Band' }),
+    event({ id: 'second', name: 'Third Act + Example Band' })
+  ]), 'needs-review');
+});

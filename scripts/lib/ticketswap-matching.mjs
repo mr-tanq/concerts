@@ -45,6 +45,12 @@ function artistScore(concert, title) {
 
   // Require the complete artist name, never a substring.
   if (position < 0) return 0;
+  // A separately billed artist may appear anywhere in a shared lineup.
+  const billed = String(title).split(/\s*\+\s*|\s+[&/]\s+/);
+  if (billed.length > 1 && billed.some(part =>
+    words(part).join(' ') === target.join(' ')
+  )) return 92;
+
   if (position > 0) return 60;
 
   const tail = actual.slice(target.length);
