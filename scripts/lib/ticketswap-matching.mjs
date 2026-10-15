@@ -94,8 +94,19 @@ function venueScore(a, b) {
   const shorter = x.length < y.length ? x : y;
   const longer = x.length < y.length ? y : x;
 
-  return shorter.every((word, i) => longer[i] === word)
-    ? 60 : 0;
+  if (!shorter.every((word, i) => longer[i] === word)) return 0;
+
+  // Extended venue names are usable only without room or stage qualifiers.
+  const extra = longer.slice(shorter.length);
+  const room = /^(?:room|rooms|zaal|zalen|hall|halls|stage|stages|main|small|large|grote|groot|kleine|klein|boven|beneden|upstairs|downstairs|studio|club|theater|theatre|auditorium|rabo|pandora|second|secondary|annex|annexe|[0-9]+|[ivx]+)$/;
+  const generic = new Set([
+    'arena', 'hall', 'club', 'theater', 'theatre',
+    'stadium', 'poppodium', 'podium', 'venue'
+  ]);
+  const distinctive = shorter.some(word =>
+    word.length >= 5 && !generic.has(word) && !/^\d+$/.test(word)
+  );
+  return distinctive && !extra.some(word => room.test(word)) ? 90 : 60;
 }
 
 export function resolveTicketSwap(concert, results, pageInfo = {}) {

@@ -103,3 +103,31 @@ test('shared lineups match regardless of artist order', () => {
     event({ id: 'second', name: 'Third Act + Example Band' })
   ]), 'needs-review');
 });
+
+test('extended venue names versus separate rooms', () => {
+  const c = { ...concert, venue: 'Examplehouse' };
+  const check = locationName =>
+    resolveTicketSwap(c, [event({ locationName })]).status;
+
+  assert.equal(check('Examplehouse Culturepark'), 'matched');
+
+  for (const name of [
+    'Examplehouse Room 2',
+    'Examplehouse Main Stage',
+    'Examplehouse Kleine Zaal',
+    'Examplehouse Studio',
+    'Examplehouse Annex'
+  ]) assert.equal(check(name), 'needs-review');
+
+  assert.equal(check('ExamplehouseOther'), 'needs-review');
+
+  assert.equal(resolveTicketSwap(c, [
+    event({ locationName: 'Examplehouse Culturepark' }),
+    event({ id: 'other', locationName: 'Examplehouse' })
+  ]).status, 'needs-review');
+
+  assert.equal(resolveTicketSwap(c, [event({
+    locationName: 'Examplehouse Culturepark',
+    cityName: 'Elsewhere'
+  })]).status, 'needs-review');
+});
