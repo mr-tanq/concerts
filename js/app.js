@@ -1,4 +1,21 @@
-import { mountSupportDiscovery, shareConcertButton } from "./concert-discovery.js?v=discovery-polish-20261015";
+import { mountSupportDiscovery } from "./concert-discovery.js?v=image-share-20261015";
+import { shareConcertImage } from "./concert-share.js?v=image-share-20261015";
+
+function mountConcertShare(heading, concert) {
+  if (!heading || heading.parentElement.classList.contains("concert-share-heading")) return;
+  const row = document.createElement("div");
+  row.className = "concert-share-heading";
+  row.style.cssText = "display:flex;align-items:center;justify-content:space-between;gap:16px";
+  heading.before(row);
+  row.append(heading);
+  heading.style.minWidth = "0";
+  row.append(shareConcertImage(
+    { ...concert, artist: displayPlannedArtist(concert.artist) },
+    fullDate(concert.date),
+    imageFor(concert)
+  ));
+}
+
 import { mountPractical, updatePractical } from "./concert-practical.js?v=20261013";
 import { mountSchedule, clearScheduleClock, syncScheduleClock } from "./concert-schedule.js?v=tivoli-times-20261015";
 import { buildArchiveView, filterConcerts, artistsOf, actuallySeenArtistsOf, venueKey, venueSearchNames } from "./archive-stats.js?v=archive-venues-20261004";
@@ -992,9 +1009,7 @@ function openSheet(c) {
   if (planned) {
     mountPractical(sheet.querySelector(".sheet-practical"),planned,changes=>saveConcertPractical(planned,changes));
     if (planned.date >= dutchToday()) {
-      sheet.querySelector(".sheet-practical").appendChild(
-        shareConcertButton(planned, fullDate(planned.date))
-      );
+      mountConcertShare(sheet.querySelector(".sheet-artist"), planned);
     }
     sheet.querySelector("#sheet-tickets")?.addEventListener("click", () => window.open(planned.ticketUrl, "_blank"));
     const un = sheet.querySelector("#sheet-unplan");
@@ -1477,6 +1492,7 @@ function upcomingHero(c, withSchedule = false) {
     </div>
   `);
   setPhoto(node.querySelector(".upcoming-photo"), imageFor(c));
+  mountConcertShare(node.querySelector(".entry-artist"), c);
   if (withSchedule) mountSchedule(node.querySelector(".schedule-host"), { ...c, artist: displayPlannedArtist(c.artist) });
 
   if (withSchedule) mountPractical(node.querySelector(".practical-host"),c,changes=>saveConcertPractical(c,changes));

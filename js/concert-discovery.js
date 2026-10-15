@@ -125,7 +125,10 @@ export function mountSupportDiscovery(host, {
     const {concert:c, name} = choices[index];
     host.append(text('p','BEFORE THE HEADLINER','whisper'));
 
-    const url = safeURL(imageFor({artist:name}));
+    const verifiedPhotos = {
+      barrens: new URL("../assets/artists/barrens.jpg", import.meta.url).href
+    };
+    const url = verifiedPhotos[key(name)] || safeURL(imageFor({artist:name}));
     if (url &&
         !/e23066163f21176a822b54001ee648a2|placeholder|default[-_]artist|no[-_]image/i.test(url)) {
       const img = document.createElement('img');
@@ -159,7 +162,7 @@ export function mountSupportDiscovery(host, {
     details.addEventListener('click', () => openConcert(c));
     actions.append(listen, details);
     host.append(actions);
-    host.append(shareConcertButton(c, formatDate(c.date), 'Invite a friend'));
+
 
     if (choices.length > 1) {
       const next = text('button','Another opening act →','plain-act');
