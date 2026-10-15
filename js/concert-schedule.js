@@ -67,7 +67,7 @@ export function scheduleMarkup(concert) {
   };
   const support = s?.noSupport ? [] : s?.support?.length ? s.support : (concert.supportingArtists || []).map(name => ({ name }));
   const rows = row("DOORS", s?.doors, "", "doors") + (support.length ? support.map(f => row(f.name || "SUPPORT", f, "SUPPORT", "support")).join("") : s?.noSupport
-          ? '<div class="schedule-row schedule-row--support"><dt>SUPPORT</dt><dd>No support</dd></div>'
+          ? ''
           : row("SUPPORT", null, "", "support")) + row(concert.artist || s?.main?.name || "MAIN ACT", s?.main, "MAIN ACT", "main") + row("END", s?.end, "", "end");
   const sources = [...new Map((s?.sources || []).filter(x => safeURL(x.url)).map(x => [x.url, x])).values()];
   let checked = "Not checked yet";
