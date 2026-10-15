@@ -1,3 +1,4 @@
+import { selectRequestedConcerts } from './lib/ticketswap-requests.mjs';
 import { readFile, writeFile, rename } from 'node:fs/promises';
 import { ticketSwapRequest } from './lib/ticketswap-api.mjs';
 import { selectConcerts, checkConcert } from './lib/ticketswap-going.mjs';
@@ -27,7 +28,22 @@ if (snapshot.version !== 1 || !snapshot.entries
 }
 
 const now = new Date();
-const selected = selectConcerts(planned.concerts, snapshot.entries, now, limit);
+const requestedMode = process.env.TICKETSWAP_REQUESTS === 'true';
+let requests = {};
+if (requestedMode) {
+  const queue = JSON.parse(
+    await readFile('data/ticketswap-requests.json', 'utf8')
+  );
+  if (queue.version !== 1 || !queue.requests
+    || typeof queue.requests !== 'object'
+    || Array.isArray(queue.requests)) {
+    throw new Error('Invalid request queue');
+  }
+  requests = queue.requests;
+}
+const selected = requestedMode
+  ? selectRequestedConcerts(planned.concerts, snapshot.entries, requests, now)
+  : selectConcerts(planned.concerts, snapshot.entries, now, limit);
 
 console.table(selected.map(c => ({
   artist: c.artist,
@@ -44,6 +60,9 @@ if (!live) {
     snapshot.entries[c.id] = await checkConcert(
       c, snapshot.entries[c.id], ticketSwapRequest, now
     );
+    if (requestedMode) {
+      snapshot.entries[c.id].requestId = requests[c.id].requestId;
+    }
     console.log(c.artist, snapshot.entries[c.id].status);
   }
 

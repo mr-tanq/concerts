@@ -1,6 +1,10 @@
 name: Refresh TicketSwap for Going
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - data/ticketswap-requests.json
   workflow_dispatch:
     inputs:
       live:
@@ -33,17 +37,18 @@ jobs:
           node --check scripts/refresh-ticketswap.mjs
 
       - name: Preview without API calls
-        if: ${{ !inputs.live }}
+        if: ${{ github.event_name == 'workflow_dispatch' && !inputs.live }}
         run: node scripts/refresh-ticketswap.mjs
 
       - name: Check TicketSwap
-        if: ${{ inputs.live }}
+        if: ${{ github.event_name == 'push' || inputs.live }}
         env:
           PARSE_API_KEY: ${{ secrets.PARSE_API_KEY }}
+          TICKETSWAP_REQUESTS: ${{ github.event_name == 'push' }}
         run: node scripts/refresh-ticketswap.mjs --live
 
       - name: Save availability
-        if: ${{ inputs.live }}
+        if: ${{ github.event_name == 'push' || inputs.live }}
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
