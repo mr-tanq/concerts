@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-15T00:31:37.294Z",
+    "lastUpdated": "2026-10-15T00:32:50.383Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -486,19 +486,26 @@
         "timeZone": "Europe/Amsterdam",
         "doors": {
           "name": "DOORS",
+          "time": "19:30",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.tivolivredenburg.nl/agenda/27726237/lambert-15-10-2026",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-15T00:32:34.290Z",
+          "evidence": "Deuren open 19:30",
+          "at": "2026-10-15T17:30:00.000Z"
+        },
+        "support": [],
+        "main": {
+          "name": "Lambert",
           "time": "20:30",
           "dayOffset": 0,
           "status": "confirmed",
           "sourceUrl": "https://www.tivolivredenburg.nl/agenda/27726237/lambert-15-10-2026",
           "sourceKind": "official",
-          "checkedAt": "2026-10-15T00:16:20.051Z",
-          "evidence": "Deuren open 20:30",
+          "checkedAt": "2026-10-15T00:32:34.290Z",
+          "evidence": "Aanvang 20:30",
           "at": "2026-10-15T18:30:00.000Z"
-        },
-        "support": [],
-        "main": {
-          "name": "Lambert",
-          "time": null
         },
         "end": {
           "name": "END",
@@ -507,7 +514,7 @@
           "status": "confirmed",
           "sourceUrl": "https://www.tivolivredenburg.nl/agenda/27726237/lambert-15-10-2026",
           "sourceKind": "official",
-          "checkedAt": "2026-10-15T00:16:20.051Z",
+          "checkedAt": "2026-10-15T00:32:34.290Z",
           "evidence": "endDate: 2026-10-15T22:00",
           "at": "2026-10-15T20:00:00.000Z"
         },
@@ -522,21 +529,27 @@
             "url": "https://www.tivolivredenburg.nl/agenda/27726237/lambert-15-10-2026",
             "kind": "official",
             "label": "tivolivredenburg.nl",
-            "checkedAt": "2026-10-15T00:16:20.051Z"
+            "checkedAt": "2026-10-15T00:32:34.290Z"
           }
         ],
-        "lastCheckedAt": "2026-10-15T00:16:20.051Z",
-        "lastAttemptAt": "2026-10-15T00:16:20.051Z",
+        "lastCheckedAt": "2026-10-15T00:32:34.290Z",
+        "lastAttemptAt": "2026-10-15T00:32:34.290Z",
         "checks": {
           "initial": "2026-10-08T16:12:59.709Z",
           "before48h": "2026-10-13T21:51:14.690Z",
           "before24h": "2026-10-14T20:41:22.149Z",
           "sameDay": "2026-10-14T23:27:22.253Z",
-          "manual": "2026-10-15T00:16:20.051Z"
+          "manual": "2026-10-15T00:32:34.290Z"
         },
         "lastError": null,
+        "noSupport": {
+          "url": "https://www.tivolivredenburg.nl/agenda/27726237/lambert-15-10-2026",
+          "kind": "official",
+          "label": "tivolivredenburg.nl",
+          "checkedAt": "2026-10-15T00:32:34.290Z"
+        },
         "refreshRequestedAt": "2026-10-15T00:32:21.722Z",
-        "lastOfficialCheckedAt": "2026-10-15T00:16:20.051Z",
+        "lastOfficialCheckedAt": "2026-10-15T00:32:34.290Z",
         "checkStatus": "official"
       }
     },
