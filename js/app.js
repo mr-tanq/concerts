@@ -1,5 +1,6 @@
 import { mountSupportDiscovery } from "./concert-discovery.js?v=image-share-20261015";
 import { shareConcertImage } from "./concert-share.js?v=image-share-20261015";
+import { mountTicketSwap } from "./concert-ticketswap.js?v=20261015";
 
 function mountConcertShare(heading, concert) {
   if (!heading || heading.parentElement.classList.contains("concert-share-heading")) return;
@@ -1485,6 +1486,7 @@ function upcomingHero(c, withSchedule = false) {
       <div class="entry-place"><span class="event-venue">${esc(c.venue)} · ${esc(c.city)}</span><span class="event-date">${fullDate(c.date)}</span></div>
       <div>${workDayBadge(c)}</div>
       ${withSchedule ? `<div class="schedule-host" data-concert-id="${esc(c.id)}"></div><div class="practical-host"></div>` : ""}
+      <div class="ticketswap-host"></div>
       <div class="act-row upcoming-actions" style="padding-left:0;padding-right:0">
         ${c.ticketUrl ? `<button class="plain-act" data-a="tickets">Tickets</button>` : ""}
         <button class="plain-act" data-a="unplan">Not going after all</button>
@@ -1493,6 +1495,7 @@ function upcomingHero(c, withSchedule = false) {
   `);
   setPhoto(node.querySelector(".upcoming-photo"), imageFor(c));
   mountConcertShare(node.querySelector(".entry-artist"), c);
+  mountTicketSwap(node.querySelector(".ticketswap-host"), c);
   if (withSchedule) mountSchedule(node.querySelector(".schedule-host"), { ...c, artist: displayPlannedArtist(c.artist) });
 
   if (withSchedule) mountPractical(node.querySelector(".practical-host"),c,changes=>saveConcertPractical(c,changes));
