@@ -70,9 +70,7 @@ export function scheduleMarkup(concert) {
   for (const name of s?.noSupport ? [] : (concert.supportingArtists || [])) {
     if (name && !support.some(field => supportKey(field.name) === supportKey(name))) support.push({ name });
   }
-  const rows = row("DOORS", s?.doors, "", "doors") + (support.length ? support.map(f => row(f.name || "SUPPORT", f, "SUPPORT", "support")).join("") : s?.noSupport
-          ? ''
-          : row("SUPPORT", null, "", "support")) + row(concert.artist || s?.main?.name || "MAIN ACT", s?.main, "MAIN ACT", "main") + row("END", s?.end, "", "end");
+  const rows = row("DOORS", s?.doors, "", "doors") + (support.length ? support.map(f => row(f.name || "SUPPORT", f, "SUPPORT", "support")).join("") : "") + row(concert.artist || s?.main?.name || "MAIN ACT", s?.main, "MAIN ACT", "main") + row("END", s?.end, "", "end");
   const sources = [...new Map((s?.sources || []).filter(x => safeURL(x.url)).map(x => [x.url, x])).values()];
   let checked = "Not checked yet";
   if (Number.isFinite(Date.parse(s?.lastCheckedAt))) checked = `Checked ${new Intl.DateTimeFormat("en-GB", { timeZone: s.timeZone || "Europe/Amsterdam", day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit" }).format(new Date(s.lastCheckedAt))}`;

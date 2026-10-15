@@ -1,6 +1,6 @@
 import { mountSupportDiscovery } from "./concert-discovery.js?v=image-share-20261015";
 import { shareConcertImage } from "./concert-share.js?v=image-share-20261015";
-import { mountTicketSwap } from "./concert-ticketswap.js?v=20261015";
+import { mountTicketSwap } from "./concert-ticketswap.js?v=ticketswap-button-20261015";
 
 function mountConcertShare(heading, concert) {
   if (!heading || heading.parentElement.classList.contains("concert-share-heading")) return;
@@ -18,7 +18,7 @@ function mountConcertShare(heading, concert) {
 }
 
 import { mountPractical, updatePractical } from "./concert-practical.js?v=20261013";
-import { mountSchedule, clearScheduleClock, syncScheduleClock } from "./concert-schedule.js?v=going-details-20261015";
+import { mountSchedule, clearScheduleClock, syncScheduleClock } from "./concert-schedule.js?v=support-clean-20261015";
 import { buildArchiveView, filterConcerts, artistsOf, actuallySeenArtistsOf, venueKey, venueSearchNames } from "./archive-stats.js?v=archive-venues-20261004";
 import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, isConflictError } from "./github-api.js";
 import { openConcertSearch } from "./concert-search.js?v=catalogue-search-20261013";

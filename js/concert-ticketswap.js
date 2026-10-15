@@ -16,8 +16,8 @@ function safeURL(value) {
   }
 }
 
-export async function mountTicketSwap(host, concert) {
-  if (!host || concert.practical?.ticketBought === true) return;
+async function renderTicketSwap(host, concert) {
+  if (!host) return;
 
   try {
     snapshotPromise ||= fetch('data/ticketswap.json', { cache: 'no-store' })
@@ -31,10 +31,13 @@ export async function mountTicketSwap(host, concert) {
       });
 
     const data = await snapshotPromise;
-    if (!host.isConnected || concert.practical?.ticketBought === true) return;
+    if (!host.isConnected) return;
 
     const entry = data.entries?.[concert.id];
-    if (!entry || entry.identity !== identity(concert)) return;
+    if (!entry || entry.identity !== identity(concert)) {
+      host.textContent = 'This concert has not been checked yet.';
+      return;
+    }
 
     let text = 'Check unavailable';
 
@@ -118,6 +121,41 @@ export async function mountTicketSwap(host, concert) {
 
     host.replaceChildren(section);
   } catch {
-    // Optional availability must never break Going.
+    host.textContent = 'Could not load TicketSwap results. Close and try again.';
   }
+}
+
+export function mountTicketSwap(host, concert) {
+  if (!host) return;
+
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'plain-act';
+  button.textContent = 'TicketSwap';
+  button.setAttribute('aria-expanded', 'false');
+
+  const panel = document.createElement('div');
+  panel.className = 'footnote';
+  panel.hidden = true;
+  panel.setAttribute('role', 'region');
+  panel.setAttribute('aria-label', 'TicketSwap results');
+  panel.setAttribute('aria-live', 'polite');
+
+  let loading = false;
+
+  button.addEventListener('click', async event => {
+    event.stopPropagation();
+    panel.hidden = !panel.hidden;
+    button.setAttribute('aria-expanded', String(!panel.hidden));
+
+    if (panel.hidden || loading || panel.childNodes.length) return;
+
+    loading = true;
+    panel.textContent = 'Loading saved results…';
+    await renderTicketSwap(panel, concert);
+    loading = false;
+  });
+
+  panel.addEventListener('click', event => event.stopPropagation());
+  host.replaceChildren(button, panel);
 }
