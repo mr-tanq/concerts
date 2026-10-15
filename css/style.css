@@ -1816,3 +1816,48 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
   color: #9bd6e4;
   border-bottom-color: #9bd6e4;
 }
+
+/* Support discovery and concert sharing */
+.support-discovery {
+  max-width: 620px;
+  margin: 0 auto;
+  text-align: left;
+}
+.support-discovery > .whisper:first-child {
+  margin-bottom: 32px;
+}
+.support-discovery .entry-artist {
+  margin: 16px 0 12px;
+}
+.support-discovery .lede {
+  margin: 0 0 10px;
+}
+.support-discovery .footnote {
+  margin: 10px 0;
+}
+.support-discovery .act-row {
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.support-discovery .plain-act,
+.concert-share .plain-act {
+  min-height: 44px;
+}
+.concert-share {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--hair);
+}
+.concert-share [role="status"]:empty {
+  display: none;
+}
+.support-discovery > button:last-child {
+  margin-top: 24px;
+  color: var(--bone-dim);
+}
+.support-discovery button:focus-visible,
+.support-discovery a:focus-visible,
+.concert-share button:focus-visible {
+  outline: 2px solid var(--bone);
+  outline-offset: 4px;
+}

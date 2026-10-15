@@ -1,3 +1,4 @@
+import { mountSupportDiscovery, shareConcertButton } from "./concert-discovery.js?v=20261015";
 import { mountPractical, updatePractical } from "./concert-practical.js?v=20261013";
 import { mountSchedule, clearScheduleClock, syncScheduleClock } from "./concert-schedule.js?v=tivoli-times-20261015";
 import { buildArchiveView, filterConcerts, artistsOf, actuallySeenArtistsOf, venueKey, venueSearchNames } from "./archive-stats.js?v=archive-venues-20261004";
@@ -990,6 +991,11 @@ function openSheet(c) {
   // happens to be next — a mistake buried three deep still has to be undoable.
   if (planned) {
     mountPractical(sheet.querySelector(".sheet-practical"),planned,changes=>saveConcertPractical(planned,changes));
+    if (planned.date >= dutchToday()) {
+      sheet.querySelector(".sheet-practical").appendChild(
+        shareConcertButton(planned, fullDate(planned.date))
+      );
+    }
     sheet.querySelector("#sheet-tickets")?.addEventListener("click", () => window.open(planned.ticketUrl, "_blank"));
     const un = sheet.querySelector("#sheet-unplan");
     un.addEventListener("click", async () => {
@@ -1398,32 +1404,23 @@ function stageCard(c) {
 // An empty deck is the normal state most days, so it shouldn't read as a
 // dead end. Show what's genuinely next instead.
 function caughtUp() {
-  const today = dutchToday();
-  const upcoming = plannedConcerts
-    .filter((c) => c.date && c.date >= today)
-    .sort((a, b) => a.date.localeCompare(b.date));
-
-  const wrap = el(`<div class="caughtup"></div>`);
-
-  if (upcoming.length) {
-    const next = upcoming[0];
-    wrap.appendChild(el(`
-      <p class="whisper">Nothing left to decide</p>
-      <p class="lede">Next you'll be standing in front of<br><em>${esc(displayPlannedArtist(next.artist))}</em>.</p>
-    `));
-    wrap.appendChild(upcomingHero(next));
-  } else {
-    wrap.appendChild(el(`
-      <p class="whisper">Nothing left to decide</p>
-      <p class="lede">Quiet for now.</p>
-      <p class="footnote">New suggestions arrive when the discovery job next runs.</p>
-    `));
-  }
+  const wrap = el('<div class="caughtup"></div>');
+  const discovery = document.createElement("section");
+  wrap.appendChild(discovery);
+  mountSupportDiscovery(discovery, {
+    concerts: plannedConcerts,
+    today: dutchToday(),
+    counts: archiveViewData?.identityData?.artistCounts?.overall || {},
+    imageFor,
+    formatDate: fullDate,
+    openConcert: openSheet,
+  });
 
   const aside = dismissedConcerts.length + legacyDismissedIds.length;
   if (aside) {
     const row = el(`<div class="act-row"><button class="plain-act">Revisit ${aside} set aside</button></div>`);
-    row.querySelector("button").addEventListener("click", () => renderConcertsShell("aside"));
+    row.querySelector("button").addEventListener("click", () =>
+      renderConcertsShell("aside"));
     wrap.appendChild(row);
   }
   return wrap;
