@@ -1,5 +1,5 @@
 import { mountPractical, updatePractical } from "./concert-practical.js?v=20261013";
-import { mountSchedule, clearScheduleClock, syncScheduleClock } from "./concert-schedule.js?v=schedule-refresh-20261013";
+import { mountSchedule, clearScheduleClock, syncScheduleClock } from "./concert-schedule.js?v=tivoli-times-20261015";
 import { buildArchiveView, filterConcerts, artistsOf, actuallySeenArtistsOf, venueKey, venueSearchNames } from "./archive-stats.js?v=archive-venues-20261004";
 import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, isConflictError } from "./github-api.js";
 import { openConcertSearch } from "./concert-search.js?v=catalogue-search-20261013";

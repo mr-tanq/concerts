@@ -107,9 +107,24 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
     const cells = $(n).find("td,th").map((_, c) => $(c).text().trim()).get();
     if (cells.length === 2 && cells.filter(c => times(c).length).length === 1) consume(cells.find(c => !times(c).length), cells.find(c => times(c).length), cells.join(" "));
   });
+  const tivoli = kind === "official" &&
+    new URL(url).hostname.replace(/^www\./, "") === "tivolivredenburg.nl";
+  const noSupport = tivoli && root.find("dt").toArray().some(n =>
+    normalize($(n).text()) === "support act" &&
+    /^(geen voorprogramma|no support(?: act)?)$/.test(
+      normalize($(n).next("dd").text())));
   root.find("dt").each((_, n) => {
-    const dd = $(n).next("dd");
-    if (dd.length) consume($(n).text().trim(), dd.text(), `${$(n).text()} ${dd.text()}`);
+    const term = $(n);
+    const reversed = tivoli &&
+      term.hasClass("description-list__term--group");
+    const dd = reversed ? term.prev("dd") : term.next("dd");
+    if (!dd.length) return;
+    const label = term.text().trim();
+    consume(
+      tivoli && noSupport && normalize(label) === "aanvang"
+        ? "MAIN ACT" : label,
+      dd.text(), `${label} ${dd.text()}`
+    );
   });
   // Explicit labelled fields only. Generic "Start", "Time" and JSON-LD startDate are NOT main-act times.
   root.find("p,li,dt,dd,div").each((_, n) => {
@@ -149,7 +164,7 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
   }
   // Explicit timetable ranges crossing midnight imply the end is the following day.
   if (values.get("end") && values.get("main") && values.get("end").time < values.get("main").time) values.get("end").dayOffset = 1;
-  return { source, values: Object.fromEntries(values), supportNames: [...new Set(supportNames)], conflicts: [...conflicts] };
+  return { source, noSupport, values: Object.fromEntries(values), supportNames: [...new Set(supportNames)], conflicts: [...conflicts] };
 }
 
 export function mergeSchedule(concert, results, now, phase) {
@@ -183,6 +198,13 @@ export function mergeSchedule(concert, results, now, phase) {
   for (const r of results) sources.set(r.source.url,r.source);
   const success = results.length > 0;
   const s = {version:1,date:concert.date,timeZone:zone,doors:make("doors","DOORS"),support:names.map(name=>make(`support:${normalize(name)}`,name)),main:make("main",concert.artist),end:make("end","END"),sources:[...sources.values()],lastCheckedAt:success ? now : old.lastCheckedAt || null,lastAttemptAt:now,checks:{...(old.checks || {}),...(success ? {[phase]:now} : {})},lastError:success ? null : "No matching source could be checked"};
+  const official = results.filter(r => r.source.kind === "official");
+  const absent = official.find(r => r.noSupport === true);
+  const contradicts = official.some(r => r.noSupport !== true &&
+    Object.keys(r.values).some(k => k.startsWith("support:")));
+  s.noSupport = absent && !contradicts ? {...absent.source} :
+    (!official.length && old.noSupport ? old.noSupport : null);
+  if (s.noSupport) s.support = [];
   s.refreshRequestedAt = old.refreshRequestedAt || null;
   s.lastOfficialCheckedAt = results.some(r=>r.source.kind === "official") ? now : old.lastOfficialCheckedAt || (old.sources || []).filter(x=>x.kind === "official").map(x=>x.checkedAt).sort().at(-1) || null;
   s.checkStatus = !success ? "failed" : results.some(r=>r.source.kind === "official") ? "official" : "secondary-only";

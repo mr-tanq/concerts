@@ -65,8 +65,10 @@ export function scheduleMarkup(concert) {
     try { if (known) at = venueInstant(concert.date, field.time, s?.timeZone || "Europe/Amsterdam", field.dayOffset || 0); } catch {}
     return `<div class="schedule-row schedule-row--${kind}" data-schedule-kind="${kind}"${at ? ` data-schedule-at="${escapeHTML(at)}"` : ""}><dt>${escapeHTML(role ? artistLabel(label) : label)}${role ? `<small>${role}</small>` : ""}</dt><dd${known ? "" : ' class="schedule-tba"'}>${known ? escapeHTML(field.time) + (field.dayOffset === 1 ? ' <small>+1 day</small>' : "") : "TBA"}${known && field.status === "expected" ? '<small>expected</small>' : ""}</dd></div>`;
   };
-  const support = s?.support?.length ? s.support : (concert.supportingArtists || []).map(name => ({ name }));
-  const rows = row("DOORS", s?.doors, "", "doors") + (support.length ? support.map(f => row(f.name || "SUPPORT", f, "SUPPORT", "support")).join("") : row("SUPPORT", null, "", "support")) + row(concert.artist || s?.main?.name || "MAIN ACT", s?.main, "MAIN ACT", "main") + row("END", s?.end, "", "end");
+  const support = s?.noSupport ? [] : s?.support?.length ? s.support : (concert.supportingArtists || []).map(name => ({ name }));
+  const rows = row("DOORS", s?.doors, "", "doors") + (support.length ? support.map(f => row(f.name || "SUPPORT", f, "SUPPORT", "support")).join("") : s?.noSupport
+          ? '<div class="schedule-row schedule-row--support"><dt>SUPPORT</dt><dd>No support</dd></div>'
+          : row("SUPPORT", null, "", "support")) + row(concert.artist || s?.main?.name || "MAIN ACT", s?.main, "MAIN ACT", "main") + row("END", s?.end, "", "end");
   const sources = [...new Map((s?.sources || []).filter(x => safeURL(x.url)).map(x => [x.url, x])).values()];
   let checked = "Not checked yet";
   if (Number.isFinite(Date.parse(s?.lastCheckedAt))) checked = `Checked ${new Intl.DateTimeFormat("en-GB", { timeZone: s.timeZone || "Europe/Amsterdam", day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit" }).format(new Date(s.lastCheckedAt))}`;
