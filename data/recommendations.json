@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-10-16T13:50:04.280Z",
+    "lastUpdated": "2026-10-16T13:50:09.428Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
@@ -51,6 +51,93 @@
       },
       "discoveredAt": "2026-10-15T23:09:57.742Z",
       "lastSeenAt": "2026-10-15T23:09:57.742Z"
+    },
+    {
+      "id": "rec-podiuminfo-484664",
+      "source": "podiuminfo",
+      "sourceId": "484664",
+      "artist": "Changeling",
+      "lineup": [
+        "Changeling",
+        "Obsidian Tide",
+        "Hyla"
+      ],
+      "supportingArtists": [
+        "Obsidian Tide",
+        "Hyla"
+      ],
+      "date": "2026-11-15",
+      "time": null,
+      "venue": "Musicon",
+      "city": "Den Haag",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.podiuminfo.nl/img/podiuminfo-rond.png",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/141754/cd/Changeling-Obsidian-Tide-Hyla/Musicon/",
+      "sourceUrl": "https://www.podiuminfo.nl/concert/484664/Changeling-Obsidian-Tide-Hyla/Musicon/",
+      "recommendationId": "rec-podiuminfo-484664",
+      "planning": {
+        "plannedAt": "2026-09-15T09:25:49.998Z",
+        "originalScore": 33
+      },
+      "workArrangement": {
+        "kind": "lateStart",
+        "status": "notYet",
+        "askedOn": "2026-10-16"
+      },
+      "schedule": {
+        "version": 1,
+        "date": "2026-11-15",
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": null
+        },
+        "support": [
+          {
+            "name": "Obsidian Tide",
+            "time": null
+          },
+          {
+            "name": "Hyla",
+            "time": null
+          }
+        ],
+        "main": {
+          "name": "Changeling",
+          "time": null
+        },
+        "end": {
+          "name": "END",
+          "time": null
+        },
+        "sources": [
+          {
+            "url": "https://www.podiuminfo.nl/concert/484664/Changeling-Obsidian-Tide-Hyla/Musicon/",
+            "kind": "secondary",
+            "label": "podiuminfo.nl",
+            "checkedAt": "2026-10-16T08:09:29.107Z"
+          }
+        ],
+        "lastCheckedAt": "2026-10-16T08:09:29.107Z",
+        "lastAttemptAt": "2026-10-16T08:09:29.107Z",
+        "checks": {
+          "manual": "2026-10-16T08:09:29.107Z"
+        },
+        "lastError": null,
+        "noSupport": null,
+        "refreshRequestedAt": "2026-10-15T23:11:37.707Z",
+        "lastOfficialCheckedAt": null,
+        "checkStatus": "secondary-only"
+      },
+      "match": {
+        "score": 33,
+        "label": "Strong match",
+        "reason": "Known artist: Changeling",
+        "matchedArtists": [
+          "Changeling"
+        ]
+      }
     }
   ]
 }
