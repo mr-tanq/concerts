@@ -18,7 +18,7 @@ const VENUES = [
   ["Botanique", "botanique.be", "/en/concerts"], ["Bibelot", "bibelot.net", "/agenda/"],
   ["Grenswerk", "grenswerk.nl", "/agenda/"], ["Willemeen", "willemeen.nl", "/agenda/"],
 ];
-const MONTHS = ["januari|january", "februari|february", "maart|march", "april", "mei|may", "juni|june", "juli|july", "augustus|august", "september", "oktober|october", "november", "december"];
+const MONTHS = ["januari|january|jan", "februari|february|feb", "maart|march|mrt|mar", "april|apr", "mei|may", "juni|june|jun", "juli|july|jul", "augustus|august|aug", "september|sep|sept", "oktober|october|okt|oct", "november|nov", "december|dec"];
 const timePattern = /\b([01]?\d|2[0-3])[:.]([0-5]\d)\b/g;
 const times = text => [...String(text).matchAll(timePattern)].map(m => `${m[1].padStart(2,"0")}:${m[2]}`);
 export const matchName = (text, name) => (` ${normalize(text)} `).includes(` ${normalize(name)} `);
