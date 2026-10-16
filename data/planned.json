@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-16T08:45:48.334Z",
+    "lastUpdated": "2026-10-16T08:51:47.161Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -309,7 +309,14 @@
         "timeZone": "Europe/Amsterdam",
         "doors": {
           "name": "DOORS",
-          "time": null
+          "time": "19:30",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://patronaat.nl/event/oh-hirshima-barrens-24-10-26/",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-16T08:51:44.140Z",
+          "evidence": "Deuren: 19:30",
+          "at": "2026-10-24T17:30:00.000Z"
         },
         "support": [
           {
@@ -325,15 +332,24 @@
           "name": "END",
           "time": null
         },
-        "sources": [],
-        "lastCheckedAt": null,
-        "lastAttemptAt": "2026-10-16T08:43:44.290Z",
-        "checks": {},
-        "lastError": "No matching source could be checked",
+        "sources": [
+          {
+            "url": "https://patronaat.nl/event/oh-hirshima-barrens-24-10-26/",
+            "kind": "official",
+            "label": "patronaat.nl",
+            "checkedAt": "2026-10-16T08:51:44.140Z"
+          }
+        ],
+        "lastCheckedAt": "2026-10-16T08:51:44.140Z",
+        "lastAttemptAt": "2026-10-16T08:51:44.140Z",
+        "checks": {
+          "manual": "2026-10-16T08:51:44.140Z"
+        },
+        "lastError": null,
         "noSupport": null,
         "refreshRequestedAt": "2026-10-16T08:51:29.383Z",
-        "lastOfficialCheckedAt": null,
-        "checkStatus": "failed"
+        "lastOfficialCheckedAt": "2026-10-16T08:51:44.140Z",
+        "checkStatus": "official"
       }
     },
     {
