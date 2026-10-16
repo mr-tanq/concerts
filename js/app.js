@@ -1,3 +1,4 @@
+import { mutateJSONFiles } from "./github-transaction.js?v=atomic-concerts-20261016";
 import { mountSupportDiscovery } from "./concert-discovery.js?v=image-share-20261015";
 import { shareConcertImage } from "./concert-share.js?v=image-share-20261015";
 import { mountTicketSwap } from "./concert-ticketswap.js?v=universal-ticket-match-20261015";
@@ -344,28 +345,7 @@ function enqueue(task) {
 }
 
 async function mutate(paths, applyFn, message, attempts = 4) {
-  const config = getGithubConfig();
-  if (!config) throw new Error("Not connected to GitHub");
-
-  for (let attempt = 0; ; attempt++) {
-    const files = {};
-    for (const p of paths) files[p] = await getFile(config, p);
-
-    const jsons = {};
-    for (const p of paths) jsons[p] = files[p].json;
-    const touched = applyFn(jsons) || paths;
-
-    try {
-      for (const p of touched) await putFile(config, p, jsons[p], files[p].sha, message);
-      return jsons;
-    } catch (err) {
-      if (isConflictError(err) && attempt < attempts - 1) {
-        await new Promise((r) => setTimeout(r, 250 * (attempt + 1)));
-        continue;
-      }
-      throw err;
-    }
-  }
+  return mutateJSONFiles(getGithubConfig(), paths, applyFn, message, attempts);
 }
 
 // ---------- remote writes ----------
