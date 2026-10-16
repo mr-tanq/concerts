@@ -828,6 +828,32 @@ function renderExplore() {
   renderSpine();
 }
 
+function archiveYearSummary(concerts, year) {
+  const { overview, signature } = buildArchiveView(concerts);
+  const {
+    totalConcerts, uniqueArtists, artistAppearances,
+    festivals, venues, cities
+  } = overview;
+
+  return el(`
+    <section class="archive-year-summary" aria-label="${esc(year)} summary">
+      <p class="filter-note">
+        ${esc(year)} · ${totalConcerts} show${totalConcerts === 1 ? "" : "s"}
+      </p>
+      <p class="opening-figures">
+        <b>${uniqueArtists}</b> artist${uniqueArtists === 1 ? "" : "s"} ·
+        <b>${artistAppearances}</b> performance${artistAppearances === 1 ? "" : "s"}<br>
+        <b>${festivals}</b> festival${festivals === 1 ? "" : "s"} ·
+        <b>${venues}</b> room${venues === 1 ? "" : "s"} ·
+        <b>${cities}</b> ${cities === 1 ? "city" : "cities"}<br>
+        ${signature.topArtist
+          ? `Most often: <b>${esc(signature.topArtist.name)}</b>, ${signature.topArtist.count} time${signature.topArtist.count === 1 ? "" : "s"}`
+          : ""}
+      </p>
+    </section>
+  `);
+}
+
 function renderSpine() {
   const host = document.getElementById("spine-root");
   if (!host) return;
@@ -837,7 +863,9 @@ function renderSpine() {
     .slice()
     .sort((a, b) => String(b.date).localeCompare(String(a.date)));
 
-  if (exploreFilter.value) {
+  if (exploreFilter.mode === "year" && exploreFilter.value && list.length) {
+    host.appendChild(archiveYearSummary(list, exploreFilter.value));
+  } else if (exploreFilter.value) {
     host.appendChild(el(`<p class="filter-note">${list.length} night${list.length === 1 ? "" : "s"} · ${esc(exploreFilter.value)}</p>`));
   }
 
