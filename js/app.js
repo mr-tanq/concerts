@@ -18,7 +18,7 @@ function mountConcertShare(heading, concert) {
 }
 
 import { mountPractical, updatePractical } from "./concert-practical.js?v=20261013";
-import { mountSchedule, clearScheduleClock, syncScheduleClock } from "./concert-schedule.js?v=timetable-rows-20261016";
+import { mountSchedule, clearScheduleClock, syncScheduleClock } from "./concert-schedule.js?v=start-act-20261016";
 import { buildArchiveView, filterConcerts, artistsOf, actuallySeenArtistsOf, venueKey, venueSearchNames } from "./archive-stats.js?v=archive-venues-20261004";
 import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, isConflictError } from "./github-api.js";
 import { openConcertSearch } from "./concert-search.js?v=catalogue-search-20261013";

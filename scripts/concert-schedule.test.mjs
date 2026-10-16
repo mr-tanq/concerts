@@ -18,9 +18,9 @@ test("official timetable preserves four published times and per-field provenance
   assert.equal(schedule.main.at,"2026-10-08T19:30:00.000Z");assert.equal(schedule.main.sourceUrl,url);assert.equal(schedule.main.sourceKind,"official");
   assert.equal(schedule.lastCheckedAt,stamp);assert.equal(schedule.checks.initial,stamp);
 });
-test("generic start and existing concert.time are never guessed as a main act",()=>{
+test("published programme start maps to the main act without support",()=>{
   const r=parseSchedule(page('<p>Start 20:00</p><p>Time 19:30</p>'),{...c,time:"20:00"},url,"official",stamp);
-  assert.equal(r.values.start.time,"20:00");assert.equal(r.values.main,undefined);const s=mergeSchedule(c,[r],stamp,"initial");assert.equal(s.main.time,null);assert.equal(s.doors.time,null);
+  assert.equal(r.values.start.time,"20:00");assert.equal(r.values.main,undefined);const s=mergeSchedule(c,[r],stamp,"initial");assert.equal(s.main.time,"20:00");assert.equal(s.doors.time,null);
 });
 test("wrong artist and date, navigation, related shows and biography are rejected",()=>{
   assert.equal(parseSchedule(html.replaceAll("HÄLLAS","OTHER BAND"),c,url),null);

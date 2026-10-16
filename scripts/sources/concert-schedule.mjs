@@ -185,7 +185,7 @@ export function mergeSchedule(concert, results, now, phase) {
   const byURL = new Map(results.map(r => [r.source.url, r]));
   // Successful sources replace their own old fields, including removed/unconfirmed times.
   // A failed fetch retains its last evidence. A secondary source cannot replace official evidence.
-  const fields = [old.doors, old.start, old.main, old.end, ...(old.support || [])].filter(f => f?.time && f.sourceUrl && !byURL.has(f.sourceUrl));
+  const fields = [old.doors, old.start, old.main, old.end, ...(old.support || [])].filter(f => f?.time && f.derivedFrom !== "programme-start" && f.sourceUrl && !byURL.has(f.sourceUrl));
   const candidates = fields.map(f => ({ key: f === old.doors ? "doors" : f === old.start ? "start" : f === old.main ? "main" : f === old.end ? "end" : `support:${normalize(supportName(f.name))}`, f }));
   for (const r of results) for (const [key,f] of Object.entries(r.values)) candidates.push({key:key.startsWith("support:") ? `support:${normalize(supportName(f.name))}` : key,f});
   const selected = new Map(), disputed = new Map();
@@ -218,6 +218,21 @@ export function mergeSchedule(concert, results, now, phase) {
   s.noSupport = absent && !contradicts ? {...absent.source} :
     (!official.length && old.noSupport ? old.noSupport : null);
   if (s.noSupport) s.support = [];
+
+  // Assign programme start according to the known lineup.
+  const target = s.support.length === 1 ? s.support[0]
+    : s.support.length === 0 ? s.main : null;
+  const targetKey = target === s.main ? "main"
+    : target ? `support:${normalize(supportName(target.name))}` : null;
+  const conflicted = targetKey && (disputed.has(targetKey)
+    || results.some(r => (r.conflicts || []).includes(targetKey)));
+
+  if (s.start?.at && target && !target.time && !conflicted) {
+    Object.assign(target, s.start, {
+      name: target.name,
+      derivedFrom: "programme-start"
+    });
+  }
   s.refreshRequestedAt = old.refreshRequestedAt || null;
   s.lastOfficialCheckedAt = results.some(r=>r.source.kind === "official") ? now : old.lastOfficialCheckedAt || (old.sources || []).filter(x=>x.kind === "official").map(x=>x.checkedAt).sort().at(-1) || null;
   s.checkStatus = !success ? "failed" : results.some(r=>r.source.kind === "official") ? "official" : "secondary-only";

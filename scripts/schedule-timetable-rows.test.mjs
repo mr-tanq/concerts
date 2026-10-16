@@ -34,16 +34,16 @@ test('list and table rows accept either time-label orientation', () => {
   }
 });
 
-test('programme start is displayed without assigning a main-act time', () => {
+test('programme start follows the selected act rule', () => {
   const s = mergeSchedule(c, [
     parse('<p>Doors 19:00</p><p>Start 20:00</p>')
   ], stamp, 'manual');
   const concert = { ...c, schedule: s };
-  assert.equal(s.main.time, null);
-  assert.ok(scheduleMarkup(concert).includes('PROGRAMME START'));
+  assert.equal(s.main.time, '20:00');
+  assert.ok(!scheduleMarkup(concert).includes('PROGRAMME START'));
   assert.equal(
     scheduleCountdown(concert, Date.parse('2026-11-03T18:30:00Z')),
-    'PROGRAMME START IN 30M'
+    'EXAMPLE BAND IN 30M'
   );
   assert.equal(
     mergeSchedule(concert, [], '2026-10-16T10:00:00Z', 'manual').start.time,

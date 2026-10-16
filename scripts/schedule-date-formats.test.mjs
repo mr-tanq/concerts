@@ -58,7 +58,7 @@ test('agenda discovery reads doors without inventing performance times', async (
 
   assert.equal(s.checkStatus, 'official');
   assert.equal(s.doors.time, '19:30');
-  assert.equal(s.main.time, null);
+  assert.equal(s.main.time, '20:00');
   assert.equal(s.end.time, null);
   assert.equal(s.sources[0].url, url);
 });

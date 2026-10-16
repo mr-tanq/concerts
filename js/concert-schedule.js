@@ -29,7 +29,10 @@ export function scheduleCountdown(concert, now = Date.now()) {
   const s = concert.schedule;
   if (!s || s.date !== concert.date) return "";
   const zone = s.timeZone || "Europe/Amsterdam";
-  const fields = [s.doors, s.start, ...(s.support || []), s.main].filter(Boolean);
+  const startAssigned = [s.main, ...(s.support || [])].some(f =>
+    f?.time && f.time === s.start?.time &&
+    (f.dayOffset || 0) === (s.start?.dayOffset || 0));
+  const fields = [s.doors, ...(startAssigned ? [] : [s.start]), ...(s.support || []), s.main].filter(Boolean);
   const instant = field => {
     // Recompute from wall time; do not trust stale or malformed cached timestamps.
     try { return Date.parse(venueInstant(concert.date, field.time, zone, field.dayOffset || 0)); } catch { return NaN; }
@@ -43,7 +46,7 @@ export function scheduleCountdown(concert, now = Date.now()) {
   const next = fields.map(f => ({ f, at: instant(f) })).filter(x => Number.isFinite(x.at) && x.at > now).sort((a,b) => a.at - b.at)[0];
   if (!next) return "TIMES TBA";
   const minutes = Math.ceil((next.at - now) / 60000), hours = Math.floor(minutes / 60);
-  const label = next.f === s.doors ? "DOORS" : next.f === s.start ? "PROGRAMME START" : next.f === s.main ? name : (next.f.name || "SUPPORT").toUpperCase();
+  const label = next.f === s.doors ? "DOORS" : next.f === s.start ? (s.support?.length ? "SUPPORT START" : "PROGRAMME START") : next.f === s.main ? name : (next.f.name || "SUPPORT").toUpperCase();
   return `${label} IN ${hours ? `${hours}H ` : ""}${String(minutes % 60).padStart(hours ? 2 : 1, "0")}M`;
 }
 
@@ -71,8 +74,9 @@ export function scheduleMarkup(concert) {
     if (name && !support.some(field => supportKey(field.name) === supportKey(name))) support.push({ name });
   }
   const rows = row("DOORS", s?.doors, "", "doors") +
-    (s?.start?.time && (s.start.time !== s?.main?.time || s.start.dayOffset !== s?.main?.dayOffset)
-      ? row("PROGRAMME START", s.start, "", "start") : "") + (support.length ? support.map(f => row(f.name || "SUPPORT", f, "SUPPORT", "support")).join("") : "") + row(concert.artist || s?.main?.name || "MAIN ACT", s?.main, "MAIN ACT", "main") + row("END", s?.end, "", "end");
+    (s?.start?.time && ![s.main, ...support].some(f =>
+      f?.time === s.start.time && (f.dayOffset || 0) === (s.start.dayOffset || 0))
+      ? row(support.length ? "SUPPORT START" : "PROGRAMME START", s.start, "", "start") : "") + (support.length ? support.map(f => row(f.name || "SUPPORT", f, "SUPPORT", "support")).join("") : "") + row(concert.artist || s?.main?.name || "MAIN ACT", s?.main, "MAIN ACT", "main") + row("END", s?.end, "", "end");
   const sources = [...new Map((s?.sources || []).filter(x => safeURL(x.url)).map(x => [x.url, x])).values()];
   let checked = "Not checked yet";
   if (Number.isFinite(Date.parse(s?.lastCheckedAt))) checked = `Checked ${new Intl.DateTimeFormat("en-GB", { timeZone: s.timeZone || "Europe/Amsterdam", day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit" }).format(new Date(s.lastCheckedAt))}`;
