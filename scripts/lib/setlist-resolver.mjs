@@ -1,4 +1,3 @@
-import { createVenueParentLookup } from './setlist-venue-parent.mjs';
 import { countryCode, locationKey } from '../../js/concert-countries.js';
 
 export const artistKey = value => String(value || '').normalize('NFKD')
@@ -37,25 +36,33 @@ const compatibleVenue = (a,b) => {
 };
 
 export function exactEvent(c, artist, item) {
-  if (!item?.id || !setlistURL(item.url) || !artistKey(artist)
-    || artistKey(item.artist?.name) !== artistKey(artist)
-    || iso(item.eventDate) !== c.date) return false;
+  const expected=countryCode(c.countryCode) || countryCode(c.country);
+  const actual=countryCode(item?.venue?.city?.country?.code)
+    || countryCode(item?.venue?.city?.country?.name);
 
-  const country = countryCode(c.country);
-  const other = countryCode(item.venue?.city?.country?.code
-    || item.venue?.city?.country?.name);
-  if (country && other && country !== other) return false;
+  return !!expected && expected===actual && !!item?.id
+    && !!setlistURL(item.url) && !!artistKey(artist)
+    && artistKey(item.artist?.name)===artistKey(artist)
+    && iso(item.eventDate)===c.date;
+}
 
-  const city = !!locationKey(c.city)
-    && locationKey(c.city) === locationKey(item.venue?.city?.name);
-  if (locationKey(c.city) && locationKey(item.venue?.city?.name) && !city) return false;
+export function selectExactEvent(c, artist, items) {
+  let candidates=[...new Map(
+    items.filter(item=>exactEvent(c,artist,item))
+      .map(item=>[item.id,item])
+  ).values()];
 
-  const venue = compatibleVenue(c.venue, item.venue?.name);
-  if (c.venue && item.venue?.name && !venue) {
-    return !!c.isFestival && city && !!country && country === other
-      && /\b(stage|tent|festival|weide|terrein)\b/i.test(item.venue.name);
-  }
-  return city || venue;
+  if (candidates.length===1) return candidates[0];
+  if (!candidates.length) return null;
+
+  const city=candidates.filter(item=>locationKey(c.city)
+    && locationKey(c.city)===locationKey(item.venue?.city?.name));
+  if (city.length) candidates=city;
+  if (candidates.length===1) return candidates[0];
+
+  const venue=candidates.filter(item=>
+    compatibleVenue(c.venue,item.venue?.name));
+  return venue.length===1 ? venue[0] : null;
 }
 
 export function extractSets(item) {
@@ -76,9 +83,8 @@ function saved(c, artist, item, matchType, evidence) {
   return {
     artist, sets, songCount: sets.reduce((n,s)=>n+s.songs.length,0),
     sourceUrl: setlistURL(item.url), setlistFmId: item.id,
-    matchingVersion: 3, matchType, targetIdentity: targetIdentity(c,artist),
+    matchingVersion: 4, matchType, targetIdentity: targetIdentity(c,artist),
     tourEvidence: evidence || null,
-    venueEvidence: item.venueEvidence || null,
     sourceEvent: {
       artist:item.artist.name, date:iso(item.eventDate),
       venue:item.venue?.name || '', city:item.venue?.city?.name || '',
@@ -87,7 +93,7 @@ function saved(c, artist, item, matchType, evidence) {
   };
 }
 
-export async function resolveSetlist(c, artist, get, now = Date.now(), parentLookup = createVenueParentLookup()) {
+export async function resolveSetlist(c, artist, get, now = Date.now()) {
   const today = new Date(now).toISOString().slice(0,10);
   if (!fmDate(c.date) || iso(fmDate(c.date)) !== c.date)
     throw new Error('Invalid concert date');
@@ -117,41 +123,35 @@ export async function resolveSetlist(c, artist, get, now = Date.now(), parentLoo
     return full;
   };
 
-  const verifiedEvent = async item => {
-    if (exactEvent(c,artist,item)) return item;
-    const country=countryCode(c.country);
-    const other=countryCode(
-      item?.venue?.city?.country?.code || item?.venue?.city?.country?.name
-    );
-    if (!c.venue || !country || country!==other || !locationKey(c.city)
-      || locationKey(c.city)!==locationKey(item?.venue?.city?.name)
-      || !exactEvent({...c,venue:null},artist,item)) return null;
+  const country=countryCode(c.countryCode) || countryCode(c.country);
+  if (!country) return null;
 
-    const parent=await parentLookup(item.venue);
-    if (!parent || parent.childId!==item.venue.id
-      || artistKey(parent.name)!==artistKey(c.venue)) return null;
-
-    return {...item,venueEvidence:parent};
-  };
-  const anchors = new Map();
-  for (const cityName of [c.city, null]) {
-    const {items} = await search({
-      artistName:artist,date:fmDate(c.date),cityName,p:1
+  const events=new Map();
+  for (let p=1;p<=3;p++) {
+    const response=await search({
+      artistName:artist,date:fmDate(c.date),countryCode:country,p
     });
-    for (const item of items) {
-      const verified=await verifiedEvent(item);
-      if (verified) anchors.set(item.id,verified);
-    }
-    if (anchors.size || !c.city) break;
+    for (const item of response.items)
+      if (exactEvent(c,artist,item)) events.set(item.id,item);
+
+    if (!response.more) break;
+    if (p===3)
+      throw new Error('Exact search incomplete; cannot resolve ambiguity');
   }
 
-  if (anchors.size > 1) return null;
-  let anchor = [...anchors.values()][0];
+  const eligible=[...events.values()];
+  let anchor=selectExactEvent(c,artist,eligible);
+  if (eligible.length && !anchor) return null;
+
   if (anchor) {
-    anchor = await hydrate(anchor);
-    anchor = await verifiedEvent(anchor);
-    if (!anchor) throw new Error('Event details changed identity');
-    if (extractSets(anchor).length) return saved(c,artist,anchor,'exact');
+    const full=await hydrate(anchor);
+    const selected=selectExactEvent(c,artist,
+      eligible.map(item=>item.id===anchor.id ? full : item));
+    if (!selected || selected.id!==anchor.id)
+      throw new Error('Event details changed identity');
+    anchor=selected;
+    if (extractSets(anchor).length)
+      return saved(c,artist,anchor,'exact');
   }
 
   const explicitTour = artistKey(artist) === artistKey(c.artist)
@@ -197,7 +197,7 @@ export function shouldCheckSetlist(previous, c, artist, now = Date.now()) {
   if (previous.lastError && now-Date.parse(previous.lastAttemptAt) < 3600000)
     return false;
   if (previous.targetIdentity !== targetIdentity(c,artist)
-    || previous.matchingVersion !== 3) return true;
+    || previous.matchingVersion !== 4) return true;
   if (previous.matchType === 'exact' && previous.sets?.length) return false;
 
   const recent = now-Date.parse(c.date+'T12:00Z') < 30*86400000;

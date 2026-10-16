@@ -40,16 +40,21 @@ test('exact show takes priority over references',async()=>{
   assert.equal(r.setlistFmId,'exact');
 });
 
-test('artist, calendar day, venue, city and country are checked',()=>{
+test('exact identity requires band, day and country; room and city are optional',()=>{
   assert.ok(exactEvent(c,'MONO',item('ok')));
+  const room=item('room');
+  room.venue.name='Stage 1';
+  room.venue.city.name='Different spelling';
+  assert.ok(exactEvent(c,'MONO',room));
+
   for (const edit of [
     i=>i.artist.name='Other',
     i=>i.eventDate='09-10-2026',
-    i=>i.venue.name='Melkweg',
-    i=>i.venue.city.name='Rotterdam',
-    i=>i.venue.city.country.code='BE'
+    i=>i.venue.city.country.code='BE',
+    i=>delete i.venue.city.country
   ]) {
-    const i=item('bad');edit(i);
+    const i=item('bad');
+    edit(i);
     assert.equal(exactEvent(c,'MONO',i),false);
   }
 });
@@ -115,7 +120,7 @@ test('changed detail identity is rejected',async()=>{
 
 test('references retry daily; legacy records revalidate; exact results are retained',()=>{
   const previous={
-    matchingVersion:3,targetIdentity:targetIdentity(c,'MONO'),sets:[{}],
+    matchingVersion:4,targetIdentity:targetIdentity(c,'MONO'),sets:[{}],
     lastExactCheckAt:'2026-10-14T12:00Z',matchType:'tour-reference'
   };
   assert.ok(shouldCheckSetlist(previous,c,'MONO',now));
@@ -184,7 +189,6 @@ async function runScript(failure) {
     for (const file of [
       'scripts/fetch-setlists.mjs',
       'scripts/lib/setlist-resolver.mjs',
-    'scripts/lib/setlist-venue-parent.mjs',
       'js/concert-countries.js'
     ]) await cp(new URL('../'+file,import.meta.url),path.join(root,file));
 
@@ -194,7 +198,7 @@ async function runScript(failure) {
 
     const old={
       artist:'MONO',sets:[{name:'Set',songs:['Old']}],
-      matchType:'tour-reference',matchingVersion:3,
+      matchType:'tour-reference',matchingVersion:4,
       targetIdentity:targetIdentity(c,'MONO'),
       checkedAt:'2026-01-01',lastExactCheckAt:'2026-01-01'
     };
