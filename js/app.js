@@ -20,7 +20,7 @@ function mountConcertShare(heading, concert) {
 
 import { mountPractical, updatePractical } from "./concert-practical.js?v=20261013";
 import { mountSchedule, clearScheduleClock, syncScheduleClock } from "./concert-schedule.js?v=clean-schedule-20261016";
-import { buildArchiveView, filterConcerts, artistsOf, actuallySeenArtistsOf, venueKey, venueSearchNames } from "./archive-stats.js?v=archive-venues-20261004";
+import { buildArchiveView, filterConcerts, artistsOf, actuallySeenArtistsOf, venueKey, venueSearchNames } from "./archive-stats.js?v=archive-counts-20261016";
 import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, isConflictError } from "./github-api.js";
 import { openConcertSearch } from "./concert-search.js?v=catalogue-search-20261013";
 import { concertSearchState, sameSearchConcert } from "./concert-search-model.js?v=taste-search-20261013";
@@ -656,7 +656,10 @@ function renderArchive(archiveData) {
 // The archive's headline numbers written as a sentence. Four stat tiles say
 // "here is some data"; a sentence says "here is your life".
 function openingStatement(view) {
-  const { totalConcerts, festivals, venues, cities } = view.overview;
+  const {
+    totalConcerts, festivals, venues, cities,
+    uniqueArtists, artistAppearances, reviewedConcerts
+  } = view.overview;
   const firstYear = yearOf(view.milestones.first?.date);
   const lastYear = yearOf(view.milestones.latest?.date);
   const span = firstYear && lastYear ? Number(lastYear) - Number(firstYear) + 1 : 0;
@@ -676,6 +679,7 @@ function openingStatement(view) {
         <em>${journey}</em>
       </p>
       <p class="opening-figures">
+        <b>${uniqueArtists}</b> artists · <b>${artistAppearances}</b> performances<br>
         <b>${festivals}</b> festivals ·
         <b>${venues}</b> rooms ·
         <b>${cities}</b> cities<br>
@@ -683,6 +687,14 @@ function openingStatement(view) {
         Most familiar room: <b>${esc(view.signature.topVenue?.name ?? "—")}</b>, ${view.signature.topVenue?.count ?? 0} visits<br>
         Busiest year: <b>${esc(view.peakYear?.name ?? "—")}</b>, ${view.peakYear?.count ?? 0} nights
       </p>
+      <details class="archive-counts">
+        <summary class="whisper">About these counts</summary>
+        <p class="opening-figures">
+          Each artist counts once per show, including support and festival acts marked as seen.
+          You've reviewed who you saw at ${reviewedConcerts} of ${totalConcerts} shows.
+          ${reviewedConcerts < totalConcerts ? "Other shows use their listed lineup until you review them." : ""}
+        </p>
+      </details>
     </div>
   `);
   return node;

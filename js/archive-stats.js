@@ -119,8 +119,12 @@ export function countArtists(concerts) {
 }
 
 export function getOverview(concerts) {
+  const artists = countArtists(concerts);
   return {
     totalConcerts: concerts.length,
+    uniqueArtists: artists.length,
+    artistAppearances: artists.reduce((total, artist) => total + artist.count, 0),
+    reviewedConcerts: concerts.filter(c => Array.isArray(c.seenArtists)).length,
     festivals: concerts.filter((c) => c.isFestival).length,
     venues: new Set(concerts.map(venueKey).filter(Boolean)).size,
     cities: new Set(concerts.map((c) => c.city).filter(Boolean)).size,
