@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-16T09:18:08.574Z",
+    "lastUpdated": "2026-10-16T09:18:39.776Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -216,8 +216,35 @@
         "ticketBought": true
       },
       "schedule": {
+        "version": 1,
         "date": "2026-11-10",
-        "refreshRequestedAt": "2026-10-16T09:18:25.355Z"
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": null
+        },
+        "start": {
+          "name": "PROGRAMME START",
+          "time": null
+        },
+        "support": [],
+        "main": {
+          "name": "Mogwai",
+          "time": null
+        },
+        "end": {
+          "name": "END",
+          "time": null
+        },
+        "sources": [],
+        "lastCheckedAt": null,
+        "lastAttemptAt": "2026-10-16T09:18:37.770Z",
+        "checks": {},
+        "lastError": "No matching source could be checked",
+        "noSupport": null,
+        "refreshRequestedAt": "2026-10-16T09:18:25.355Z",
+        "lastOfficialCheckedAt": null,
+        "checkStatus": "failed"
       }
     },
     {
