@@ -14,7 +14,8 @@
 // discovery) is not just acceptable but the more honest cadence for an
 // identity built from listening habits rather than a single instant.
 
-import { readFile, writeFile } from "node:fs/promises";
+import { readFile, writeFile, rename } from "node:fs/promises";
+import { readIdentityProfile } from "./lib/identity-profile.mjs";
 import path from "node:path";
 
 const ROOT = path.resolve(new URL(".", import.meta.url).pathname, "..");
@@ -25,6 +26,13 @@ const USER = process.env.LASTFM_USER;
 if (!API_KEY || !USER) {
   console.error("Missing LASTFM_API_KEY or LASTFM_USER.");
   process.exit(1);
+}
+
+let previousSnapshot = null;
+try {
+  previousSnapshot = JSON.parse(await readFile(OUT, "utf8"));
+} catch (error) {
+  if (error.code !== "ENOENT") throw error;
 }
 
 const MIN_GAP_MS = 300;
@@ -56,6 +64,7 @@ async function lastfm(method, params = {}, attempts = 3) {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
       if (json?.error) throw new Error(`Last.fm error ${json.error}: ${json.message || "unknown"}`);
+      if (method === "user.getinfo") readIdentityProfile(json, USER, previousSnapshot);
       return json;
     } catch (err) {
       if (attempt === attempts - 1) throw err;
@@ -73,11 +82,7 @@ function toIso(unixSeconds) {
 // --- profile ---
 console.log(`Fetching Last.fm identity for ${USER}...`);
 const info = await lastfm("user.getinfo");
-const profile = {
-  totalScrobbles: Number(info?.user?.playcount) || 0,
-  registeredAt: toIso(info?.user?.registered?.unixtime),
-  url: info?.user?.url || `https://www.last.fm/user/${USER}`,
-};
+const profile = readIdentityProfile(info, USER, previousSnapshot);
 
 // --- top artists: overall + past month ---
 // Full artist counts back every portrait, including artists outside the charts.
@@ -273,7 +278,8 @@ const output = {
   recentTracks,
 };
 
-await writeFile(OUT, JSON.stringify(output, null, 2) + "\n");
+await writeFile(OUT + ".tmp", JSON.stringify(output, null, 2) + "\n");
+await rename(OUT + ".tmp", OUT);
 console.log(
   `Wrote data/identity.json — ${profile.totalScrobbles} scrobbles, ` +
   `${output.topArtistsOverall.length} top artists, ${output.topTracks.length} top tracks, ` +

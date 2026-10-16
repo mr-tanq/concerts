@@ -26,6 +26,9 @@ jobs:
         with:
           node-version: 20
 
+      - name: Validate identity protection
+        run: node --test scripts/identity-profile.test.mjs
+
       - name: Fetch Last.fm identity stats
         env:
           LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
