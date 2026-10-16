@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-16T08:54:06.450Z",
+    "lastUpdated": "2026-10-16T09:02:57.301Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -644,9 +644,32 @@
         "timeZone": "Europe/Amsterdam",
         "doors": {
           "name": "DOORS",
-          "time": null
+          "time": "19:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.013.nl/programma/128504/puscifer",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-16T09:02:55.550Z",
+          "evidence": "19:00 Zaal open",
+          "at": "2026-11-03T18:00:00.000Z"
         },
-        "support": [],
+        "start": {
+          "name": "PROGRAMME START",
+          "time": "20:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.013.nl/programma/128504/puscifer",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-16T09:02:55.550Z",
+          "evidence": "20:00 Aanvang",
+          "at": "2026-11-03T19:00:00.000Z"
+        },
+        "support": [
+          {
+            "name": "Dave Hill",
+            "time": null
+          }
+        ],
         "main": {
           "name": "Puscifer",
           "time": null
@@ -658,7 +681,7 @@
           "status": "confirmed",
           "sourceUrl": "https://www.013.nl/programma/128504/puscifer",
           "sourceKind": "official",
-          "checkedAt": "2026-10-16T08:54:04.263Z",
+          "checkedAt": "2026-10-16T09:02:55.550Z",
           "evidence": "endDate: 2026-11-03T22:30:00+01:00",
           "at": "2026-11-03T21:30:00.000Z"
         },
@@ -667,24 +690,24 @@
             "url": "https://www.podiuminfo.nl/concert/469662/Puscifer-The-Normal-Isnt-Tour/013/",
             "kind": "secondary",
             "label": "podiuminfo.nl",
-            "checkedAt": "2026-10-16T08:54:04.263Z"
+            "checkedAt": "2026-10-16T09:02:55.550Z"
           },
           {
             "url": "https://www.013.nl/programma/128504/puscifer",
             "kind": "official",
             "label": "013.nl",
-            "checkedAt": "2026-10-16T08:54:04.263Z"
+            "checkedAt": "2026-10-16T09:02:55.550Z"
           }
         ],
-        "lastCheckedAt": "2026-10-16T08:54:04.263Z",
-        "lastAttemptAt": "2026-10-16T08:54:04.263Z",
+        "lastCheckedAt": "2026-10-16T09:02:55.550Z",
+        "lastAttemptAt": "2026-10-16T09:02:55.550Z",
         "checks": {
-          "manual": "2026-10-16T08:54:04.263Z"
+          "manual": "2026-10-16T09:02:55.550Z"
         },
         "lastError": null,
         "noSupport": null,
         "refreshRequestedAt": "2026-10-16T09:02:39.670Z",
-        "lastOfficialCheckedAt": "2026-10-16T08:54:04.263Z",
+        "lastOfficialCheckedAt": "2026-10-16T09:02:55.550Z",
         "checkStatus": "official"
       }
     },
