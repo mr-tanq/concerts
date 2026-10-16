@@ -82,8 +82,25 @@ const lastAttempt=({c,artist})=>Date.parse(
   || '1970-01-01');
 queue.sort((a,b)=>lastAttempt(a)-lastAttempt(b));
 
-let errors=0;
+function errorCode(error) {
+  const http=/Setlist API HTTP (\d{3})/.exec(
+    String(error?.message || '')
+  );
+  if (http) return 'API_HTTP_'+http[1];
+  if (['TimeoutError','AbortError'].includes(error?.name))
+    return 'API_TIMEOUT';
+  if (error?.name==='SyntaxError') return 'INVALID_JSON';
+  if (error?.name==='TypeError') return 'NETWORK_ERROR';
+  if (/incomplete/i.test(error?.message || ''))
+    return 'INCOMPLETE_SEARCH';
+  if (/identity/i.test(error?.message || ''))
+    return 'IDENTITY_CHANGED';
+  return 'CHECK_ERROR';
+}
+
+let errors=0, attempted=0, consecutiveErrors=0, stoppedReason=null;
 for (const {c,artist} of queue.slice(0,limit)) {
+  attempted++;
   const entry=store.setlists[c.id] ||= {artists:{}};
   const previous=entry.artists[artistKey(artist)];
   try {
@@ -99,16 +116,26 @@ for (const {c,artist} of queue.slice(0,limit)) {
       checkedAt:(result || !kept) ? stamp : kept.checkedAt,
       lastExactCheckAt:stamp,lastAttemptAt:stamp,lastError:null
     };
+    consecutiveErrors=0;
     console.log(`${c.date} ${artist}: ${
       result?.matchType || (kept ? 'saved result retained' : 'no verified match')
     }`);
   } catch (error) {
     errors++;
+    consecutiveErrors++;
+    const code=errorCode(error);
     entry.artists[artistKey(artist)]={
       ...(previous || {artist,sets:[]}),
-      lastAttemptAt:stamp,lastError:'Setlist check failed'
+      lastAttemptAt:stamp,lastError:code
     };
-    console.warn(`${c.date} ${artist}: check failed; previous result retained`);
+    console.warn(`${c.date} ${artist}: ${code}; previous result retained`);
+
+    if (['API_HTTP_401','API_HTTP_403','API_HTTP_429'].includes(code)
+      || consecutiveErrors>=3) {
+      stoppedReason=code;
+      console.warn(`Stopping requests: ${code}. Saving completed results; remaining concerts stay pending.`);
+      break;
+    }
   }
 }
 
@@ -120,10 +147,10 @@ const snapshot={
     lastUpdated:stamp,checked:results.length,
     withSetlist:results.filter(r=>r.sets?.length).length,
     references:results.filter(r=>['tour-reference','similar-show'].includes(r.matchType)).length,
-    remaining:Math.max(0,queue.length-limit),errors
+    remaining:Math.max(0,queue.length-attempted+errors),errors,stoppedReason
   },
   setlists:store.setlists
 };
 await writeFile(OUT+'.tmp',JSON.stringify(snapshot,null,2)+'\n');
 await rename(OUT+'.tmp',OUT);
-console.log(`Checked ${Math.min(limit,queue.length)}; errors ${errors}; remaining ${snapshot.meta.remaining}.`);
+console.log(`Checked ${attempted}; errors ${errors}; remaining ${snapshot.meta.remaining}.`);
