@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-16T08:52:25.507Z",
+    "lastUpdated": "2026-10-16T08:54:06.450Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -639,8 +639,53 @@
         "originalScore": 48
       },
       "schedule": {
+        "version": 1,
         "date": "2026-11-03",
-        "refreshRequestedAt": "2026-10-16T08:53:53.273Z"
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": null
+        },
+        "support": [],
+        "main": {
+          "name": "Puscifer",
+          "time": null
+        },
+        "end": {
+          "name": "END",
+          "time": "22:30",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.013.nl/programma/128504/puscifer",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-16T08:54:04.263Z",
+          "evidence": "endDate: 2026-11-03T22:30:00+01:00",
+          "at": "2026-11-03T21:30:00.000Z"
+        },
+        "sources": [
+          {
+            "url": "https://www.podiuminfo.nl/concert/469662/Puscifer-The-Normal-Isnt-Tour/013/",
+            "kind": "secondary",
+            "label": "podiuminfo.nl",
+            "checkedAt": "2026-10-16T08:54:04.263Z"
+          },
+          {
+            "url": "https://www.013.nl/programma/128504/puscifer",
+            "kind": "official",
+            "label": "013.nl",
+            "checkedAt": "2026-10-16T08:54:04.263Z"
+          }
+        ],
+        "lastCheckedAt": "2026-10-16T08:54:04.263Z",
+        "lastAttemptAt": "2026-10-16T08:54:04.263Z",
+        "checks": {
+          "manual": "2026-10-16T08:54:04.263Z"
+        },
+        "lastError": null,
+        "noSupport": null,
+        "refreshRequestedAt": "2026-10-16T08:53:53.273Z",
+        "lastOfficialCheckedAt": "2026-10-16T08:54:04.263Z",
+        "checkStatus": "official"
       }
     },
     {
