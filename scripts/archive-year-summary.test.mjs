@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
-import {buildArchiveView,filterConcerts} from '../js/archive-stats.js';
+import {buildArchiveView,filterConcerts,searchArchiveConcerts} from '../js/archive-stats.js';
 
 const app=await readFile(new URL('../js/app.js',import.meta.url),'utf8');
 const start=app.indexOf('function archiveYearSummary(');
@@ -34,8 +34,8 @@ function render(filter,concerts=shows) {
   });
   const host=el('');
   vm.runInNewContext(code+'\nrenderSpine();',{
-    el,esc,buildArchiveView,filterConcerts,
-    archiveConcerts:concerts,exploreFilter:filter,
+    el,esc,buildArchiveView,filterConcerts,searchArchiveConcerts,
+    archiveConcerts:concerts,exploreFilter:filter,archiveExploreQuery:"",
     document:{getElementById:()=>host},
     yearOf:date=>date.slice(0,4),fullDate:date=>date,
     archiveEntry:c=>el(`<article>${esc(c.artist)}</article>`)

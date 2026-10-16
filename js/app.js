@@ -20,7 +20,7 @@ function mountConcertShare(heading, concert) {
 
 import { mountPractical, updatePractical } from "./concert-practical.js?v=20261013";
 import { mountSchedule, clearScheduleClock, syncScheduleClock } from "./concert-schedule.js?v=clean-schedule-20261016";
-import { buildArchiveView, filterConcerts, artistsOf, actuallySeenArtistsOf, venueKey, venueSearchNames } from "./archive-stats.js?v=year-order-20261016";
+import { buildArchiveView, filterConcerts, searchArchiveConcerts, artistsOf, actuallySeenArtistsOf, venueKey, venueSearchNames } from "./archive-stats.js?v=archive-search-20261016";
 import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, isConflictError } from "./github-api.js";
 import { openConcertSearch } from "./concert-search.js?v=catalogue-search-20261013";
 import { concertSearchState, sameSearchConcert } from "./concert-search-model.js?v=taste-search-20261013";
@@ -773,6 +773,16 @@ function renderExplore() {
     modes.appendChild(b);
   }
 
+  if (exploreFilter.mode === "all") {
+    const search = el(`<input class="archive-filter-search" type="search" aria-label="Search the archive" placeholder="Artist, room, city or year" autocomplete="off" spellcheck="false">`);
+    search.value = archiveExploreQuery;
+    search.addEventListener("input", () => {
+      archiveExploreQuery = search.value;
+      renderSpine();
+    });
+    bar.appendChild(search);
+  }
+
   if (exploreFilter.mode !== "all") {
     const values = archiveView.explore[exploreFilter.mode] || [];
     const labels = { year: "years", artist: "artists", city: "cities", venue: "rooms" };
@@ -915,11 +925,15 @@ function renderSpine() {
   if (!host) return;
   host.innerHTML = "";
 
-  const list = filterConcerts(archiveConcerts, exploreFilter)
+  const filtered = filterConcerts(archiveConcerts, exploreFilter);
+  const list = (exploreFilter.mode === "all"
+    ? searchArchiveConcerts(filtered, archiveExploreQuery) : filtered)
     .slice()
     .sort((a, b) => String(b.date).localeCompare(String(a.date)));
 
-  if (exploreFilter.mode === "year" && exploreFilter.value && list.length) {
+  if (exploreFilter.mode === "all" && archiveExploreQuery.trim()) {
+    host.appendChild(el(`<p class="filter-note" role="status">${list.length} show${list.length === 1 ? "" : "s"} found · ${esc(archiveExploreQuery.trim())}</p>`));
+  } else if (exploreFilter.mode === "year" && exploreFilter.value && list.length) {
     host.appendChild(archiveYearSummary(list, exploreFilter.value));
   } else if (exploreFilter.mode === "artist" && exploreFilter.value && list.length) {
     host.appendChild(archiveArtistSummary(list, exploreFilter.value));

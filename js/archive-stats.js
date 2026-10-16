@@ -216,3 +216,22 @@ export function buildArchiveView(concerts, today = new Date()) {
     explore: getExploreOptions(concerts),
   };
 }
+
+export function searchArchiveConcerts(concerts, query = "") {
+  const key = value => String(value || "").normalize("NFKD")
+    .replace(/\p{M}/gu, "").replace(/['’‘ʼ]/g, "").toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+  const terms = key(query).split(/\s+/).filter(Boolean);
+  if (!terms.length) return concerts;
+
+  return concerts.filter(concert => {
+    const text = key([
+      concert.artist, concert.festivalName, concert.date,
+      concert.venue, concert.venueFamily, concert.city, concert.country,
+      ...venueSearchNames(concert.venue || ""),
+      ...venueSearchNames(concert.venueFamily || ""),
+      ...actuallySeenArtistsOf(concert)
+    ].filter(Boolean).join(" "));
+    return terms.every(term => text.includes(term));
+  });
+}
