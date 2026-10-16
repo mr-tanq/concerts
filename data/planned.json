@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-16T07:43:19.045Z",
+    "lastUpdated": "2026-10-16T08:09:30.350Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -1065,8 +1065,49 @@
         "askedOn": "2026-10-16"
       },
       "schedule": {
+        "version": 1,
         "date": "2026-11-15",
-        "refreshRequestedAt": "2026-10-15T23:11:37.707Z"
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": null
+        },
+        "support": [
+          {
+            "name": "Obsidian Tide",
+            "time": null
+          },
+          {
+            "name": "Hyla",
+            "time": null
+          }
+        ],
+        "main": {
+          "name": "Changeling",
+          "time": null
+        },
+        "end": {
+          "name": "END",
+          "time": null
+        },
+        "sources": [
+          {
+            "url": "https://www.podiuminfo.nl/concert/484664/Changeling-Obsidian-Tide-Hyla/Musicon/",
+            "kind": "secondary",
+            "label": "podiuminfo.nl",
+            "checkedAt": "2026-10-16T08:09:29.107Z"
+          }
+        ],
+        "lastCheckedAt": "2026-10-16T08:09:29.107Z",
+        "lastAttemptAt": "2026-10-16T08:09:29.107Z",
+        "checks": {
+          "manual": "2026-10-16T08:09:29.107Z"
+        },
+        "lastError": null,
+        "noSupport": null,
+        "refreshRequestedAt": "2026-10-15T23:11:37.707Z",
+        "lastOfficialCheckedAt": null,
+        "checkStatus": "secondary-only"
       }
     },
     {
