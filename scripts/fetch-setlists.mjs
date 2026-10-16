@@ -2,6 +2,7 @@
 import {readFile,writeFile,rename} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
+import {createVenueParentLookup} from './lib/setlist-venue-parent.mjs';
 import {
   resolveSetlist,shouldCheckSetlist,artistKey,targetIdentity
 } from './lib/setlist-resolver.mjs';
@@ -53,6 +54,7 @@ const now=Date.now(), stamp=new Date(now).toISOString(), today=stamp.slice(0,10)
 const past=archive.concerts.filter(c=>c.date && c.date<=today)
   .sort((a,b)=>b.date.localeCompare(a.date));
 const queue=[];
+const parentLookup=createVenueParentLookup();
 
 for (const c of past) {
   let entry=store.setlists[c.id];
@@ -87,13 +89,13 @@ for (const {c,artist} of queue.slice(0,limit)) {
   const entry=store.setlists[c.id] ||= {artists:{}};
   const previous=entry.artists[artistKey(artist)];
   try {
-    const result=await resolveSetlist(c,artist,get,now);
+    const result=await resolveSetlist(c,artist,get,now,parentLookup);
     const compatible=!previous?.targetIdentity
       || previous.targetIdentity===targetIdentity(c,artist);
     const kept=compatible && previous?.sets?.length ? previous : null;
     entry.artists[artistKey(artist)]={
       ...(result || kept || {artist,sets:[]}),
-      matchingVersion:2,targetIdentity:targetIdentity(c,artist),
+      matchingVersion:3,targetIdentity:targetIdentity(c,artist),
       matchType:result?.matchType || kept?.matchType
         || (kept ? 'unverified' : 'missing'),
       checkedAt:(result || !kept) ? stamp : kept.checkedAt,

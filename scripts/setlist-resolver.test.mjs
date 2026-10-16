@@ -115,7 +115,7 @@ test('changed detail identity is rejected',async()=>{
 
 test('references retry daily; legacy records revalidate; exact results are retained',()=>{
   const previous={
-    matchingVersion:2,targetIdentity:targetIdentity(c,'MONO'),sets:[{}],
+    matchingVersion:3,targetIdentity:targetIdentity(c,'MONO'),sets:[{}],
     lastExactCheckAt:'2026-10-14T12:00Z',matchType:'tour-reference'
   };
   assert.ok(shouldCheckSetlist(previous,c,'MONO',now));
@@ -184,6 +184,7 @@ async function runScript(failure) {
     for (const file of [
       'scripts/fetch-setlists.mjs',
       'scripts/lib/setlist-resolver.mjs',
+    'scripts/lib/setlist-venue-parent.mjs',
       'js/concert-countries.js'
     ]) await cp(new URL('../'+file,import.meta.url),path.join(root,file));
 
@@ -193,7 +194,7 @@ async function runScript(failure) {
 
     const old={
       artist:'MONO',sets:[{name:'Set',songs:['Old']}],
-      matchType:'tour-reference',matchingVersion:2,
+      matchType:'tour-reference',matchingVersion:3,
       targetIdentity:targetIdentity(c,'MONO'),
       checkedAt:'2026-01-01',lastExactCheckAt:'2026-01-01'
     };

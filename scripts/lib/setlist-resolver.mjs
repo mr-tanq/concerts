@@ -1,3 +1,4 @@
+import { createVenueParentLookup } from './setlist-venue-parent.mjs';
 import { countryCode, locationKey } from '../../js/concert-countries.js';
 
 export const artistKey = value => String(value || '').normalize('NFKD')
@@ -75,8 +76,9 @@ function saved(c, artist, item, matchType, evidence) {
   return {
     artist, sets, songCount: sets.reduce((n,s)=>n+s.songs.length,0),
     sourceUrl: setlistURL(item.url), setlistFmId: item.id,
-    matchingVersion: 2, matchType, targetIdentity: targetIdentity(c,artist),
+    matchingVersion: 3, matchType, targetIdentity: targetIdentity(c,artist),
     tourEvidence: evidence || null,
+    venueEvidence: item.venueEvidence || null,
     sourceEvent: {
       artist:item.artist.name, date:iso(item.eventDate),
       venue:item.venue?.name || '', city:item.venue?.city?.name || '',
@@ -85,7 +87,7 @@ function saved(c, artist, item, matchType, evidence) {
   };
 }
 
-export async function resolveSetlist(c, artist, get, now = Date.now()) {
+export async function resolveSetlist(c, artist, get, now = Date.now(), parentLookup = createVenueParentLookup()) {
   const today = new Date(now).toISOString().slice(0,10);
   if (!fmDate(c.date) || iso(fmDate(c.date)) !== c.date)
     throw new Error('Invalid concert date');
@@ -115,13 +117,31 @@ export async function resolveSetlist(c, artist, get, now = Date.now()) {
     return full;
   };
 
+  const verifiedEvent = async item => {
+    if (exactEvent(c,artist,item)) return item;
+    const country=countryCode(c.country);
+    const other=countryCode(
+      item?.venue?.city?.country?.code || item?.venue?.city?.country?.name
+    );
+    if (!c.venue || !country || country!==other || !locationKey(c.city)
+      || locationKey(c.city)!==locationKey(item?.venue?.city?.name)
+      || !exactEvent({...c,venue:null},artist,item)) return null;
+
+    const parent=await parentLookup(item.venue);
+    if (!parent || parent.childId!==item.venue.id
+      || artistKey(parent.name)!==artistKey(c.venue)) return null;
+
+    return {...item,venueEvidence:parent};
+  };
   const anchors = new Map();
   for (const cityName of [c.city, null]) {
     const {items} = await search({
       artistName:artist,date:fmDate(c.date),cityName,p:1
     });
-    for (const item of items)
-      if (exactEvent(c,artist,item)) anchors.set(item.id,item);
+    for (const item of items) {
+      const verified=await verifiedEvent(item);
+      if (verified) anchors.set(item.id,verified);
+    }
     if (anchors.size || !c.city) break;
   }
 
@@ -129,8 +149,8 @@ export async function resolveSetlist(c, artist, get, now = Date.now()) {
   let anchor = [...anchors.values()][0];
   if (anchor) {
     anchor = await hydrate(anchor);
-    if (!exactEvent(c,artist,anchor))
-      throw new Error('Event details changed identity');
+    anchor = await verifiedEvent(anchor);
+    if (!anchor) throw new Error('Event details changed identity');
     if (extractSets(anchor).length) return saved(c,artist,anchor,'exact');
   }
 
@@ -177,7 +197,7 @@ export function shouldCheckSetlist(previous, c, artist, now = Date.now()) {
   if (previous.lastError && now-Date.parse(previous.lastAttemptAt) < 3600000)
     return false;
   if (previous.targetIdentity !== targetIdentity(c,artist)
-    || previous.matchingVersion !== 2) return true;
+    || previous.matchingVersion !== 3) return true;
   if (previous.matchType === 'exact' && previous.sets?.length) return false;
 
   const recent = now-Date.parse(c.date+'T12:00Z') < 30*86400000;

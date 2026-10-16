@@ -33,7 +33,7 @@ jobs:
           node-version: 20
 
       - name: Validate setlist matching
-        run: node --test scripts/setlist-resolver.test.mjs
+        run: node --test scripts/setlist-resolver.test.mjs scripts/setlist-venue-parent.test.mjs
 
       - name: Fetch setlists
         env:
