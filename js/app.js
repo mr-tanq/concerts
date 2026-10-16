@@ -1203,36 +1203,67 @@ function renderSetlist(host, c) {
   const entry = setlists.get(c.id);
   if (!entry) return;
   const seen = new Set(actuallySeenArtistsOf(c).map(normalizeKey));
-  const results = entry.artists
-    ? Object.values(entry.artists)
-    : [entry]; // Existing data remains readable until the next fetch workflow.
-  const available = results.filter((result) =>
+  const results = entry.artists ? Object.values(entry.artists) : [entry];
+  const available = results.filter(result =>
     result?.sets?.length && seen.has(normalizeKey(result.artist))
+    && (!result.targetIdentity || result.targetIdentity ===
+      JSON.stringify([result.artist,c.date,c.venue,c.city,c.country]))
   );
-  if (!available.length) return;
 
   for (const result of available) {
-    const total = result.songCount || result.sets.reduce((n, set) => n + set.songs.length, 0);
+    const total = result.songCount
+      || result.sets.reduce((n, set) => n + set.songs.length, 0);
+    const reference = result.matchType === "tour-reference";
+    const unverified = result.matchType === "unverified";
+    const title = reference ? `≈ ${result.artist} · tour setlist`
+      : unverified ? `${result.artist} · saved setlist`
+      : `What ${result.artist} played`;
     const wrap = el(`
       <div class="sheet-section">
-        <p class="whisper">What ${esc(result.artist)} played · ${total} songs</p>
+        <p class="whisper">${esc(title)} · ${total} songs</p>
       </div>
     `);
 
+    if (reference) {
+      const source = result.sourceEvent || {};
+      const place = [source.date, source.venue, source.city]
+        .filter(Boolean).join(" · ");
+      wrap.appendChild(el(`<details class="whisper">
+        <summary>≈ Same tour · another show</summary>
+        <p>${esc(place)}<br>Tour: ${esc(source.tour || "")}</p>
+        <p>This is a reference, not the confirmed setlist for your concert.
+        It will be replaced when the exact setlist is found.</p>
+      </details>`));
+    } else if (unverified) {
+      wrap.appendChild(el(
+        `<p class="whisper">Previously saved · exact concert not reverified.</p>`
+      ));
+    }
+
     for (const set of result.sets) {
       const block = el(`<div class="setlist-block"></div>`);
-      if (result.sets.length > 1 || /encore/i.test(set.name)) {
-        block.appendChild(el(`<div class="setlist-name">${esc(set.name)}</div>`));
-      }
+      if (result.sets.length > 1 || /encore/i.test(set.name))
+        block.appendChild(el(
+          `<div class="setlist-name">${esc(set.name)}</div>`
+        ));
       const ol = el(`<ol class="setlist-songs"></ol>`);
-      for (const song of set.songs) ol.appendChild(el(`<li>${esc(song)}</li>`));
+      for (const song of set.songs)
+        ol.appendChild(el(`<li>${esc(song)}</li>`));
       block.appendChild(ol);
       wrap.appendChild(block);
     }
 
-    if (result.sourceUrl) {
+    let sourceURL = null;
+    try {
+      const url = new URL(result.sourceUrl);
+      if (url.protocol === "https:" && !url.username && !url.password
+        && ["setlist.fm", "www.setlist.fm"].includes(url.hostname))
+        sourceURL = url.href;
+    } catch {}
+    if (sourceURL) {
       const link = el(`<button class="plain-act">Source: setlist.fm</button>`);
-      link.addEventListener("click", () => window.open(result.sourceUrl, "_blank"));
+      link.addEventListener("click", () =>
+        window.open(sourceURL, "_blank", "noopener,noreferrer"));
       wrap.appendChild(link);
     }
     host.appendChild(wrap);
