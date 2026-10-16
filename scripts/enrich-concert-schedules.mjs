@@ -23,7 +23,7 @@ export function checkPhase(concert, now = Date.now(), force = false) {
     return "sameDay"; // hourly on the day; clock rendering itself makes no requests.
   }
   // 20:00 is ONLY a check scheduling anchor when no published time exists; never a display time.
-  const anchor = Date.parse(s?.doors?.at || s?.main?.at || venueInstant(concert.date,"20:00",zoneFor(concert)));
+  const anchor = Date.parse(s?.doors?.at || s?.start?.at || s?.main?.at || venueInstant(concert.date,"20:00",zoneFor(concert)));
   const hours = (anchor-now)/3600000;
   if (hours <= 24) return s?.checks?.before24h ? null : "before24h";
   if (hours <= 48) return s?.checks?.before48h ? null : "before48h";

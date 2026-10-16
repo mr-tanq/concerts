@@ -77,6 +77,18 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
   const source = { url, kind, label: new URL(url).hostname.replace(/^www\./,""), checkedAt };
   const values = new Map(), conflicts = new Set();
   const supportNames = [...new Set((concert.supportingArtists || []).filter(Boolean).map(supportName))];
+  // Plus-billed names directly beside the event heading are support acts.
+  root.find("h1").first().parent().children("ul").children("li").each((_, n) => {
+    const label = $(n).text().trim();
+    const classes = $(n).attr("class") || "";
+    const plus = /^\+\s*/.test(label) ||
+      (classes.includes("content-") && classes.includes("+"));
+    const name = label.replace(/^\+\s*/, "").trim();
+    if (plus && /^[\p{L}\p{N} '&+.-]{2,70}$/u.test(name)
+      && !matchName(name, concert.artist) && !times(name).length) {
+      supportNames.push(supportName(name));
+    }
+  });
   root.find("h2,h3,h4,p").each((_, n) => {
     const s = $(n).text().trim(), m = s.match(/(?:special guest|support(?: act)?|voorprogramma)\s*:\s*([\p{L}\p{N} '&+.-]{2,70})$/iu);
     if (m && !matchName(m[1], concert.artist) && !times(m[1]).length) supportNames.push(supportName(m[1].trim()));
@@ -93,6 +105,7 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
     label = supportName(label);
     const n = normalize(label);
     if (/^(doors?( open)?|deuren?( open)?|zaal open|opening doors)$/.test(n)) set("doors", "DOORS", ts[0], evidence);
+    else if (/^(start|aanvang|show start|programme start|program start|start programma|aanvang programma)$/.test(n)) set("start", "PROGRAMME START", ts[0], evidence);
     else if (/^(end|einde|eindtijd|expected end|verwachte eindtijd|show ends?)$/.test(n)) set("end", "END", ts[0], evidence);
     else if (normalize(label) === normalize(concert.artist) || /^(main act|main programme|headliner|hoofdprogramma)$/.test(n)) set("main", concert.artist, ts[0], evidence, ts[1]);
     else {
@@ -103,8 +116,8 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
     }
   };
   root.find(".timeline-item").each((_, n) => consume($(n).find(".title").text().trim(), $(n).find(".time").text(), $(n).text(), true));
-  root.find("tr").each((_, n) => {
-    const cells = $(n).find("td,th").map((_, c) => $(c).text().trim()).get();
+  root.find("tr,li,[role='row']").each((_, n) => {
+    const cells = $(n).children().map((_, c) => $(c).text().trim()).get();
     if (cells.length === 2 && cells.filter(c => times(c).length).length === 1) consume(cells.find(c => !times(c).length), cells.find(c => times(c).length), cells.join(" "));
   });
   const tivoli = kind === "official" &&
@@ -132,9 +145,9 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
     for (const line of cheerio.load(lines).text().split(/\n|,\s*(?=(?:doors?|zaal open|voorprogramma|support|hoofdprogramma|main programme)\s*:)/i)) {
       const clean = line.replace(/\bSons of the Town Hall\b/gi,"Sons of Town Hall").replace(/\s+/g," ").trim();
       if (clean.length > 150) continue;
-      const m = clean.match(/^(doors?(?: open)?|deuren?(?: open)?|zaal open|end|einde|eindtijd|expected end|verwachte eindtijd|main act|main programme|headliner|hoofdprogramma|support(?: act)?|voorprogramma)\s*[:–-]?\s*((?:[01]?\d|2[0-3])[:.][0-5]\d(?:\s*(?:uur|h))?)$/i);
+      const m = clean.match(/^(doors?(?: open)?|deuren?(?: open)?|zaal open|end|einde|eindtijd|expected end|verwachte eindtijd|start|aanvang|show start|programme start|program start|main act|main programme|headliner|hoofdprogramma|support(?: act)?|voorprogramma)\s*[:–-]?\s*((?:[01]?\d|2[0-3])[:.][0-5]\d(?:\s*(?:uur|h))?)$/i);
       if (m) consume(m[1],m[2],clean);
-      const reversed = clean.match(/^((?:[01]?\d|2[0-3])[:.][0-5]\d)\s*[-–:]?\s*(doors?(?: open)?|deuren?(?: open)?|zaal open|end|einde|eindtijd|expected end|verwachte eindtijd|main act|main programme|headliner|hoofdprogramma|support(?: act)?|voorprogramma)$/i);
+      const reversed = clean.match(/^((?:[01]?\d|2[0-3])[:.][0-5]\d)\s*[-–:]?\s*(doors?(?: open)?|deuren?(?: open)?|zaal open|end|einde|eindtijd|expected end|verwachte eindtijd|start|aanvang|show start|programme start|program start|main act|main programme|headliner|hoofdprogramma|support(?: act)?|voorprogramma)$/i);
       if (reversed) consume(reversed[2],reversed[1],clean);
       // Artist-labelled line: name : 21:30, or 21:30 - Hällas. Whole-line match avoids prose dates.
       for (const name of [concert.artist, ...supportNames]) {
@@ -172,8 +185,8 @@ export function mergeSchedule(concert, results, now, phase) {
   const byURL = new Map(results.map(r => [r.source.url, r]));
   // Successful sources replace their own old fields, including removed/unconfirmed times.
   // A failed fetch retains its last evidence. A secondary source cannot replace official evidence.
-  const fields = [old.doors, old.main, old.end, ...(old.support || [])].filter(f => f?.time && f.sourceUrl && !byURL.has(f.sourceUrl));
-  const candidates = fields.map(f => ({ key: f === old.doors ? "doors" : f === old.main ? "main" : f === old.end ? "end" : `support:${normalize(supportName(f.name))}`, f }));
+  const fields = [old.doors, old.start, old.main, old.end, ...(old.support || [])].filter(f => f?.time && f.sourceUrl && !byURL.has(f.sourceUrl));
+  const candidates = fields.map(f => ({ key: f === old.doors ? "doors" : f === old.start ? "start" : f === old.main ? "main" : f === old.end ? "end" : `support:${normalize(supportName(f.name))}`, f }));
   for (const r of results) for (const [key,f] of Object.entries(r.values)) candidates.push({key:key.startsWith("support:") ? `support:${normalize(supportName(f.name))}` : key,f});
   const selected = new Map(), disputed = new Map();
   for (const {key,f} of candidates) {
@@ -197,7 +210,7 @@ export function mergeSchedule(concert, results, now, phase) {
   const sources = new Map((old.sources || []).map(s=>[s.url,s]));
   for (const r of results) sources.set(r.source.url,r.source);
   const success = results.length > 0;
-  const s = {version:1,date:concert.date,timeZone:zone,doors:make("doors","DOORS"),support:names.map(name=>make(`support:${normalize(name)}`,name)),main:make("main",concert.artist),end:make("end","END"),sources:[...sources.values()],lastCheckedAt:success ? now : old.lastCheckedAt || null,lastAttemptAt:now,checks:{...(old.checks || {}),...(success ? {[phase]:now} : {})},lastError:success ? null : "No matching source could be checked"};
+  const s = {version:1,date:concert.date,timeZone:zone,doors:make("doors","DOORS"),start:make("start","PROGRAMME START"),support:names.map(name=>make(`support:${normalize(name)}`,name)),main:make("main",concert.artist),end:make("end","END"),sources:[...sources.values()],lastCheckedAt:success ? now : old.lastCheckedAt || null,lastAttemptAt:now,checks:{...(old.checks || {}),...(success ? {[phase]:now} : {})},lastError:success ? null : "No matching source could be checked"};
   const official = results.filter(r => r.source.kind === "official");
   const absent = official.find(r => r.noSupport === true);
   const contradicts = official.some(r => r.noSupport !== true &&
@@ -209,7 +222,7 @@ export function mergeSchedule(concert, results, now, phase) {
   s.lastOfficialCheckedAt = results.some(r=>r.source.kind === "official") ? now : old.lastOfficialCheckedAt || (old.sources || []).filter(x=>x.kind === "official").map(x=>x.checkedAt).sort().at(-1) || null;
   s.checkStatus = !success ? "failed" : results.some(r=>r.source.kind === "official") ? "official" : "secondary-only";
   // Reject out-of-order schedules rather than guessing which field is wrong.
-  const order = [s.doors,...s.support.sort((a,b)=>String(a.at||"z").localeCompare(String(b.at||"z"))),s.main,s.end].filter(f=>f.at);
+  const order = [s.doors,s.start,...s.support.sort((a,b)=>String(a.at||"z").localeCompare(String(b.at||"z"))),s.main,s.end].filter(f=>f.at);
   if (order.some((f,i)=>i && f.at < order[i-1].at)) for (const f of order) { f.time=null; delete f.at; }
   return s;
 }

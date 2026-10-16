@@ -20,7 +20,7 @@ test("official timetable preserves four published times and per-field provenance
 });
 test("generic start and existing concert.time are never guessed as a main act",()=>{
   const r=parseSchedule(page('<p>Start 20:00</p><p>Time 19:30</p>'),{...c,time:"20:00"},url,"official",stamp);
-  assert.deepEqual(r.values,{});const s=mergeSchedule(c,[r],stamp,"initial");assert.equal(s.main.time,null);assert.equal(s.doors.time,null);
+  assert.equal(r.values.start.time,"20:00");assert.equal(r.values.main,undefined);const s=mergeSchedule(c,[r],stamp,"initial");assert.equal(s.main.time,null);assert.equal(s.doors.time,null);
 });
 test("wrong artist and date, navigation, related shows and biography are rejected",()=>{
   assert.equal(parseSchedule(html.replaceAll("HÄLLAS","OTHER BAND"),c,url),null);
