@@ -37,7 +37,7 @@ function render(filter,concerts=shows) {
     el,esc,buildArchiveView,filterConcerts,
     archiveConcerts:concerts,exploreFilter:filter,
     document:{getElementById:()=>host},
-    yearOf:date=>date.slice(0,4),
+    yearOf:date=>date.slice(0,4),fullDate:date=>date,
     archiveEntry:c=>el(`<article>${esc(c.artist)}</article>`)
   });
   const flatten=node=>node.html+node.children.map(flatten).join('');
@@ -67,7 +67,7 @@ test('all and artist filters keep their existing layout',()=>{
   );
   const html=render({mode:'artist',value:'Main'});
   assert.doesNotMatch(html,/archive-year-summary/);
-  assert.match(html,/2 nights · Main/);
+  assert.match(html,/Main · 2 times seen/);
 });
 
 test('empty year has an empty state rather than invented statistics',()=>{

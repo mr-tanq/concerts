@@ -857,6 +857,29 @@ function archiveYearSummary(concerts, year) {
   `);
 }
 
+function archiveArtistSummary(concerts, artist) {
+  const { overview, milestones } = buildArchiveView(concerts);
+  const { totalConcerts, venues, cities } = overview;
+  const place = concert =>
+    [concert?.venue, concert?.city].filter(Boolean).join(", ");
+  const memory = concert =>
+    [fullDate(concert?.date), place(concert)].filter(Boolean).join(" · ");
+
+  return el(`
+    <section class="archive-artist-summary" aria-label="${esc(artist)} summary">
+      <p class="filter-note">
+        ${esc(artist)} · ${totalConcerts} time${totalConcerts === 1 ? "" : "s"} seen
+      </p>
+      <p class="opening-figures">
+        <b>${venues}</b> room${venues === 1 ? "" : "s"} ·
+        <b>${cities}</b> ${cities === 1 ? "city" : "cities"}<br>
+        ${totalConcerts === 1 ? "Seen on" : "First time"}: ${esc(memory(milestones.first))}
+        ${totalConcerts > 1 ? `<br>Most recent: ${esc(memory(milestones.latest))}` : ""}
+      </p>
+    </section>
+  `);
+}
+
 function renderSpine() {
   const host = document.getElementById("spine-root");
   if (!host) return;
@@ -868,6 +891,8 @@ function renderSpine() {
 
   if (exploreFilter.mode === "year" && exploreFilter.value && list.length) {
     host.appendChild(archiveYearSummary(list, exploreFilter.value));
+  } else if (exploreFilter.mode === "artist" && exploreFilter.value && list.length) {
+    host.appendChild(archiveArtistSummary(list, exploreFilter.value));
   } else if (exploreFilter.value) {
     host.appendChild(el(`<p class="filter-note">${list.length} night${list.length === 1 ? "" : "s"} · ${esc(exploreFilter.value)}</p>`));
   }
