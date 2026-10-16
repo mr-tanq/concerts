@@ -31,6 +31,17 @@ export function checkPhase(concert, now = Date.now(), force = false) {
   return s?.lastCheckedAt ? null : "initial";
 }
 
+export function schedulePhase(concert, nextId, now = Date.now(), force = false) {
+  const phase = checkPhase(concert, now, force);
+  if (!phase) return null;
+
+  // Explicit requests bypass only the automatic one-week discovery window.
+  if (phase !== "manual" && concert.id !== nextId
+    && Date.parse(`${concert.date}T12:00Z`) - now > 7 * 86400000) return null;
+
+  return phase;
+}
+
 async function fetchPage(url, hosts) {
   let current = allowedURL(url,hosts); if (!current) throw new Error("Unapproved source host");
   for (let redirect=0;redirect<5;redirect++) {
@@ -113,9 +124,7 @@ async function main() {
   const future=data.concerts.filter(c=>validDate(c.date) && c.date>=today).sort((a,b)=>a.date.localeCompare(b.date));
   const updates=[];
   for(const c of future) {
-    // Enrich NEXT immediately; others enter the queue one week before their date.
-    if(c!==future[0] && Date.parse(`${c.date}T12:00Z`)-now>7*86400000) continue;
-    const phase=checkPhase(c,now,process.argv.includes("--force"));if(!phase) continue;
+    const phase=schedulePhase(c,future[0]?.id,now,process.argv.includes("--force"));if(!phase) continue;
     const schedule=await enrichOne(c,stamp,phase);updates.push({id:c.id,date:c.date,artist:c.artist,venue:c.venue,schedule});
     console.log(`${c.artist} ${c.date}: ${phase}, ${schedule.lastError || `${schedule.sources.length} sources`}`);
   }
