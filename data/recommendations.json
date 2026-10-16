@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-10-16T13:02:01.877Z",
+    "lastUpdated": "2026-10-16T13:50:04.280Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
@@ -15,5 +15,42 @@
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-469970",
+      "source": "podiuminfo",
+      "sourceId": "469970",
+      "artist": "Puscifer",
+      "lineup": [
+        "Puscifer"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Puscifer"
+      ],
+      "date": "2026-11-05",
+      "time": null,
+      "venue": "Gashouder",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/31438/100_Puscifer_1.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/134516/cd/Puscifer/Gashouder/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/469970/Puscifer-The-Normal-Isnt-Tour/Gashouder/",
+      "match": {
+        "score": 48,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Puscifer",
+        "matchedArtists": [
+          "Puscifer"
+        ]
+      },
+      "discoveredAt": "2026-10-15T23:09:57.742Z",
+      "lastSeenAt": "2026-10-15T23:09:57.742Z"
+    }
+  ]
 }
