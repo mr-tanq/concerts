@@ -880,6 +880,36 @@ function archiveArtistSummary(concerts, artist) {
   `);
 }
 
+function archivePlaceSummary(concerts, label, mode) {
+  const { overview, signature, milestones, explore } = buildArchiveView(concerts);
+  const { totalConcerts, uniqueArtists, artistAppearances, venues, cities } = overview;
+  const highest = signature.topArtist?.count || 0;
+  const leaders = highest > 1
+    ? explore.artist.filter(artist => artist.count === highest) : [];
+
+  const memory = concert => [
+    fullDate(concert?.date),
+    [concert?.venue, concert?.city].filter(Boolean).join(", ")
+  ].filter(Boolean).join(" · ");
+
+  const locations = mode === "city"
+    ? `<b>${venues}</b> room${venues === 1 ? "" : "s"}`
+    : `<b>${cities}</b> ${cities === 1 ? "city" : "cities"}`;
+
+  return el(`
+    <section class="archive-place-summary" aria-label="${esc(label)} summary">
+      <p class="filter-note">${esc(label)} · ${totalConcerts} show${totalConcerts === 1 ? "" : "s"}</p>
+      <p class="opening-figures">
+        <b>${uniqueArtists}</b> artist${uniqueArtists === 1 ? "" : "s"} ·
+        <b>${artistAppearances}</b> performance${artistAppearances === 1 ? "" : "s"} · ${locations}<br>
+        ${totalConcerts === 1 ? "Visited on" : "First visit"}: ${esc(memory(milestones.first))}
+        ${totalConcerts > 1 ? `<br>Most recent: ${esc(memory(milestones.latest))}` : ""}
+        ${leaders.length ? `<br>Most often: <b>${leaders.map(artist => esc(artist.name)).join(", ")}</b>, ${highest} times${leaders.length > 1 ? " each" : ""}` : ""}
+      </p>
+    </section>
+  `);
+}
+
 function renderSpine() {
   const host = document.getElementById("spine-root");
   if (!host) return;
@@ -893,6 +923,8 @@ function renderSpine() {
     host.appendChild(archiveYearSummary(list, exploreFilter.value));
   } else if (exploreFilter.mode === "artist" && exploreFilter.value && list.length) {
     host.appendChild(archiveArtistSummary(list, exploreFilter.value));
+  } else if (["city", "venue"].includes(exploreFilter.mode) && exploreFilter.value && list.length) {
+    host.appendChild(archivePlaceSummary(list, exploreFilter.value, exploreFilter.mode));
   } else if (exploreFilter.value) {
     host.appendChild(el(`<p class="filter-note">${list.length} night${list.length === 1 ? "" : "s"} · ${esc(exploreFilter.value)}</p>`));
   }
