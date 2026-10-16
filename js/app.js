@@ -829,7 +829,10 @@ function renderExplore() {
 }
 
 function archiveYearSummary(concerts, year) {
-  const { overview, signature } = buildArchiveView(concerts);
+  const { overview, signature, explore } = buildArchiveView(concerts);
+  const highest = signature.topArtist?.count || 0;
+  const leaders = highest > 1
+    ? explore.artist.filter(artist => artist.count === highest) : [];
   const {
     totalConcerts, uniqueArtists, artistAppearances,
     festivals, venues, cities
@@ -846,8 +849,8 @@ function archiveYearSummary(concerts, year) {
         <b>${festivals}</b> festival${festivals === 1 ? "" : "s"} ·
         <b>${venues}</b> room${venues === 1 ? "" : "s"} ·
         <b>${cities}</b> ${cities === 1 ? "city" : "cities"}<br>
-        ${signature.topArtist
-          ? `Most often: <b>${esc(signature.topArtist.name)}</b>, ${signature.topArtist.count} time${signature.topArtist.count === 1 ? "" : "s"}`
+        ${leaders.length
+          ? `Most often: <b>${leaders.map(artist => esc(artist.name)).join(", ")}</b>, ${highest} times${leaders.length > 1 ? " each" : ""}`
           : ""}
       </p>
     </section>

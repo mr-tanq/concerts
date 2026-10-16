@@ -57,7 +57,7 @@ test('another year replaces the summary and uses singular labels',()=>{
   const html=render({mode:'year',value:'2026'});
   assert.match(html,/2026 · 1 show/);
   assert.match(html,/<b>1<\/b> artist ·/);
-  assert.match(html,/1 time\s*</);
+  assert.doesNotMatch(html,/Most often:/);
   assert.doesNotMatch(html,/2025 · 2 shows/);
 });
 
@@ -84,4 +84,21 @@ test('summary escapes artist text and respects missed lineups',()=>{
   assert.match(html,/&lt;script&gt;/);
   assert.doesNotMatch(html,/<script>/);
   assert.match(html,/<b>1<\/b> performance/);
+});
+
+test('several artists seen once do not produce an arbitrary most-seen name',()=>{
+  const html=render({mode:'year',value:'2025'},[
+    {...shows[0],seenArtists:['Alpha','Beta']},
+    {...shows[1],seenArtists:['Gamma']}
+  ]);
+  assert.doesNotMatch(html,/Most often:/);
+});
+
+test('tied repeat artists are all named and marked as tied',()=>{
+  const html=render({mode:'year',value:'2025'},[
+    {...shows[0],seenArtists:['Alpha','Beta','Once']},
+    {...shows[1],seenArtists:['Alpha','Beta']}
+  ]);
+  assert.match(html,/Most often: <b>Alpha, Beta<\/b>, 2 times each/);
+  assert.doesNotMatch(html,/Most often: <b>[^<]*Once/);
 });
