@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-16T08:09:30.350Z",
+    "lastUpdated": "2026-10-16T08:43:10.419Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -1998,8 +1998,40 @@
         "originalScore": 0
       },
       "schedule": {
+        "version": 1,
         "date": "2026-10-23",
-        "refreshRequestedAt": "2026-10-16T08:42:56.966Z"
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": null
+        },
+        "support": [],
+        "main": {
+          "name": "Ontaard",
+          "time": null
+        },
+        "end": {
+          "name": "END",
+          "time": null
+        },
+        "sources": [
+          {
+            "url": "https://www.podiuminfo.nl/concert/472328/Ontaard/EKKO/",
+            "kind": "secondary",
+            "label": "podiuminfo.nl",
+            "checkedAt": "2026-10-16T08:43:09.409Z"
+          }
+        ],
+        "lastCheckedAt": "2026-10-16T08:43:09.409Z",
+        "lastAttemptAt": "2026-10-16T08:43:09.409Z",
+        "checks": {
+          "manual": "2026-10-16T08:43:09.409Z"
+        },
+        "lastError": null,
+        "noSupport": null,
+        "refreshRequestedAt": "2026-10-16T08:42:56.966Z",
+        "lastOfficialCheckedAt": null,
+        "checkStatus": "secondary-only"
       }
     },
     {
