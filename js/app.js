@@ -1213,9 +1213,11 @@ function renderSetlist(host, c) {
   for (const result of available) {
     const total = result.songCount
       || result.sets.reduce((n, set) => n + set.songs.length, 0);
-    const reference = result.matchType === "tour-reference";
+    const similar = result.matchType === "similar-show";
+    const reference = similar || result.matchType === "tour-reference";
     const unverified = result.matchType === "unverified";
-    const title = reference ? `≈ ${result.artist} · tour setlist`
+    const title = similar ? `≈ ${result.artist} · similar show`
+      : reference ? `≈ ${result.artist} · tour setlist`
       : unverified ? `${result.artist} · saved setlist`
       : `What ${result.artist} played`;
     const wrap = el(`
@@ -1229,9 +1231,9 @@ function renderSetlist(host, c) {
       const place = [source.date, source.venue, source.city]
         .filter(Boolean).join(" · ");
       wrap.appendChild(el(`<details class="whisper">
-        <summary>≈ Same tour · another show</summary>
+        <summary>${similar ? "≈ Similar show · nearby date" : "≈ Same tour · another show"}</summary>
         <p>${esc(place)}<br>Tour: ${esc(source.tour || "")}</p>
-        <p>This is a reference, not the confirmed setlist for your concert.
+        <p>${similar ? "The tour for your concert is unconfirmed. This is a nearby show by the same artist." : "This is a reference, not the confirmed setlist for your concert."}
         It will be replaced when the exact setlist is found.</p>
       </details>`));
     } else if (unverified) {

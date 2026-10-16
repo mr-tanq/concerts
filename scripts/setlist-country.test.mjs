@@ -20,7 +20,7 @@ test('unique band-day-country match ignores different venue and city spelling',a
   const r=await resolveSetlist(c,'Band',
     async()=>({setlist:[item('one','Other spelling')]}),now);
   assert.equal(r.matchType,'exact');
-  assert.equal(r.matchingVersion,4);
+  assert.equal(r.matchingVersion,5);
 });
 
 test('unknown and wrong countries cannot pass',()=>{

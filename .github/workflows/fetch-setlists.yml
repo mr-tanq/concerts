@@ -33,7 +33,7 @@ jobs:
           node-version: 20
 
       - name: Validate setlist matching
-        run: node --test scripts/setlist-resolver.test.mjs scripts/setlist-country.test.mjs
+        run: node --test scripts/setlist-resolver.test.mjs scripts/setlist-country.test.mjs scripts/setlist-nearby.test.mjs
 
       - name: Fetch setlists
         env:

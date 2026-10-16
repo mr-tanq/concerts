@@ -93,7 +93,7 @@ for (const {c,artist} of queue.slice(0,limit)) {
     const kept=compatible && previous?.sets?.length ? previous : null;
     entry.artists[artistKey(artist)]={
       ...(result || kept || {artist,sets:[]}),
-      matchingVersion:4,targetIdentity:targetIdentity(c,artist),
+      matchingVersion:5,targetIdentity:targetIdentity(c,artist),
       matchType:result?.matchType || kept?.matchType
         || (kept ? 'unverified' : 'missing'),
       checkedAt:(result || !kept) ? stamp : kept.checkedAt,
@@ -119,7 +119,7 @@ const snapshot={
   meta:{
     lastUpdated:stamp,checked:results.length,
     withSetlist:results.filter(r=>r.sets?.length).length,
-    references:results.filter(r=>r.matchType==='tour-reference').length,
+    references:results.filter(r=>['tour-reference','similar-show'].includes(r.matchType)).length,
     remaining:Math.max(0,queue.length-limit),errors
   },
   setlists:store.setlists

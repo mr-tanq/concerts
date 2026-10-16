@@ -83,7 +83,7 @@ function saved(c, artist, item, matchType, evidence) {
   return {
     artist, sets, songCount: sets.reduce((n,s)=>n+s.songs.length,0),
     sourceUrl: setlistURL(item.url), setlistFmId: item.id,
-    matchingVersion: 4, matchType, targetIdentity: targetIdentity(c,artist),
+    matchingVersion: 5, matchType, targetIdentity: targetIdentity(c,artist),
     tourEvidence: evidence || null,
     sourceEvent: {
       artist:item.artist.name, date:iso(item.eventDate),
@@ -123,6 +123,45 @@ export async function resolveSetlist(c, artist, get, now = Date.now()) {
     return full;
   };
 
+  const nearbyReference = async () => {
+    const windowDays=14;
+    const target=Date.parse(c.date+'T12:00Z');
+    const years=[...new Set([-windowDays,windowDays].map(days=>
+      new Date(target+days*86400000).getUTCFullYear()))];
+    const options=new Map();
+
+    const eligible=item=>{
+      const date=iso(item?.eventDate);
+      const gap=date && distance(date,c.date);
+      return !!item?.id && !!setlistURL(item.url)
+        && artistKey(item.artist?.name)===artistKey(artist)
+        && !!date && date<=today && gap>0 && gap<=windowDays;
+    };
+
+    for (const year of years) {
+      for (let p=1;p<=3;p++) {
+        const response=await search({artistName:artist,year,p});
+        for (const item of response.items)
+          if (eligible(item)) options.set(item.id,item);
+        if (!response.more) break;
+      }
+    }
+
+    const candidates=[...options.values()].sort((a,b)=>
+      distance(iso(a.eventDate),c.date)-distance(iso(b.eventDate),c.date)
+      || String(a.id).localeCompare(String(b.id)));
+
+    const playable=candidates.filter(item=>extractSets(item).length);
+    for (const candidate of (playable.length ? playable : candidates.slice(0,3))) {
+      const full=await hydrate(candidate);
+      if (eligible(full) && extractSets(full).length)
+        return saved(c,artist,full,'similar-show',{
+          kind:'nearby-date',confirmed:false,maxDistanceDays:windowDays
+        });
+    }
+    return null;
+  };
+
   const country=countryCode(c.countryCode) || countryCode(c.country);
   if (!country) return null;
 
@@ -157,7 +196,7 @@ export async function resolveSetlist(c, artist, get, now = Date.now()) {
   const explicitTour = artistKey(artist) === artistKey(c.artist)
     ? c.tourName || c.tour?.name : null;
   const tour = anchor?.tour?.name || explicitTour;
-  if (!artistKey(tour)) return null;
+  if (!artistKey(tour)) return nearbyReference();
 
   const evidence = anchor
     ? {kind:'target-event',id:anchor.id,tour}
@@ -196,12 +235,13 @@ export function shouldCheckSetlist(previous, c, artist, now = Date.now()) {
   if (!previous) return true;
   if (previous.lastError && now-Date.parse(previous.lastAttemptAt) < 3600000)
     return false;
-  if (previous.targetIdentity !== targetIdentity(c,artist)
-    || previous.matchingVersion !== 4) return true;
+  const validVersion = previous.matchingVersion === 5
+    || (previous.matchingVersion === 4 && previous.matchType === 'exact' && previous.sets?.length);
+  if (previous.targetIdentity !== targetIdentity(c,artist) || !validVersion) return true;
   if (previous.matchType === 'exact' && previous.sets?.length) return false;
 
   const recent = now-Date.parse(c.date+'T12:00Z') < 30*86400000;
-  const interval = previous.matchType === 'tour-reference' || recent
+  const interval = ['tour-reference','similar-show'].includes(previous.matchType) || recent
     ? 86400000 : 7*86400000;
   const age = now-Date.parse(previous.lastExactCheckAt || previous.checkedAt);
   return !Number.isFinite(age) || age >= interval;

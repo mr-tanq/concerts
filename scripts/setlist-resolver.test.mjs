@@ -120,7 +120,7 @@ test('changed detail identity is rejected',async()=>{
 
 test('references retry daily; legacy records revalidate; exact results are retained',()=>{
   const previous={
-    matchingVersion:4,targetIdentity:targetIdentity(c,'MONO'),sets:[{}],
+    matchingVersion:5,targetIdentity:targetIdentity(c,'MONO'),sets:[{}],
     lastExactCheckAt:'2026-10-14T12:00Z',matchType:'tour-reference'
   };
   assert.ok(shouldCheckSetlist(previous,c,'MONO',now));
@@ -181,7 +181,7 @@ test('exact UI remains exact',async()=>{
   assert.doesNotMatch(render(r),/≈/);
 });
 
-async function runScript(failure) {
+async function runScript(failure, kind='tour-reference') {
   const root=await mkdtemp(path.join(tmpdir(),'mirror-setlists-'));
   try {
     for (const dir of ['scripts/lib','js','data'])
@@ -198,7 +198,7 @@ async function runScript(failure) {
 
     const old={
       artist:'MONO',sets:[{name:'Set',songs:['Old']}],
-      matchType:'tour-reference',matchingVersion:4,
+      matchType:kind,matchingVersion:5,
       targetIdentity:targetIdentity(c,'MONO'),
       checkedAt:'2026-01-01',lastExactCheckAt:'2026-01-01'
     };
@@ -241,4 +241,15 @@ test('fetch job automatically upgrades reference to exact',async()=>{
   assert.equal(r.matchType,'exact');
   assert.equal(r.setlistFmId,'exact');
   assert.equal(r.lastError,null);
+});
+
+test('fetch job upgrades a similar show to the exact night',async()=>{
+  const r=await runScript(false,'similar-show');
+  assert.equal(r.matchType,'exact');
+  assert.equal(r.setlistFmId,'exact');
+});
+test('fetch job preserves similar-show provenance on API failure',async()=>{
+  const r=await runScript(true,'similar-show');
+  assert.equal(r.matchType,'similar-show');
+  assert.ok(r.lastError);
 });
