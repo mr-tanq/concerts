@@ -1916,11 +1916,20 @@ function renderUpcoming(body) {
       return;
     }
 
-    const list = el(`<div class="upcoming-list"><div style="padding:0 var(--gutter) 8px"><p class="whisper">${searching ? "Search results" : "After that"}</p></div></div>`);
+    const list = el('<div class="upcoming-list"></div>');
+    let lastGroup = null;
     for (const c of rest) {
+      const group = searching ? "Search results"
+        : !stillUpcoming(c) ? "Passed shows"
+        : upcoming[0]?.date === c.date
+          ? `Also on ${fullDate(c.date)}` : "After that";
+      if (group !== lastGroup) {
+        list.appendChild(el(`<div style="padding:16px var(--gutter) 8px"><p class="whisper">${esc(group)}</p></div>`));
+        lastGroup = group;
+      }
       const row = el(`
         <div class="upcoming-row">
-          <div class="when">${c.date < today ? "Passed" : countdownWord(c.date)}</div>
+          <div class="when">${!stillUpcoming(c) ? "Passed" : countdownWord(c.date)}</div>
           <div class="who">
             <b>${esc(displayPlannedArtist(c.artist))}${ticketMark(c)}</b>
             <span class="event-meta"><span class="event-venue">${esc(c.venue)} · ${esc(c.city)}</span><span class="event-date">${fullDate(c.date)}</span></span>
