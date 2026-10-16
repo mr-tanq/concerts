@@ -49,7 +49,7 @@ test('multiple supports retain a group start without guessing order', () => {
   const c = { ...base, supportingArtists: ['Guest One', 'Guest Two'] };
   const s = mergeSchedule(c, [result(c)], stamp, 'manual');
   assert.ok(s.support.every(f => f.time === null));
-  assert.ok(scheduleMarkup({ ...c, schedule: s }).includes('SUPPORT START'));
+  assert.ok(!scheduleMarkup({ ...c, schedule: s }).includes('data-schedule-kind="start"'));
 });
 
 test('changed lineups recalculate derived times', () => {
