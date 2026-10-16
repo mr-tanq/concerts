@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-16T08:43:10.419Z",
+    "lastUpdated": "2026-10-16T08:43:48.052Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -304,8 +304,36 @@
         "originalScore": 45
       },
       "schedule": {
+        "version": 1,
         "date": "2026-10-24",
-        "refreshRequestedAt": "2026-10-16T08:43:33.284Z"
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": null
+        },
+        "support": [
+          {
+            "name": "Barrens",
+            "time": null
+          }
+        ],
+        "main": {
+          "name": "Oh Hiroshima",
+          "time": null
+        },
+        "end": {
+          "name": "END",
+          "time": null
+        },
+        "sources": [],
+        "lastCheckedAt": null,
+        "lastAttemptAt": "2026-10-16T08:43:44.290Z",
+        "checks": {},
+        "lastError": "No matching source could be checked",
+        "noSupport": null,
+        "refreshRequestedAt": "2026-10-16T08:43:33.284Z",
+        "lastOfficialCheckedAt": null,
+        "checkStatus": "failed"
       }
     },
     {
