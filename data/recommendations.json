@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-10-16T11:12:59.963Z",
+    "lastUpdated": "2026-10-16T12:54:43.522Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
@@ -11,9 +11,84 @@
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 5,
+      "concertsOpened": 6,
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-498847",
+      "source": "podiuminfo",
+      "sourceId": "498847",
+      "artist": "Damien Rice",
+      "lineup": [
+        "Damien Rice"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Damien Rice"
+      ],
+      "date": "2027-04-16",
+      "time": null,
+      "venue": "Koninklijk Theater Carré",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/5535/100_Damien_Rice_2.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/143643/cd/Damien-Rice/Koninklijk-Theater-Carre/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/498847/Damien-Rice/Koninklijk-Theater-Carre/",
+      "match": {
+        "score": 51,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Damien Rice",
+        "matchedArtists": [
+          "Damien Rice"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-10-16T12:54:43.522Z",
+      "lastSeenAt": "2026-10-16T12:54:43.522Z"
+    },
+    {
+      "id": "rec-podiuminfo-498848",
+      "source": "podiuminfo",
+      "sourceId": "498848",
+      "artist": "Damien Rice",
+      "lineup": [
+        "Damien Rice"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Damien Rice"
+      ],
+      "date": "2027-04-17",
+      "time": null,
+      "venue": "Koninklijk Theater Carré",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/5535/100_Damien_Rice_1.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/143644/cd/Damien-Rice/Koninklijk-Theater-Carre/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/498848/Damien-Rice/Koninklijk-Theater-Carre/",
+      "match": {
+        "score": 51,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Damien Rice",
+        "matchedArtists": [
+          "Damien Rice"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-10-16T12:54:43.522Z",
+      "lastSeenAt": "2026-10-16T12:54:43.522Z"
+    }
+  ]
 }
