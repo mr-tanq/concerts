@@ -180,7 +180,8 @@ export function getOnThisDay(concerts, today = new Date()) {
 // can be ordered by how much of the archive they actually represent.
 export function getExploreOptions(concerts) {
   return {
-    year: countBy(concerts, (c) => String(c.date || "").slice(0, 4)),
+    year: countBy(concerts, (c) => String(c.date || "").slice(0, 4))
+      .sort((a, b) => b.name.localeCompare(a.name)),
     artist: countArtists(concerts),
     city: countBy(concerts, (c) => c.city),
     venue: countBy(concerts, venueKey),
