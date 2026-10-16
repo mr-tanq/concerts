@@ -1,10 +1,12 @@
 {
-  "$schema": "Listening Mirror Setlists v2",
+  "$schema": "Listening Mirror Setlists v3",
   "meta": {
-    "lastUpdated": "2026-10-13T09:56:49.615Z",
+    "lastUpdated": "2026-10-16T12:05:06.154Z",
     "checked": 274,
     "withSetlist": 166,
-    "remaining": 0
+    "references": 0,
+    "remaining": 226,
+    "errors": 0
   },
   "setlists": {
     "archived-2026-06-18-s-lstafir-oranssi-pazuzu-hulder": {
@@ -24,7 +26,13 @@
           "sourceUrl": "https://www.setlist.fm/setlist/solstafir/2026/stage-1-haarlem-netherlands-1b4b1d5c.html",
           "setlistFmId": "1b4b1d5c",
           "matchScore": 110,
-          "checkedAt": "2026-07-30T05:16:37.296Z"
+          "checkedAt": "2026-07-30T05:16:37.296Z",
+          "matchingVersion": 2,
+          "targetIdentity": "[\"Sólstafir\",\"2026-06-18\",\"Patronaat\",\"Haarlem\",\"Netherlands\"]",
+          "matchType": "unverified",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         },
         "oranssi pazuzu": {
           "artist": "Oranssi Pazuzu",
@@ -46,7 +54,13 @@
           "sourceUrl": "https://www.setlist.fm/setlist/oranssi-pazuzu/2026/stage-1-haarlem-netherlands-b4b1d52.html",
           "setlistFmId": "b4b1d52",
           "matchScore": 110,
-          "checkedAt": "2026-09-24T13:00:53.446Z"
+          "checkedAt": "2026-09-24T13:00:53.446Z",
+          "matchingVersion": 2,
+          "targetIdentity": "[\"Oranssi Pazuzu\",\"2026-06-18\",\"Patronaat\",\"Haarlem\",\"Netherlands\"]",
+          "matchType": "unverified",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         },
         "hulder": {
           "artist": "Hulder",
@@ -65,7 +79,13 @@
           "sourceUrl": "https://www.setlist.fm/setlist/hulder/2026/stage-1-haarlem-netherlands-134b1d55.html",
           "setlistFmId": "134b1d55",
           "matchScore": 110,
-          "checkedAt": "2026-09-24T13:00:54.037Z"
+          "checkedAt": "2026-09-24T13:00:54.037Z",
+          "matchingVersion": 2,
+          "targetIdentity": "[\"Hulder\",\"2026-06-18\",\"Patronaat\",\"Haarlem\",\"Netherlands\"]",
+          "matchType": "unverified",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         }
       }
     },
@@ -92,8 +112,22 @@
           "songCount": 9,
           "sourceUrl": "https://www.setlist.fm/setlist/iotunn/2026/de-helling-utrecht-netherlands-234f6093.html",
           "setlistFmId": "234f6093",
-          "matchScore": 128,
-          "checkedAt": "2026-07-30T05:16:37.757Z"
+          "matchingVersion": 2,
+          "matchType": "exact",
+          "targetIdentity": "[\"Iotunn\",\"2026-04-24\",\"De Helling\",\"Utrecht\",\"Netherlands\"]",
+          "tourEvidence": null,
+          "sourceEvent": {
+            "artist": "Iotunn",
+            "date": "2026-04-24",
+            "venue": "De Helling",
+            "city": "Utrecht",
+            "country": "NL",
+            "tour": "Kinship European Tour 2026"
+          },
+          "checkedAt": "2026-10-16T12:05:06.154Z",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         }
       }
     },
@@ -102,12 +136,24 @@
         "throwing bricks": {
           "artist": "Throwing Bricks",
           "sets": [],
-          "checkedAt": "2026-07-30T05:16:49.144Z"
+          "matchingVersion": 2,
+          "targetIdentity": "[\"Throwing Bricks\",\"2026-03-27\",\"ACU\",\"Utrecht\",\"Netherlands\"]",
+          "matchType": "missing",
+          "checkedAt": "2026-10-16T12:05:06.154Z",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         },
         "ontaard": {
           "artist": "Ontaard",
           "sets": [],
-          "checkedAt": "2026-09-24T13:00:55.233Z"
+          "matchingVersion": 2,
+          "targetIdentity": "[\"Ontaard\",\"2026-03-27\",\"ACU\",\"Utrecht\",\"Netherlands\"]",
+          "matchType": "missing",
+          "checkedAt": "2026-10-16T12:05:06.154Z",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         }
       }
     },
@@ -116,12 +162,24 @@
         "villagers of ioannina city": {
           "artist": "Villagers of Ioannina City",
           "sets": [],
-          "checkedAt": "2026-07-30T05:16:50.355Z"
+          "matchingVersion": 2,
+          "targetIdentity": "[\"Villagers of Ioannina City\",\"2026-03-19\",\"Poppodium 013\",\"Tilburg\",\"Netherlands\"]",
+          "matchType": "missing",
+          "checkedAt": "2026-10-16T12:05:06.154Z",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         },
         "my diligence": {
           "artist": "My Diligence",
           "sets": [],
-          "checkedAt": "2026-09-24T13:00:56.442Z"
+          "matchingVersion": 2,
+          "targetIdentity": "[\"My Diligence\",\"2026-03-19\",\"Poppodium 013\",\"Tilburg\",\"Netherlands\"]",
+          "matchType": "missing",
+          "checkedAt": "2026-10-16T12:05:06.154Z",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         }
       }
     },
@@ -153,7 +211,13 @@
           "sourceUrl": "https://www.setlist.fm/setlist/villagers-of-ioannina-city/2026/stage-1-haarlem-netherlands-349c56b.html",
           "setlistFmId": "349c56b",
           "matchScore": 110,
-          "checkedAt": "2026-07-30T05:16:50.952Z"
+          "checkedAt": "2026-07-30T05:16:50.952Z",
+          "matchingVersion": 2,
+          "targetIdentity": "[\"Villagers of Ioannina City\",\"2026-03-18\",\"Patronaat\",\"Haarlem\",\"Netherlands\"]",
+          "matchType": "unverified",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         },
         "my diligence": {
           "artist": "My Diligence",
@@ -176,7 +240,13 @@
           "sourceUrl": "https://www.setlist.fm/setlist/my-diligence/2026/stage-1-haarlem-netherlands-1349c56d.html",
           "setlistFmId": "1349c56d",
           "matchScore": 110,
-          "checkedAt": "2026-09-24T13:00:57.049Z"
+          "checkedAt": "2026-09-24T13:00:57.049Z",
+          "matchingVersion": 2,
+          "targetIdentity": "[\"My Diligence\",\"2026-03-18\",\"Patronaat\",\"Haarlem\",\"Netherlands\"]",
+          "matchType": "unverified",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         }
       }
     },
@@ -205,7 +275,13 @@
           "sourceUrl": "https://www.setlist.fm/setlist/psychonaut/2026/pandora-utrecht-netherlands-7b4b866c.html",
           "setlistFmId": "7b4b866c",
           "matchScore": 110,
-          "checkedAt": "2026-07-30T05:16:51.572Z"
+          "checkedAt": "2026-07-30T05:16:51.572Z",
+          "matchingVersion": 2,
+          "targetIdentity": "[\"Psychonaut\",\"2026-03-08\",\"TivoliVredenburg\",\"Utrecht\",\"Netherlands\"]",
+          "matchType": "unverified",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         }
       }
     },
@@ -244,13 +320,33 @@
           "songCount": 3,
           "sourceUrl": "https://www.setlist.fm/setlist/nightstalker/2026/burgerweeshuis-deventer-netherlands-7b48d26c.html",
           "setlistFmId": "7b48d26c",
-          "matchScore": 128,
-          "checkedAt": "2026-09-24T13:00:57.643Z"
+          "matchingVersion": 2,
+          "matchType": "exact",
+          "targetIdentity": "[\"Nightstalker\",\"2026-02-28\",\"Burgerweeshuis\",\"Deventer\",\"Netherlands\"]",
+          "tourEvidence": null,
+          "sourceEvent": {
+            "artist": "Nightstalker",
+            "date": "2026-02-28",
+            "venue": "Burgerweeshuis",
+            "city": "Deventer",
+            "country": "NL",
+            "tour": "Return from the Point of No Return"
+          },
+          "checkedAt": "2026-10-16T12:05:06.154Z",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         },
         "oreyeon": {
           "artist": "Oreyeon",
           "sets": [],
-          "checkedAt": "2026-09-24T13:00:58.726Z"
+          "matchingVersion": 2,
+          "targetIdentity": "[\"Oreyeon\",\"2026-02-28\",\"Burgerweeshuis\",\"Deventer\",\"Netherlands\"]",
+          "matchType": "missing",
+          "checkedAt": "2026-10-16T12:05:06.154Z",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         }
       }
     },
@@ -293,7 +389,13 @@
           "sourceUrl": "https://www.setlist.fm/setlist/igorrr/2026/ronda-utrecht-netherlands-7b440ec8.html",
           "setlistFmId": "7b440ec8",
           "matchScore": 110,
-          "checkedAt": "2026-07-30T05:16:52.768Z"
+          "checkedAt": "2026-07-30T05:16:52.768Z",
+          "matchingVersion": 2,
+          "targetIdentity": "[\"Igorrr\",\"2026-02-26\",\"TivoliVredenburg\",\"Utrecht\",\"Netherlands\"]",
+          "matchType": "unverified",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         },
         "dvne": {
           "artist": "Dvne",
@@ -312,7 +414,13 @@
           "sourceUrl": "https://www.setlist.fm/setlist/dvne/2026/ronda-utrecht-netherlands-434bb7cb.html",
           "setlistFmId": "434bb7cb",
           "matchScore": 110,
-          "checkedAt": "2026-09-24T13:00:59.444Z"
+          "checkedAt": "2026-09-24T13:00:59.444Z",
+          "matchingVersion": 2,
+          "targetIdentity": "[\"Dvne\",\"2026-02-26\",\"TivoliVredenburg\",\"Utrecht\",\"Netherlands\"]",
+          "matchType": "unverified",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         }
       }
     },
@@ -351,8 +459,22 @@
           "songCount": 16,
           "sourceUrl": "https://www.setlist.fm/setlist/mum/2025/de-helling-utrecht-netherlands-234cbc4b.html",
           "setlistFmId": "234cbc4b",
-          "matchScore": 128,
-          "checkedAt": "2026-07-30T05:16:53.363Z"
+          "matchingVersion": 2,
+          "matchType": "exact",
+          "targetIdentity": "[\"múm\",\"2025-11-21\",\"De Helling\",\"Utrecht\",\"Netherlands\"]",
+          "tourEvidence": null,
+          "sourceEvent": {
+            "artist": "múm",
+            "date": "2025-11-21",
+            "venue": "De Helling",
+            "city": "Utrecht",
+            "country": "NL",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-16T12:05:06.154Z",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         }
       }
     },
@@ -385,7 +507,13 @@
           "sourceUrl": "https://www.setlist.fm/setlist/mono/2025/the-max-amsterdam-netherlands-3b473c40.html",
           "setlistFmId": "3b473c40",
           "matchScore": 110,
-          "checkedAt": "2026-07-30T05:16:53.973Z"
+          "checkedAt": "2026-07-30T05:16:53.973Z",
+          "matchingVersion": 2,
+          "targetIdentity": "[\"Mono\",\"2025-11-12\",\"Melkweg\",\"Amsterdam\",\"Netherlands\"]",
+          "matchType": "unverified",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         }
       }
     },
@@ -414,12 +542,24 @@
           "sourceUrl": "https://www.setlist.fm/setlist/amenra/2025/ronda-utrecht-netherlands-1344ad71.html",
           "setlistFmId": "1344ad71",
           "matchScore": 110,
-          "checkedAt": "2026-07-30T05:16:54.566Z"
+          "checkedAt": "2026-07-30T05:16:54.566Z",
+          "matchingVersion": 2,
+          "targetIdentity": "[\"Amenra\",\"2025-11-11\",\"TivoliVredenburg\",\"Utrecht\",\"Netherlands\"]",
+          "matchType": "unverified",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         },
         "marissa nadler": {
           "artist": "Marissa Nadler",
           "sets": [],
-          "checkedAt": "2026-09-24T13:01:00.643Z"
+          "matchingVersion": 2,
+          "targetIdentity": "[\"Marissa Nadler\",\"2025-11-11\",\"TivoliVredenburg\",\"Utrecht\",\"Netherlands\"]",
+          "matchType": "missing",
+          "checkedAt": "2026-10-16T12:05:06.154Z",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         }
       }
     },
@@ -454,7 +594,13 @@
           "sourceUrl": "https://www.setlist.fm/setlist/paradise-lost/2025/pandora-utrecht-netherlands-6b467a02.html",
           "setlistFmId": "6b467a02",
           "matchScore": 110,
-          "checkedAt": "2026-07-30T05:16:55.174Z"
+          "checkedAt": "2026-07-30T05:16:55.174Z",
+          "matchingVersion": 2,
+          "targetIdentity": "[\"Paradise Lost\",\"2025-11-05\",\"TivoliVredenburg\",\"Utrecht\",\"Netherlands\"]",
+          "matchType": "unverified",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         },
         "messa": {
           "artist": "Messa",
@@ -475,7 +621,13 @@
           "sourceUrl": "https://www.setlist.fm/setlist/messa/2025/pandora-utrecht-netherlands-1b467528.html",
           "setlistFmId": "1b467528",
           "matchScore": 110,
-          "checkedAt": "2026-09-24T13:01:01.299Z"
+          "checkedAt": "2026-09-24T13:01:01.299Z",
+          "matchingVersion": 2,
+          "targetIdentity": "[\"Messa\",\"2025-11-05\",\"TivoliVredenburg\",\"Utrecht\",\"Netherlands\"]",
+          "matchType": "unverified",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         }
       }
     },
@@ -517,7 +669,13 @@
           "sourceUrl": "https://www.setlist.fm/setlist/sigur-ros/2025/koninklijk-theater-carre-amsterdam-netherlands-2b502012.html",
           "setlistFmId": "2b502012",
           "matchScore": 110,
-          "checkedAt": "2026-07-30T05:16:55.756Z"
+          "checkedAt": "2026-07-30T05:16:55.756Z",
+          "matchingVersion": 2,
+          "targetIdentity": "[\"Sigur Rós\",\"2025-10-06\",\"Royal Theatre Carré\",\"Amsterdam\",\"Netherlands\"]",
+          "matchType": "unverified",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         }
       }
     },
@@ -555,12 +713,24 @@
           "sourceUrl": "https://www.setlist.fm/setlist/der-weg-einer-freiheit/2025/stage-2-haarlem-netherlands-5b416bb4.html",
           "setlistFmId": "5b416bb4",
           "matchScore": 110,
-          "checkedAt": "2026-07-30T05:16:56.357Z"
+          "checkedAt": "2026-07-30T05:16:56.357Z",
+          "matchingVersion": 2,
+          "targetIdentity": "[\"Der Weg Einer Freiheit\",\"2025-10-03\",\"Patronaat\",\"Haarlem\",\"Netherlands\"]",
+          "matchType": "unverified",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         },
         "heretoir": {
           "artist": "Heretoir",
           "sets": [],
-          "checkedAt": "2026-09-24T13:01:02.519Z"
+          "matchingVersion": 2,
+          "targetIdentity": "[\"Heretoir\",\"2025-10-03\",\"Patronaat\",\"Haarlem\",\"Netherlands\"]",
+          "matchType": "missing",
+          "checkedAt": "2026-10-16T12:05:06.154Z",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         }
       }
     },
@@ -619,7 +789,13 @@
           "sourceUrl": "https://www.setlist.fm/setlist/soen/2025/ronda-utrecht-netherlands-635b664f.html",
           "setlistFmId": "635b664f",
           "matchScore": 110,
-          "checkedAt": "2026-09-24T13:01:03.089Z"
+          "checkedAt": "2026-09-24T13:01:03.089Z",
+          "matchingVersion": 2,
+          "targetIdentity": "[\"Soen\",\"2025-09-29\",\"TivoliVredenburg\",\"Utrecht\",\"Netherlands\"]",
+          "matchType": "unverified",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         },
         "equilibrium": {
           "artist": "Equilibrium",
@@ -641,7 +817,13 @@
           "sourceUrl": "https://www.setlist.fm/setlist/equilibrium/2025/ronda-utrecht-netherlands-6b5b664e.html",
           "setlistFmId": "6b5b664e",
           "matchScore": 110,
-          "checkedAt": "2026-09-24T13:01:03.658Z"
+          "checkedAt": "2026-09-24T13:01:03.658Z",
+          "matchingVersion": 2,
+          "targetIdentity": "[\"Equilibrium\",\"2025-09-29\",\"TivoliVredenburg\",\"Utrecht\",\"Netherlands\"]",
+          "matchType": "unverified",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         },
         "iotunn": {
           "artist": "Iotunn",
@@ -659,7 +841,13 @@
           "sourceUrl": "https://www.setlist.fm/setlist/iotunn/2025/ronda-utrecht-netherlands-7b5b664c.html",
           "setlistFmId": "7b5b664c",
           "matchScore": 110,
-          "checkedAt": "2026-09-24T13:01:04.244Z"
+          "checkedAt": "2026-09-24T13:01:04.244Z",
+          "matchingVersion": 2,
+          "targetIdentity": "[\"Iotunn\",\"2025-09-29\",\"TivoliVredenburg\",\"Utrecht\",\"Netherlands\"]",
+          "matchType": "unverified",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         }
       }
     },
@@ -708,8 +896,22 @@
           "songCount": 26,
           "sourceUrl": "https://www.setlist.fm/setlist/planet-of-zeus/2025/gazi-technopolis-athens-greece-2b583072.html",
           "setlistFmId": "2b583072",
-          "matchScore": 120,
-          "checkedAt": "2026-07-30T05:16:57.575Z"
+          "matchingVersion": 2,
+          "matchType": "exact",
+          "targetIdentity": "[\"Planet Of Zeus\",\"2025-09-06\",\"Technopolis\",\"Athens\",\"Greece\"]",
+          "tourEvidence": null,
+          "sourceEvent": {
+            "artist": "Planet of Zeus",
+            "date": "2025-09-06",
+            "venue": "Gazi Technopolis",
+            "city": "Athens",
+            "country": "GR",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-16T12:05:06.154Z",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         },
         "khirki": {
           "artist": "Khirki",
@@ -730,14 +932,28 @@
           "songCount": 7,
           "sourceUrl": "https://www.setlist.fm/setlist/khirki/2025/gazi-technopolis-athens-greece-2b44b0b2.html",
           "setlistFmId": "2b44b0b2",
-          "matchScore": 120,
-          "checkedAt": "2026-09-24T13:01:04.843Z"
+          "matchingVersion": 2,
+          "matchType": "exact",
+          "targetIdentity": "[\"Khirki\",\"2025-09-06\",\"Technopolis\",\"Athens\",\"Greece\"]",
+          "tourEvidence": null,
+          "sourceEvent": {
+            "artist": "Khirki",
+            "date": "2025-09-06",
+            "venue": "Gazi Technopolis",
+            "city": "Athens",
+            "country": "GR",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-16T12:05:06.154Z",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         }
       }
     },
     "archived-2025-09-05-roads-festival-architektoniki-athens": {
       "artists": {
-        "": {
+        "μωρα στη φωτια": {
           "artist": "Μωρά Στη Φωτιά",
           "sets": [],
           "checkedAt": "2026-07-30T05:16:59.844Z"
@@ -1535,7 +1751,7 @@
           "matchScore": 128,
           "checkedAt": "2026-09-24T13:01:28.868Z"
         },
-        "hamfer": {
+        "hamferð": {
           "artist": "Hamferð",
           "sets": [
             {
@@ -4463,8 +4679,22 @@
           "songCount": 23,
           "sourceUrl": "https://www.setlist.fm/setlist/savatage/2026/poppodium-013-tilburg-netherlands-734f9a85.html",
           "setlistFmId": "734f9a85",
-          "matchScore": 112,
-          "checkedAt": "2026-08-04T05:41:44.179Z"
+          "matchingVersion": 2,
+          "matchType": "exact",
+          "targetIdentity": "[\"Savatage\",\"2026-08-01\",\"013\",\"Tilburg\",\"NL\"]",
+          "tourEvidence": null,
+          "sourceEvent": {
+            "artist": "Savatage",
+            "date": "2026-08-01",
+            "venue": "Poppodium 013",
+            "city": "Tilburg",
+            "country": "NL",
+            "tour": "Prelude to Madness European Tour 2026"
+          },
+          "checkedAt": "2026-10-16T12:05:06.154Z",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         }
       }
     },
@@ -4506,8 +4736,22 @@
           "songCount": 24,
           "sourceUrl": "https://www.setlist.fm/setlist/blaze-bayley/2026/musicon-the-hague-netherlands-534c237d.html",
           "setlistFmId": "534c237d",
-          "matchScore": 128,
-          "checkedAt": "2026-08-04T05:41:54.859Z"
+          "matchingVersion": 2,
+          "matchType": "exact",
+          "targetIdentity": "[\"Blaze Bayley\",\"2026-05-10\",\"Musicon\",\"The Hague\",\"Netherlands\"]",
+          "tourEvidence": null,
+          "sourceEvent": {
+            "artist": "Blaze Bayley",
+            "date": "2026-05-10",
+            "venue": "Musicon",
+            "city": "The Hague",
+            "country": "NL",
+            "tour": "Iron Maiden 30th Anniversary"
+          },
+          "checkedAt": "2026-10-16T12:05:06.154Z",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         }
       }
     },
@@ -5929,7 +6173,13 @@
           "sourceUrl": "https://www.setlist.fm/setlist/opeth/2026/grote-zaal-utrecht-netherlands-334c6849.html",
           "setlistFmId": "334c6849",
           "matchScore": 102,
-          "checkedAt": "2026-08-06T23:18:18.992Z"
+          "checkedAt": "2026-08-06T23:18:18.992Z",
+          "matchingVersion": 2,
+          "targetIdentity": "[\"Opeth\",\"2026-08-05\",\"TivoliVredenburg\",\"Utrecht\",\"NL\"]",
+          "matchType": "unverified",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         },
         "hallas": {
           "artist": "Hällas",
@@ -5951,7 +6201,13 @@
           "sourceUrl": "https://www.setlist.fm/setlist/hallas/2026/grote-zaal-utrecht-netherlands-43700313.html",
           "setlistFmId": "43700313",
           "matchScore": 102,
-          "checkedAt": "2026-09-24T13:00:52.843Z"
+          "checkedAt": "2026-09-24T13:00:52.843Z",
+          "matchingVersion": 2,
+          "targetIdentity": "[\"Hällas\",\"2026-08-05\",\"TivoliVredenburg\",\"Utrecht\",\"NL\"]",
+          "matchType": "unverified",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         }
       }
     },
@@ -5995,8 +6251,22 @@
           "songCount": 21,
           "sourceUrl": "https://www.setlist.fm/setlist/judas-priest/2026/poppodium-013-tilburg-netherlands-134cc565.html",
           "setlistFmId": "134cc565",
-          "matchScore": 112,
-          "checkedAt": "2026-08-14T03:26:22.730Z"
+          "matchingVersion": 2,
+          "matchType": "exact",
+          "targetIdentity": "[\"Judas Priest\",\"2026-08-12\",\"013\",\"Tilburg\",\"NL\"]",
+          "tourEvidence": null,
+          "sourceEvent": {
+            "artist": "Judas Priest",
+            "date": "2026-08-12",
+            "venue": "Poppodium 013",
+            "city": "Tilburg",
+            "country": "NL",
+            "tour": "Faithkeepers"
+          },
+          "checkedAt": "2026-10-16T12:05:06.154Z",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         }
       }
     },
@@ -6034,22 +6304,48 @@
           "songCount": 15,
           "sourceUrl": "https://www.setlist.fm/setlist/sigh/2026/dbs-utrecht-netherlands-6b74962a.html",
           "setlistFmId": "6b74962a",
-          "matchScore": 120,
-          "checkedAt": "2026-09-15T08:16:52.050Z"
+          "matchingVersion": 2,
+          "matchType": "exact",
+          "targetIdentity": "[\"SIGH\",\"2026-09-14\",\"dB's\",\"Utrecht\",\"NL\"]",
+          "tourEvidence": null,
+          "sourceEvent": {
+            "artist": "Sigh",
+            "date": "2026-09-14",
+            "venue": "dB’s",
+            "city": "Utrecht",
+            "country": "NL",
+            "tour": "Jigokuezu –An Inferno Over Europe 2026–"
+          },
+          "checkedAt": "2026-10-16T12:05:06.154Z",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         }
       }
     },
     "archived-2026-09-09-hat-trick-fundracar-technopolis-athens": {
       "artists": {
-        "": {
+        "χατ τρικ": {
           "artist": "Χατ Τρικ",
           "sets": [],
-          "checkedAt": "2026-09-24T13:00:50.940Z"
+          "matchingVersion": 2,
+          "targetIdentity": "[\"Χατ Τρικ\",\"2026-09-09\",\"Technopolis City of Athens\",\"Athens\",\"Greece\"]",
+          "matchType": "missing",
+          "checkedAt": "2026-10-16T12:05:06.154Z",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         },
         "fundracar": {
           "artist": "Fundracar",
           "sets": [],
-          "checkedAt": "2026-09-24T13:00:52.226Z"
+          "matchingVersion": 2,
+          "targetIdentity": "[\"Fundracar\",\"2026-09-09\",\"Technopolis City of Athens\",\"Athens\",\"Greece\"]",
+          "matchType": "missing",
+          "checkedAt": "2026-10-16T12:05:06.154Z",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         }
       }
     },
@@ -6073,8 +6369,22 @@
           "songCount": 6,
           "sourceUrl": "https://www.setlist.fm/setlist/khan/2026/oedipus-brewing-amsterdam-netherlands-2b7e34ea.html",
           "setlistFmId": "2b7e34ea",
-          "matchScore": 112,
-          "checkedAt": "2026-09-29T09:22:17.056Z"
+          "matchingVersion": 2,
+          "matchType": "exact",
+          "targetIdentity": "[\"Khan\",\"2026-09-24\",\"Oedipus\",\"Amsterdam\",\"NL\"]",
+          "tourEvidence": null,
+          "sourceEvent": {
+            "artist": "Khan",
+            "date": "2026-09-24",
+            "venue": "Oedipus Brewing",
+            "city": "Amsterdam",
+            "country": "NL",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-16T12:05:06.154Z",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         },
         "skin thief": {
           "artist": "Skin Thief",
@@ -6093,8 +6403,22 @@
           "songCount": 5,
           "sourceUrl": "https://www.setlist.fm/setlist/skin-thief/2026/oedipus-brewing-amsterdam-netherlands-337e34e9.html",
           "setlistFmId": "337e34e9",
-          "matchScore": 112,
-          "checkedAt": "2026-09-29T09:22:17.213Z"
+          "matchingVersion": 2,
+          "matchType": "exact",
+          "targetIdentity": "[\"Skin Thief\",\"2026-09-24\",\"Oedipus\",\"Amsterdam\",\"NL\"]",
+          "tourEvidence": null,
+          "sourceEvent": {
+            "artist": "Skin Thief",
+            "date": "2026-09-24",
+            "venue": "Oedipus Brewing",
+            "city": "Amsterdam",
+            "country": "NL",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-16T12:05:06.154Z",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         }
       }
     },
@@ -6126,8 +6450,22 @@
           "songCount": 14,
           "sourceUrl": "https://www.setlist.fm/setlist/dub-pistols/2026/dbs-utrecht-netherlands-2b7f5c0e.html",
           "setlistFmId": "2b7f5c0e",
-          "matchScore": 120,
-          "checkedAt": "2026-10-06T09:40:19.666Z"
+          "matchingVersion": 2,
+          "matchType": "exact",
+          "targetIdentity": "[\"Dub Pistols\",\"2026-10-03\",\"dB's\",\"Utrecht\",\"NL\"]",
+          "tourEvidence": null,
+          "sourceEvent": {
+            "artist": "Dub Pistols",
+            "date": "2026-10-03",
+            "venue": "dB’s",
+            "city": "Utrecht",
+            "country": "NL",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-16T12:05:06.154Z",
+          "lastExactCheckAt": "2026-10-16T12:05:06.154Z",
+          "lastAttemptAt": "2026-10-16T12:05:06.154Z",
+          "lastError": null
         }
       }
     }
