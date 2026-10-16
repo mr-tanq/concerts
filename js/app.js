@@ -78,6 +78,7 @@ function loadGoingLayout() {
 }
 let goingLayout = loadGoingLayout();
 let goingTicketsOnly = false;
+let goingSearchQuery = "";
 let goingBody = null;
 function ticketedUpcoming() {
   return plannedConcerts.filter(c =>
@@ -1886,9 +1887,36 @@ function renderUpcoming(body) {
     refreshGoingSchedule(upcoming[0], body.querySelector(".schedule-host"));
   }
 
-  const rest = [...upcoming.slice(1), ...past];
-  if (rest.length) {
-    const list = el(`<div class="upcoming-list"><div style="padding:0 var(--gutter) 8px"><p class="whisper">After that</p></div></div>`);
+  const search = el(`<input type="search" class="archive-filter-search"
+    aria-label="Search planned concerts"
+    placeholder="Search Going: artist, room, city or date"
+    value="${esc(goingSearchQuery)}">`);
+  const results = el('<div class="going-search-results"></div>');
+  body.appendChild(search);
+  body.appendChild(results);
+
+  function renderResults() {
+    results.innerHTML = "";
+    const searching = Boolean(goingSearchQuery.trim());
+    const candidates = searching
+      ? sorted : [...upcoming.slice(1), ...past];
+    const matches = new Set(searchArchiveConcerts(
+      candidates.map(c => ({ ...c, seenArtists: artistsOf(c) })),
+      goingSearchQuery
+    ).map(c => c.id));
+    const rest = candidates.filter(c => matches.has(c.id));
+
+    if (searching) results.appendChild(el(
+      `<p class="filter-note" role="status">${rest.length} shows found</p>`
+    ));
+    if (!rest.length) {
+      if (searching) results.appendChild(el(
+        '<p class="void">No matching planned concerts.</p>'
+      ));
+      return;
+    }
+
+    const list = el(`<div class="upcoming-list"><div style="padding:0 var(--gutter) 8px"><p class="whisper">${searching ? "Search results" : "After that"}</p></div></div>`);
     for (const c of rest) {
       const row = el(`
         <div class="upcoming-row">
@@ -1903,8 +1931,14 @@ function renderUpcoming(body) {
       row.addEventListener("click", () => openSheet(c));
       list.appendChild(row);
     }
-    body.appendChild(list);
+    results.appendChild(list);
   }
+
+  search.addEventListener("input", () => {
+    goingSearchQuery = search.value;
+    renderResults();
+  });
+  renderResults();
 }
 
 function renderAside(body) {
