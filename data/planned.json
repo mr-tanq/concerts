@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-17T04:16:48.752Z",
+    "lastUpdated": "2026-10-17T10:29:19.026Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -2293,6 +2293,30 @@
         "refreshRequestedAt": null,
         "lastOfficialCheckedAt": null,
         "checkStatus": "secondary-only"
+      }
+    },
+    {
+      "id": "planned-podiuminfo-480758",
+      "source": "podiuminfo",
+      "sourceId": "480758",
+      "artist": "Nordic Giants",
+      "lineup": [
+        "Nordic Giants"
+      ],
+      "supportingArtists": [],
+      "date": "2026-11-12",
+      "time": null,
+      "venue": "Little Devil",
+      "city": "Tilburg",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.podiuminfo.nl/img/podiuminfo-rond.png",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/138507/cd/Nordic-Giants-European-Tour-2026/Little-Devil/",
+      "sourceUrl": "https://www.podiuminfo.nl/concert/480758/Nordic-Giants/Little-Devil/",
+      "recommendationId": "rec-podiuminfo-480758",
+      "planning": {
+        "plannedAt": "2026-10-17T10:29:19.025Z",
+        "originalScore": 34
       }
     }
   ]
