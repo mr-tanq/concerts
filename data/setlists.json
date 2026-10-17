@@ -1,11 +1,11 @@
 {
   "$schema": "Listening Mirror Setlists v3",
   "meta": {
-    "lastUpdated": "2026-10-17T08:12:53.086Z",
+    "lastUpdated": "2026-10-17T08:42:29.707Z",
     "checked": 274,
-    "withSetlist": 189,
-    "references": 24,
-    "remaining": 68,
+    "withSetlist": 205,
+    "references": 42,
+    "remaining": 0,
     "errors": 0,
     "stoppedReason": null
   },
@@ -161,13 +161,13 @@
         "throwing bricks": {
           "artist": "Throwing Bricks",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Throwing Bricks\",\"2026-03-27\",\"ACU\",\"Utrecht\",\"Netherlands\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T19:26:56.175Z",
-          "lastError": "API_HTTP_429"
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
+          "lastError": null
         },
         "ontaard": {
           "artist": "Ontaard",
@@ -4995,7 +4995,7 @@
           "songCount": 23,
           "sourceUrl": "https://www.setlist.fm/setlist/parov-stelar/2022/palladium-cologne-germany-13bcf9e9.html",
           "setlistFmId": "13bcf9e9",
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "matchType": "tour-reference",
           "targetIdentity": "[\"Parov Stelar\",\"2022-12-14\",\"TivoliVredenburg\",\"Utrecht\",\"Netherlands\"]",
           "tourEvidence": {
@@ -5011,9 +5011,9 @@
             "country": "DE",
             "tour": "Venom Tour 2022"
           },
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -5058,7 +5058,7 @@
           "songCount": 16,
           "sourceUrl": "https://www.setlist.fm/setlist/villagers-of-ioannina-city/2022/lido-berlin-germany-23bff0f3.html",
           "setlistFmId": "23bff0f3",
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "matchType": "tour-reference",
           "targetIdentity": "[\"Villagers of Ioannina City\",\"2022-11-21\",\"Effenaar\",\"Eindhoven\",\"Netherlands\"]",
           "tourEvidence": {
@@ -5074,9 +5074,9 @@
             "country": "DE",
             "tour": "World's on Fire Tour 2022"
           },
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -5268,7 +5268,7 @@
           "songCount": 9,
           "sourceUrl": "https://www.setlist.fm/setlist/mono/2022/kavka-zappa-antwerp-belgium-33b0bcc1.html",
           "setlistFmId": "33b0bcc1",
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "matchType": "tour-reference",
           "targetIdentity": "[\"Mono\",\"2022-08-27\",\"Neushoorn\",\"Leeuwarden\",\"Netherlands\"]",
           "tourEvidence": {
@@ -5284,20 +5284,50 @@
             "country": "BE",
             "tour": "Pilgrimage of the Soul"
           },
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         },
         "a a williams": {
           "artist": "A.A. Williams",
-          "sets": [],
-          "matchingVersion": 4,
+          "sets": [
+            {
+              "name": "Set",
+              "songs": [
+                "For Nothing",
+                "Love and Pain",
+                "Evaporate",
+                "Belong",
+                "Golden",
+                "Control",
+                "Wait",
+                "Melt"
+              ]
+            }
+          ],
+          "songCount": 8,
+          "sourceUrl": "https://www.setlist.fm/setlist/aa-williams/2022/le-trabendo-paris-france-7bb0b684.html",
+          "setlistFmId": "7bb0b684",
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"A.A. Williams\",\"2022-08-27\",\"Neushoorn\",\"Leeuwarden\",\"Netherlands\"]",
-          "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "A.A. Williams",
+            "date": "2022-09-01",
+            "venue": "Le Trabendo",
+            "city": "Paris",
+            "country": "FR",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -5472,7 +5502,7 @@
           "songCount": 8,
           "sourceUrl": "https://www.setlist.fm/setlist/villagers-of-ioannina-city/2022/amphitheater-gelsenkirchen-gelsenkirchen-germany-43b4f3ef.html",
           "setlistFmId": "43b4f3ef",
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "matchType": "tour-reference",
           "targetIdentity": "[\"Villagers of Ioannina City\",\"2022-06-06\",\"OZ, Melkweg\",\"Amsterdam\",\"Netherlands\"]",
           "tourEvidence": {
@@ -5488,20 +5518,20 @@
             "country": "DE",
             "tour": "European Tour 2022"
           },
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         },
         "dvne": {
           "artist": "DVNE",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"DVNE\",\"2022-06-06\",\"OZ, Melkweg\",\"Amsterdam\",\"Netherlands\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -5511,12 +5541,12 @@
         "chilly gonzales": {
           "artist": "Chilly Gonzales",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Chilly Gonzales\",\"2021-10-04\",\"Het Concertgebouw\",\"Amsterdam\",\"Netherlands\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -5629,13 +5659,73 @@
       "artists": {
         "chilly gonzales": {
           "artist": "Chilly Gonzales",
-          "sets": [],
-          "matchingVersion": 4,
+          "sets": [
+            {
+              "name": "Set",
+              "songs": [
+                "Gogol",
+                "Armellodie",
+                "Othello",
+                "Kenaston",
+                "C.M Blues",
+                "Rideaux Lunaires",
+                "Prelude in C Sharp Major",
+                "Present Tense",
+                "Chico",
+                "October 3rd",
+                "Kopfkino",
+                "Dot",
+                "Cello Gonzales",
+                "White Keys",
+                "Minor Fantasy",
+                "Who wants to hear this? / Rap Race",
+                "Futuristic Ain’t Shit to Me",
+                "Nimbus",
+                "Gentle Threat",
+                "Oregano",
+                "The Grudge",
+                "Knight Moves",
+                "Advantage Points"
+              ]
+            },
+            {
+              "name": "Encore 1",
+              "songs": [
+                "Previously on Chilly Gonzales...",
+                "So Called Party Over There",
+                "Take me to Broadway"
+              ]
+            },
+            {
+              "name": "Encore 2",
+              "songs": [
+                "Never Stop (Chilly Gonzales Rap)",
+                "Meischeid"
+              ]
+            }
+          ],
+          "songCount": 28,
+          "sourceUrl": "https://www.setlist.fm/setlist/chilly-gonzales/2019/basf-feierabendhaus-ludwigshafen-am-rhein-germany-439bbbb3.html",
+          "setlistFmId": "439bbbb3",
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"Chilly Gonzales\",\"2019-12-16\",\"TivoliVredenburg\",\"Utrecht\",\"Netherlands\"]",
-          "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "Chilly Gonzales",
+            "date": "2019-12-10",
+            "venue": "BASF Feierabendhaus",
+            "city": "Ludwigshafen am Rhein",
+            "country": "DE",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -5684,13 +5774,40 @@
         },
         "jo quail": {
           "artist": "Jo Quail",
-          "sets": [],
-          "matchingVersion": 4,
+          "sets": [
+            {
+              "name": "Set",
+              "songs": [
+                "White Salt Stag",
+                "Gold",
+                "Reya Pavan",
+                "Mandrel Cantus",
+                "Adder Stone"
+              ]
+            }
+          ],
+          "songCount": 5,
+          "sourceUrl": "https://www.setlist.fm/setlist/jo-quail/2019/lorangerie-sint-joost-ten-noode-saint-josse-ten-noode-belgium-2b9a442e.html",
+          "setlistFmId": "2b9a442e",
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"Jo Quail\",\"2019-12-10\",\"Doornroosje\",\"Nijmegen\",\"Netherlands\"]",
-          "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "Jo Quail",
+            "date": "2019-12-11",
+            "venue": "L’Orangerie",
+            "city": "Sint-Joost-ten-Noode / Saint-Josse-ten-Noode",
+            "country": "BE",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -5700,12 +5817,12 @@
         "iron wine calexico": {
           "artist": "Iron & Wine / Calexico",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Iron & Wine / Calexico\",\"2019-11-05\",\"TivoliVredenburg\",\"Utrecht\",\"Netherlands\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -5826,13 +5943,39 @@
       "artists": {
         "yndi halda": {
           "artist": "Yndi Halda",
-          "sets": [],
-          "matchingVersion": 4,
+          "sets": [
+            {
+              "name": "Set",
+              "songs": [
+                "Together Those Leaves",
+                "Dash and Blast",
+                "Golden Threads from the Sun",
+                "This Very Flight"
+              ]
+            }
+          ],
+          "songCount": 4,
+          "sourceUrl": "https://www.setlist.fm/setlist/yndi-halda/2019/milla-munich-germany-4b90c3ca.html",
+          "setlistFmId": "4b90c3ca",
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"Yndi Halda\",\"2019-05-05\",\"Paradiso Bovenzaal (Upstairs Hall)\",\"Amsterdam\",\"Netherlands\"]",
-          "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "Yndi Halda",
+            "date": "2019-05-12",
+            "venue": "Milla",
+            "city": "Munich",
+            "country": "DE",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -5842,12 +5985,12 @@
         "joep beving": {
           "artist": "Joep Beving",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Joep Beving\",\"2019-04-28\",\"TivoliVredenburg\",\"Utrecht\",\"Netherlands\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -5857,12 +6000,12 @@
         "alpha blondy": {
           "artist": "Alpha Blondy",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Alpha Blondy\",\"2019-04-10\",\"Paard\",\"The Hague\",\"Netherlands\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -5871,13 +6014,51 @@
       "artists": {
         "dan mangan": {
           "artist": "Dan Mangan",
-          "sets": [],
-          "matchingVersion": 4,
+          "sets": [
+            {
+              "name": "Set",
+              "songs": [
+                "Peaks & Valleys",
+                "Road Regrets",
+                "Cold in the Summer",
+                "Jeopardy",
+                "Lay Low",
+                "The Indie Queens Are Waiting",
+                "Troubled Mind",
+                "Just Fear",
+                "Basket",
+                "Fool for Waiting",
+                "Pine for Cedars",
+                "In the Aeroplane Over the Sea",
+                "You Silly Git",
+                "Sold",
+                "Robots",
+                "So Much for Everyone"
+              ]
+            }
+          ],
+          "songCount": 16,
+          "sourceUrl": "https://www.setlist.fm/setlist/dan-mangan/2019/hotel-utah-san-francisco-ca-39391c7.html",
+          "setlistFmId": "39391c7",
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"Dan Mangan\",\"2019-04-09\",\"Paradiso Bovenzaal (Upstairs Hall)\",\"Amsterdam\",\"Netherlands\"]",
-          "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "Dan Mangan",
+            "date": "2019-03-27",
+            "venue": "Hotel Utah",
+            "city": "San Francisco",
+            "country": "US",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -5943,13 +6124,36 @@
         },
         "helado negro": {
           "artist": "Helado Negro",
-          "sets": [],
-          "matchingVersion": 4,
+          "sets": [
+            {
+              "name": "Set",
+              "songs": [
+                "Running"
+              ]
+            }
+          ],
+          "songCount": 1,
+          "sourceUrl": "https://www.setlist.fm/setlist/helado-negro/2019/zenith-munich-germany-1bbcd1f0.html",
+          "setlistFmId": "1bbcd1f0",
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"Helado Negro\",\"2019-04-08\",\"TivoliVredenburg\",\"Utrecht\",\"Netherlands\"]",
-          "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "Helado Negro",
+            "date": "2019-04-15",
+            "venue": "Zenith",
+            "city": "Munich",
+            "country": "DE",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -5958,13 +6162,40 @@
       "artists": {
         "nick waterhouse": {
           "artist": "Nick Waterhouse",
-          "sets": [],
-          "matchingVersion": 4,
+          "sets": [
+            {
+              "name": "Set",
+              "songs": [
+                "Dead Room",
+                "Katchi",
+                "LA Turnaround",
+                "Undedicated",
+                "It's Your Voodoo Working"
+              ]
+            }
+          ],
+          "songCount": 5,
+          "sourceUrl": "https://www.setlist.fm/setlist/nick-waterhouse/2019/mojo-club-hamburg-germany-23939877.html",
+          "setlistFmId": "23939877",
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"Nick Waterhouse\",\"2019-03-28\",\"Zonnehuis\",\"Amsterdam\",\"Netherlands\"]",
-          "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "Nick Waterhouse",
+            "date": "2019-03-26",
+            "venue": "Mojo Club",
+            "city": "Hamburg",
+            "country": "DE",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -5973,13 +6204,59 @@
       "artists": {
         "olafur arnalds": {
           "artist": "Ólafur Arnalds",
-          "sets": [],
-          "matchingVersion": 4,
+          "sets": [
+            {
+              "name": "Set",
+              "songs": [
+                "Intro",
+                "Árbakkinn",
+                "brot",
+                "Only the Winds",
+                "re:member",
+                "unfold",
+                "Beth's Theme",
+                "Verses",
+                "saman",
+                "Poland",
+                "Happiness Does Not Wait",
+                "3326",
+                "ypsilon",
+                "undir",
+                "ekki hugsa",
+                "nyepi",
+                "Doria",
+                "Near Light"
+              ]
+            },
+            {
+              "name": "Encore 1",
+              "songs": [
+                "Lag fyrir ömmu"
+              ]
+            }
+          ],
+          "songCount": 19,
+          "sourceUrl": "https://www.setlist.fm/setlist/olafur-arnalds/2019/sala-ziemi-pozna-poland-33929cf5.html",
+          "setlistFmId": "33929cf5",
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"Ólafur Arnalds\",\"2019-02-25\",\"Royal Theatre Carré\",\"Amsterdam\",\"Netherlands\"]",
-          "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "Ólafur Arnalds",
+            "date": "2019-02-22",
+            "venue": "Sala Ziemi",
+            "city": "Poznań",
+            "country": "PL",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -6195,12 +6472,12 @@
         "afformance": {
           "artist": "Afformance",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Afformance\",\"2015-11-08\",\"Fuzz\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -6249,34 +6526,34 @@
         "nightmares on wax": {
           "artist": "Nightmares On Wax",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Nightmares On Wax\",\"2014-06-06\",\"Kyttaro\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         },
         "dub pistols": {
           "artist": "Dub Pistols",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Dub Pistols\",\"2014-06-06\",\"Kyttaro\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         },
         "the black lips": {
           "artist": "The Black Lips",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"The Black Lips\",\"2014-06-06\",\"Kyttaro\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         },
         "fink": {
@@ -6338,13 +6615,25 @@
           "songCount": 11,
           "sourceUrl": "https://www.setlist.fm/setlist/wooden-shjips/2014/ktirio-56-ellinikos-kosmos-athens-greece-5bc023b0.html",
           "setlistFmId": "5bc023b0",
-          "matchScore": 93,
-          "checkedAt": "2026-09-24T13:02:16.277Z",
-          "matchingVersion": 4,
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"Wooden Shjips\",\"2014-06-06\",\"Kyttaro\",\"Athens\",\"Greece\"]",
-          "matchType": "unverified",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "Wooden Shjips",
+            "date": "2014-06-07",
+            "venue": "Ktirio 56 - Ellinikos Kosmos",
+            "city": "Athens",
+            "country": "GR",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -6672,13 +6961,46 @@
       "artists": {
         "this will destroy you": {
           "artist": "This Will Destroy You",
-          "sets": [],
-          "matchingVersion": 4,
+          "sets": [
+            {
+              "name": "orchestral set with A Far Cry",
+              "songs": [
+                "The Mighty Rio Grande",
+                "Burial on the Presidio Banks",
+                "Glass Realms",
+                "There Are Some Remedies Worse Than the Disease",
+                "Little Smoke"
+              ]
+            },
+            {
+              "name": "Encore 1",
+              "songs": [
+                "Threads"
+              ]
+            }
+          ],
+          "songCount": 6,
+          "sourceUrl": "https://www.setlist.fm/setlist/this-will-destroy-you/2012/merkin-center-new-york-ny-33de8845.html",
+          "setlistFmId": "33de8845",
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"This Will Destroy You\",\"2012-02-08\",\"Gagarin 205\",\"Athens\",\"Greece\"]",
-          "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "This Will Destroy You",
+            "date": "2012-02-09",
+            "venue": "Merkin Center",
+            "city": "New York",
+            "country": "US",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -6753,12 +7075,12 @@
         "gravitysays i": {
           "artist": "Gravitysays_I",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Gravitysays_I\",\"2011-10-07\",\"Fuzz Live Music Club\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -6768,56 +7090,56 @@
         "solomon burke": {
           "artist": "Solomon Burke",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Solomon Burke\",\"2011-06-30\",\"Kentro Ippasias\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         },
         "nicola conte": {
           "artist": "Nicola Conte",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Nicola Conte\",\"2011-06-30\",\"Kentro Ippasias\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         },
         "yasmin levy": {
           "artist": "Yasmin Levy",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Yasmin Levy\",\"2011-06-30\",\"Kentro Ippasias\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         },
         "sophie delila": {
           "artist": "Sophie Delila",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Sophie Delila\",\"2011-06-30\",\"Kentro Ippasias\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         },
         "the burger project": {
           "artist": "The Burger Project",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"The Burger Project\",\"2011-06-30\",\"Kentro Ippasias\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -6827,12 +7149,12 @@
         "groundation": {
           "artist": "Groundation",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Groundation\",\"2011-05-18\",\"Gagarin 205\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -6876,11 +7198,11 @@
           "setlistFmId": "73d55695",
           "matchScore": 93,
           "checkedAt": "2026-07-30T05:19:44.416Z",
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Buena Vista Social Club\",\"2010-11-11\",\"Foundation of the Hellenic World\",\"Athens\",\"Greece\"]",
           "matchType": "unverified",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -6890,34 +7212,34 @@
         "capleton": {
           "artist": "Capleton",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Capleton\",\"2010-07-15\",\"Kentro Ippasias\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         },
         "gentleman": {
           "artist": "Gentleman",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Gentleman\",\"2010-07-15\",\"Kentro Ippasias\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         },
         "mad professor": {
           "artist": "Mad Professor",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Mad Professor\",\"2010-07-15\",\"Kentro Ippasias\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -6927,34 +7249,34 @@
         "max romeo": {
           "artist": "Max Romeo",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Max Romeo\",\"2010-03-24\",\"Votanikos Live Stage\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         },
         "lee scratch perry": {
           "artist": "Lee Scratch Perry",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Lee Scratch Perry\",\"2010-03-24\",\"Votanikos Live Stage\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         },
         "the congos": {
           "artist": "The Congos",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"The Congos\",\"2010-03-24\",\"Votanikos Live Stage\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -7002,12 +7324,12 @@
         "sancho 003": {
           "artist": "Sancho 003",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Sancho 003\",\"2010-02-27\",\"Myga\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -7102,12 +7424,12 @@
         "lcd soundsystem dj set": {
           "artist": "LCD Soundsystem DJ Set",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"LCD Soundsystem DJ Set\",\"2009-07-01\",\"Karaiskaki Stadium\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -7154,12 +7476,12 @@
         "a storm of light": {
           "artist": "A Storm of Light",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"A Storm of Light\",\"2009-04-10\",\"Fuzz Live Music Club\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -7211,12 +7533,12 @@
         "absent without leave": {
           "artist": "Absent Without Leave",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Absent Without Leave\",\"2009-04-04\",\"Gagarin 205\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -7274,12 +7596,12 @@
         "misuse": {
           "artist": "Misuse",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Misuse\",\"2009-02-20\",\"Gagarin 205\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -7289,34 +7611,34 @@
         "giardini di miro": {
           "artist": "Giardini Di Miro",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Giardini Di Miro\",\"2009-02-06\",\"An Club\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         },
         "the lonesome southern comfort company": {
           "artist": "The Lonesome Southern Comfort Company",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"The Lonesome Southern Comfort Company\",\"2009-02-06\",\"An Club\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         },
         "dear serotonin": {
           "artist": "Dear Serotonin",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Dear Serotonin\",\"2009-02-06\",\"An Club\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -7443,13 +7765,56 @@
       "artists": {
         "ratatat": {
           "artist": "Ratatat",
-          "sets": [],
-          "matchingVersion": 4,
+          "sets": [
+            {
+              "name": "Set",
+              "songs": [
+                "Shiller",
+                "Crips",
+                "Brulee",
+                "Snifters",
+                "Mumtaz Khan",
+                "Lex",
+                "Flynn",
+                "Mi viejo",
+                "Mirando",
+                "Loud Pipes",
+                "Falcon Jab",
+                "Wildcat",
+                "Grape Juice City",
+                "Shempi"
+              ]
+            },
+            {
+              "name": "Encore 1",
+              "songs": [
+                "Gettysburg",
+                "Seventeen Years"
+              ]
+            }
+          ],
+          "songCount": 16,
+          "sourceUrl": "https://www.setlist.fm/setlist/ratatat/2008/tivoli-utrecht-netherlands-2bd348ee.html",
+          "setlistFmId": "2bd348ee",
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"Ratatat\",\"2008-12-16\",\"Loppen\",\"Copenhagen\",\"Denmark\"]",
-          "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "Ratatat",
+            "date": "2008-12-10",
+            "venue": "Tivoli",
+            "city": "Utrecht",
+            "country": "NL",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -7459,12 +7824,12 @@
         "roots manuva": {
           "artist": "Roots Manuva",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Roots Manuva\",\"2008-11-05\",\"Loppen\",\"Copenhagen\",\"Denmark\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -7521,13 +7886,43 @@
         },
         "the twilight sad": {
           "artist": "The Twilight Sad",
-          "sets": [],
-          "matchingVersion": 4,
+          "sets": [
+            {
+              "name": "Set",
+              "songs": [
+                "Cold Days From the Birdhouse",
+                "I Became a Prostitute",
+                "That Summer, at Home I Had Become the Invisible Boy",
+                "The Neighbours Can't Breathe",
+                "Here, It Never Snowed. Afterwards It Did",
+                "Walking for Two Hours",
+                "And She Would Darken the Memory",
+                "Twenty Four Hours"
+              ]
+            }
+          ],
+          "songCount": 8,
+          "sourceUrl": "https://www.setlist.fm/setlist/the-twilight-sad/2008/kunstlerhaus-mousonturm-frankfurt-germany-bdaf5d2.html",
+          "setlistFmId": "bdaf5d2",
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"The Twilight Sad\",\"2008-11-02\",\"VEGA\",\"Copenhagen\",\"Denmark\"]",
-          "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "The Twilight Sad",
+            "date": "2008-11-10",
+            "venue": "Künstlerhaus Mousonturm",
+            "city": "Frankfurt",
+            "country": "DE",
+            "tour": "Fourteen Autumns & Fifteen Winters"
+          },
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -7616,12 +8011,12 @@
         "gogol bordello": {
           "artist": "Gogol Bordello",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Gogol Bordello\",\"2008-07-15\",\"Karaiskaki Stadium\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         },
         "sex pistols": {
@@ -7656,35 +8051,47 @@
           "songCount": 15,
           "sourceUrl": "https://www.setlist.fm/setlist/sex-pistols/2008/karaiskaki-stadium-piraeus-greece-3dd8d7b.html",
           "setlistFmId": "3dd8d7b",
-          "matchScore": 89,
-          "checkedAt": "2026-09-24T13:03:33.743Z",
-          "matchingVersion": 4,
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"Sex Pistols\",\"2008-07-15\",\"Karaiskaki Stadium\",\"Athens\",\"Greece\"]",
-          "matchType": "unverified",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "Sex Pistols",
+            "date": "2008-07-16",
+            "venue": "Karaiskaki Stadium",
+            "city": "Piraeus",
+            "country": "GR",
+            "tour": "Combine Harvester Tour"
+          },
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         },
         "imam baildi": {
           "artist": "Imam Baildi",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Imam Baildi\",\"2008-07-15\",\"Karaiskaki Stadium\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         },
         "cyanna": {
           "artist": "Cyanna",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Cyanna\",\"2008-07-15\",\"Karaiskaki Stadium\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -7723,46 +8130,123 @@
         },
         "digitalism": {
           "artist": "Digitalism",
-          "sets": [],
-          "matchingVersion": 4,
+          "sets": [
+            {
+              "name": "Set",
+              "songs": [
+                "I Want I Want",
+                "Anything New",
+                "Digitalism in Cairo",
+                "-extra-",
+                "Echoes",
+                "Premiere",
+                "Magnets",
+                "Moonlight",
+                "Idealistic",
+                "Home Zone (Criminal Extended)",
+                "Zdarlight",
+                "ZDRLT Rewind",
+                "The Pulse",
+                "Jupiter Room",
+                "Apollo-Gize",
+                "Pogo"
+              ]
+            },
+            {
+              "name": "Encore 1",
+              "songs": [
+                "Express",
+                "I Like To",
+                "Pogo Robotic"
+              ]
+            }
+          ],
+          "songCount": 19,
+          "sourceUrl": "https://www.setlist.fm/setlist/digitalism/2008/pyramid-marquee-werchter-belgium-63d78693.html",
+          "setlistFmId": "63d78693",
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"Digitalism\",\"2008-06-28\",\"Plateia Nerou\",\"Athens\",\"Greece\"]",
-          "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "Digitalism",
+            "date": "2008-07-04",
+            "venue": "Pyramid Marquee",
+            "city": "Werchter",
+            "country": "BE",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         },
         "unkle": {
           "artist": "UNKLE",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"UNKLE\",\"2008-06-28\",\"Plateia Nerou\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         },
         "hercules love affair": {
           "artist": "Hercules & Love Affair",
-          "sets": [],
-          "matchingVersion": 4,
+          "sets": [
+            {
+              "name": "Set",
+              "songs": [
+                "True/False, Fake/Real",
+                "Shadows",
+                "I'm Telling You",
+                "Blind",
+                "Athene",
+                "Raise Me Up",
+                "Classique #2",
+                "You Belong",
+                "Hercules Theme"
+              ]
+            }
+          ],
+          "songCount": 9,
+          "sourceUrl": "https://www.setlist.fm/setlist/hercules-and-love-affair/2008/miles-davis-hall-montreux-switzerland-73886e25.html",
+          "setlistFmId": "73886e25",
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"Hercules & Love Affair\",\"2008-06-28\",\"Plateia Nerou\",\"Athens\",\"Greece\"]",
-          "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "Hercules & Love Affair",
+            "date": "2008-07-04",
+            "venue": "Miles Davis Hall",
+            "city": "Montreux",
+            "country": "CH",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         },
         "stereo mcs": {
           "artist": "Stereo MCs",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Stereo MCs\",\"2008-06-28\",\"Plateia Nerou\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -7808,13 +8292,39 @@
         },
         "eluvium": {
           "artist": "Eluvium",
-          "sets": [],
-          "matchingVersion": 4,
+          "sets": [
+            {
+              "name": "Set",
+              "songs": [
+                "Under the Water It Glowed / After Nature",
+                "Radio Ballet",
+                "Taken",
+                "Repose in Blue"
+              ]
+            }
+          ],
+          "songCount": 4,
+          "sourceUrl": "https://www.setlist.fm/setlist/eluvium/2008/corner-hotel-melbourne-australia-23d4b8db.html",
+          "setlistFmId": "23d4b8db",
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"Eluvium\",\"2008-02-02\",\"An Club\",\"Athens\",\"Greece\"]",
-          "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "Eluvium",
+            "date": "2008-02-16",
+            "venue": "Corner Hotel",
+            "city": "Melbourne",
+            "country": "AU",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -7828,13 +8338,46 @@
         },
         "pelican": {
           "artist": "Pelican",
-          "sets": [],
-          "matchingVersion": 4,
+          "sets": [
+            {
+              "name": "Set",
+              "songs": [
+                "Dead Between the Walls",
+                "Lost in the Headlights",
+                "March to the Sea",
+                "Bliss in Concrete",
+                "Sirius",
+                "Far from Fields",
+                "A Delicate Sense of Balance",
+                "Aurora Borealis",
+                "City of Echoes",
+                "Mammoth",
+                "Red Ran Amber"
+              ]
+            }
+          ],
+          "songCount": 11,
+          "sourceUrl": "https://www.setlist.fm/setlist/pelican/2007/lolympic-nantes-france-2bdaf03a.html",
+          "setlistFmId": "2bdaf03a",
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"Pelican\",\"2007-12-07\",\"An Club\",\"Athens\",\"Greece\"]",
-          "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "Pelican",
+            "date": "2007-12-03",
+            "venue": "L'Olympic",
+            "city": "Nantes",
+            "country": "FR",
+            "tour": "City of Echoes"
+          },
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -7990,12 +8533,12 @@
         "crippled black phoenix": {
           "artist": "Crippled Black Phoenix",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Crippled Black Phoenix\",\"2007-04-28\",\"An Club\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -8091,13 +8634,39 @@
       "artists": {
         "the cinematic orchestra": {
           "artist": "The Cinematic Orchestra",
-          "sets": [],
-          "matchingVersion": 4,
+          "sets": [
+            {
+              "name": "Set",
+              "songs": [
+                "Man with the Movie Camera",
+                "Ode to the Big Sea",
+                "Familiar Ground",
+                "As the Stars Fall"
+              ]
+            }
+          ],
+          "songCount": 4,
+          "sourceUrl": "https://www.setlist.fm/setlist/the-cinematic-orchestra/2006/palladium-warsaw-poland-4bdfcb6a.html",
+          "setlistFmId": "4bdfcb6a",
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"The Cinematic Orchestra\",\"2006-11-18\",\"Gagarin 205\",\"Athens\",\"Greece\"]",
-          "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "The Cinematic Orchestra",
+            "date": "2006-11-30",
+            "venue": "Palladium",
+            "city": "Warsaw",
+            "country": "PL",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -8202,12 +8771,12 @@
         "mad professor": {
           "artist": "Mad Professor",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Mad Professor\",\"2006-07-13\",\"Karaiskaki Stadium\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -8217,12 +8786,12 @@
         "iggy pop and the stooges": {
           "artist": "Iggy Pop And The Stooges",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Iggy Pop And The Stooges\",\"2006-07-12\",\"Theatro Vrachon\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         },
         "puressence": {
@@ -8259,12 +8828,12 @@
         "film": {
           "artist": "Film",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Film\",\"2006-07-12\",\"Theatro Vrachon\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:30:23.018Z",
-          "lastExactCheckAt": "2026-10-16T13:30:23.018Z",
-          "lastAttemptAt": "2026-10-16T13:30:23.018Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -8443,12 +9012,12 @@
         "johnny cronin the aftermath": {
           "artist": "Johnny Cronin the Aftermath",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Johnny Cronin the Aftermath\",\"2005-10-29\",\"Club 22\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:30:23.018Z",
-          "lastExactCheckAt": "2026-10-16T13:30:23.018Z",
-          "lastAttemptAt": "2026-10-16T13:30:23.018Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -9435,12 +10004,12 @@
         "less than human": {
           "artist": "Less Than Human",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Less Than Human\",\"2001-07-01\",\"Podilatodromio OAKA\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:30:23.018Z",
-          "lastExactCheckAt": "2026-10-16T13:30:23.018Z",
-          "lastAttemptAt": "2026-10-16T13:30:23.018Z",
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
           "lastError": null
         }
       }
@@ -9652,24 +10221,24 @@
         "χατ τρικ": {
           "artist": "Χατ Τρικ",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Χατ Τρικ\",\"2026-09-09\",\"Technopolis City of Athens\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T14:04:05.923Z",
-          "lastError": "API_HTTP_429"
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
+          "lastError": null
         },
         "fundracar": {
           "artist": "Fundracar",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Fundracar\",\"2026-09-09\",\"Technopolis City of Athens\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T14:05:00.544Z",
-          "lastError": "API_HTTP_429"
+          "checkedAt": "2026-10-17T08:42:29.707Z",
+          "lastExactCheckAt": "2026-10-17T08:42:29.707Z",
+          "lastAttemptAt": "2026-10-17T08:42:29.707Z",
+          "lastError": null
         }
       }
     },
