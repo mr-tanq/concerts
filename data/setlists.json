@@ -1,13 +1,13 @@
 {
   "$schema": "Listening Mirror Setlists v3",
   "meta": {
-    "lastUpdated": "2026-10-16T19:26:56.175Z",
+    "lastUpdated": "2026-10-17T08:12:53.086Z",
     "checked": 274,
-    "withSetlist": 175,
-    "references": 7,
-    "remaining": 108,
-    "errors": 1,
-    "stoppedReason": "API_HTTP_429"
+    "withSetlist": 189,
+    "references": 24,
+    "remaining": 68,
+    "errors": 0,
+    "stoppedReason": null
   },
   "setlists": {
     "archived-2026-06-18-s-lstafir-oranssi-pazuzu-hulder": {
@@ -172,12 +172,12 @@
         "ontaard": {
           "artist": "Ontaard",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Ontaard\",\"2026-03-27\",\"ACU\",\"Utrecht\",\"Netherlands\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         }
       }
@@ -209,7 +209,7 @@
           "songCount": 13,
           "sourceUrl": "https://www.setlist.fm/setlist/villagers-of-ioannina-city/2026/stage-1-haarlem-netherlands-349c56b.html",
           "setlistFmId": "349c56b",
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "matchType": "tour-reference",
           "targetIdentity": "[\"Villagers of Ioannina City\",\"2026-03-19\",\"Poppodium 013\",\"Tilburg\",\"Netherlands\"]",
           "tourEvidence": {
@@ -225,20 +225,50 @@
             "country": "NL",
             "tour": "Venceremos Tour 2026"
           },
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         },
         "my diligence": {
           "artist": "My Diligence",
-          "sets": [],
-          "matchingVersion": 4,
+          "sets": [
+            {
+              "name": "Set",
+              "songs": [
+                "Death",
+                "Horses",
+                "Resentful",
+                "On the Wire",
+                "The Matter, Form and Power",
+                "Sail to the Red Light",
+                "Allodiplogaster Sudhausi",
+                "Sacred Anchor"
+              ]
+            }
+          ],
+          "songCount": 8,
+          "sourceUrl": "https://www.setlist.fm/setlist/my-diligence/2026/stage-1-haarlem-netherlands-1349c56d.html",
+          "setlistFmId": "1349c56d",
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"My Diligence\",\"2026-03-19\",\"Poppodium 013\",\"Tilburg\",\"Netherlands\"]",
-          "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "My Diligence",
+            "date": "2026-03-18",
+            "venue": "Stage 1",
+            "city": "Haarlem",
+            "country": "NL",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         }
       }
@@ -424,12 +454,12 @@
         "oreyeon": {
           "artist": "Oreyeon",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Oreyeon\",\"2026-02-28\",\"Burgerweeshuis\",\"Deventer\",\"Netherlands\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         }
       }
@@ -669,13 +699,48 @@
         },
         "marissa nadler": {
           "artist": "Marissa Nadler",
-          "sets": [],
-          "matchingVersion": 4,
+          "sets": [
+            {
+              "name": "Set",
+              "songs": [
+                "Drive",
+                "It Hits Harder",
+                "Hatchet Man",
+                "All Out of Catastrophes",
+                "Smoke Screen Selene",
+                "You Called Her Camellia",
+                "New Radiations",
+                "To Be the Moon King",
+                "Firecrackers",
+                "Sad Satellite",
+                "Light Years",
+                "Dead City Emily",
+                "All the Colors of the Dark"
+              ]
+            }
+          ],
+          "songCount": 13,
+          "sourceUrl": "https://www.setlist.fm/setlist/marissa-nadler/2025/luxor-live-arnhem-netherlands-734fce2d.html",
+          "setlistFmId": "734fce2d",
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"Marissa Nadler\",\"2025-11-11\",\"TivoliVredenburg\",\"Utrecht\",\"Netherlands\"]",
-          "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "Marissa Nadler",
+            "date": "2025-11-09",
+            "venue": "Luxor Live",
+            "city": "Arnhem",
+            "country": "NL",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         }
       }
@@ -872,13 +937,41 @@
         },
         "heretoir": {
           "artist": "Heretoir",
-          "sets": [],
-          "matchingVersion": 4,
+          "sets": [
+            {
+              "name": "Set",
+              "songs": [
+                "The Ashen Falls",
+                "Wastelands",
+                "Twilight of the Machines",
+                "Season of Grief",
+                "Golden Dust",
+                "Solastalgia"
+              ]
+            }
+          ],
+          "songCount": 6,
+          "sourceUrl": "https://www.setlist.fm/setlist/heretoir/2025/poppodium-013-tilburg-netherlands-73417ad5.html",
+          "setlistFmId": "73417ad5",
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"Heretoir\",\"2025-10-03\",\"Patronaat\",\"Haarlem\",\"Netherlands\"]",
-          "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "Heretoir",
+            "date": "2025-10-02",
+            "venue": "Poppodium 013",
+            "city": "Tilburg",
+            "country": "NL",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         }
       }
@@ -1129,45 +1222,45 @@
         "μωρα στη φωτια": {
           "artist": "Μωρά Στη Φωτιά",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Μωρά Στη Φωτιά\",\"2025-09-05\",\"Architektoniki\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         },
         "fundracar": {
           "artist": "Fundracar",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Fundracar\",\"2025-09-05\",\"Architektoniki\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         },
         "mazoha": {
           "artist": "Mazoha",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Mazoha\",\"2025-09-05\",\"Architektoniki\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         },
         "sabina": {
           "artist": "Sabina",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Sabina\",\"2025-09-05\",\"Architektoniki\",\"Athens\",\"Greece\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         }
       }
@@ -1315,12 +1408,12 @@
         "temple fang": {
           "artist": "Temple Fang",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Temple Fang\",\"2025-07-10\",\"Patronaat\",\"Haarlem\",\"Netherlands\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         }
       }
@@ -1447,13 +1540,41 @@
         },
         "windhand": {
           "artist": "Windhand",
-          "sets": [],
-          "matchingVersion": 4,
+          "sets": [
+            {
+              "name": "Set",
+              "songs": [
+                "Old Evil",
+                "Forest Clouds",
+                "Amaranth",
+                "Grey Garden",
+                "Cassock",
+                "Orchard"
+              ]
+            }
+          ],
+          "songCount": 6,
+          "sourceUrl": "https://www.setlist.fm/setlist/windhand/2025/val-de-moine-clisson-france-7b5f2210.html",
+          "setlistFmId": "7b5f2210",
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"Windhand\",\"2025-06-20\",\"Festivalpark Stenehei\",\"Dessel\",\"Belgium\"]",
-          "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "Windhand",
+            "date": "2025-06-21",
+            "venue": "Val de Moine",
+            "city": "Clisson",
+            "country": "FR",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         }
       }
@@ -1497,26 +1618,67 @@
             }
           ],
           "songCount": 17,
-          "sourceUrl": "https://www.setlist.fm/setlist/wasp/2025/main-stage-leeuwarden-netherlands-5b5fbbc8.html",
-          "setlistFmId": "5b5fbbc8",
-          "matchScore": 99,
-          "checkedAt": "2026-07-30T05:17:05.968Z",
-          "matchingVersion": 4,
+          "sourceUrl": "https://www.setlist.fm/setlist/wasp/2025/club-esch-sur-alzette-luxembourg-135b0dd1.html",
+          "setlistFmId": "135b0dd1",
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"W.A.S.P.\",\"2025-06-13\",\"Into The Grave 2025\",\"Leeuwarden\",\"Netherlands\"]",
-          "matchType": "unverified",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "W.A.S.P.",
+            "date": "2025-06-12",
+            "venue": "Club",
+            "city": "Esch-sur-Alzette",
+            "country": "LU",
+            "tour": "Album One Alive"
+          },
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         },
         "phil campbell and the bastard sons": {
           "artist": "Phil Campbell and the Bastard Sons",
-          "sets": [],
-          "matchingVersion": 4,
+          "sets": [
+            {
+              "name": "Set",
+              "songs": [
+                "We're the Bastards",
+                "Step Into the Fire",
+                "Going to Brazil",
+                "Hammer and Dance",
+                "High Rule",
+                "Ace of Spades",
+                "Strike the Match"
+              ]
+            }
+          ],
+          "songCount": 7,
+          "sourceUrl": "https://www.setlist.fm/setlist/phil-campbell-and-the-bastard-sons/2025/hanns-martin-schleyer-halle-stuttgart-germany-4b441fd6.html",
+          "setlistFmId": "4b441fd6",
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"Phil Campbell and the Bastard Sons\",\"2025-06-13\",\"Into The Grave 2025\",\"Leeuwarden\",\"Netherlands\"]",
-          "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "Phil Campbell and the Bastard Sons",
+            "date": "2025-06-17",
+            "venue": "Hanns-Martin-Schleyer-Halle",
+            "city": "Stuttgart",
+            "country": "DE",
+            "tour": "Summer 2025"
+          },
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         },
         "pro pain": {
@@ -1610,13 +1772,25 @@
           "songCount": 4,
           "sourceUrl": "https://www.setlist.fm/setlist/high-parasite/2025/reaper-stage-leeuwarden-netherlands-535fbbbd.html",
           "setlistFmId": "535fbbbd",
-          "matchScore": 99,
-          "checkedAt": "2026-09-24T13:01:19.381Z",
-          "matchingVersion": 4,
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"High Parasite\",\"2025-06-13\",\"Into The Grave 2025\",\"Leeuwarden\",\"Netherlands\"]",
-          "matchType": "unverified",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "High Parasite",
+            "date": "2025-06-14",
+            "venue": "Reaper Stage",
+            "city": "Leeuwarden",
+            "country": "NL",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         },
         "rotting christ": {
@@ -1625,24 +1799,38 @@
             {
               "name": "Set",
               "songs": [
-                "666",
-                "P'unchaw kachun- Tuta kachun",
                 "Fire, God and Fear",
+                "Kata Ton Daimona Eaytoy",
                 "Like Father, Like Son",
-                "The Raven"
+                "Elthe Kyrie",
+                "Non Serviam",
+                "In Yumen-Xibalba",
+                "Grandis Spiritus Diavolos"
               ]
             }
           ],
-          "songCount": 5,
-          "sourceUrl": "https://www.setlist.fm/setlist/rotting-christ/2025/main-stage-leeuwarden-netherlands-535fbbc1.html",
-          "setlistFmId": "535fbbc1",
-          "matchScore": 99,
-          "checkedAt": "2026-09-24T13:01:21.075Z",
-          "matchingVersion": 4,
+          "songCount": 7,
+          "sourceUrl": "https://www.setlist.fm/setlist/rotting-christ/2025/ifeza-institucion-ferial-de-zamora-zamora-spain-135fc565.html",
+          "setlistFmId": "135fc565",
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"Rotting Christ\",\"2025-06-13\",\"Into The Grave 2025\",\"Leeuwarden\",\"Netherlands\"]",
-          "matchType": "unverified",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "Rotting Christ",
+            "date": "2025-06-12",
+            "venue": "IFEZA - Institución Ferial de Zamora",
+            "city": "Zamora",
+            "country": "ES",
+            "tour": "Summer Festivals 2025"
+          },
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         },
         "orange goblin": {
@@ -1726,24 +1914,105 @@
       "artists": {
         "blaze bayley": {
           "artist": "Blaze Bayley",
-          "sets": [],
-          "matchingVersion": 4,
+          "sets": [
+            {
+              "name": "Set",
+              "songs": [
+                "Ten Seconds"
+              ]
+            },
+            {
+              "name": "Silicon Messiah 25th anniversary",
+              "songs": [
+                "Ghost in the Machine",
+                "Evolution",
+                "Silicon Messiah",
+                "Born as a Stranger",
+                "The Hunger",
+                "The Brave",
+                "Identity",
+                "Reach for the Horizon",
+                "The Launch",
+                "Stare at the Sun"
+              ]
+            },
+            {
+              "name": "Additional setlist",
+              "songs": [
+                "Samurai",
+                "2 A.M.",
+                "Soundtrack of My Life",
+                "Virus",
+                "Wrathchild",
+                "Man on the Edge",
+                "Futureal",
+                "Doctor Doctor",
+                "Long Live Rock 'n' Roll / Heaven and Hell",
+                "Doctor Doctor"
+              ]
+            }
+          ],
+          "songCount": 21,
+          "sourceUrl": "https://www.setlist.fm/setlist/blaze-bayley/2025/iduna-drachten-netherlands-135ee1f9.html",
+          "setlistFmId": "135ee1f9",
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"Blaze Bayley\",\"2025-05-31\",\"Musicon\",\"The Hague\",\"Netherlands\"]",
-          "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "Blaze Bayley",
+            "date": "2025-05-29",
+            "venue": "Iduna",
+            "city": "Drachten",
+            "country": "NL",
+            "tour": "Silicon Messiah 25th Anniversary Tour"
+          },
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         },
         "pryma": {
           "artist": "Pryma",
-          "sets": [],
-          "matchingVersion": 4,
+          "sets": [
+            {
+              "name": "Set",
+              "songs": [
+                "My Cold Shadow",
+                "Suicide Storm",
+                "Dead To Me",
+                "1:23:45",
+                "Mask",
+                "Freaky Fright Night"
+              ]
+            }
+          ],
+          "songCount": 6,
+          "sourceUrl": "https://www.setlist.fm/setlist/pryma/2025/iduna-drachten-netherlands-73475ac5.html",
+          "setlistFmId": "73475ac5",
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"Pryma\",\"2025-05-31\",\"Musicon\",\"The Hague\",\"Netherlands\"]",
-          "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "Pryma",
+            "date": "2025-05-29",
+            "venue": "Iduna",
+            "city": "Drachten",
+            "country": "NL",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         }
       }
@@ -1809,12 +2078,12 @@
         "throwing bricks": {
           "artist": "Throwing Bricks",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Throwing Bricks\",\"2025-05-14\",\"Patronaat\",\"Haarlem\",\"Netherlands\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         }
       }
@@ -1968,13 +2237,48 @@
         },
         "frenzee": {
           "artist": "Frenzee",
-          "sets": [],
-          "matchingVersion": 4,
+          "sets": [
+            {
+              "name": "Set",
+              "songs": [
+                "100°C",
+                "Say It",
+                "Sane to Insane",
+                "Sales",
+                "Data Collector",
+                "Things I Hear",
+                "Pink Tax",
+                "Fear No Fear",
+                "Fire in My Gut",
+                "Rushed",
+                "Frenzy",
+                "What's Wrong with Me",
+                "Infection"
+              ]
+            }
+          ],
+          "songCount": 13,
+          "sourceUrl": "https://www.setlist.fm/setlist/frenzee/2025/rca-club-lisbon-portugal-b51595a.html",
+          "setlistFmId": "b51595a",
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"Frenzee\",\"2025-03-27\",\"Doornroosje\",\"Nijmegen\",\"Netherlands\"]",
-          "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "Frenzee",
+            "date": "2025-03-17",
+            "venue": "RCA Club",
+            "city": "Lisbon",
+            "country": "PT",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         }
       }
@@ -1984,12 +2288,12 @@
         "nightstalker": {
           "artist": "Nightstalker",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Nightstalker\",\"2025-03-23\",\"Roodkapje\",\"Rotterdam\",\"Netherlands\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         }
       }
@@ -1999,12 +2303,12 @@
         "zion train": {
           "artist": "Zion Train",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Zion Train\",\"2025-03-14\",\"dB’s\",\"Utrecht\",\"Netherlands\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         }
       }
@@ -2408,12 +2712,12 @@
         "khirki": {
           "artist": "Khirki",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Khirki\",\"2024-10-17\",\"Stereo Wonderland Köln\",\"Cologne\",\"Germany\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         }
       }
@@ -2597,12 +2901,12 @@
         "silas saski": {
           "artist": "Silas & Saski",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Silas & Saski\",\"2024-09-20\",\"TivoliVredenburg\",\"Utrecht\",\"Netherlands\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         }
       }
@@ -2611,13 +2915,44 @@
       "artists": {
         "groundation": {
           "artist": "Groundation",
-          "sets": [],
-          "matchingVersion": 4,
+          "sets": [
+            {
+              "name": "Set",
+              "songs": [
+                "Jah Jah Know",
+                "Babylon Rule Dem",
+                "Silver Tongue Show",
+                "Weeping Pirates",
+                "Picture on the Wall",
+                "Something More",
+                "Hebron",
+                "Freedom Taking Over",
+                "Undivided"
+              ]
+            }
+          ],
+          "songCount": 9,
+          "sourceUrl": "https://www.setlist.fm/setlist/groundation/2024/le-kilowatt-vitry-sur-seine-france-354e5f7.html",
+          "setlistFmId": "354e5f7",
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"Groundation\",\"2024-07-18\",\"Melkweg\",\"Amsterdam\",\"Netherlands\"]",
-          "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "Groundation",
+            "date": "2024-07-12",
+            "venue": "Le Kilowatt",
+            "city": "Vitry-sur-Seine",
+            "country": "FR",
+            "tour": "Hebron Gate 20th anniversary"
+          },
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         }
       }
@@ -2911,13 +3246,44 @@
         },
         "earth tongue": {
           "artist": "Earth Tongue",
-          "sets": [],
-          "matchingVersion": 4,
+          "sets": [
+            {
+              "name": "Set",
+              "songs": [
+                "Out of This Hell",
+                "Portable Shrine",
+                "Hidden Entrance",
+                "Astonishing Comet",
+                "Microscopic God",
+                "Reaper Returns",
+                "Nightmare",
+                "Bodies Dissolve Tonight!",
+                "Pentagram on the Moon"
+              ]
+            }
+          ],
+          "songCount": 9,
+          "sourceUrl": "https://www.setlist.fm/setlist/earth-tongue/2024/vera-groningen-netherlands-5356a325.html",
+          "setlistFmId": "5356a325",
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"Earth Tongue\",\"2024-06-02\",\"Fluor\",\"Amersfoort\",\"Netherlands\"]",
-          "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "Earth Tongue",
+            "date": "2024-05-25",
+            "venue": "Vera",
+            "city": "Groningen",
+            "country": "NL",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         }
       }
@@ -3094,12 +3460,12 @@
         "hermanos gutierrez": {
           "artist": "Hermanos Gutiérrez",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Hermanos Gutiérrez\",\"2024-04-06\",\"TivoliVredenburg\",\"Utrecht\",\"Netherlands\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         }
       }
@@ -3109,12 +3475,12 @@
         "giannis aggelakas": {
           "artist": "Giannis Aggelakas",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Giannis Aggelakas\",\"2024-03-24\",\"The Max, Melkweg\",\"Amsterdam\",\"Netherlands\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         }
       }
@@ -3124,23 +3490,50 @@
         "suicidal angels": {
           "artist": "Suicidal Angels",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Suicidal Angels\",\"2024-03-22\",\"Fluor\",\"Amersfoort\",\"Netherlands\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         },
         "crimson fire": {
           "artist": "Crimson Fire",
-          "sets": [],
-          "matchingVersion": 4,
+          "sets": [
+            {
+              "name": "Set",
+              "songs": [
+                "Set the night on fire",
+                "Right off the Bat",
+                "Don't fall from the sky",
+                "Judas",
+                "Fire Below"
+              ]
+            }
+          ],
+          "songCount": 5,
+          "sourceUrl": "https://www.setlist.fm/setlist/crimson-fire/2024/blue-stage-budapest-hungary-7baaf658.html",
+          "setlistFmId": "7baaf658",
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"Crimson Fire\",\"2024-03-22\",\"Fluor\",\"Amersfoort\",\"Netherlands\"]",
-          "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "Crimson Fire",
+            "date": "2024-03-13",
+            "venue": "Blue Stage",
+            "city": "Budapest",
+            "country": "HU",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         }
       }
@@ -3180,12 +3573,12 @@
         "el siciliano": {
           "artist": "El Siciliano",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"El Siciliano\",\"2024-03-19\",\"Paradiso\",\"Amsterdam\",\"Netherlands\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         }
       }
@@ -3205,7 +3598,7 @@
           "songCount": 1,
           "sourceUrl": "https://www.setlist.fm/setlist/dj-shadow/2024/den-atelier-luxembourg-luxembourg-23aad073.html",
           "setlistFmId": "23aad073",
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "matchType": "tour-reference",
           "targetIdentity": "[\"DJ Shadow\",\"2024-03-17\",\"Melkweg\",\"Amsterdam\",\"Netherlands\"]",
           "tourEvidence": {
@@ -3221,9 +3614,9 @@
             "country": "LU",
             "tour": "Action Adventure Tour"
           },
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         }
       }
@@ -3232,13 +3625,56 @@
       "artists": {
         "nick waterhouse": {
           "artist": "Nick Waterhouse",
-          "sets": [],
-          "matchingVersion": 4,
+          "sets": [
+            {
+              "name": "Set",
+              "songs": [
+                "High Tiding",
+                "I Feel an Urge Coming On / Tuning",
+                "It No. 3",
+                "Medicine",
+                "Play to Win",
+                "Hide and Seek",
+                "(No) Commitment",
+                "The Problem With a Street",
+                "Plan for Leaving",
+                "It Was the Style",
+                "The Fooler",
+                "Late in the Garden",
+                "Unreal",
+                "Katchi",
+                "Time's All Gone",
+                "Dead Room",
+                "Very Blue",
+                "Raina",
+                "Is That Clear",
+                "(If) You Want Trouble",
+                "This Is a Game"
+              ]
+            }
+          ],
+          "songCount": 21,
+          "sourceUrl": "https://www.setlist.fm/setlist/nick-waterhouse/2023/stage-1-haarlem-netherlands-23ae8823.html",
+          "setlistFmId": "23ae8823",
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"Nick Waterhouse\",\"2023-11-29\",\"Pandora, TivoliVredenburg\",\"Utrecht\",\"Netherlands\"]",
-          "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "Nick Waterhouse",
+            "date": "2023-11-30",
+            "venue": "Stage 1",
+            "city": "Haarlem",
+            "country": "NL",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         }
       }
@@ -3382,12 +3818,12 @@
         "villagers of ioannina city": {
           "artist": "Villagers of Ioannina City",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Villagers of Ioannina City\",\"2023-11-01\",\"Muziekgieterij\",\"Maastricht\",\"Netherlands\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         }
       }
@@ -3424,7 +3860,7 @@
           "songCount": 13,
           "sourceUrl": "https://www.setlist.fm/setlist/villagers-of-ioannina-city/2023/markthalle-hamburg-germany-5ba007c0.html",
           "setlistFmId": "5ba007c0",
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "matchType": "tour-reference",
           "targetIdentity": "[\"Villagers of Ioannina City\",\"2023-10-31\",\"Doornroosje\",\"Nijmegen\",\"Netherlands\"]",
           "tourEvidence": {
@@ -3440,20 +3876,50 @@
             "country": "DE",
             "tour": "Through Space & Time Tour"
           },
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         },
         "monkey3": {
           "artist": "Monkey3",
-          "sets": [],
-          "matchingVersion": 4,
+          "sets": [
+            {
+              "name": "Set",
+              "songs": [
+                "Spirals",
+                "Birth of Venus",
+                "Prism",
+                "Mass",
+                "Jack",
+                "Kali Yuga",
+                "Icarus",
+                "Through the Desert"
+              ]
+            }
+          ],
+          "songCount": 8,
+          "sourceUrl": "https://www.setlist.fm/setlist/monkey3/2023/forum-bielefeld-germany-43a05f57.html",
+          "setlistFmId": "43a05f57",
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"Monkey3\",\"2023-10-31\",\"Doornroosje\",\"Nijmegen\",\"Netherlands\"]",
-          "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "Monkey3",
+            "date": "2023-10-30",
+            "venue": "Forum",
+            "city": "Bielefeld",
+            "country": "DE",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         }
       }
@@ -3551,12 +4017,12 @@
         "capleton": {
           "artist": "Capleton",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Capleton\",\"2023-10-16\",\"TivoliVredenburg\",\"Utrecht\",\"Netherlands\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:24:09.112Z",
-          "lastExactCheckAt": "2026-10-16T13:24:09.112Z",
-          "lastAttemptAt": "2026-10-16T13:24:09.112Z",
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         }
       }
@@ -4064,12 +4530,12 @@
         "zion train": {
           "artist": "Zion Train",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Zion Train\",\"2023-05-13\",\"dB’s\",\"Utrecht\",\"Netherlands\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         }
       }
@@ -4346,12 +4812,12 @@
         "vasilis papakonstantinou": {
           "artist": "Vasilis Papakonstantinou",
           "sets": [],
-          "matchingVersion": 4,
+          "matchingVersion": 5,
           "targetIdentity": "[\"Vasilis Papakonstantinou\",\"2023-03-29\",\"Paradiso\",\"Amsterdam\",\"Netherlands\"]",
           "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         }
       }
@@ -4410,13 +4876,37 @@
         },
         "silvia perez cruz": {
           "artist": "Silvia Pérez Cruz",
-          "sets": [],
-          "matchingVersion": 4,
+          "sets": [
+            {
+              "name": "Set",
+              "songs": [
+                "La flor",
+                "Mana"
+              ]
+            }
+          ],
+          "songCount": 2,
+          "sourceUrl": "https://www.setlist.fm/setlist/silvia-perez-cruz/2023/koninklijk-theater-carre-amsterdam-netherlands-7bbbe2ec.html",
+          "setlistFmId": "7bbbe2ec",
+          "matchingVersion": 5,
+          "matchType": "similar-show",
           "targetIdentity": "[\"Silvia Pérez Cruz\",\"2023-03-22\",\"Royal Theatre Carré\",\"Amsterdam\",\"Netherlands\"]",
-          "matchType": "missing",
-          "checkedAt": "2026-10-16T13:27:36.296Z",
-          "lastExactCheckAt": "2026-10-16T13:27:36.296Z",
-          "lastAttemptAt": "2026-10-16T13:27:36.296Z",
+          "tourEvidence": {
+            "kind": "nearby-date",
+            "confirmed": false,
+            "maxDistanceDays": 14
+          },
+          "sourceEvent": {
+            "artist": "Sílvia Pérez Cruz",
+            "date": "2023-03-23",
+            "venue": "Koninklijk Theater Carré",
+            "city": "Amsterdam",
+            "country": "NL",
+            "tour": ""
+          },
+          "checkedAt": "2026-10-17T08:12:53.086Z",
+          "lastExactCheckAt": "2026-10-17T08:12:53.086Z",
+          "lastAttemptAt": "2026-10-17T08:12:53.086Z",
           "lastError": null
         }
       }
