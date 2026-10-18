@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-18T04:16:05.471Z",
+    "lastUpdated": "2026-10-18T14:51:57.000Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -1779,6 +1779,55 @@
       "planning": {
         "plannedAt": "2026-10-04T13:26:01.550Z",
         "originalScore": 42
+      },
+      "schedule": {
+        "version": 1,
+        "date": "2026-10-25",
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": null
+        },
+        "start": {
+          "name": "PROGRAMME START",
+          "time": null
+        },
+        "support": [
+          {
+            "name": "Unreqvited",
+            "time": null
+          },
+          {
+            "name": "Nidare",
+            "time": null
+          }
+        ],
+        "main": {
+          "name": "Heretoir",
+          "time": null
+        },
+        "end": {
+          "name": "END",
+          "time": null
+        },
+        "sources": [
+          {
+            "url": "https://www.podiuminfo.nl/concert/497084/Heretoir-Unreqvited-Nidare/De-Pit/",
+            "kind": "secondary",
+            "label": "podiuminfo.nl",
+            "checkedAt": "2026-10-18T14:51:55.745Z"
+          }
+        ],
+        "lastCheckedAt": "2026-10-18T14:51:55.745Z",
+        "lastAttemptAt": "2026-10-18T14:51:55.745Z",
+        "checks": {
+          "initial": "2026-10-18T14:51:55.745Z"
+        },
+        "lastError": null,
+        "noSupport": null,
+        "refreshRequestedAt": null,
+        "lastOfficialCheckedAt": null,
+        "checkStatus": "secondary-only"
       }
     },
     {
