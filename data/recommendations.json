@@ -1,55 +1,21 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-10-18T19:55:57.257Z",
+    "lastUpdated": "2026-10-18T19:56:43.769Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 366,
-      "daysCached": 0,
+      "daysFresh": 0,
+      "daysCached": 366,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 4,
+      "concertsOpened": 0,
       "rejectedByLineup": 0
     }
   },
   "concerts": [
-    {
-      "id": "rec-black-sea-dahu-tivolivredenburg-2026-10-23",
-      "source": "podiuminfo",
-      "sourceId": null,
-      "artist": "Black Sea Dahu",
-      "lineup": [],
-      "supportingArtists": [],
-      "matchedArtists": [
-        "Black Sea Dahu"
-      ],
-      "date": "2026-10-23",
-      "time": null,
-      "venue": "TivoliVredenburg",
-      "city": "Utrecht",
-      "country": "NL",
-      "isFestival": false,
-      "image": null,
-      "ticketUrl": "https://www.podiuminfo.nl/ticket/130350/cd/Black-Sea-Dahu/TivoliVredenburg/",
-      "sourceApis": [
-        "podiuminfo"
-      ],
-      "sourceUrl": null,
-      "match": {
-        "score": 46,
-        "label": "Strong match",
-        "matchedBy": "direct",
-        "reason": "Known artist: Black Sea Dahu",
-        "matchedArtists": [
-          "Black Sea Dahu"
-        ]
-      },
-      "discoveredAt": "2026-10-18T16:35:53.077Z",
-      "lastSeenAt": "2026-10-18T16:35:53.077Z"
-    },
     {
       "id": "rec-podiuminfo-497084",
       "source": "podiuminfo",
@@ -80,16 +46,54 @@
       ],
       "sourceUrl": "https://www.podiuminfo.nl/concert/497084/Heretoir-Unreqvited-Nidare/De-Pit/",
       "match": {
-        "score": 42,
+        "score": 58,
         "label": "Strong match",
         "matchedBy": "direct",
-        "reason": "Known artist: Heretoir",
+        "reason": "Known artist: Heretoir · Recently in rotation",
         "matchedArtists": [
           "Heretoir"
-        ]
+        ],
+        "similarVia": null
       },
       "discoveredAt": "2026-10-18T19:55:57.257Z",
-      "lastSeenAt": "2026-10-18T19:55:57.257Z"
+      "lastSeenAt": "2026-10-18T19:56:43.769Z"
+    },
+    {
+      "id": "rec-podiuminfo-452110",
+      "source": "podiuminfo",
+      "sourceId": "452110",
+      "artist": "Black Sea Dahu",
+      "lineup": [
+        "Black Sea Dahu"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Black Sea Dahu"
+      ],
+      "date": "2026-10-23",
+      "time": null,
+      "venue": "TivoliVredenburg",
+      "city": "Utrecht",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/125715/100_Black_Sea_Dahu_1.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/130350/cd/Black-Sea-Dahu/TivoliVredenburg/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/452110/Black-Sea-Dahu/TivoliVredenburg/",
+      "match": {
+        "score": 46,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Black Sea Dahu",
+        "matchedArtists": [
+          "Black Sea Dahu"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-10-18T19:56:43.769Z",
+      "lastSeenAt": "2026-10-18T19:56:43.769Z"
     }
   ]
 }
