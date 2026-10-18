@@ -8,6 +8,8 @@ on:
     paths:
       - scripts/enrich-concert-schedules.mjs
       - scripts/sources/concert-schedule.mjs
+      - scripts/sources/schedule-discovery.mjs
+      - scripts/schedule-discovery.test.mjs
       - js/concert-schedule.js
       - .github/workflows/enrich-concert-schedules.yml
       - data/planned.json
@@ -32,7 +34,7 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Validate schedule logic
-        run: node --test scripts/concert-schedule.test.mjs
+        run: node --test scripts/concert-schedule.test.mjs scripts/schedule-discovery.test.mjs
       - name: Check sources and save schedules
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

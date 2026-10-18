@@ -126,6 +126,23 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
     normalize($(n).text()) === "support act" &&
     /^(geen voorprogramma|no support(?: act)?)$/.test(
       normalize($(n).next("dd").text())));
+  // Read support names before assigning programme-start times.
+  root.find("dt").each((_, n) => {
+    const term = $(n);
+    if (!/^(support(?: act)?|voorprogramma)$/.test(normalize(term.text()))) return;
+    const dd = tivoli && term.hasClass("description-list__term--group")
+      ? term.prev("dd") : term.next("dd");
+    if (!dd.length || noSupport) return;
+    const links = dd.find("a").map((_, a) => $(a).text().trim()).get();
+    const names = links.length ? links : [dd.text().trim()];
+    for (const name of names) {
+      if (/^[\p{L}\p{N} '&+.-]{2,70}$/u.test(name)
+        && !/^(geen voorprogramma|no support(?: act)?|tba|unknown|nog niet bekend)$/i.test(name)
+        && !times(name).length && !matchName(name, concert.artist)) {
+        supportNames.push(supportName(name));
+      }
+    }
+  });
   root.find("dt").each((_, n) => {
     const term = $(n);
     const reversed = tivoli &&

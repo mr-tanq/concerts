@@ -3,6 +3,7 @@ import { readFile, writeFile, appendFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import * as cheerio from "cheerio";
+import { discoverSchedulePages } from "./sources/schedule-discovery.mjs";
 import { localDate, validDate, venueInstant } from "../js/concert-schedule.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -78,15 +79,7 @@ export async function enrichOne(concert, now, phase, fetcher = fetchPage) {
   for(const url of candidates) if(visited.size<8) await parseOfficial(url);
   if(host && !results.some(r=>r.source.kind==="official")) {
     // Discover links from the venue's own agenda and sitemap. Every candidate must pass artist + date validation.
-    for(const listing of [`https://${host}${config[2]}`,`https://${host}/sitemap.xml`]) {
-      try {
-        const page=await fetcher(listing,official), $=cheerio.load(page.html);
-        const links=[];
-        $("a[href],loc").each((_,n)=>{const raw=$(n).attr("href") || $(n).text();try{const url=new URL(raw,page.url).href;if(allowedURL(url,official) && matchName($(n).text()+" "+decodeURIComponent(url),concert.artist)) links.push(url);}catch{}});
-        for(const url of [...new Set(links)].slice(0,8)) if(await parseOfficial(url)) break;
-      } catch(e) { console.warn(`${concert.id}: discovery ${e.message}`); }
-      if(results.some(r=>r.source.kind==="official")) break;
-    }
+    await discoverSchedulePages(concert, config, fetcher, parseOfficial);
   }
   return mergeSchedule(concert,results,now,phase);
 }
