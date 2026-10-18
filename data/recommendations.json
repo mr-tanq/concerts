@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-10-18T16:35:44.831Z",
+    "lastUpdated": "2026-10-18T16:35:53.077Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
@@ -15,5 +15,40 @@
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-black-sea-dahu-tivolivredenburg-2026-10-23",
+      "source": "podiuminfo",
+      "sourceId": null,
+      "artist": "Black Sea Dahu",
+      "lineup": [],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Black Sea Dahu"
+      ],
+      "date": "2026-10-23",
+      "time": null,
+      "venue": "TivoliVredenburg",
+      "city": "Utrecht",
+      "country": "NL",
+      "isFestival": false,
+      "image": null,
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/130350/cd/Black-Sea-Dahu/TivoliVredenburg/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": null,
+      "match": {
+        "score": 46,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Black Sea Dahu",
+        "matchedArtists": [
+          "Black Sea Dahu"
+        ]
+      },
+      "discoveredAt": "2026-10-18T16:35:53.077Z",
+      "lastSeenAt": "2026-10-18T16:35:53.077Z"
+    }
+  ]
 }
