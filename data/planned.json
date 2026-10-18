@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-18T16:45:52.816Z",
+    "lastUpdated": "2026-10-18T19:49:34.225Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -173,30 +173,73 @@
         "timeZone": "Europe/Amsterdam",
         "doors": {
           "name": "DOORS",
-          "time": null
+          "time": "19:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.tivolivredenburg.nl/agenda/13548851/mogwai-10-11-2026",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-18T19:49:30.288Z",
+          "evidence": "Deuren open 19:00",
+          "at": "2026-11-10T18:00:00.000Z"
         },
         "start": {
           "name": "PROGRAMME START",
-          "time": null
+          "time": "20:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.tivolivredenburg.nl/agenda/13548851/mogwai-10-11-2026",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-18T19:49:30.288Z",
+          "evidence": "Start 20:00",
+          "at": "2026-11-10T19:00:00.000Z"
         },
-        "support": [],
+        "support": [
+          {
+            "name": "Forest Swords",
+            "time": "20:00",
+            "dayOffset": 0,
+            "status": "confirmed",
+            "sourceUrl": "https://www.tivolivredenburg.nl/agenda/13548851/mogwai-10-11-2026",
+            "sourceKind": "official",
+            "checkedAt": "2026-10-18T19:49:30.288Z",
+            "evidence": "Start 20:00",
+            "at": "2026-11-10T19:00:00.000Z",
+            "derivedFrom": "programme-start"
+          }
+        ],
         "main": {
           "name": "Mogwai",
           "time": null
         },
         "end": {
           "name": "END",
-          "time": null
+          "time": "22:29",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.tivolivredenburg.nl/agenda/13548851/mogwai-10-11-2026",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-18T19:49:30.288Z",
+          "evidence": "endDate: 2026-11-10T22:29",
+          "at": "2026-11-10T21:29:00.000Z"
         },
-        "sources": [],
-        "lastCheckedAt": null,
-        "lastAttemptAt": "2026-10-16T09:18:37.770Z",
-        "checks": {},
-        "lastError": "No matching source could be checked",
+        "sources": [
+          {
+            "url": "https://www.tivolivredenburg.nl/agenda/13548851/mogwai-10-11-2026",
+            "kind": "official",
+            "label": "tivolivredenburg.nl",
+            "checkedAt": "2026-10-18T19:49:30.288Z"
+          }
+        ],
+        "lastCheckedAt": "2026-10-18T19:49:30.288Z",
+        "lastAttemptAt": "2026-10-18T19:49:30.288Z",
+        "checks": {
+          "manual": "2026-10-18T19:49:30.288Z"
+        },
+        "lastError": null,
         "noSupport": null,
         "refreshRequestedAt": "2026-10-18T19:49:19.150Z",
-        "lastOfficialCheckedAt": null,
-        "checkStatus": "failed"
+        "lastOfficialCheckedAt": "2026-10-18T19:49:30.288Z",
+        "checkStatus": "official"
       }
     },
     {
