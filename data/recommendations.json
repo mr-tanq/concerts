@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-10-18T16:35:53.077Z",
+    "lastUpdated": "2026-10-18T19:55:57.257Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
@@ -49,6 +49,47 @@
       },
       "discoveredAt": "2026-10-18T16:35:53.077Z",
       "lastSeenAt": "2026-10-18T16:35:53.077Z"
+    },
+    {
+      "id": "rec-podiuminfo-497084",
+      "source": "podiuminfo",
+      "sourceId": "497084",
+      "artist": "Heretoir",
+      "lineup": [
+        "Heretoir",
+        "Unreqvited",
+        "Nidare"
+      ],
+      "supportingArtists": [
+        "Unreqvited",
+        "Nidare"
+      ],
+      "matchedArtists": [
+        "Heretoir"
+      ],
+      "date": "2026-10-25",
+      "time": null,
+      "venue": "De Pit",
+      "city": "Terneuzen",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.podiuminfo.nl/img/podiuminfo-rond.png",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/497084/Heretoir-Unreqvited-Nidare/De-Pit/",
+      "match": {
+        "score": 42,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Heretoir",
+        "matchedArtists": [
+          "Heretoir"
+        ]
+      },
+      "discoveredAt": "2026-10-18T19:55:57.257Z",
+      "lastSeenAt": "2026-10-18T19:55:57.257Z"
     }
   ]
 }
