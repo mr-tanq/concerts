@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-18T19:55:57.257Z",
+    "lastUpdated": "2026-10-18T19:57:48.518Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -2245,8 +2245,44 @@
         "originalScore": 34
       },
       "schedule": {
+        "version": 1,
         "date": "2026-11-12",
-        "refreshRequestedAt": "2026-10-18T19:57:38.474Z"
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": null
+        },
+        "start": {
+          "name": "PROGRAMME START",
+          "time": null
+        },
+        "support": [],
+        "main": {
+          "name": "Nordic Giants",
+          "time": null
+        },
+        "end": {
+          "name": "END",
+          "time": null
+        },
+        "sources": [
+          {
+            "url": "https://www.podiuminfo.nl/concert/480758/Nordic-Giants/Little-Devil/",
+            "kind": "secondary",
+            "label": "podiuminfo.nl",
+            "checkedAt": "2026-10-18T19:57:47.780Z"
+          }
+        ],
+        "lastCheckedAt": "2026-10-18T19:57:47.780Z",
+        "lastAttemptAt": "2026-10-18T19:57:47.780Z",
+        "checks": {
+          "manual": "2026-10-18T19:57:47.780Z"
+        },
+        "lastError": null,
+        "noSupport": null,
+        "refreshRequestedAt": "2026-10-18T19:57:38.474Z",
+        "lastOfficialCheckedAt": null,
+        "checkStatus": "secondary-only"
       }
     },
     {
