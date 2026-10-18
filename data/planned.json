@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-18T16:42:04.093Z",
+    "lastUpdated": "2026-10-18T16:44:17.206Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -297,14 +297,33 @@
           "status": "confirmed",
           "sourceUrl": "https://patronaat.nl/event/oh-hirshima-barrens-24-10-26/",
           "sourceKind": "official",
-          "checkedAt": "2026-10-16T08:51:44.140Z",
+          "checkedAt": "2026-10-18T16:44:15.840Z",
           "evidence": "Deuren: 19:30",
           "at": "2026-10-24T17:30:00.000Z"
+        },
+        "start": {
+          "name": "PROGRAMME START",
+          "time": "20:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://patronaat.nl/event/oh-hirshima-barrens-24-10-26/",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-18T16:44:15.840Z",
+          "evidence": "Start: 20:00",
+          "at": "2026-10-24T18:00:00.000Z"
         },
         "support": [
           {
             "name": "Barrens",
-            "time": null
+            "time": "20:00",
+            "dayOffset": 0,
+            "status": "confirmed",
+            "sourceUrl": "https://patronaat.nl/event/oh-hirshima-barrens-24-10-26/",
+            "sourceKind": "official",
+            "checkedAt": "2026-10-18T16:44:15.840Z",
+            "evidence": "Start: 20:00",
+            "at": "2026-10-24T18:00:00.000Z",
+            "derivedFrom": "programme-start"
           }
         ],
         "main": {
@@ -320,18 +339,18 @@
             "url": "https://patronaat.nl/event/oh-hirshima-barrens-24-10-26/",
             "kind": "official",
             "label": "patronaat.nl",
-            "checkedAt": "2026-10-16T08:51:44.140Z"
+            "checkedAt": "2026-10-18T16:44:15.840Z"
           }
         ],
-        "lastCheckedAt": "2026-10-16T08:51:44.140Z",
-        "lastAttemptAt": "2026-10-16T08:51:44.140Z",
+        "lastCheckedAt": "2026-10-18T16:44:15.840Z",
+        "lastAttemptAt": "2026-10-18T16:44:15.840Z",
         "checks": {
-          "manual": "2026-10-16T08:51:44.140Z"
+          "manual": "2026-10-18T16:44:15.840Z"
         },
         "lastError": null,
         "noSupport": null,
         "refreshRequestedAt": "2026-10-18T16:44:04.732Z",
-        "lastOfficialCheckedAt": "2026-10-16T08:51:44.140Z",
+        "lastOfficialCheckedAt": "2026-10-18T16:44:15.840Z",
         "checkStatus": "official"
       }
     },
