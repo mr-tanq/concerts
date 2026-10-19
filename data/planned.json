@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-19T12:22:52.598Z",
+    "lastUpdated": "2026-10-19T12:24:42.696Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -2229,13 +2229,37 @@
         "timeZone": "Europe/Amsterdam",
         "doors": {
           "name": "DOORS",
-          "time": null
+          "time": "19:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://ekko.nl/en/event/ontaard/",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-19T12:24:28.591Z",
+          "evidence": "Doors: 19:00",
+          "at": "2026-10-23T17:00:00.000Z"
         },
         "start": {
           "name": "PROGRAMME START",
-          "time": null
+          "time": "19:30",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://ekko.nl/en/event/ontaard/",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-19T12:24:28.591Z",
+          "evidence": "Start: 19:30",
+          "at": "2026-10-23T17:30:00.000Z",
+          "unassigned": true
         },
-        "support": [],
+        "support": [
+          {
+            "name": "Keukengerei",
+            "time": null
+          },
+          {
+            "name": "VRLCHT",
+            "time": null
+          }
+        ],
         "main": {
           "name": "Ontaard",
           "time": null
@@ -2249,20 +2273,75 @@
             "url": "https://www.podiuminfo.nl/concert/472328/Ontaard/EKKO/",
             "kind": "secondary",
             "label": "podiuminfo.nl",
-            "checkedAt": "2026-10-18T16:42:03.043Z"
+            "checkedAt": "2026-10-19T12:24:28.591Z"
+          },
+          {
+            "url": "https://ekko.nl/en/event/ontaard/",
+            "kind": "official",
+            "label": "ekko.nl",
+            "checkedAt": "2026-10-19T12:24:28.591Z",
+            "identityUrl": "https://ekko.nl/wp-json/wp/v2/event/29634",
+            "adapter": "wordpress-event-fields"
           }
         ],
-        "lastCheckedAt": "2026-10-18T16:42:03.043Z",
-        "lastAttemptAt": "2026-10-18T16:42:03.043Z",
+        "lastCheckedAt": "2026-10-19T12:24:28.591Z",
+        "lastAttemptAt": "2026-10-19T12:24:28.591Z",
         "checks": {
           "initial": "2026-10-16T21:04:18.520Z",
-          "manual": "2026-10-18T16:42:03.043Z"
+          "manual": "2026-10-19T12:24:28.591Z"
         },
         "lastError": null,
         "noSupport": null,
         "refreshRequestedAt": "2026-10-19T12:24:15.232Z",
-        "lastOfficialCheckedAt": null,
-        "checkStatus": "secondary-only"
+        "lastOfficialCheckedAt": "2026-10-19T12:24:28.591Z",
+        "checkStatus": "official",
+        "discovery": {
+          "version": 2,
+          "attempts": [
+            {
+              "url": "https://www.podiuminfo.nl/concert/472328/Ontaard/EKKO/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://ekko.nl/programma/",
+              "status": "fetch-failed",
+              "reason": "HTTP 404"
+            },
+            {
+              "url": "https://ekko.nl/sitemap.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://ekko.nl/event-sitemap.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://ekko.nl/event-sitemap2.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://ekko.nl/event-sitemap3.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://ekko.nl/en/event/ontaard/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://ekko.nl/wp-json/wp/v2/event/29634",
+              "status": "fetched"
+            },
+            {
+              "url": "https://ekko.nl/en/event/ontaard/",
+              "status": "verified"
+            }
+          ],
+          "configured": [
+            "ekko.nl"
+          ],
+          "requests": 8
+        },
+        "availability": "published"
       },
       "practical": {
         "ticketBought": true
