@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 import * as cheerio from "cheerio";
 import { discoverSchedulePages } from "./sources/schedule-discovery.mjs";
+import { publisherConfigs, isOrganizer, venueOnPage, ziggoCandidates, ziggoAPI, parseZiggo, completeOfficialPage } from "./sources/schedule-providers.mjs";
 import { localDate, validDate, venueInstant } from "../js/concert-schedule.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -43,12 +44,12 @@ export function schedulePhase(concert, nextId, now = Date.now(), force = false) 
   return phase;
 }
 
-async function fetchPage(url, hosts) {
+export async function fetchPage(url, hosts) {
   let current = allowedURL(url,hosts); if (!current) throw new Error("Unapproved source host");
   for (let redirect=0;redirect<5;redirect++) {
-    const res = await fetch(current,{redirect:"manual",signal:AbortSignal.timeout(15000),headers:{"User-Agent":"ListeningMirrorSchedule/1.0 (+https://github.com/mr-tanq/concerts)",Accept:"text/html"}});
+    const res = await fetch(current,{redirect:"manual",signal:AbortSignal.timeout(12000),headers:{"User-Agent":"ListeningMirrorSchedule/2.0 (+https://github.com/mr-tanq/concerts)",Accept:"text/html,application/json,application/xml","Accept-Language":"nl-NL,nl;q=0.9,en;q=0.8"}});
     if ([301,302,303,307,308].includes(res.status)) { current=allowedURL(new URL(res.headers.get("location"),current).href,hosts);if(!current) throw new Error("Redirect outside venue");continue; }
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok || res.status === 202) throw new Error(`HTTP ${res.status}`);
     const html = await res.text(); if (html.length>5_000_000) throw new Error("Page too large");
     return {html,url:current};
   }
@@ -57,8 +58,17 @@ async function fetchPage(url, hosts) {
 
 export async function enrichOne(concert, now, phase, fetcher = fetchPage) {
   const config = venueConfig(concert), host = config?.[1];
-  const official = host ? [host] : [];
+  const configs = publisherConfigs(concert,config);
+  const official = configs.map(c=>c[1]);
   const secondary = ["podiuminfo.nl"];
+  const attempts = [], deadline = Date.now()+150000;
+  let requests = 0;
+  const read = async (url,hosts) => {
+    if (++requests > 48 || Date.now() > deadline) throw new Error("Check budget reached");
+    try { const page = await fetcher(url,hosts); attempts.push({url,status:"fetched"}); return page; }
+    catch(e) { attempts.push({url,status:"fetch-failed",reason:e.message}); throw e; }
+  };
+  read.cacheKey = fetcher;
   const results=[], candidates=new Set(), visited=new Set();
   const add = url => { const u=allowedURL(url,official); if(u) candidates.add(u); };
   for (const url of [concert.officialEventUrl,concert.officialUrl,concert.ticketUrl,...(concert.scheduleSourceUrls || []), ...(concert.schedule?.sources || []).filter(s=>s.kind==="official").map(s=>s.url)]) add(url);
@@ -66,7 +76,7 @@ export async function enrichOne(concert, now, phase, fetcher = fetchPage) {
   const sourceId = concert.source === "podiuminfo" && /^\d+$/.test(String(concert.sourceId || "")) ? concert.sourceId : String(concert.id || "").match(/podiuminfo-(\d+)/)?.[1];
   const podium = allowedURL(concert.sourceUrl,secondary) || (sourceId ? `https://www.podiuminfo.nl/concert/${sourceId}/` : null);
   if (podium) try {
-    const page=await fetcher(podium,secondary), parsed=parseSchedule(page.html,concert,page.url,"secondary",now);
+    const page=await read(podium,secondary), parsed=parseSchedule(page.html,concert,page.url,"secondary",now);
     if(parsed) {
       results.push(parsed);
       const $=cheerio.load(page.html);$("a[href]").each((_,n)=>{try{add(new URL($(n).attr("href"),page.url).href);}catch{}});
@@ -74,14 +84,36 @@ export async function enrichOne(concert, now, phase, fetcher = fetchPage) {
   } catch(e) { console.warn(`${concert.id}: secondary ${e.message}`); }
   const parseOfficial = async url => {
     if(visited.has(url)) return false;visited.add(url);
-    try { const page=await fetcher(url,official), parsed=parseSchedule(page.html,concert,page.url,"official",now);if(parsed){results.push(parsed);return true;} } catch(e){console.warn(`${concert.id}: venue ${e.message}`);} return false;
+    try {
+      const api=ziggoAPI(url);
+      const page=await read(api || url,official);
+      if (!allowedURL(page.url,official)) return false;
+      const publisher=new URL(page.url).hostname.replace(/^www\./,"");
+      if (!api && isOrganizer(concert,publisher,config) && !venueOnPage(page.html,concert)) {
+        attempts.push({url,status:"venue-mismatch"}); return false;
+      }
+      let parsed=api ? parseZiggo(JSON.parse(page.html),concert,url,now) : parseSchedule(page.html,concert,page.url,"official",now);
+      if(!parsed && !api) parsed=await completeOfficialPage(page,concert,now,read);
+      if(parsed){results.push(parsed);attempts.push({url,status:Object.keys(parsed.values).length ? "verified" : "verified-no-times"});return true;}
+      attempts.push({url,status:"identity-unverified"});
+    } catch(e){console.warn(`${concert.id}: venue ${e.message}`);} return false;
   };
+  if(host === "ziggodome.nl") try { for(const url of await ziggoCandidates(concert,read)) add(url); }
+  catch(e) { console.warn(`${concert.id}: Ziggo search ${e.message}`); }
   for(const url of candidates) if(visited.size<8) await parseOfficial(url);
-  if(host && !results.some(r=>r.source.kind==="official")) {
-    // Discover links from the venue's own agenda and sitemap. Every candidate must pass artist + date validation.
-    await discoverSchedulePages(concert, config, fetcher, parseOfficial);
+  for(const publisher of configs) {
+    if (Date.now()>deadline || requests>=48) break;
+    // A verified primary timetable wins; missing fields can be published later.
+    if(results.some(r=>r.source.kind==="official" && Object.keys(r.values).length)) break;
+    if(results.some(r=>r.source.label===publisher[1])) continue;
+    await discoverSchedulePages(concert, publisher, read, parseOfficial);
   }
-  return mergeSchedule(concert,results,now,phase);
+  const schedule=mergeSchedule(concert,results,now,phase);
+  schedule.discovery={version:2,attempts:attempts.slice(-64),configured:official,requests};
+  schedule.availability = !official.length ? "unsupported-venue" :
+    !results.some(r=>r.source.kind==="official") ? "official-unverified" :
+    results.some(r=>Object.keys(r.values).length) ? "published" : "not-published";
+  return schedule;
 }
 
 export function applyUpdates(data, updates) {

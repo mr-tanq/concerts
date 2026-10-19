@@ -1,4 +1,5 @@
 import * as cheerio from "cheerio";
+import { extraVenue } from "./schedule-providers.mjs";
 import { countryCode, countryZone } from "../../js/concert-countries.js";
 import { localDate, validDate, venueInstant } from "../../js/concert-schedule.js";
 
@@ -15,7 +16,7 @@ const VENUES = [
   ["dB's", "dbstudio.nl", "/programma/"], ["Vera", "vera-groningen.nl", "/events/"],
   ["Effenaar", "effenaar.nl", "/agenda"], ["Muziekgieterij", "muziekgieterij.nl", "/agenda/"],
   ["Baroeg", "baroeg.nl", "/agenda/"], ["Annabel", "annabel.nu", "/agenda/"],
-  ["Botanique", "botanique.be", "/en/concerts"], ["Bibelot", "bibelot.net", "/agenda/"],
+  ["Botanique", "botanique.be", "/en/concerts"], ["Bibelot", "bibelot.net", "/programma/"],
   ["Grenswerk", "grenswerk.nl", "/agenda/"], ["Willemeen", "willemeen.nl", "/agenda/"],
 ];
 const MONTHS = ["januari|january|jan", "februari|february|feb", "maart|march|mrt|mar", "april|apr", "mei|may", "juni|june|jun", "juli|july|jul", "augustus|august|aug", "september|sep|sept", "oktober|october|okt|oct", "november|nov", "december|dec"];
@@ -24,12 +25,13 @@ const times = text => [...String(text).matchAll(timePattern)].map(m => `${m[1].p
 export const matchName = (text, name) => (` ${normalize(text)} `).includes(` ${normalize(name)} `);
 export function venueConfig(c) {
   const code = countryCode(c.country);
-  return VENUES.find(([name, host]) => normalize(name) === normalize(c.venue) && (!code || code === (host === "botanique.be" ? "BE" : "NL")));
+  const entry = VENUES.find(([name]) => normalize(name) === normalize(c.venue)) || extraVenue(c);
+  return entry && (!code || code === (entry[1].endsWith(".be") ? "BE" : "NL")) ? entry : undefined;
 }
 export function zoneFor(c) { return countryCode(c.country) ? countryZone(c.country) : "Europe/Amsterdam"; }
 function wallTime(value, c) {
   if (!zoneFor(c)) return null;
-  const v = String(value || "");
+  const v = String(value || "").replace(/^(\d{4}-\d{2}-\d{2}) /,"$1T");
   if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(v)) {
     if (/(Z|[+-]\d{2}:\d{2})$/i.test(v)) {
       const parsed = Date.parse(v); if (!Number.isFinite(parsed)) return null;
@@ -57,23 +59,33 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
   function collect(value) {
     if (Array.isArray(value)) return value.forEach(collect);
     if (!value || typeof value !== "object") return;
-    if ([value["@type"]].flat().some(t => /^(MusicEvent|Event)$/.test(t))) events.push(value);
+    if ([value["@type"]].flat().some(t => /^(MusicEvent|Event|TheaterEvent)$/.test(t))) events.push(value);
     if (value["@graph"]) collect(value["@graph"]);
   }
   $('script[type="application/ld+json"]').each((_, n) => { try { collect(JSON.parse($(n).text())); } catch {} });
-  const matching = events.filter(e => matchName(e.name, concert.artist) && wallTime(e.startDate,concert)?.date === concert.date);
+  const sameDate = events.filter(e => wallTime(e.startDate,concert)?.date === concert.date);
+  const performers = e => [e.performer].flat().filter(Boolean).map(p => typeof p === "string" ? p : p.name).filter(Boolean);
+  const matching = sameDate.filter(e => (!e.location?.address?.addressCountry || !countryCode(concert.country) || countryCode(e.location.address.addressCountry) === countryCode(concert.country)) && matchName(e.name, concert.artist) && (!performers(e).length || performers(e).some(n => matchName(n,concert.artist))));
+  if (events.some(e => matchName(e.name,concert.artist) && wallTime(e.startDate,concert)) && !matching.length) return null;
+  // A play or show title can equal a band name without being that performer.
+  if (sameDate.some(e => matchName(e.name,concert.artist)) && !matching.length) return null;
+  if (sameDate.some(e => [e["@type"]].flat().includes("TheaterEvent") && !performers(e).some(n => matchName(n,concert.artist)))) return null;
   const paradiso = new URL(url).hostname.replace(/^www\./, "") === "paradiso.nl";
   // Event identity must come from this page's structured event, not links to
   // other nights in the description or the site's embedded programme.
   if (paradiso && (!/^\/(?:nl\/|en\/)?(?:programma|program)\/[^/]+\/\d+\/?$/.test(new URL(url).pathname) || !matching.length)) return null;
-  $("script,style,nav,footer,body > header,aside,[class*='related'],[class*='recommend']").remove();
+  $("script,style,nav,footer,aside,[hidden],.w-condition-invisible,[class*='related'],[class*='recommend']").remove();
   const root = $("main").first().length ? $("main").first() : $("body");
-  const heading = root.find("h1").first().text() || $("title").text();
-  const text = root.text().replace(/\s+/g, " ");
+  const heading = root.find("h1").map((_,n)=>$(n).text()).get().join(" ") + " " + $("title").text();
+  const text = root.find("h1,h2,h3,p,div,span,time,dt,dd,li").map((_,n)=>$(n).text()).get().join(" ").replace(/\s+/g, " ");
   // Hall of Fame puts the full year in its single-event payload rather than the visible date.
   const dates = root.find("[datetime]").map((_, n) => $(n).attr("datetime")).get().join(" ");
   const hallDate = new URL(url).hostname.replace(/^www\./, "") === "hall-fame.nl" && /\/programma\/[^/?]+-\d+/.test(new URL(url).pathname) && html.includes(`"${concert.date}T`);
-  if (!matching.length && !(matchName(heading, concert.artist) && (dateMatches(text + " " + dates, concert.date) || hallDate))) return null;
+  const dateLabels = root.find("time,p,span,div,li,dd").map((_,n)=>{
+    const label=$(n).text().replace(/\s+/g," ").trim();
+    return label.length <= 80 ? label : "";
+  }).get().join(" ");
+  if (!matching.length && !(matchName(heading, concert.artist) && (dateMatches(dateLabels + " " + dates, concert.date) || hallDate))) return null;
   const source = { url, kind, label: new URL(url).hostname.replace(/^www\./,""), checkedAt };
   const values = new Map(), conflicts = new Set();
   const supportNames = [...new Set((concert.supportingArtists || []).filter(Boolean).map(supportName))];
@@ -93,6 +105,16 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
     const s = $(n).text().trim(), m = s.match(/(?:special guest|support(?: act)?|voorprogramma)\s*:\s*([\p{L}\p{N} '&+.-]{2,70})$/iu);
     if (m && !matchName(m[1], concert.artist) && !times(m[1]).length) supportNames.push(supportName(m[1].trim()));
   });
+  // Iduna publishes the billed supports in its event subtitle, not metadata.
+  if (new URL(url).hostname.replace(/^www\./, "") === "iduna.nl") {
+    root.find(".ct-text-block").each((_,n)=>{
+      const line=$(n).text().replace(/\s+/g," ").trim();
+      if (line.length > 150 || !/\s\+\s/.test(line)) return;
+      for(const name of line.split(/\s+\+\s+/).slice(1)) {
+        if (/^[\p{L}\p{N} '&.-]{2,70}$/u.test(name) && !matchName(name,concert.artist)) supportNames.push(name);
+      }
+    });
+  }
   const set = (key, name, time, evidence, endTime = null) => {
     if (conflicts.has(key)) return;
     const prior = values.get(key);
@@ -104,9 +126,9 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
     const ts = times(clock); if (!ts.length) return;
     label = supportName(label);
     const n = normalize(label);
-    if (/^(doors?( open)?|deuren?( open)?|zaal open|opening doors)$/.test(n)) set("doors", "DOORS", ts[0], evidence);
-    else if (/^(start|aanvang|show start|programme start|program start|start programma|aanvang programma)$/.test(n)) set("start", "PROGRAMME START", ts[0], evidence);
-    else if (/^(end|einde|eindtijd|expected end|verwachte eindtijd|show ends?)$/.test(n)) set("end", "END", ts[0], evidence);
+    if (/^(doors?( open)?|deur(?:en)?( open)?|zaal open|opening doors)$/.test(n)) set("doors", "DOORS", ts[0], evidence);
+    else if (/^(start|aanvang|show start|start show|aanvang show|start of event|start programma|programme start|program start|start programma|aanvang programma)$/.test(n)) set("start", "PROGRAMME START", ts[0], evidence);
+    else if (/^(end|einde|eindtijd|expected end|verwacht einde|verwachte eindtijd|show ends?)$/.test(n)) set("end", "END", ts[0], evidence);
     else if (normalize(label) === normalize(concert.artist) || /^(main act|main programme|headliner|hoofdprogramma)$/.test(n)) set("main", concert.artist, ts[0], evidence, ts[1]);
     else {
       const known = supportNames.find(name => normalize(label) === normalize(name));
@@ -116,9 +138,17 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
     }
   };
   root.find(".timeline-item").each((_, n) => consume($(n).find(".title").text().trim(), $(n).find(".time").text(), $(n).text(), true));
-  root.find("tr,li,[role='row']").each((_, n) => {
+  root.find("tr,li,div,[role='row']").each((_, n) => {
     const cells = $(n).children().map((_, c) => $(c).text().trim()).get();
     if (cells.length === 2 && cells.filter(c => times(c).length).length === 1) consume(cells.find(c => !times(c).length), cells.find(c => times(c).length), cells.join(" "));
+  });
+  // Grid timetables often alternate time/label siblings without row wrappers.
+  root.find("div").each((_,n) => {
+    const cells = $(n).children("span").map((_,c)=>$(c).text().trim()).get();
+    if (cells.length < 4 || cells.length % 2) return;
+    for (let i=0;i<cells.length;i+=2) {
+      if (/^\d{1,2}:\d{2}$/.test(cells[i])) consume(cells[i+1],cells[i],cells.slice(i,i+2).join(" "));
+    }
   });
   const tivoli = kind === "official" &&
     new URL(url).hostname.replace(/^www\./, "") === "tivolivredenburg.nl";
@@ -157,14 +187,15 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
     );
   });
   // Explicit labelled fields only. Generic "Start", "Time" and JSON-LD startDate are NOT main-act times.
-  root.find("p,li,dt,dd,div").each((_, n) => {
+  root.find("p,li,dt,dd,div,span").each((_, n) => {
+    if ($(n).text().replace(/\s+/g," ").trim().length > 300) return;
     const lines = $(n).html()?.replace(/<br\s*\/?\s*>/gi,"\n"); if (!lines) return;
     for (const line of cheerio.load(lines).text().split(/\n|,\s*(?=(?:doors?|zaal open|voorprogramma|support|hoofdprogramma|main programme)\s*:)/i)) {
       const clean = line.replace(/\bSons of the Town Hall\b/gi,"Sons of Town Hall").replace(/\s+/g," ").trim();
       if (clean.length > 150) continue;
-      const m = clean.match(/^(doors?(?: open)?|deuren?(?: open)?|zaal open|end|einde|eindtijd|expected end|verwachte eindtijd|start|aanvang|show start|programme start|program start|main act|main programme|headliner|hoofdprogramma|support(?: act)?|voorprogramma)\s*[:–-]?\s*((?:[01]?\d|2[0-3])[:.][0-5]\d(?:\s*(?:uur|h))?)$/i);
+      const m = clean.match(/^(doors?(?: open)?|deur(?:en)?(?: open)?|zaal open|end|einde|eindtijd|expected end|verwacht einde|verwachte eindtijd|start|aanvang|show start|start show|aanvang show|start of event|start programma|programme start|program start|main act|main programme|headliner|hoofdprogramma|support(?: act)?|voorprogramma)\s*[:–-]?\s*((?:[01]?\d|2[0-3])[:.][0-5]\d(?:\s*(?:uur|h))?)$/i);
       if (m) consume(m[1],m[2],clean);
-      const reversed = clean.match(/^((?:[01]?\d|2[0-3])[:.][0-5]\d)\s*[-–:]?\s*(doors?(?: open)?|deuren?(?: open)?|zaal open|end|einde|eindtijd|expected end|verwachte eindtijd|start|aanvang|show start|programme start|program start|main act|main programme|headliner|hoofdprogramma|support(?: act)?|voorprogramma)$/i);
+      const reversed = clean.match(/^((?:[01]?\d|2[0-3])[:.][0-5]\d)\s*[-–:]?\s*(doors?(?: open)?|deur(?:en)?(?: open)?|zaal open|end|einde|eindtijd|expected end|verwacht einde|verwachte eindtijd|start|aanvang|show start|start show|aanvang show|start of event|start programma|programme start|program start|main act|main programme|headliner|hoofdprogramma|support(?: act)?|voorprogramma)$/i);
       if (reversed) consume(reversed[2],reversed[1],clean);
       // Artist-labelled line: name : 21:30, or 21:30 - Hällas. Whole-line match avoids prose dates.
       for (const name of [concert.artist, ...supportNames]) {
@@ -183,7 +214,7 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
     if (e.endDate && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(e.endDate)) {
       const next = new Date(`${concert.date}T12:00Z`); next.setUTCDate(next.getUTCDate()+1);
       const wall = wallTime(e.endDate,concert);
-      if (wall && [concert.date,next.toISOString().slice(0,10)].includes(wall.date)) {
+      if (wall && !["00:00","23:59"].includes(wall.time) && [concert.date,next.toISOString().slice(0,10)].includes(wall.date)) {
         // Contradictory metadata cannot override the visible timetable.
         const main = values.get("main");
         if (wall.date === concert.date && main && wall.time <= main.time) continue;
@@ -244,12 +275,13 @@ export function mergeSchedule(concert, results, now, phase) {
   const conflicted = targetKey && (disputed.has(targetKey)
     || results.some(r => (r.conflicts || []).includes(targetKey)));
 
-  if (s.start?.at && target && !target.time && !conflicted) {
+  if (s.start?.at && !s.start.unassigned && target && !target.time && !conflicted) {
     Object.assign(target, s.start, {
       name: target.name,
       derivedFrom: "programme-start"
     });
   }
+  if (s.start?.time && !target) s.start.unassigned = true;
   s.refreshRequestedAt = old.refreshRequestedAt || null;
   s.lastOfficialCheckedAt = results.some(r=>r.source.kind === "official") ? now : old.lastOfficialCheckedAt || (old.sources || []).filter(x=>x.kind === "official").map(x=>x.checkedAt).sort().at(-1) || null;
   s.checkStatus = !success ? "failed" : results.some(r=>r.source.kind === "official") ? "official" : "secondary-only";

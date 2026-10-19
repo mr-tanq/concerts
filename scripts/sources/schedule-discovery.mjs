@@ -5,14 +5,20 @@ import { allowedURL, matchName } from "./concert-schedule.mjs";
 const caches = new WeakMap();
 export async function discoverSchedulePages(concert, config, fetcher, visitEvent) {
   const host = config[1], hosts = [host];
-  let cache = caches.get(fetcher);
-  if (!cache) { cache = new Map(); caches.set(fetcher, cache); }
+  let cache = caches.get(fetcher.cacheKey || fetcher);
+  if (!cache) { cache = new Map(); caches.set(fetcher.cacheKey || fetcher, cache); }
   const read = url => {
     if (!cache.has(url)) cache.set(url, Promise.resolve().then(() => fetcher(url, hosts)));
     return cache.get(url);
   };
   const safe = (raw, base) => {
-    try { return allowedURL(new URL(raw, base).href, hosts); } catch { return null; }
+    try {
+      const url = new URL(raw, base);
+      // Some official sitemap generators still emit http links. Upgrade them;
+      // requests themselves always remain HTTPS and on approved hosts.
+      if (url.protocol === "http:") url.protocol = "https:";
+      return allowedURL(url.href, hosts);
+    } catch { return null; }
   };
   const seenEvents = new Set();
   async function checkLinks($, base, selector) {
@@ -50,10 +56,10 @@ export async function discoverSchedulePages(concert, config, fetcher, visitEvent
       $('a[rel~="next"],link[rel~="next"],.pagination a[href],.nav-links a[href],a.page-numbers[href]').each((_, n) => {
         const next = safe($(n).attr("href"), base);
         if (next && new URL(next).pathname.startsWith(new URL(agenda).pathname)
-          && !seenListings.has(next) && !listings.includes(next)) listings.unshift(next);
+          && !seenListings.has(next) && !listings.includes(next)) listings.push(next);
       });
       // Also cover agendas whose load-more button hides numbered pages.
-      if (url === agenda) {
+      if (url === agenda && (host === "tivolivredenburg.nl" || /wp-content|wp-json/.test(page.html))) {
         for (let number = 2; number <= 8; number++) {
           const next = new URL(agenda);
           next.pathname = next.pathname.replace(/\/?$/, "/") + `page/${number}/`;
@@ -81,7 +87,8 @@ export async function discoverSchedulePages(concert, config, fetcher, visitEvent
         const child = safe($(n).text().trim(), base);
         if (child && !seenMaps.has(child) && !maps.includes(child)) children.push(child);
       });
-      children.sort((a, b) => Number(/event|agenda|program/i.test(b)) - Number(/event|agenda|program/i.test(a)));
+      const rank = url => /archiv/i.test(url) ? 0 : /event|agenda|program/i.test(url) ? 2 : 1;
+      children.sort((a, b) => rank(b) - rank(a));
       maps.unshift(...children);
     } catch { /* A missing sitemap does not invalidate other sources. */ }
   }
