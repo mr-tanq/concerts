@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-18T19:57:48.518Z",
+    "lastUpdated": "2026-10-19T12:21:57.370Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -800,9 +800,22 @@
         },
         "start": {
           "name": "PROGRAMME START",
-          "time": null
+          "time": "20:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.ziggodome.nl/events/1c4d6a23-e91b-4696-9791-ba5eeb2609a4/",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-19T12:21:54.636Z",
+          "evidence": "20:00Aanvang show",
+          "unassigned": true,
+          "at": "2026-10-27T19:00:00.000Z"
         },
-        "support": [],
+        "support": [
+          {
+            "name": "The Mirror Trap",
+            "time": null
+          }
+        ],
         "main": {
           "name": "Placebo",
           "time": null
@@ -816,19 +829,53 @@
             "url": "https://www.podiuminfo.nl/concert/456178/Placebo-30th-Anniversary-Tour/Ziggo-Dome/",
             "kind": "secondary",
             "label": "podiuminfo.nl",
-            "checkedAt": "2026-10-18T16:45:42.906Z"
+            "checkedAt": "2026-10-19T12:21:54.636Z"
+          },
+          {
+            "url": "https://www.ziggodome.nl/events/1c4d6a23-e91b-4696-9791-ba5eeb2609a4/",
+            "kind": "official",
+            "label": "ziggodome.nl",
+            "checkedAt": "2026-10-19T12:21:54.636Z",
+            "adapter": "ziggo-public-programme"
           }
         ],
-        "lastCheckedAt": "2026-10-18T16:45:42.906Z",
-        "lastAttemptAt": "2026-10-18T16:45:42.906Z",
+        "lastCheckedAt": "2026-10-19T12:21:54.636Z",
+        "lastAttemptAt": "2026-10-19T12:21:54.636Z",
         "checks": {
-          "manual": "2026-10-18T16:45:42.906Z"
+          "manual": "2026-10-19T12:21:54.636Z"
         },
         "lastError": null,
         "noSupport": null,
         "refreshRequestedAt": "2026-10-19T12:21:40.954Z",
-        "lastOfficialCheckedAt": null,
-        "checkStatus": "secondary-only"
+        "lastOfficialCheckedAt": "2026-10-19T12:21:54.636Z",
+        "checkStatus": "official",
+        "discovery": {
+          "version": 2,
+          "attempts": [
+            {
+              "url": "https://www.podiuminfo.nl/concert/456178/Placebo-30th-Anniversary-Tour/Ziggo-Dome/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.ziggodome.nl/api/search/Placebo",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.ziggodome.nl/api/agenda/events/1c4d6a23-e91b-4696-9791-ba5eeb2609a4",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.ziggodome.nl/events/1c4d6a23-e91b-4696-9791-ba5eeb2609a4/",
+              "status": "verified"
+            }
+          ],
+          "configured": [
+            "ziggodome.nl",
+            "mojo.nl"
+          ],
+          "requests": 3
+        },
+        "availability": "published"
       }
     },
     {
