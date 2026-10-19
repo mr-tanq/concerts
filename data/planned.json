@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-19T17:55:46.499Z",
+    "lastUpdated": "2026-10-19T17:56:15.727Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -1443,7 +1443,7 @@
         },
         "sources": [],
         "lastCheckedAt": null,
-        "lastAttemptAt": "2026-10-19T17:55:37.644Z",
+        "lastAttemptAt": "2026-10-19T17:56:03.830Z",
         "checks": {},
         "lastError": "No matching source could be checked",
         "noSupport": null,
@@ -2028,8 +2028,78 @@
         "originalScore": 42
       },
       "schedule": {
+        "version": 1,
         "date": "2027-03-07",
-        "refreshRequestedAt": "2026-10-19T17:55:36.437Z"
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": null
+        },
+        "start": {
+          "name": "PROGRAMME START",
+          "time": null
+        },
+        "support": [],
+        "main": {
+          "name": "Moonspell",
+          "time": null
+        },
+        "end": {
+          "name": "END",
+          "time": null
+        },
+        "sources": [
+          {
+            "url": "https://www.podiuminfo.nl/concert/497443/Moonspell/Effenaar/",
+            "kind": "secondary",
+            "label": "podiuminfo.nl",
+            "checkedAt": "2026-10-19T17:56:03.830Z"
+          }
+        ],
+        "lastCheckedAt": "2026-10-19T17:56:03.830Z",
+        "lastAttemptAt": "2026-10-19T17:56:03.830Z",
+        "checks": {
+          "manual": "2026-10-19T17:56:03.830Z"
+        },
+        "lastError": null,
+        "noSupport": null,
+        "refreshRequestedAt": "2026-10-19T17:55:36.437Z",
+        "lastOfficialCheckedAt": null,
+        "checkStatus": "secondary-only",
+        "discovery": {
+          "version": 2,
+          "attempts": [
+            {
+              "url": "https://www.podiuminfo.nl/concert/497443/Moonspell/Effenaar/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://effenaar.nl/agenda",
+              "status": "fetch-failed",
+              "reason": "Page too large"
+            },
+            {
+              "url": "https://effenaar.nl/sitemap.xml",
+              "status": "fetch-failed",
+              "reason": "HTTP 404"
+            },
+            {
+              "url": "https://effenaar.nl/sitemap_index.xml",
+              "status": "fetch-failed",
+              "reason": "HTTP 404"
+            },
+            {
+              "url": "https://effenaar.nl/wp-sitemap.xml",
+              "status": "fetch-failed",
+              "reason": "HTTP 404"
+            }
+          ],
+          "configured": [
+            "effenaar.nl"
+          ],
+          "requests": 5
+        },
+        "availability": "official-unverified"
       }
     },
     {
