@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-19T12:24:42.696Z",
+    "lastUpdated": "2026-10-19T17:55:46.499Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -1412,8 +1412,123 @@
         "ticketBought": true
       },
       "schedule": {
+        "version": 1,
         "date": "2027-02-20",
-        "refreshRequestedAt": "2026-10-19T17:55:22.704Z"
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": null
+        },
+        "start": {
+          "name": "PROGRAMME START",
+          "time": null
+        },
+        "support": [
+          {
+            "name": "Enslaved",
+            "time": null
+          },
+          {
+            "name": "Gaahls Wyrd",
+            "time": null
+          }
+        ],
+        "main": {
+          "name": "Sólstafir",
+          "time": null
+        },
+        "end": {
+          "name": "END",
+          "time": null
+        },
+        "sources": [],
+        "lastCheckedAt": null,
+        "lastAttemptAt": "2026-10-19T17:55:37.644Z",
+        "checks": {},
+        "lastError": "No matching source could be checked",
+        "noSupport": null,
+        "refreshRequestedAt": "2026-10-19T17:55:22.704Z",
+        "lastOfficialCheckedAt": null,
+        "checkStatus": "failed",
+        "discovery": {
+          "version": 2,
+          "attempts": [
+            {
+              "url": "https://www.podiuminfo.nl/concert/495659/Enslaved-Solstafir-Gaahls-Wyrd/TivoliVredenburg/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.tivolivredenburg.nl/agenda/page/2/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/page/2/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/page/3/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/page/4/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/page/5/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/page/6/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/page/7/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/sitemap.xml",
+              "status": "fetch-failed",
+              "reason": "HTTP 404"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/sitemap_index.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.tivolivredenburg.nl/event-sitemap.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.tivolivredenburg.nl/event_category-sitemap.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.tivolivredenburg.nl/page-sitemap.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.tivolivredenburg.nl/sf_venue_room-sitemap.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.tivolivredenburg.nl/sf_genre-sitemap.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.tivolivredenburg.nl/page-categories-sitemap.xml",
+              "status": "fetched"
+            }
+          ],
+          "configured": [
+            "tivolivredenburg.nl"
+          ],
+          "requests": 17
+        },
+        "availability": "official-unverified"
       }
     },
     {
