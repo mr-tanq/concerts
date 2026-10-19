@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-19T12:21:57.370Z",
+    "lastUpdated": "2026-10-19T12:22:52.598Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -2297,39 +2297,105 @@
         "timeZone": "Europe/Amsterdam",
         "doors": {
           "name": "DOORS",
-          "time": null
+          "time": "19:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.013.nl/programma/141473/nordic-giants",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-19T12:22:50.504Z",
+          "evidence": "19:00 Zaal open",
+          "at": "2026-11-12T18:00:00.000Z"
         },
         "start": {
           "name": "PROGRAMME START",
-          "time": null
+          "time": "20:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.013.nl/programma/141473/nordic-giants",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-19T12:22:50.504Z",
+          "evidence": "20:00 Aanvang",
+          "at": "2026-11-12T19:00:00.000Z"
         },
-        "support": [],
+        "support": [
+          {
+            "name": "L.O.E.",
+            "time": "20:00",
+            "dayOffset": 0,
+            "status": "confirmed",
+            "sourceUrl": "https://www.013.nl/programma/141473/nordic-giants",
+            "sourceKind": "official",
+            "checkedAt": "2026-10-19T12:22:50.504Z",
+            "evidence": "20:00 Aanvang",
+            "at": "2026-11-12T19:00:00.000Z",
+            "derivedFrom": "programme-start"
+          }
+        ],
         "main": {
           "name": "Nordic Giants",
           "time": null
         },
         "end": {
           "name": "END",
-          "time": null
+          "time": "22:30",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.013.nl/programma/141473/nordic-giants",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-19T12:22:50.504Z",
+          "evidence": "endDate: 2026-11-12T22:30:00+01:00",
+          "at": "2026-11-12T21:30:00.000Z"
         },
         "sources": [
           {
             "url": "https://www.podiuminfo.nl/concert/480758/Nordic-Giants/Little-Devil/",
             "kind": "secondary",
             "label": "podiuminfo.nl",
-            "checkedAt": "2026-10-18T19:57:47.780Z"
+            "checkedAt": "2026-10-19T12:22:50.504Z"
+          },
+          {
+            "url": "https://www.013.nl/programma/141473/nordic-giants",
+            "kind": "official",
+            "label": "013.nl",
+            "checkedAt": "2026-10-19T12:22:50.504Z"
           }
         ],
-        "lastCheckedAt": "2026-10-18T19:57:47.780Z",
-        "lastAttemptAt": "2026-10-18T19:57:47.780Z",
+        "lastCheckedAt": "2026-10-19T12:22:50.504Z",
+        "lastAttemptAt": "2026-10-19T12:22:50.504Z",
         "checks": {
-          "manual": "2026-10-18T19:57:47.780Z"
+          "manual": "2026-10-19T12:22:50.504Z"
         },
         "lastError": null,
         "noSupport": null,
         "refreshRequestedAt": "2026-10-19T12:22:39.414Z",
-        "lastOfficialCheckedAt": null,
-        "checkStatus": "secondary-only"
+        "lastOfficialCheckedAt": "2026-10-19T12:22:50.504Z",
+        "checkStatus": "official",
+        "discovery": {
+          "version": 2,
+          "attempts": [
+            {
+              "url": "https://www.podiuminfo.nl/concert/480758/Nordic-Giants/Little-Devil/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://013.nl/programma",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.013.nl/programma/141473/nordic-giants",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.013.nl/programma/141473/nordic-giants",
+              "status": "verified"
+            }
+          ],
+          "configured": [
+            "013.nl"
+          ],
+          "requests": 3
+        },
+        "availability": "published"
       }
     },
     {
