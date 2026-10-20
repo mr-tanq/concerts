@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-20T15:31:38.394Z",
+    "lastUpdated": "2026-10-20T15:32:38.986Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -1060,8 +1060,107 @@
         "ticketBought": true
       },
       "schedule": {
+        "version": 1,
         "date": "2026-11-17",
-        "refreshRequestedAt": "2026-10-20T15:31:49.249Z"
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": null
+        },
+        "start": {
+          "name": "PROGRAMME START",
+          "time": null
+        },
+        "support": [],
+        "main": {
+          "name": "PRO-PAIN",
+          "time": null
+        },
+        "end": {
+          "name": "END",
+          "time": null
+        },
+        "sources": [
+          {
+            "url": "https://www.podiuminfo.nl/concert/490609/PRO-PAIN/dBs/",
+            "kind": "secondary",
+            "label": "podiuminfo.nl",
+            "checkedAt": "2026-10-20T15:32:13.329Z"
+          }
+        ],
+        "lastCheckedAt": "2026-10-20T15:32:13.329Z",
+        "lastAttemptAt": "2026-10-20T15:32:13.329Z",
+        "checks": {
+          "manual": "2026-10-20T15:32:13.329Z"
+        },
+        "lastError": null,
+        "noSupport": null,
+        "refreshRequestedAt": "2026-10-20T15:31:49.249Z",
+        "lastOfficialCheckedAt": null,
+        "checkStatus": "secondary-only",
+        "discovery": {
+          "version": 2,
+          "attempts": [
+            {
+              "url": "https://www.podiuminfo.nl/concert/490609/PRO-PAIN/dBs/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://dbstudio.nl/programma/",
+              "status": "fetch-failed",
+              "reason": "HTTP 404"
+            },
+            {
+              "url": "https://dbstudio.nl/sitemap.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://dbstudio.nl/wp-sitemap-posts-tribe_events-1.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://dbstudio.nl/event/pro-pain-usa-legends/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://dbs.stager.co/shop/default/events/111669289",
+              "status": "fetched"
+            },
+            {
+              "url": "https://dbstudio.nl/event/pro-pain-usa-legends/",
+              "status": "identity-unverified"
+            },
+            {
+              "url": "https://dbstudio.nl/wp-sitemap-taxonomies-tribe_events_cat-1.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://dbstudio.nl/wp-sitemap-posts-post-1.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://dbstudio.nl/wp-sitemap-posts-page-1.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://dbstudio.nl/wp-sitemap-posts-avada_portfolio-1.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://dbstudio.nl/wp-sitemap-taxonomies-category-1.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://dbstudio.nl/wp-sitemap-taxonomies-post_tag-1.xml",
+              "status": "fetched"
+            }
+          ],
+          "configured": [
+            "dbstudio.nl"
+          ],
+          "requests": 12
+        },
+        "availability": "official-unverified"
       }
     },
     {
