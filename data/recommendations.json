@@ -1,19 +1,94 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-10-19T21:55:12.512Z",
+    "lastUpdated": "2026-10-20T10:54:19.433Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 0,
-      "daysCached": 366,
+      "daysFresh": 366,
+      "daysCached": 0,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 3,
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-499123",
+      "source": "podiuminfo",
+      "sourceId": "499123",
+      "artist": "Hot Chip",
+      "lineup": [
+        "Hot Chip"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Hot Chip"
+      ],
+      "date": "2027-03-01",
+      "time": null,
+      "venue": "Paradiso",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/16503/100_Hot_Chip_1.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/143677/cd/Hot-Chip/Paradiso/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/499123/Hot-Chip/Paradiso/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Hot Chip",
+        "matchedArtists": [
+          "Hot Chip"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-10-20T10:54:19.433Z",
+      "lastSeenAt": "2026-10-20T10:54:19.433Z"
+    },
+    {
+      "id": "rec-podiuminfo-499143",
+      "source": "podiuminfo",
+      "sourceId": "499143",
+      "artist": "Robbie Williams",
+      "lineup": [
+        "Robbie Williams"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Robbie Williams"
+      ],
+      "date": "2027-07-10",
+      "time": null,
+      "venue": "Stadspark Groningen",
+      "city": "Groningen",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/182/100_Robbie_Williams_4.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/143679/cd/Robbie-Williams/Stadspark-Groningen/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/499143/Robbie-Williams/Stadspark-Groningen/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Robbie Williams",
+        "matchedArtists": [
+          "Robbie Williams"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-10-20T10:54:19.433Z",
+      "lastSeenAt": "2026-10-20T10:54:19.433Z"
+    }
+  ]
 }
