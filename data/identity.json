@@ -1,12 +1,12 @@
 {
   "$schema": "Listening Mirror Identity v1",
   "meta": {
-    "lastUpdated": "2026-10-20T11:35:08.620Z",
+    "lastUpdated": "2026-10-20T21:36:40.523Z",
     "lastfmUser": "errz",
     "artistCountsComplete": false
   },
   "profile": {
-    "totalScrobbles": 142852,
+    "totalScrobbles": 142882,
     "registeredAt": "2008-11-28T19:25:08.000Z",
     "url": "https://www.last.fm/user/errz"
   },
@@ -75,7 +75,7 @@
   "topArtistsMonth": [
     {
       "name": "Dvne",
-      "playcount": 145,
+      "playcount": 128,
       "url": "https://www.last.fm/music/Dvne"
     },
     {
@@ -95,8 +95,13 @@
     },
     {
       "name": "Villagers of Ioannina City",
-      "playcount": 40,
+      "playcount": 38,
       "url": "https://www.last.fm/music/Villagers+of+Ioannina+City"
+    },
+    {
+      "name": "The Ocean",
+      "playcount": 35,
+      "url": "https://www.last.fm/music/The+Ocean"
     },
     {
       "name": "SKIN THIEF",
@@ -107,11 +112,6 @@
       "name": "Mogwai",
       "playcount": 28,
       "url": "https://www.last.fm/music/Mogwai"
-    },
-    {
-      "name": "Zeal & Ardor",
-      "playcount": 26,
-      "url": "https://www.last.fm/music/Zeal+&+Ardor"
     }
   ],
   "artistCounts": {
@@ -169,12 +169,12 @@
       "degiheugi": 426,
       "beirut": 414,
       "queens of the stone age": 410,
+      "the ocean": 407,
       "isis": 383,
-      "the ocean": 383,
       "bonobo": 376,
       "terror x crew": 375,
       "monolink": 373,
-      "iotunn": 365,
+      "iotunn": 367,
       "radiohead": 364,
       "bjork": 354,
       "high parasite": 341,
@@ -287,7 +287,7 @@
       "billie holiday": 139,
       "daft punk": 139,
       "oasis": 139,
-      "opeth": 137,
+      "opeth": 139,
       "yonderboi": 137,
       "a silver mt. zion": 136,
       "calexico": 136,
@@ -429,8 +429,8 @@
       "amon tobin": 81,
       "fink": 81,
       "hammock": 81,
+      "my dying bride": 81,
       "hiatus": 80,
-      "my dying bride": 80,
       "backini": 79,
       "chinese man": 79,
       "jarv is...": 79,
@@ -1302,6 +1302,7 @@
       "mammal hands": 18,
       "meerak": 18,
       "melvins": 18,
+      "messa": 18,
       "monrroe": 18,
       "n.a.s.a.": 18,
       "nils petter molvær": 18,
@@ -1339,7 +1340,6 @@
       "limousine": 17,
       "lisa hannigan": 17,
       "melanie martinez": 17,
-      "messa": 17,
       "miley cyrus": 17,
       "moonspell": 17,
       "mosh": 17,
@@ -9481,11 +9481,12 @@
       "王若琳": 1
     },
     "month": {
-      "dvne": 145,
+      "dvne": 128,
       "mono": 112,
       "the lost wanderer": 46,
       "hallas": 45,
-      "villagers of ioannina city": 40,
+      "villagers of ioannina city": 38,
+      "the ocean": 35,
       "skin thief": 30,
       "mogwai": 28,
       "zeal & ardor": 26,
@@ -9500,7 +9501,6 @@
       "a swarm of the sun": 11,
       "nightstalker": 11,
       "ontaard": 11,
-      "the ocean": 11,
       "yawning man": 11,
       "paraskevas theodorakis": 9,
       "dub pistols": 7,
@@ -9511,9 +9511,11 @@
       "crippled black phoenix": 4,
       "cult of luna": 4,
       "if these trees could talk": 4,
+      "iotunn": 4,
       "lambert": 4,
       "nightmares on wax": 4,
       "olafur arnalds": 4,
+      "opeth": 4,
       "sade": 4,
       "solstafir": 4,
       "we lost the sea": 4,
@@ -9523,7 +9525,6 @@
       "kafabindunya": 3,
       "katya lel": 3,
       "nikos papazoglou": 3,
-      "psychonaut": 3,
       "rebel moves": 3,
       "ry x": 3,
       "steven wilson": 3,
@@ -9541,7 +9542,6 @@
       "hellbound hearts": 2,
       "hiatus": 2,
       "hippotraktor": 2,
-      "iotunn": 2,
       "isis": 2,
       "jarvis cocker": 2,
       "jill barber": 2,
@@ -9549,15 +9549,16 @@
       "khan": 2,
       "led zeppelin": 2,
       "lost in kyiv": 2,
+      "messa": 2,
       "mgła": 2,
       "moderator": 2,
       "monolink": 2,
       "mpls": 2,
       "my diligence": 2,
       "nordic giants": 2,
-      "opeth": 2,
       "paradise lost": 2,
       "portico": 2,
+      "psychonaut": 2,
       "scorpions": 2,
       "slift": 2,
       "sting": 2,
@@ -9647,7 +9648,6 @@
       "manolis rasoulis": 1,
       "martina camargo": 1,
       "mc foyeck": 1,
-      "messa": 1,
       "metallica": 1,
       "michael jackson": 1,
       "michael kiwanuka": 1,
@@ -9657,6 +9657,7 @@
       "morcheeba": 1,
       "mors principium est": 1,
       "mum": 1,
+      "my dying bride": 1,
       "nazareth": 1,
       "neoni": 1,
       "nick waterhouse": 1,
@@ -9714,41 +9715,45 @@
     "the ocean": [
       {
         "name": "Mesopelagic: Into The Uncanny - Audiotree Version",
-        "playcount": 6
+        "playcount": 10
+      },
+      {
+        "name": "Mesopelagic: Into the Uncanny",
+        "playcount": 4
+      },
+      {
+        "name": "Firmament - Audiotree Version",
+        "playcount": 4
+      },
+      {
+        "name": "Triassic",
+        "playcount": 3
+      },
+      {
+        "name": "Sea of Reeds - Audiotree Version",
+        "playcount": 2
       },
       {
         "name": "Belligerence, Pt. II",
         "playcount": 2
       },
       {
-        "name": "Oligocene",
+        "name": "Epipelagic (Instrumental)",
         "playcount": 1
       },
       {
-        "name": "Pleistocene",
-        "playcount": 1
-      },
-      {
-        "name": "Mesopelagic: Into the Uncanny",
-        "playcount": 1
-      },
-      {
-        "name": "Light Pollution",
-        "playcount": 1
-      },
-      {
-        "name": "The Quiet Observer",
-        "playcount": 1
-      },
-      {
-        "name": "Simulacra, Pt. I",
+        "name": "Demersal: Cognitive Dissonance",
         "playcount": 1
       }
     ],
     "opeth": [
       {
         "name": "Burden",
-        "playcount": 5
+        "playcount": 6
+      },
+      {
+        "name": "§1",
+        "playcount": 1
       },
       {
         "name": "Bridge of Sighs",
@@ -9756,6 +9761,56 @@
       },
       {
         "name": "Harvest",
+        "playcount": 1
+      }
+    ],
+    "messa": [
+      {
+        "name": "At Races",
+        "playcount": 1
+      },
+      {
+        "name": "The Dress",
+        "playcount": 1
+      }
+    ],
+    "iotunn": [
+      {
+        "name": "Kinship Elegiac",
+        "playcount": 22
+      },
+      {
+        "name": "Mistland",
+        "playcount": 19
+      },
+      {
+        "name": "Twilight",
+        "playcount": 14
+      },
+      {
+        "name": "I Feel the Night",
+        "playcount": 11
+      },
+      {
+        "name": "The Coming End",
+        "playcount": 8
+      },
+      {
+        "name": "Iridescent Way",
+        "playcount": 7
+      },
+      {
+        "name": "Earth to Sky",
+        "playcount": 7
+      },
+      {
+        "name": "The Anguished Ethereal",
+        "playcount": 5
+      }
+    ],
+    "my dying bride": [
+      {
+        "name": "The 2nd of Three Bells",
         "playcount": 1
       }
     ],
@@ -9768,7 +9823,7 @@
     "portico": [
       {
         "name": "101 (feat. Joe Newman)",
-        "playcount": 4
+        "playcount": 3
       }
     ],
     "monolink": [
@@ -10205,12 +10260,6 @@
         "playcount": 2
       }
     ],
-    "messa": [
-      {
-        "name": "The Dress",
-        "playcount": 1
-      }
-    ],
     "rezn": [
       {
         "name": "Escher",
@@ -10238,7 +10287,7 @@
     "der weg einer freiheit": [
       {
         "name": "Xibalba",
-        "playcount": 6
+        "playcount": 5
       },
       {
         "name": "Marter",
@@ -10376,7 +10425,7 @@
     "bob marley & the wailers": [
       {
         "name": "Satisfy My Soul",
-        "playcount": 3
+        "playcount": 2
       },
       {
         "name": "Running Away",
@@ -10386,7 +10435,7 @@
     "ff.c": [
       {
         "name": "Ο κύκλος",
-        "playcount": 4
+        "playcount": 3
       },
       {
         "name": "Παραμύθι",
@@ -11650,7 +11699,7 @@
     "the lost wanderer": [
       {
         "name": "Smoky Dreams",
-        "playcount": 53
+        "playcount": 41
       },
       {
         "name": "Shadow On The Sun",
@@ -12005,10 +12054,6 @@
         "playcount": 2
       },
       {
-        "name": "So Long, and Thanks for All the Fish",
-        "playcount": 2
-      },
-      {
         "name": "Disillusioned",
         "playcount": 1
       },
@@ -12026,6 +12071,10 @@
       },
       {
         "name": "By and Down (Live)",
+        "playcount": 1
+      },
+      {
+        "name": "So Long, and Thanks for All the Fish",
         "playcount": 1
       },
       {
@@ -12241,18 +12290,6 @@
     ],
     "kako synapantima": [
       {
-        "name": "Tzitzikas",
-        "playcount": 3
-      },
-      {
-        "name": "Rantevou",
-        "playcount": 3
-      },
-      {
-        "name": "Ypourgos",
-        "playcount": 3
-      },
-      {
         "name": "Sayonara Toonight",
         "playcount": 3
       },
@@ -12261,7 +12298,19 @@
         "playcount": 2
       },
       {
+        "name": "Tzitzikas",
+        "playcount": 2
+      },
+      {
         "name": "Nyxterides",
+        "playcount": 2
+      },
+      {
+        "name": "Rantevou",
+        "playcount": 2
+      },
+      {
+        "name": "Ypourgos",
         "playcount": 2
       },
       {
@@ -12361,40 +12410,6 @@
       {
         "name": "The Lantern",
         "playcount": 1
-      }
-    ],
-    "iotunn": [
-      {
-        "name": "Kinship Elegiac",
-        "playcount": 22
-      },
-      {
-        "name": "Mistland",
-        "playcount": 19
-      },
-      {
-        "name": "Twilight",
-        "playcount": 14
-      },
-      {
-        "name": "I Feel the Night",
-        "playcount": 11
-      },
-      {
-        "name": "The Coming End",
-        "playcount": 8
-      },
-      {
-        "name": "Earth to Sky",
-        "playcount": 7
-      },
-      {
-        "name": "Iridescent Way",
-        "playcount": 6
-      },
-      {
-        "name": "The Anguished Ethereal",
-        "playcount": 5
       }
     ],
     "xavier rudd": [
@@ -12868,10 +12883,6 @@
       },
       {
         "name": "Giorgio by Moroder",
-        "playcount": 1
-      },
-      {
-        "name": "Instant Crush (feat. Julian Casablancas)",
         "playcount": 1
       }
     ],
@@ -13407,10 +13418,6 @@
         "playcount": 4
       },
       {
-        "name": "Change",
-        "playcount": 3
-      },
-      {
         "name": "Wood",
         "playcount": 3
       },
@@ -13419,11 +13426,15 @@
         "playcount": 3
       },
       {
-        "name": "Dust in my lungs, sun in my veins",
-        "playcount": 3
+        "name": "Change",
+        "playcount": 2
       },
       {
         "name": "Ήρθε στη Σύρο, κάποια στιγμή αργά Έπιασε",
+        "playcount": 2
+      },
+      {
+        "name": "The Grand Inquisitor / The Lost Wanderer",
         "playcount": 2
       }
     ],
@@ -13442,10 +13453,6 @@
     "dire straits": [
       {
         "name": "Money For Nothing - Remastered 1996",
-        "playcount": 1
-      },
-      {
-        "name": "You and Your Friend",
         "playcount": 1
       }
     ],
@@ -14153,10 +14160,6 @@
         "playcount": 3
       },
       {
-        "name": "In My Darkest Hour - Remastered 2004",
-        "playcount": 3
-      },
-      {
         "name": "Holy Wars...The Punishment Due - 2004 Remix",
         "playcount": 2
       },
@@ -14170,6 +14173,10 @@
       },
       {
         "name": "Tornado Of Souls - 2004 Remix",
+        "playcount": 2
+      },
+      {
+        "name": "In My Darkest Hour - Remastered 2004",
         "playcount": 2
       }
     ],
@@ -14789,10 +14796,6 @@
       {
         "name": "Finikies (Ola Girizoun)",
         "playcount": 1
-      },
-      {
-        "name": "Sto Idio Ergo Theates (Kalispera) - Live From Atticon Theatre, Athens, Greece / 1991 / Remastered 2003",
-        "playcount": 1
       }
     ],
     "bad movies": [
@@ -15305,10 +15308,6 @@
         "playcount": 2
       },
       {
-        "name": "Se enan kosmo",
-        "playcount": 2
-      },
-      {
         "name": "Apagoreuesai",
         "playcount": 2
       },
@@ -15319,6 +15318,10 @@
       {
         "name": "Pou pas",
         "playcount": 2
+      },
+      {
+        "name": "Se enan kosmo",
+        "playcount": 1
       },
       {
         "name": "Sano",
@@ -16208,18 +16211,6 @@
         "name": "Okreni",
         "playcount": 1
       }
-    ],
-    "oasis": [
-      {
-        "name": "Don't Look Back In Anger - Remastered",
-        "playcount": 1
-      }
-    ],
-    "koria gr": [
-      {
-        "name": "Feeling Good",
-        "playcount": 1
-      }
     ]
   },
   "topTracks": [
@@ -16356,64 +16347,64 @@
   ],
   "recentTracks": [
     {
+      "name": "Epipelagic (Instrumental)",
+      "artist": "The Ocean",
+      "playedAt": "2026-10-20T20:31:13.000Z"
+    },
+    {
+      "name": "Demersal: Cognitive Dissonance",
+      "artist": "The Ocean",
+      "playedAt": "2026-10-20T20:16:42.000Z"
+    },
+    {
+      "name": "Hadopelagic II: Let Them Believe",
+      "artist": "The Ocean",
+      "playedAt": "2026-10-20T20:10:25.000Z"
+    },
+    {
+      "name": "Hadopelagic I: Omen of the Deep",
+      "artist": "The Ocean",
+      "playedAt": "2026-10-20T20:08:23.000Z"
+    },
+    {
+      "name": "Abyssopelagic II: Signals of Anxiety",
+      "artist": "The Ocean",
+      "playedAt": "2026-10-20T20:00:06.000Z"
+    },
+    {
+      "name": "Abyssopelagic I: Boundless Vasts",
+      "artist": "The Ocean",
+      "playedAt": "2026-10-20T19:56:17.000Z"
+    },
+    {
+      "name": "Bathyalpelagic III: Disequilibrated",
+      "artist": "The Ocean",
+      "playedAt": "2026-10-20T19:51:23.000Z"
+    },
+    {
+      "name": "Bathyalpelagic I: Impasses",
+      "artist": "The Ocean",
+      "playedAt": "2026-10-20T19:45:13.000Z"
+    },
+    {
+      "name": "Bathyalpelagic II: The Wish In Dreams",
+      "artist": "The Ocean",
+      "playedAt": "2026-10-20T19:40:28.000Z"
+    },
+    {
+      "name": "Mesopelagic: Into the Uncanny",
+      "artist": "The Ocean",
+      "playedAt": "2026-10-20T19:17:34.000Z"
+    },
+    {
       "name": "Mesopelagic: Into The Uncanny - Audiotree Version",
       "artist": "The Ocean",
-      "playedAt": "2026-10-19T20:00:39.000Z"
+      "playedAt": "2026-10-20T19:16:34.000Z"
     },
     {
-      "name": "Burden",
-      "artist": "Opeth",
-      "playedAt": "2026-10-19T19:39:24.000Z"
-    },
-    {
-      "name": "The Word",
-      "artist": "Poni Hoax",
-      "playedAt": "2026-10-19T19:07:40.000Z"
-    },
-    {
-      "name": "101 (feat. Joe Newman)",
-      "artist": "Portico",
-      "playedAt": "2026-10-19T18:57:18.000Z"
-    },
-    {
-      "name": "Father Ocean - Ben Böhmer Remix",
-      "artist": "Monolink",
-      "playedAt": "2026-10-19T18:51:55.000Z"
-    },
-    {
-      "name": "Suzanne",
-      "artist": "Leonard Cohen",
-      "playedAt": "2026-10-19T18:47:15.000Z"
-    },
-    {
-      "name": "Τάση αυτοκαταστροφής",
-      "artist": "Anorimoi",
-      "playedAt": "2026-10-19T18:41:20.000Z"
-    },
-    {
-      "name": "L'exode",
-      "artist": "Jumo",
-      "playedAt": "2026-10-19T18:38:04.000Z"
-    },
-    {
-      "name": "Final Round",
-      "artist": "Degiheugi",
-      "playedAt": "2026-10-19T18:27:27.000Z"
-    },
-    {
-      "name": "Oceans",
-      "artist": "RY X",
-      "playedAt": "2026-10-19T18:22:58.000Z"
-    },
-    {
-      "name": "Song for Zula",
-      "artist": "Phosphorescent",
-      "playedAt": "2026-10-19T18:14:03.000Z"
-    },
-    {
-      "name": "Diamants",
-      "artist": "MPL",
-      "playedAt": "2026-10-19T18:09:37.000Z"
+      "name": "Triassic",
+      "artist": "The Ocean",
+      "playedAt": "2026-10-20T18:53:30.000Z"
     }
   ]
 }
