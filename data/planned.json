@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-21T11:29:18.166Z",
+    "lastUpdated": "2026-10-21T17:12:06.176Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -2575,7 +2575,7 @@
             "url": "https://www.podiuminfo.nl/concert/472328/Ontaard/EKKO/",
             "kind": "secondary",
             "label": "podiuminfo.nl",
-            "checkedAt": "2026-10-19T12:24:28.591Z"
+            "checkedAt": "2026-10-21T17:12:01.194Z"
           },
           {
             "url": "https://ekko.nl/en/event/ontaard/",
@@ -2586,17 +2586,18 @@
             "adapter": "wordpress-event-fields"
           }
         ],
-        "lastCheckedAt": "2026-10-19T12:24:28.591Z",
-        "lastAttemptAt": "2026-10-19T12:24:28.591Z",
+        "lastCheckedAt": "2026-10-21T17:12:01.194Z",
+        "lastAttemptAt": "2026-10-21T17:12:01.194Z",
         "checks": {
           "initial": "2026-10-16T21:04:18.520Z",
-          "manual": "2026-10-19T12:24:28.591Z"
+          "manual": "2026-10-19T12:24:28.591Z",
+          "before48h": "2026-10-21T17:12:01.194Z"
         },
         "lastError": null,
         "noSupport": null,
         "refreshRequestedAt": "2026-10-19T12:24:15.232Z",
         "lastOfficialCheckedAt": "2026-10-19T12:24:28.591Z",
-        "checkStatus": "official",
+        "checkStatus": "secondary-only",
         "discovery": {
           "version": 2,
           "attempts": [
@@ -2605,45 +2606,37 @@
               "status": "fetched"
             },
             {
+              "url": "https://ekko.nl/en/event/ontaard/",
+              "status": "fetch-failed",
+              "reason": "HTTP 503"
+            },
+            {
               "url": "https://ekko.nl/programma/",
               "status": "fetch-failed",
-              "reason": "HTTP 404"
+              "reason": "HTTP 503"
             },
             {
               "url": "https://ekko.nl/sitemap.xml",
-              "status": "fetched"
+              "status": "fetch-failed",
+              "reason": "HTTP 503"
             },
             {
-              "url": "https://ekko.nl/event-sitemap.xml",
-              "status": "fetched"
+              "url": "https://ekko.nl/sitemap_index.xml",
+              "status": "fetch-failed",
+              "reason": "HTTP 503"
             },
             {
-              "url": "https://ekko.nl/event-sitemap2.xml",
-              "status": "fetched"
-            },
-            {
-              "url": "https://ekko.nl/event-sitemap3.xml",
-              "status": "fetched"
-            },
-            {
-              "url": "https://ekko.nl/en/event/ontaard/",
-              "status": "fetched"
-            },
-            {
-              "url": "https://ekko.nl/wp-json/wp/v2/event/29634",
-              "status": "fetched"
-            },
-            {
-              "url": "https://ekko.nl/en/event/ontaard/",
-              "status": "verified"
+              "url": "https://ekko.nl/wp-sitemap.xml",
+              "status": "fetch-failed",
+              "reason": "HTTP 503"
             }
           ],
           "configured": [
             "ekko.nl"
           ],
-          "requests": 8
+          "requests": 6
         },
-        "availability": "published"
+        "availability": "official-unverified"
       },
       "practical": {
         "ticketBought": true
