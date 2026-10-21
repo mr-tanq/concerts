@@ -53,7 +53,7 @@ export function scheduleCountdown(concert, now = Date.now()) {
 const escapeHTML = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const safeURL = value => { try { const u = new URL(value); return u.protocol === "https:" && !u.username && !u.password ? u.href : null; } catch { return null; } };
 
-function artistLabel(name) {
+export function artistLabel(name) {
   const value = String(name || "");
   // Soften venue timetable capitals; preserve short acronyms and mixed-case names.
   if (!/^[\p{L}\s'-]+$/u.test(value) || /\p{Ll}/u.test(value) || !/\p{L}{5}/u.test(value)) return value;

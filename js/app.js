@@ -20,7 +20,7 @@ function mountConcertShare(heading, concert) {
 }
 
 import { mountPractical, updatePractical } from "./concert-practical.js?v=20261013";
-import { mountSchedule, clearScheduleClock, syncScheduleClock, scheduleCountdown } from "./concert-schedule.js?v=clean-schedule-20261016";
+import { mountSchedule, clearScheduleClock, syncScheduleClock, scheduleCountdown, artistLabel } from "./concert-schedule.js?v=season-polish-20261021";
 import { buildArchiveView, filterConcerts, searchArchiveConcerts, artistsOf, actuallySeenArtistsOf, venueKey, venueSearchNames } from "./archive-stats.js?v=archive-search-20261016";
 import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, isConflictError } from "./github-api.js";
 import { openConcertSearch } from "./concert-search.js?v=catalogue-search-20261013";
@@ -1071,7 +1071,6 @@ function openSheet(c) {
 
         ${planned ? `
           <div class="sheet-section">
-            <p class="whisper">Times & essentials</p>
             <div class="sheet-going-schedule"></div>
             <div class="sheet-practical"></div>
             <div class="sheet-warmup"></div>
@@ -1837,8 +1836,9 @@ function mountWarmup(host, concert) {
   </section>`);
   for (const name of unique) {
     const plays = window.plays(name);
-    const row = el(`<div class="warmup-artist"><div><strong>${esc(displayPlannedArtist(name))}</strong><span>${plays ? `${plays} ${plays === 1 ? 'play' : 'plays'} in this period` : 'No plays recorded in this period'}</span></div>
-      <a class="plain-act" href="https://open.spotify.com/search/${encodeURIComponent(name)}" target="_blank" rel="noopener noreferrer" aria-label="Find ${esc(name)} on Spotify">Listen ↗</a></div>`);
+    const label = artistLabel(displayPlannedArtist(name));
+    const row = el(`<div class="warmup-artist"><div><strong>${esc(label)}</strong><span>${plays ? `${plays} ${plays === 1 ? 'play' : 'plays'} in this period` : 'No plays recorded in this period'}</span></div>
+      <a class="plain-act" href="https://open.spotify.com/search/${encodeURIComponent(name)}" target="_blank" rel="noopener noreferrer" aria-label="Find ${esc(label)} on Spotify">Listen ↗</a></div>`);
     section.querySelector('.warmup-artists').appendChild(row);
   }
   host.appendChild(section);
@@ -1853,7 +1853,7 @@ function seasonOverview(concerts) {
     <p class="season-caption">${s.nights} ${s.nights === 1 ? 'date' : 'different dates'}${s.work ? ` · ${s.work} on a working evening or night${s.arranged ? `, ${s.arranged} with time off arranged` : ''}` : ''}.</p>
     <details class="season-chart"><summary>Explore the season <span aria-hidden="true">⌄</span></summary>
       <div class="season-months">${s.months.map(m => `<div class="season-month">
-        <span>${esc(new Date(m.month + '-01T12:00:00Z').toLocaleDateString('en-GB', {month:'short',year:'2-digit',timeZone:'UTC'}))}</span>
+        <span>${MONTHS[Number(m.month.slice(5,7)) - 1].toUpperCase()} ${esc(m.month.slice(2,4))}</span>
         <span class="season-track" role="img" aria-label="${m.total} shows: ${m.booked} ticket bought, ${m.planned} planned, ${m.work} without tickets on a working evening or night">
           <i class="season-booked" style="width:${m.booked / largest * 100}%"></i><i class="season-planned" style="width:${m.planned / largest * 100}%"></i><i class="season-work" style="width:${m.work / largest * 100}%"></i>
         </span><b>${m.total}</b></div>`).join('')}</div>
@@ -1869,15 +1869,16 @@ function nextNight(concert) {
     <p class="whisper">The next night</p>
     <button type="button" class="next-night-open" aria-label="Open ${esc(displayPlannedArtist(concert.artist))}: times and essentials">
       <span class="next-night-photo" aria-hidden="true"></span>
-      <span class="next-night-count" aria-hidden="true"><b>${Math.max(0, daysUntil(concert.date))}</b><span>${daysUntil(concert.date) <= 0 ? 'Tonight' : daysUntil(concert.date) === 1 ? 'Night to go' : 'Nights to go'}</span></span>
-      <span class="next-night-copy"><span class="next-night-date">${weekdayShort(concert.date)} · ${fullDate(concert.date)}</span>
+      <span class="next-night-copy">
+        <span class="next-night-count" aria-hidden="true"><b>${Math.max(0, daysUntil(concert.date))}</b><span>${daysUntil(concert.date) <= 0 ? 'Tonight' : daysUntil(concert.date) === 1 ? 'Night to go' : 'Nights to go'}</span></span>
+        <span class="next-night-date">${weekdayShort(concert.date)} · ${fullDate(concert.date)}</span>
         <strong>${esc(displayPlannedArtist(concert.artist))}${ticketMark(concert)}</strong>
         <span class="next-night-venue">${esc([concert.venue,concert.city].filter(Boolean).join(', '))}</span>
       </span>
     </button>
     <div class="next-night-meta">${workDayBadge(concert)}<span class="next-night-ticket">${concert.practical?.ticketBought === true ? 'Ticket bought' : 'Ticket not marked as bought'}</span></div>
     <p class="next-night-live" role="timer" aria-live="off" hidden></p>
-    <button type="button" class="next-night-essentials">Times & essentials <span aria-hidden="true">↗</span></button>
+    <button type="button" class="next-night-essentials">Times & essentials <span aria-hidden="true">→</span></button>
   </section>`);
   setPhoto(node.querySelector('.next-night-photo'), imageFor(concert));
   node.querySelectorAll('button').forEach(button => button.addEventListener('click', () => openSheet(concert)));
@@ -2011,16 +2012,16 @@ function renderUpcoming(body) {
         list.appendChild(el(`<div style="padding:16px var(--gutter) 8px"><p class="whisper">${esc(group)}</p></div>`));
         lastGroup = group;
       }
+      const showShift = !/free day/.test(workDayDetails(c.date)?.label || '')
+        || c.workArrangement?.status === 'yes';
       const row = el(`
         <button type="button" class="upcoming-row season-row">
           <span class="when"><span>${weekdayShort(c.date)}</span><b>${esc(String(Number(c.date.slice(8,10))))}</b></span>
           <div class="who">
             <b>${esc(displayPlannedArtist(c.artist))}${ticketMark(c)}</b>
-            <span class="event-meta"><span class="event-venue">${esc(c.venue)} · ${esc(c.city)}</span><span class="event-date">${fullDate(c.date)}</span></span>
-            <div>${workDayBadge(c)}</div>
-            ${c.practical?.ticketBought === true ? '<span class="season-booked-label">Ticket bought</span>' : ''}
+            <span class="event-meta"><span class="event-venue">${esc(c.venue)} · ${esc(c.city)}</span></span>
+            ${showShift ? `<div>${workDayBadge(c)}</div>` : ''}
           </div>
-          <span class="season-row-arrow" aria-hidden="true">↗</span>
         </button>
       `);
       row.addEventListener("click", () => openSheet(c));

@@ -1987,3 +1987,117 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
   .next-night-copy { padding-top:70px; }
   .season-row { gap:12px; }
 }
+
+/* Tonight / Going polish — presentation only, 2026-10-21. */
+#panel-concerts .archive-filter-search {
+  width:calc(100% - 2 * var(--gutter));
+  margin-left:var(--gutter);
+  margin-right:var(--gutter);
+}
+.next-night-open {
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+  background:transparent;
+}
+.next-night-photo {
+  position:relative;
+  inset:auto;
+  display:block;
+  width:100%;
+  height:148px;
+  flex:none;
+  z-index:auto;
+}
+.next-night-photo::after {
+  background:linear-gradient(180deg,transparent 50%,var(--black));
+}
+.next-night-copy {
+  display:grid;
+  grid-template-columns:64px minmax(0,1fr);
+  gap:8px 16px;
+  width:100%;
+  padding:12px 0 18px;
+  background:var(--black);
+}
+.next-night-count {
+  grid-column:1;
+  grid-row:1 / span 3;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:6px;
+  padding:0;
+}
+.next-night-count > b { font-size:64px; }
+.next-night-count > span { max-width:8ch; font-size:8px; }
+.next-night-copy > .next-night-date,
+.next-night-copy > strong,
+.next-night-copy > .next-night-venue { grid-column:2; }
+.next-night-copy > strong { font-size:clamp(30px,8vw,42px); }
+.next-night-copy > .next-night-venue { font-size:13px; }
+.season-overview .season-work {
+  background:repeating-linear-gradient(135deg,var(--bone-dim) 0 2px,var(--black) 2px 4px);
+}
+.practical-host details > summary,
+.sheet-practical details > summary,
+.concert-schedule .text-btn[data-refresh-schedule] {
+  min-height:44px;
+  padding:10px 0;
+  color:var(--bone-dim);
+  font:400 10.5px/1.5 var(--mono);
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  text-align:left;
+  cursor:pointer;
+}
+.practical-host details > summary,
+.sheet-practical details > summary {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  list-style:none;
+}
+.practical-host summary::-webkit-details-marker,
+.sheet-practical summary::-webkit-details-marker { display:none; }
+.practical-host summary::marker,
+.sheet-practical summary::marker { content:""; }
+.practical-host details > summary::after,
+.sheet-practical details > summary::after { content:"+"; }
+.practical-host details[open] > summary::after,
+.sheet-practical details[open] > summary::after { content:"−"; }
+.practical-host .status:empty,
+.sheet-practical .status:empty { display:none; }
+.concert-schedule .text-btn[data-refresh-schedule] {
+  display:block;
+  margin:8px 0 0;
+  border:0;
+  border-bottom:1px solid var(--hair);
+  border-radius:0;
+  background:transparent;
+}
+.ticketswap-host > .plain-act,
+.sheet-going-ticketswap > .plain-act {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  width:100%;
+  min-height:48px;
+  padding:12px 0;
+  border-top:1px solid var(--hair);
+  border-bottom:0;
+  text-align:left;
+  color:var(--bone-dim);
+}
+.ticketswap-host > .plain-act::after,
+.sheet-going-ticketswap > .plain-act::after {
+  content:"⌄";
+  display:inline-block;
+  transition:transform .2s;
+}
+.ticketswap-host > .plain-act[aria-expanded="true"]::after,
+.sheet-going-ticketswap > .plain-act[aria-expanded="true"]::after {
+  transform:rotate(180deg);
+}
+a.plain-act { text-decoration:none; }
