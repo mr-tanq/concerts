@@ -2,6 +2,7 @@ import { mutateJSONFiles } from "./github-transaction.js?v=atomic-concerts-20261
 import { mountSupportDiscovery } from "./concert-discovery.js?v=image-share-20261015";
 import { shareConcertImage } from "./concert-share.js?v=image-share-20261015";
 import { mountTicketSwap } from "./concert-ticketswap.js?v=universal-ticket-match-20261015";
+import { seasonSummary, listeningWindow } from "./going-season.js?v=season-20261021";
 
 function mountConcertShare(heading, concert) {
   if (!heading || heading.parentElement.classList.contains("concert-share-heading")) return;
@@ -19,7 +20,7 @@ function mountConcertShare(heading, concert) {
 }
 
 import { mountPractical, updatePractical } from "./concert-practical.js?v=20261013";
-import { mountSchedule, clearScheduleClock, syncScheduleClock } from "./concert-schedule.js?v=clean-schedule-20261016";
+import { mountSchedule, clearScheduleClock, syncScheduleClock, scheduleCountdown } from "./concert-schedule.js?v=clean-schedule-20261016";
 import { buildArchiveView, filterConcerts, searchArchiveConcerts, artistsOf, actuallySeenArtistsOf, venueKey, venueSearchNames } from "./archive-stats.js?v=archive-search-20261016";
 import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, isConflictError } from "./github-api.js";
 import { openConcertSearch } from "./concert-search.js?v=catalogue-search-20261013";
@@ -220,7 +221,8 @@ function workDayBadge(concert) {
   const kind = shift.category === "red" ? "freeDay" : shift.category === "orange" ? "lateStart" : null;
   const confirmed = kind && concert.workArrangement?.kind === kind
     && concert.workArrangement?.status === "yes";
-  const color = WORK_COLORS[confirmed ? "green" : shift.category];
+  const color = confirmed ? "#72cf9b" : /morning/.test(shift.label) ? "#83c8ed"
+    : /evening/.test(shift.label) ? "#e9b65e" : /night/.test(shift.label) ? "#af98e8" : "#72cf9b";
   const label = confirmed && kind === "freeDay" ? "Free" : shift.label;
   const sticker = confirmed && kind === "lateStart"
     ? '<span style="border:1px solid currentColor;border-radius:999px;padding:1px 6px;font-size:11px">+2</span>'
@@ -1069,8 +1071,10 @@ function openSheet(c) {
 
         ${planned ? `
           <div class="sheet-section">
+            <p class="whisper">Times & essentials</p>
             <div class="sheet-going-schedule"></div>
             <div class="sheet-practical"></div>
+            <div class="sheet-warmup"></div>
             <div class="sheet-going-ticketswap"></div>
           </div>
         ` : `
@@ -1102,6 +1106,7 @@ function openSheet(c) {
   // Unplan is reachable from any planned concert, not just whichever one
   // happens to be next — a mistake buried three deep still has to be undoable.
   if (planned) {
+    mountWarmup(sheet.querySelector(".sheet-warmup"), planned);
     const scheduleHost = sheet.querySelector(".sheet-going-schedule");
     mountSchedule(scheduleHost, { ...planned, artist: displayPlannedArtist(planned.artist) });
     refreshGoingSchedule(planned, scheduleHost);
@@ -1406,6 +1411,7 @@ function renderConcerts(recsData, plannedData, historyData) {
 }
 
 function renderConcertsShell(view = "stage") {
+  clearNextNightClock();
   clearScheduleClock();
   const root = document.getElementById("panel-concerts");
   root.innerHTML = "";
@@ -1809,7 +1815,87 @@ function renderGoingCalendar(body) {
   body.appendChild(calendar);
 }
 
+let nextNightClock = null;
+function clearNextNightClock() { clearInterval(nextNightClock); nextNightClock = null; }
+
+function mountWarmup(host, concert) {
+  const window = listeningWindow(archiveViewData?.timeseriesData, dutchToday());
+  if (!window) {
+    host.appendChild(el('<p class="footnote">Listening history is unavailable right now.</p>'));
+    return;
+  }
+  const schedule = concert.schedule?.date === concert.date ? concert.schedule : null;
+  const names = [concert.artist, ...(schedule?.noSupport ? [] : [
+    ...(concert.supportingArtists || []), ...(schedule?.support || []).map(s => s.name)
+  ])].filter(Boolean);
+  const unique = [...new Map(names.map(name => [normalizeKey(name), name])).values()];
+  const section = el(`<section class="night-warmup" aria-label="Listening warm-up">
+    <p class="whisper">Warm-up</p>
+    <p class="footnote">${window.weeks.length} recorded weeks · weeks of ${fullDate(window.weeks[0])} – ${fullDate(window.weeks.at(-1))}</p>
+    <div class="warmup-artists"></div>
+    ${window.updatedAt ? `<p class="footnote warmup-updated">History updated ${esc(fullDate(String(window.updatedAt).slice(0,10)))}</p>` : ''}
+  </section>`);
+  for (const name of unique) {
+    const plays = window.plays(name);
+    const row = el(`<div class="warmup-artist"><div><strong>${esc(displayPlannedArtist(name))}</strong><span>${plays ? `${plays} ${plays === 1 ? 'play' : 'plays'} in this period` : 'No plays recorded in this period'}</span></div>
+      <a class="plain-act" href="https://open.spotify.com/search/${encodeURIComponent(name)}" target="_blank" rel="noopener noreferrer" aria-label="Find ${esc(name)} on Spotify">Listen ↗</a></div>`);
+    section.querySelector('.warmup-artists').appendChild(row);
+  }
+  host.appendChild(section);
+}
+
+function seasonOverview(concerts) {
+  const s = seasonSummary(concerts, workDayDetails);
+  const largest = Math.max(1, ...s.months.map(m => m.total));
+  const node = el(`<section class="season-overview" aria-label="Your concert season">
+    <p class="whisper">The season ahead${goingTicketsOnly ? ' · ticket filter on' : ''}</p>
+    <h2>${s.shows} ${s.shows === 1 ? 'show' : 'shows'} in view.<br><em>${s.booked} ${s.booked === 1 ? 'ticket' : 'tickets'} bought.</em></h2>
+    <p class="season-caption">${s.nights} ${s.nights === 1 ? 'date' : 'different dates'}${s.work ? ` · ${s.work} on a working evening or night${s.arranged ? `, ${s.arranged} with time off arranged` : ''}` : ''}.</p>
+    <details class="season-chart"><summary>Explore the season <span aria-hidden="true">⌄</span></summary>
+      <div class="season-months">${s.months.map(m => `<div class="season-month">
+        <span>${esc(new Date(m.month + '-01T12:00:00Z').toLocaleDateString('en-GB', {month:'short',year:'2-digit',timeZone:'UTC'}))}</span>
+        <span class="season-track" role="img" aria-label="${m.total} shows: ${m.booked} ticket bought, ${m.planned} planned, ${m.work} without tickets on a working evening or night">
+          <i class="season-booked" style="width:${m.booked / largest * 100}%"></i><i class="season-planned" style="width:${m.planned / largest * 100}%"></i><i class="season-work" style="width:${m.work / largest * 100}%"></i>
+        </span><b>${m.total}</b></div>`).join('')}</div>
+      <p class="season-key"><span><i class="season-booked"></i>Ticket bought</span><span><i class="season-planned"></i>Planned</span><span><i class="season-work"></i>Work · no ticket</span></p>
+      <p class="footnote">Buying a ticket does not mean time off is arranged.</p>
+    </details>
+  </section>`);
+  return node;
+}
+
+function nextNight(concert) {
+  const node = el(`<section class="next-night" aria-label="Next night">
+    <p class="whisper">The next night</p>
+    <button type="button" class="next-night-open" aria-label="Open ${esc(displayPlannedArtist(concert.artist))}: times and essentials">
+      <span class="next-night-photo" aria-hidden="true"></span>
+      <span class="next-night-count" aria-hidden="true"><b>${Math.max(0, daysUntil(concert.date))}</b><span>${daysUntil(concert.date) <= 0 ? 'Tonight' : daysUntil(concert.date) === 1 ? 'Night to go' : 'Nights to go'}</span></span>
+      <span class="next-night-copy"><span class="next-night-date">${weekdayShort(concert.date)} · ${fullDate(concert.date)}</span>
+        <strong>${esc(displayPlannedArtist(concert.artist))}${ticketMark(concert)}</strong>
+        <span class="next-night-venue">${esc([concert.venue,concert.city].filter(Boolean).join(', '))}</span>
+      </span>
+    </button>
+    <div class="next-night-meta">${workDayBadge(concert)}<span class="next-night-ticket">${concert.practical?.ticketBought === true ? 'Ticket bought' : 'Ticket not marked as bought'}</span></div>
+    <p class="next-night-live" role="timer" aria-live="off" hidden></p>
+    <button type="button" class="next-night-essentials">Times & essentials <span aria-hidden="true">↗</span></button>
+  </section>`);
+  setPhoto(node.querySelector('.next-night-photo'), imageFor(concert));
+  node.querySelectorAll('button').forEach(button => button.addEventListener('click', () => openSheet(concert)));
+  const tick = () => {
+    if (!node.isConnected) { clearNextNightClock(); return; }
+    if (document.hidden || !document.getElementById('panel-concerts')?.classList.contains('active')) return;
+    const text = scheduleCountdown(concert);
+    const clock = node.querySelector('.next-night-live');
+    clock.textContent = text; clock.hidden = !text;
+  };
+  // Start after insertion, and keep the existing venue-local countdown logic.
+  queueMicrotask(tick);
+  nextNightClock = setInterval(tick, 15000);
+  return node;
+}
+
 function renderUpcoming(body) {
+  clearNextNightClock();
   goingBody = body;
   clearScheduleClock();
   body.innerHTML = "";
@@ -1866,12 +1952,13 @@ function renderUpcoming(body) {
     return;
   }
 
-  if (goingLayout === "calendar") { renderGoingCalendar(body); return; }
   const today = dutchToday();
   const sorted = [...(goingTicketsOnly ? ticketedUpcoming() : plannedConcerts)].sort((a, b) => String(a.date).localeCompare(String(b.date)));
   const stillUpcoming = c => c.date >= today || (c.schedule?.date === c.date && Date.parse(c.schedule.end?.at) > Date.now());
   const upcoming = sorted.filter(stillUpcoming);
   const past = sorted.filter(c => !stillUpcoming(c));
+  if (upcoming.length) body.appendChild(seasonOverview(upcoming));
+  if (goingLayout === "calendar") { renderGoingCalendar(body); return; }
 
   if (!sorted.length) {
     body.appendChild(el(`<p class="void">Nothing planned. Swipe right on something.</p>`));
@@ -1881,10 +1968,8 @@ function renderUpcoming(body) {
   // The next concert gets the whole stage; the rest are a quiet index.
   // A flat list of equal cards hides the only thing that matters — what's soon.
   if (upcoming.length) {
-    body.appendChild(el(`<div style="padding:0 var(--gutter)"><p class="whisper">Next</p></div>`));
-    body.appendChild(upcomingHero(upcoming[0], true));
-    syncScheduleClock();
-    refreshGoingSchedule(upcoming[0], body.querySelector(".schedule-host"));
+    body.appendChild(nextNight(upcoming[0]));
+    refreshGoingSchedule(upcoming[0], null);
   }
 
   const search = el(`<input type="search" class="archive-filter-search"
@@ -1916,26 +2001,27 @@ function renderUpcoming(body) {
       return;
     }
 
-    const list = el('<div class="upcoming-list"></div>');
+    const list = el('<div class="upcoming-list season-list"></div>');
     let lastGroup = null;
     for (const c of rest) {
       const group = searching ? "Search results"
         : !stillUpcoming(c) ? "Passed shows"
-        : upcoming[0]?.date === c.date
-          ? `Also on ${fullDate(c.date)}` : "After that";
+        : new Date(c.date + 'T12:00:00Z').toLocaleDateString('en-GB', {month:'long',year:'numeric',timeZone:'UTC'});
       if (group !== lastGroup) {
         list.appendChild(el(`<div style="padding:16px var(--gutter) 8px"><p class="whisper">${esc(group)}</p></div>`));
         lastGroup = group;
       }
       const row = el(`
-        <div class="upcoming-row">
-          <div class="when">${!stillUpcoming(c) ? "Passed" : countdownWord(c.date)}</div>
+        <button type="button" class="upcoming-row season-row">
+          <span class="when"><span>${weekdayShort(c.date)}</span><b>${esc(String(Number(c.date.slice(8,10))))}</b></span>
           <div class="who">
             <b>${esc(displayPlannedArtist(c.artist))}${ticketMark(c)}</b>
             <span class="event-meta"><span class="event-venue">${esc(c.venue)} · ${esc(c.city)}</span><span class="event-date">${fullDate(c.date)}</span></span>
             <div>${workDayBadge(c)}</div>
+            ${c.practical?.ticketBought === true ? '<span class="season-booked-label">Ticket bought</span>' : ''}
           </div>
-        </div>
+          <span class="season-row-arrow" aria-hidden="true">↗</span>
+        </button>
       `);
       row.addEventListener("click", () => openSheet(c));
       list.appendChild(row);

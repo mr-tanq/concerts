@@ -1923,3 +1923,67 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
 }
 .sheet-going .sheet-memory-line { margin-top:12px; }
 .sheet-going .schedule-row dt small { display:block; }
+
+/* Going: a quiet season index, with one night in the foreground. */
+.season-overview { padding: 4px var(--gutter) 30px; }
+.season-overview h2 { font:400 clamp(36px,9vw,52px)/1.05 var(--serif); letter-spacing:-.025em; margin:18px 0 14px; }
+.season-overview h2 em { color:var(--bone-dim); font-weight:400; }
+.season-caption { color:var(--bone-dim); font-size:13px; line-height:1.7; max-width:42ch; }
+.season-chart { margin-top:20px; border-top:1px solid var(--hair); }
+.season-chart summary { display:flex; justify-content:space-between; align-items:center; min-height:48px; cursor:pointer; list-style:none; font:10px var(--mono); text-transform:uppercase; letter-spacing:.12em; color:var(--bone-dim); }
+.season-chart summary::-webkit-details-marker { display:none; }
+.season-chart[open] summary span { transform:rotate(180deg); }
+.season-months { display:grid; gap:10px; padding:10px 0 18px; }
+.season-month { display:grid; grid-template-columns:62px 1fr 24px; gap:12px; align-items:center; font:10px var(--mono); text-transform:uppercase; color:var(--bone-dim); }
+.season-month b { text-align:right; font-weight:400; }
+.season-track { display:flex; height:13px; gap:0; }
+.season-track i { display:block; min-width:0; }
+.season-booked { background:#9bd6e4; }
+.season-planned { background:var(--bone-dim); }
+.season-work { background:#af98e8; }
+.season-key { display:flex; flex-wrap:wrap; gap:10px 16px; font:9px var(--mono); color:var(--bone-dim); }
+.season-key span { display:inline-flex; align-items:center; gap:6px; }
+.season-key i { display:inline-block; width:8px; height:8px; }
+.next-night { margin:0 var(--gutter) 32px; }
+.next-night > .whisper { margin-bottom:16px; }
+.next-night-open { display:block; position:relative; width:100%; min-height:380px; padding:0; text-align:left; isolation:isolate; overflow:hidden; background:var(--black-2); }
+.next-night-photo { position:absolute; inset:0; background-size:cover; background-position:center; z-index:-2; }
+.next-night-photo::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(8,8,10,.28),rgba(8,8,10,.04) 30%,rgba(8,8,10,.94) 100%); }
+.next-night-photo.is-empty { background:radial-gradient(ellipse at 80% 15%,#39302a, #141416 55%, #08080a); }
+.next-night-count { display:flex; align-items:center; gap:16px; padding:22px; }
+.next-night-count > b { font:400 104px/.85 var(--serif); letter-spacing:-.05em; }
+.next-night-count > span { max-width:6ch; font:10px/1.6 var(--mono); text-transform:uppercase; letter-spacing:.14em; }
+.next-night-copy { display:flex; flex-direction:column; gap:10px; padding:105px 20px 24px; }
+.next-night-date { font:10px/1.6 var(--mono); text-transform:uppercase; letter-spacing:.1em; }
+.next-night-copy > strong { font:400 clamp(36px,10vw,54px)/1.02 var(--serif); overflow-wrap:anywhere; }
+.next-night-venue { font:14px/1.5 var(--sans); color:var(--bone-dim); }
+.next-night-meta { display:flex; flex-wrap:wrap; gap:8px 16px; align-items:center; padding:12px 0; }
+.next-night-meta .work-shift { margin:0; }
+.next-night-ticket { font:10px/1.6 var(--mono); color:var(--bone-dim); }
+.next-night-live { font:11px/1.6 var(--mono); color:var(--ember); margin:8px 0; }
+.next-night-essentials { display:flex; width:100%; align-items:center; justify-content:space-between; min-height:50px; border-top:1px solid var(--hair); border-bottom:1px solid var(--hair); font:11px var(--mono); text-transform:uppercase; letter-spacing:.1em; text-align:left; }
+.next-night-open:focus-visible, .next-night-essentials:focus-visible, .season-row:focus-visible, .season-chart summary:focus-visible { outline:2px solid var(--ember); outline-offset:4px; }
+.season-list { margin-top:22px; }
+.season-row { width:100%; text-align:left; align-items:flex-start; gap:18px; padding-top:22px; padding-bottom:22px; }
+.season-row .when { width:32px; min-width:32px; display:flex; flex-direction:column; gap:5px; text-align:center; }
+.season-row .when > span { font:9px var(--mono); text-transform:uppercase; letter-spacing:.1em; }
+.season-row .when > b { font:400 30px/1 var(--serif); color:var(--bone); }
+.season-row .who > b { display:block; font-size:26px; line-height:1.15; }
+.season-row .who .event-meta { margin-top:8px; }
+.season-row .who .event-date { font-size:10px; }
+.season-row .who .work-shift { margin-top:10px; }
+.season-row .who .season-booked-label { display:block; margin-top:7px; font:9px var(--mono); color:#9bd6e4; text-transform:uppercase; letter-spacing:.08em; }
+.season-row-arrow { font-size:16px; color:var(--bone-faint); padding-top:5px; }
+.night-warmup { border-top:1px solid var(--hair); padding:24px 0; }
+.night-warmup > .footnote { margin-top:12px; line-height:1.7; }
+.warmup-artist { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:16px 0; border-bottom:1px solid var(--hair-soft); }
+.warmup-artist > div { min-width:0; }
+.warmup-artist strong { display:block; font:400 25px/1.2 var(--serif); overflow-wrap:anywhere; }
+.warmup-artist span { display:block; font-size:12px; color:var(--bone-dim); margin-top:6px; line-height:1.5; }
+.warmup-artist a { flex-shrink:0; display:flex; align-items:center; min-height:44px; }
+@media (max-width:360px) {
+  .going-layout { gap:10px; }
+  .next-night-open { min-height:340px; }
+  .next-night-copy { padding-top:70px; }
+  .season-row { gap:12px; }
+}
