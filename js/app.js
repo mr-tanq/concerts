@@ -221,8 +221,7 @@ function workDayBadge(concert) {
   const kind = shift.category === "red" ? "freeDay" : shift.category === "orange" ? "lateStart" : null;
   const confirmed = kind && concert.workArrangement?.kind === kind
     && concert.workArrangement?.status === "yes";
-  const color = confirmed ? "#72cf9b" : /morning/.test(shift.label) ? "#83c8ed"
-    : /evening/.test(shift.label) ? "#e9b65e" : /night/.test(shift.label) ? "#af98e8" : "#72cf9b";
+  const color = WORK_COLORS[confirmed ? "green" : shift.category];
   const label = confirmed && kind === "freeDay" ? "Free" : shift.label;
   const sticker = confirmed && kind === "lateStart"
     ? '<span style="border:1px solid currentColor;border-radius:999px;padding:1px 6px;font-size:11px">+2</span>'
@@ -1774,16 +1773,12 @@ function renderGoingCalendar(body) {
     const date = `${goingCalendarMonth}-${String(day).padStart(2, "0")}`;
     const concerts = byDate.get(date) || [];
     const shift = workDayDetails(date);
-    const shiftName = shift?.label.replace(/^\d+(st|nd|rd|th) /, "") || "";
-    const color = shiftName === "morning" ? "#83c8ed"
-      : shiftName === "evening" ? "#e9b65e"
-      : shiftName === "night" ? "#af98e8"
-      : shiftName === "free day" ? "#72cf9b" : "var(--bone-faint)";
+    const color = WORK_COLORS[shift?.category] || "var(--bone-faint)";
     const cell = el(`<button class="calendar-day ${date === today ? "is-today" : ""} ${date === selected ? "is-selected" : ""}"
       data-date="${date}" aria-pressed="${date === selected}" ${date === today ? 'aria-current="date"' : ""}
       style="--day-shift:${color}" aria-label="${esc(fullDate(date))}, ${esc(shift?.label || "")}, ${concerts.length} concerts">
       <span class="calendar-number">${day}</span>
-      <span class="calendar-shift" title="${esc(shift?.label || "")}">${esc(shiftName)}</span>
+      <span class="calendar-shift" title="${esc(shift?.label || "")}">${esc(shift?.label || "")}</span>
       ${concerts.slice(0, 2).map((c) => `<span class="calendar-event" data-ticket-event="${esc(c.id)}" style="${c.practical?.ticketBought===true?'background:#244d59;color:#d2f3fb':''}">${esc(displayPlannedArtist(c.artist))}${ticketMark(c)}</span>`).join("")}
       ${concerts.length > 2 ? `<span class="calendar-more">+${concerts.length - 2} more</span>` : ""}
     </button>`);
@@ -2012,15 +2007,13 @@ function renderUpcoming(body) {
         list.appendChild(el(`<div style="padding:16px var(--gutter) 8px"><p class="whisper">${esc(group)}</p></div>`));
         lastGroup = group;
       }
-      const showShift = !/free day/.test(workDayDetails(c.date)?.label || '')
-        || c.workArrangement?.status === 'yes';
       const row = el(`
         <button type="button" class="upcoming-row season-row">
           <span class="when"><span>${weekdayShort(c.date)}</span><b>${esc(String(Number(c.date.slice(8,10))))}</b></span>
           <div class="who">
             <b>${esc(displayPlannedArtist(c.artist))}${ticketMark(c)}</b>
             <span class="event-meta"><span class="event-venue">${esc(c.venue)} · ${esc(c.city)}</span></span>
-            ${showShift ? `<div>${workDayBadge(c)}</div>` : ''}
+            <div>${workDayBadge(c)}</div>
           </div>
         </button>
       `);
