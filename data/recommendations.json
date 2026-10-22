@@ -1,19 +1,94 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-10-22T12:50:15.989Z",
+    "lastUpdated": "2026-10-22T21:04:47.030Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 366,
-      "daysFresh": 366,
-      "daysCached": 0,
+      "daysFresh": 0,
+      "daysCached": 366,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 3,
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-477244",
+      "source": "podiuminfo",
+      "sourceId": "477244",
+      "artist": "Evergrey",
+      "lineup": [
+        "Evergrey"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Evergrey"
+      ],
+      "date": "2026-12-12",
+      "time": null,
+      "venue": "Muziekgieterij",
+      "city": "Maastricht",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/1678/100_Evergrey_1.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/136271/cd/Evergrey/Muziekgieterij/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/477244/Evergrey/Muziekgieterij/",
+      "match": {
+        "score": 34,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Nevermore",
+        "matchedArtists": [
+          "Evergrey"
+        ],
+        "similarVia": "Nevermore"
+      },
+      "discoveredAt": "2026-10-22T21:04:47.030Z",
+      "lastSeenAt": "2026-10-22T21:04:47.030Z"
+    },
+    {
+      "id": "rec-podiuminfo-498172",
+      "source": "podiuminfo",
+      "sourceId": "498172",
+      "artist": "Crimson Glory",
+      "lineup": [
+        "Crimson Glory"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Crimson Glory"
+      ],
+      "date": "2027-05-23",
+      "time": null,
+      "venue": "013",
+      "city": "Tilburg",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.podiuminfo.nl/img/podiuminfo-rond.png",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/143426/cd/Crimson-Glory/013/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/498172/Crimson-Glory/013/",
+      "match": {
+        "score": 31,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Nevermore",
+        "matchedArtists": [
+          "Crimson Glory"
+        ],
+        "similarVia": "Nevermore"
+      },
+      "discoveredAt": "2026-10-22T21:04:47.030Z",
+      "lastSeenAt": "2026-10-22T21:04:47.030Z"
+    }
+  ]
 }
