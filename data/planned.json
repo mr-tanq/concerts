@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-24T22:11:53.084Z",
+    "lastUpdated": "2026-10-24T22:15:21.754Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -1426,8 +1426,107 @@
         "originalScore": 36
       },
       "schedule": {
+        "version": 1,
         "date": "2027-03-04",
-        "refreshRequestedAt": "2026-10-24T22:14:54.175Z"
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": "19:30",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://muziekgieterij.nl/event/cult-of-luna-2027-03-04/",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-24T22:15:08.233Z",
+          "evidence": "Zaal open19:30",
+          "at": "2027-03-04T18:30:00.000Z"
+        },
+        "start": {
+          "name": "PROGRAMME START",
+          "time": "21:15",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://muziekgieterij.nl/event/cult-of-luna-2027-03-04/",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-24T22:15:08.233Z",
+          "evidence": "Aanvang21:15",
+          "at": "2027-03-04T20:15:00.000Z"
+        },
+        "support": [],
+        "main": {
+          "name": "Cult Of Luna",
+          "time": "21:15",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://muziekgieterij.nl/event/cult-of-luna-2027-03-04/",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-24T22:15:08.233Z",
+          "evidence": "Aanvang21:15",
+          "at": "2027-03-04T20:15:00.000Z",
+          "derivedFrom": "programme-start"
+        },
+        "end": {
+          "name": "END",
+          "time": null
+        },
+        "sources": [
+          {
+            "url": "https://www.podiuminfo.nl/concert/492796/Cult-Of-Luna/Muziekgieterij/",
+            "kind": "secondary",
+            "label": "podiuminfo.nl",
+            "checkedAt": "2026-10-24T22:15:08.233Z"
+          },
+          {
+            "url": "https://muziekgieterij.nl/event/cult-of-luna-2027-03-04/",
+            "kind": "official",
+            "label": "muziekgieterij.nl",
+            "checkedAt": "2026-10-24T22:15:08.233Z"
+          }
+        ],
+        "lastCheckedAt": "2026-10-24T22:15:08.233Z",
+        "lastAttemptAt": "2026-10-24T22:15:08.233Z",
+        "checks": {
+          "manual": "2026-10-24T22:15:08.233Z"
+        },
+        "lastError": null,
+        "noSupport": null,
+        "refreshRequestedAt": "2026-10-24T22:14:54.175Z",
+        "lastOfficialCheckedAt": "2026-10-24T22:15:08.233Z",
+        "checkStatus": "official",
+        "discovery": {
+          "version": 2,
+          "attempts": [
+            {
+              "url": "https://www.podiuminfo.nl/concert/492796/Cult-Of-Luna/Muziekgieterij/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://muziekgieterij.nl/agenda/",
+              "status": "fetch-failed",
+              "reason": "HTTP 404"
+            },
+            {
+              "url": "https://muziekgieterij.nl/sitemap.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://muziekgieterij.nl/event-sitemap.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://muziekgieterij.nl/event/cult-of-luna-2027-03-04/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://muziekgieterij.nl/event/cult-of-luna-2027-03-04/",
+              "status": "verified"
+            }
+          ],
+          "configured": [
+            "muziekgieterij.nl"
+          ],
+          "requests": 5
+        },
+        "availability": "published"
       }
     },
     {
