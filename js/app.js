@@ -1773,12 +1773,14 @@ function renderGoingCalendar(body) {
     const date = `${goingCalendarMonth}-${String(day).padStart(2, "0")}`;
     const concerts = byDate.get(date) || [];
     const shift = workDayDetails(date);
-    const color = WORK_COLORS[shift?.category] || "var(--bone-faint)";
+    const color = /morning/.test(shift?.label || "") ? "#83c8ed"
+      : /evening/.test(shift?.label || "") ? "#e9b65e"
+      : /night/.test(shift?.label || "") ? "#af98e8" : null;
     const cell = el(`<button class="calendar-day ${date === today ? "is-today" : ""} ${date === selected ? "is-selected" : ""}"
       data-date="${date}" aria-pressed="${date === selected}" ${date === today ? 'aria-current="date"' : ""}
-      style="--day-shift:${color}" aria-label="${esc(fullDate(date))}, ${esc(shift?.label || "")}, ${concerts.length} concerts">
+      style="--day-shift:${color || 'transparent'}" aria-label="${esc(fullDate(date))}, ${esc(shift?.label || "")}, ${concerts.length} concerts">
       <span class="calendar-number">${day}</span>
-      <span class="calendar-shift" title="${esc(shift?.label || "")}">${esc(shift?.label || "")}</span>
+      ${color ? `<span class="calendar-shift" title="${esc(shift?.label || "")}">${esc(shift?.label || "")}</span>` : ''}
       ${concerts.slice(0, 2).map((c) => `<span class="calendar-event" data-ticket-event="${esc(c.id)}" style="${c.practical?.ticketBought===true?'background:#244d59;color:#d2f3fb':''}">${esc(displayPlannedArtist(c.artist))}${ticketMark(c)}</span>`).join("")}
       ${concerts.length > 2 ? `<span class="calendar-more">+${concerts.length - 2} more</span>` : ""}
     </button>`);
