@@ -193,14 +193,14 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
     for (const line of cheerio.load(lines).text().split(/\n|,\s*(?=(?:doors?|zaal open|voorprogramma|support|hoofdprogramma|main programme)\s*:)/i)) {
       const clean = line.replace(/\bSons of the Town Hall\b/gi,"Sons of Town Hall").replace(/\s+/g," ").trim();
       if (clean.length > 150) continue;
-      const m = clean.match(/^(doors?(?: open)?|deur(?:en)?(?: open)?|zaal open|end|einde|eindtijd|expected end|verwacht einde|verwachte eindtijd|start|aanvang|show start|start show|aanvang show|start of event|start programma|programme start|program start|main act|main programme|headliner|hoofdprogramma|support(?: act)?|voorprogramma)\s*[:–-]?\s*((?:[01]?\d|2[0-3])[:.][0-5]\d(?:\s*(?:uur|h))?)$/i);
+      const m = clean.match(/^(doors?(?: open)?|deur(?:en)?(?: open)?|zaal open|end|einde|eindtijd|expected end|verwacht einde|verwachte eindtijd|start|aanvang|show start|start show|aanvang show|start of event|start programma|programme start|program start|main act|main programme|headliner|hoofdprogramma|support(?: act)?|voorprogramma)\s*[:–•·-]?\s*((?:[01]?\d|2[0-3])[:.][0-5]\d(?:\s*(?:uur|h))?)$/i);
       if (m) consume(m[1],m[2],clean);
-      const reversed = clean.match(/^((?:[01]?\d|2[0-3])[:.][0-5]\d)\s*[-–:]?\s*(doors?(?: open)?|deur(?:en)?(?: open)?|zaal open|end|einde|eindtijd|expected end|verwacht einde|verwachte eindtijd|start|aanvang|show start|start show|aanvang show|start of event|start programma|programme start|program start|main act|main programme|headliner|hoofdprogramma|support(?: act)?|voorprogramma)$/i);
+      const reversed = clean.match(/^((?:[01]?\d|2[0-3])[:.][0-5]\d)\s*[-–:•·]?\s*(doors?(?: open)?|deur(?:en)?(?: open)?|zaal open|end|einde|eindtijd|expected end|verwacht einde|verwachte eindtijd|start|aanvang|show start|start show|aanvang show|start of event|start programma|programme start|program start|main act|main programme|headliner|hoofdprogramma|support(?: act)?|voorprogramma)$/i);
       if (reversed) consume(reversed[2],reversed[1],clean);
       // Artist-labelled line: name : 21:30, or 21:30 - Hällas. Whole-line match avoids prose dates.
       for (const name of [concert.artist, ...supportNames]) {
         const escaped = name.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
-        const pair = clean.match(new RegExp(`^(${escaped})\\s*[:–-]?\\s*((?:[01]?\\d|2[0-3])[:.][0-5]\\d(?:\\s*[-–]\\s*(?:[01]?\\d|2[0-3])[:.][0-5]\\d)?)$`,"i")) || clean.match(new RegExp(`^((?:[01]?\\d|2[0-3])[:.][0-5]\\d)\\s*[-–:]?\\s*(${escaped})$`,"i"));
+        const pair = clean.match(new RegExp(`^(${escaped})\\s*[:–•·-]?\\s*((?:[01]?\\d|2[0-3])[:.][0-5]\\d(?:\\s*[-–]\\s*(?:[01]?\\d|2[0-3])[:.][0-5]\\d)?)$`,"i")) || clean.match(new RegExp(`^((?:[01]?\\d|2[0-3])[:.][0-5]\\d)\\s*[-–:•·]?\\s*(${escaped})$`,"i"));
         if (pair) consume(name, clean, clean);
       }
     }

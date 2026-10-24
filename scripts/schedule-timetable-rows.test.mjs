@@ -70,3 +70,37 @@ test('prices and conflicting times never become performance times', () => {
   assert.equal(r.values.main, undefined);
   assert.equal(r.values.start, undefined);
 });
+
+test('Patronaat bullet timetable reads named acts and expected end', () => {
+  const concert = { ...c, artist: 'Oh Hiroshima', date: '2026-10-24',
+    venue: 'Patronaat', supportingArtists: ['Barrens'] };
+  const source = 'https://patronaat.nl/event/oh-hirshima-barrens-24-10-26/';
+  for (const bullet of ['•', '·', '&bull;', '&#8226;']) {
+    const html = `<main><h1>Oh Hiroshima + Barrens</h1>
+      <time datetime="2026-10-24">24 okt 2026</time>
+      <p>Deuren: 19:30</p><p>Start: 20:00</p>
+      <p><strong>Tijdschema (onder voorbehoud)</strong><br>
+        <span>Deuren open ${bullet} 19:30</span><br>
+        <span>20:00 ${bullet} <strong>Barrens</strong></span><br>
+        <span>21:00 ${bullet} <strong>Oh Hiroshima</strong></span><br>
+        <span>Verwacht einde ${bullet} 22:00</span></p></main>`;
+    const parsed = parseSchedule(html, concert, source, 'official', stamp);
+    const schedule = mergeSchedule(concert, [parsed], stamp, 'manual');
+    assert.equal(schedule.doors.time, '19:30');
+    assert.equal(schedule.support[0].time, '20:00');
+    assert.equal(schedule.main.time, '21:00');
+    assert.equal(schedule.main.derivedFrom, undefined);
+    assert.equal(schedule.end.time, '22:00');
+    assert.equal(schedule.end.status, 'expected');
+    assert.equal(schedule.main.sourceUrl, source);
+  }
+});
+
+test('bullet separators still reject prose, prices and conflicting times', () => {
+  const r = parse('<p>Tickets • 19.50</p><p>Example Band tickets • 21:00</p>'
+    + '<p>Biography: 21:00 • Example Band</p>'
+    + '<p>21:00 • Example Band</p><p>21:30 • Example Band</p>');
+  assert.equal(r.values.main, undefined);
+  assert.equal(r.values.end, undefined);
+  assert.ok(r.conflicts.includes('main'));
+});
