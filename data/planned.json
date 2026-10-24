@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-24T22:08:52.295Z",
+    "lastUpdated": "2026-10-24T22:09:44.020Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -709,7 +709,7 @@
           "status": "confirmed",
           "sourceUrl": "https://www.013.nl/programma/128504/puscifer",
           "sourceKind": "official",
-          "checkedAt": "2026-10-16T09:18:07.104Z",
+          "checkedAt": "2026-10-24T22:09:42.258Z",
           "evidence": "19:00 Zaal open",
           "at": "2026-11-03T18:00:00.000Z"
         },
@@ -720,7 +720,7 @@
           "status": "confirmed",
           "sourceUrl": "https://www.013.nl/programma/128504/puscifer",
           "sourceKind": "official",
-          "checkedAt": "2026-10-16T09:18:07.104Z",
+          "checkedAt": "2026-10-24T22:09:42.258Z",
           "evidence": "20:00 Aanvang",
           "at": "2026-11-03T19:00:00.000Z"
         },
@@ -732,7 +732,7 @@
             "status": "confirmed",
             "sourceUrl": "https://www.013.nl/programma/128504/puscifer",
             "sourceKind": "official",
-            "checkedAt": "2026-10-16T09:18:07.104Z",
+            "checkedAt": "2026-10-24T22:09:42.258Z",
             "evidence": "20:00 Aanvang",
             "at": "2026-11-03T19:00:00.000Z",
             "derivedFrom": "programme-start"
@@ -749,7 +749,7 @@
           "status": "confirmed",
           "sourceUrl": "https://www.013.nl/programma/128504/puscifer",
           "sourceKind": "official",
-          "checkedAt": "2026-10-16T09:18:07.104Z",
+          "checkedAt": "2026-10-24T22:09:42.258Z",
           "evidence": "endDate: 2026-11-03T22:30:00+01:00",
           "at": "2026-11-03T21:30:00.000Z"
         },
@@ -758,25 +758,47 @@
             "url": "https://www.podiuminfo.nl/concert/469662/Puscifer-The-Normal-Isnt-Tour/013/",
             "kind": "secondary",
             "label": "podiuminfo.nl",
-            "checkedAt": "2026-10-16T09:18:07.104Z"
+            "checkedAt": "2026-10-24T22:09:42.258Z"
           },
           {
             "url": "https://www.013.nl/programma/128504/puscifer",
             "kind": "official",
             "label": "013.nl",
-            "checkedAt": "2026-10-16T09:18:07.104Z"
+            "checkedAt": "2026-10-24T22:09:42.258Z"
           }
         ],
-        "lastCheckedAt": "2026-10-16T09:18:07.104Z",
-        "lastAttemptAt": "2026-10-16T09:18:07.104Z",
+        "lastCheckedAt": "2026-10-24T22:09:42.258Z",
+        "lastAttemptAt": "2026-10-24T22:09:42.258Z",
         "checks": {
-          "manual": "2026-10-16T09:18:07.104Z"
+          "manual": "2026-10-24T22:09:42.258Z"
         },
         "lastError": null,
         "noSupport": null,
         "refreshRequestedAt": "2026-10-24T22:09:25.792Z",
-        "lastOfficialCheckedAt": "2026-10-16T09:18:07.104Z",
-        "checkStatus": "official"
+        "lastOfficialCheckedAt": "2026-10-24T22:09:42.258Z",
+        "checkStatus": "official",
+        "discovery": {
+          "version": 2,
+          "attempts": [
+            {
+              "url": "https://www.podiuminfo.nl/concert/469662/Puscifer-The-Normal-Isnt-Tour/013/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.013.nl/programma/128504/puscifer",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.013.nl/programma/128504/puscifer",
+              "status": "verified"
+            }
+          ],
+          "configured": [
+            "013.nl"
+          ],
+          "requests": 2
+        },
+        "availability": "published"
       }
     },
     {
