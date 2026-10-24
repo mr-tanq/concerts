@@ -103,8 +103,10 @@ export async function enrichOne(concert, now, phase, fetcher = fetchPage) {
   for(const url of candidates) if(visited.size<8) await parseOfficial(url);
   for(const publisher of configs) {
     if (Date.now()>deadline || requests>=48) break;
-    // A verified primary timetable wins; missing fields can be published later.
-    if(results.some(r=>r.source.kind==="official" && Object.keys(r.values).length)) break;
+    // Keep looking at verified publishers while explicit act times are missing.
+    const verified=mergeSchedule({...concert,schedule:undefined},results.filter(r=>r.source.kind==="official"),now,phase);
+    if(verified.doors.time && verified.main.time && verified.end.time
+      && verified.support.every(act=>act.time)) break;
     if(results.some(r=>r.source.label===publisher[1])) continue;
     await discoverSchedulePages(concert, publisher, read, parseOfficial);
   }

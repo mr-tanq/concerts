@@ -28,7 +28,7 @@ export const venueKey = name => ALIASES[normalize(name)] || normalize(name);
 export function extraVenue(c) { return EXTRA_VENUES.find(v => venueKey(v[0]) === venueKey(c.venue)); }
 export function publisherConfigs(c, primary) {
   const key = venueKey(c.venue), out = primary ? [primary] : [];
-  if (['ziggo dome','afas live','johan cruijff arena','gashouder','koninklijk theater carre'].includes(key)) out.push([c.venue,'mojo.nl','/concerten']);
+  if (['ziggo dome','afas live','johan cruijff arena','gashouder','koninklijk theater carre'].includes(key)) out.push([c.venue,'mojo.nl','/agenda']);
   if (key === 'my name is phil') out.push([c.venue,'patronaat.nl','/programma/']);
   if (key === 'de doelen') out.push([c.venue,'rotown.nl','/agenda/']);
   return out;

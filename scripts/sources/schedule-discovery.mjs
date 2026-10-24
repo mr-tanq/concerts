@@ -14,6 +14,7 @@ export async function discoverSchedulePages(concert, config, fetcher, visitEvent
   const safe = (raw, base) => {
     try {
       const url = new URL(raw, base);
+      url.hash = "";
       // Some official sitemap generators still emit http links. Upgrade them;
       // requests themselves always remain HTTPS and on approved hosts.
       if (url.protocol === "http:") url.protocol = "https:";
@@ -41,7 +42,10 @@ export async function discoverSchedulePages(concert, config, fetcher, visitEvent
     return false;
   }
 
-  const agenda = new URL(config[2], `https://${host}`).href;
+  const agendaURL = new URL(config[2], `https://${host}`);
+  // MOJO's public agenda form accepts an artist/location query.
+  if (host === "mojo.nl") agendaURL.searchParams.set("query", concert.artist);
+  const agenda = agendaURL.href;
   const listings = [agenda], seenListings = new Set();
   while (listings.length && seenListings.size < 8) {
     const url = listings.shift();

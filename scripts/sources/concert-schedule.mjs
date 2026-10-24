@@ -125,6 +125,12 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
   const consume = (label, clock, evidence, namedTimetable = false) => {
     const ts = times(clock); if (!ts.length) return;
     label = supportName(label);
+    const namedSupport=label.match(/^(?:support act|voorprogramma|support)\s+(?:[:|–-]\s*)?(.+)$/i)?.[1]?.trim();
+    if(namedSupport && normalize(namedSupport)!=="act"
+      && /^[\p{L}\p{N} '&+.-]{2,70}$/u.test(namedSupport)
+      && !matchName(namedSupport,concert.artist)) {
+      label=supportName(namedSupport); supportNames.push(label);
+    }
     const n = normalize(label);
     if (/^(doors?( open)?|deur(?:en)?( open)?|zaal open|opening doors)$/.test(n)) set("doors", "DOORS", ts[0], evidence);
     else if (/^(start|aanvang|show start|start show|aanvang show|start of event|start programma|programme start|program start|start programma|aanvang programma)$/.test(n)) set("start", "PROGRAMME START", ts[0], evidence);
@@ -282,11 +288,17 @@ export function mergeSchedule(concert, results, now, phase) {
     });
   }
   if (s.start?.time && !target) s.start.unassigned = true;
+  // A second official publisher can explicitly identify the previously unnamed start.
+  if(s.start?.unassigned && [s.main,...s.support].some(act=>act.time===s.start.time
+    && (act.dayOffset || 0)===(s.start.dayOffset || 0)
+    && act.derivedFrom!=="programme-start")) delete s.start.unassigned;
   s.refreshRequestedAt = old.refreshRequestedAt || null;
   s.lastOfficialCheckedAt = results.some(r=>r.source.kind === "official") ? now : old.lastOfficialCheckedAt || (old.sources || []).filter(x=>x.kind === "official").map(x=>x.checkedAt).sort().at(-1) || null;
   s.checkStatus = !success ? "failed" : results.some(r=>r.source.kind === "official") ? "official" : "secondary-only";
   // Reject out-of-order schedules rather than guessing which field is wrong.
-  const order = [s.doors,s.start,...s.support.sort((a,b)=>String(a.at||"z").localeCompare(String(b.at||"z"))),s.main,s.end].filter(f=>f.at);
+  const assignedStart=[s.main,...s.support].some(act=>act.time && act.time===s.start?.time
+    && (act.dayOffset || 0)===(s.start?.dayOffset || 0));
+  const order = [s.doors,...(!s.start.unassigned && !assignedStart ? [s.start] : []),...s.support.sort((a,b)=>String(a.at||"z").localeCompare(String(b.at||"z"))),s.main,s.end].filter(f=>f.at);
   if (order.some((f,i)=>i && f.at < order[i-1].at)) for (const f of order) { f.time=null; delete f.at; }
   return s;
 }
