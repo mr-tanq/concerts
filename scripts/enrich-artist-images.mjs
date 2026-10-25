@@ -23,6 +23,7 @@
 
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { collectArtistImageNames, usableArtistPhoto } from "./lib/artist-image-model.mjs";
 
 const ROOT = path.resolve(new URL(".", import.meta.url).pathname, "..");
 const OUT = path.join(ROOT, "data/artist-images.json");
@@ -81,7 +82,8 @@ function pickBestMatch(candidates, wantedName) {
 }
 
 function bestPicture(artist) {
-  return artist?.picture_xl || artist?.picture_big || artist?.picture_medium || null;
+  return [artist?.picture_xl, artist?.picture_big, artist?.picture_medium]
+    .map(usableArtistPhoto).find(Boolean) || null;
 }
 
 // --- collect every artist name we might ever need to show ---
@@ -91,26 +93,9 @@ const planned = await loadJson("data/planned.json", { concerts: [] });
 const recs = await loadJson("data/recommendations.json", { concerts: [] });
 const history = await loadJson("data/recommendation-history.json", {});
 
-const names = new Map(); // normalized -> display name
-function note(name) {
-  const key = normalizeName(name);
-  if (key && !names.has(key)) names.set(key, String(name).trim());
-}
-
-function collect(list) {
-  for (const c of list || []) {
-    if (Array.isArray(c.lineup) && c.lineup.length) c.lineup.forEach(note);
-    else {
-      note(c.artist);
-      (c.supportingArtists || []).forEach(note);
-    }
-  }
-}
-
-collect(archive.concerts);
-collect(planned.concerts);
-collect(recs.concerts);
-collect(history.dismissed);
+const names = collectArtistImageNames([
+  archive.concerts, planned.concerts, recs.concerts, history.dismissed
+]);
 
 // --- merge with what we already know ---
 
@@ -120,8 +105,8 @@ const store = existing.artists || {};
 const todo = [];
 for (const [key, display] of names) {
   const prev = store[key];
-  if (prev?.image) continue;                       // already resolved
-  if (prev && Date.now() - new Date(prev.checkedAt).getTime() < REFRESH_AFTER_MS) continue;
+  if (usableArtistPhoto(prev?.image)) continue;
+  if (!prev?.image && prev && Date.now() - new Date(prev.checkedAt).getTime() < REFRESH_AFTER_MS) continue;
   todo.push([key, display]);
 }
 
