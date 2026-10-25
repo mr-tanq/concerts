@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-24T22:15:21.754Z",
+    "lastUpdated": "2026-10-25T13:00:25.709Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -394,130 +394,6 @@
       "planning": {
         "plannedAt": "2026-07-27T15:20:00.099Z",
         "originalScore": 46
-      }
-    },
-    {
-      "id": "planned-oh-hiroshima-patronaat-2026-10-24",
-      "artist": "Oh Hiroshima",
-      "supportingArtists": [
-        "Barrens"
-      ],
-      "date": "2026-10-24",
-      "time": null,
-      "venue": "Patronaat",
-      "city": "Haarlem",
-      "country": "NL",
-      "isFestival": false,
-      "image": null,
-      "ticketUrl": "https://www.podiuminfo.nl/ticket/132116/cd/Oh-Hiroshima-Barrens/Patronaat/",
-      "sourceApis": [
-        "podiuminfo"
-      ],
-      "recommendationId": "rec-oh-hiroshima-patronaat-2026-10-24",
-      "planning": {
-        "plannedAt": "2026-07-27T15:22:14.891Z",
-        "originalScore": 45
-      },
-      "schedule": {
-        "version": 1,
-        "date": "2026-10-24",
-        "timeZone": "Europe/Amsterdam",
-        "doors": {
-          "name": "DOORS",
-          "time": "19:30",
-          "dayOffset": 0,
-          "status": "confirmed",
-          "sourceUrl": "https://patronaat.nl/event/oh-hirshima-barrens-24-10-26/",
-          "sourceKind": "official",
-          "checkedAt": "2026-10-24T19:29:06.286Z",
-          "evidence": "Deuren open • 19:30",
-          "at": "2026-10-24T17:30:00.000Z"
-        },
-        "start": {
-          "name": "PROGRAMME START",
-          "time": "20:00",
-          "dayOffset": 0,
-          "status": "confirmed",
-          "sourceUrl": "https://patronaat.nl/event/oh-hirshima-barrens-24-10-26/",
-          "sourceKind": "official",
-          "checkedAt": "2026-10-24T19:29:06.286Z",
-          "evidence": "Start: 20:00",
-          "at": "2026-10-24T18:00:00.000Z"
-        },
-        "support": [
-          {
-            "name": "Barrens",
-            "time": "20:00",
-            "dayOffset": 0,
-            "status": "confirmed",
-            "sourceUrl": "https://patronaat.nl/event/oh-hirshima-barrens-24-10-26/",
-            "sourceKind": "official",
-            "checkedAt": "2026-10-24T19:29:06.286Z",
-            "evidence": "20:00 • Barrens",
-            "at": "2026-10-24T18:00:00.000Z"
-          }
-        ],
-        "main": {
-          "name": "Oh Hiroshima",
-          "time": "21:00",
-          "dayOffset": 0,
-          "status": "confirmed",
-          "sourceUrl": "https://patronaat.nl/event/oh-hirshima-barrens-24-10-26/",
-          "sourceKind": "official",
-          "checkedAt": "2026-10-24T19:29:06.286Z",
-          "evidence": "21:00 • Oh Hiroshima",
-          "at": "2026-10-24T19:00:00.000Z"
-        },
-        "end": {
-          "name": "END",
-          "time": "22:00",
-          "dayOffset": 0,
-          "status": "expected",
-          "sourceUrl": "https://patronaat.nl/event/oh-hirshima-barrens-24-10-26/",
-          "sourceKind": "official",
-          "checkedAt": "2026-10-24T19:29:06.286Z",
-          "evidence": "Verwacht einde • 22:00",
-          "at": "2026-10-24T20:00:00.000Z"
-        },
-        "sources": [
-          {
-            "url": "https://patronaat.nl/event/oh-hirshima-barrens-24-10-26/",
-            "kind": "official",
-            "label": "patronaat.nl",
-            "checkedAt": "2026-10-24T19:29:06.286Z"
-          }
-        ],
-        "lastCheckedAt": "2026-10-24T19:29:06.286Z",
-        "lastAttemptAt": "2026-10-24T19:29:06.286Z",
-        "checks": {
-          "manual": "2026-10-24T13:43:46.466Z",
-          "before48h": "2026-10-22T17:58:41.929Z",
-          "before24h": "2026-10-23T19:13:11.632Z",
-          "sameDay": "2026-10-24T19:29:06.286Z"
-        },
-        "lastError": null,
-        "noSupport": null,
-        "refreshRequestedAt": "2026-10-24T13:43:31.353Z",
-        "lastOfficialCheckedAt": "2026-10-24T19:29:06.286Z",
-        "checkStatus": "official",
-        "discovery": {
-          "version": 2,
-          "attempts": [
-            {
-              "url": "https://patronaat.nl/event/oh-hirshima-barrens-24-10-26/",
-              "status": "fetched"
-            },
-            {
-              "url": "https://patronaat.nl/event/oh-hirshima-barrens-24-10-26/",
-              "status": "verified"
-            }
-          ],
-          "configured": [
-            "patronaat.nl"
-          ],
-          "requests": 1
-        },
-        "availability": "published"
       }
     },
     {
