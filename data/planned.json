@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-25T13:00:25.709Z",
+    "lastUpdated": "2026-10-25T17:52:07.720Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -832,7 +832,7 @@
           "status": "confirmed",
           "sourceUrl": "https://www.mojo.nl/concerten/placebo",
           "sourceKind": "official",
-          "checkedAt": "2026-10-24T22:08:46.573Z",
+          "checkedAt": "2026-10-25T17:52:02.832Z",
           "evidence": "Deuren open 18:30",
           "at": "2026-10-27T17:30:00.000Z"
         },
@@ -848,7 +848,7 @@
             "status": "confirmed",
             "sourceUrl": "https://www.mojo.nl/concerten/placebo",
             "sourceKind": "official",
-            "checkedAt": "2026-10-24T22:08:46.573Z",
+            "checkedAt": "2026-10-25T17:52:02.832Z",
             "evidence": "The Mirror Trap De Passage 100, 1101 AX Amsterdam \n                                            Aanvang: 20:00",
             "at": "2026-10-27T19:00:00.000Z"
           }
@@ -860,7 +860,7 @@
           "status": "confirmed",
           "sourceUrl": "https://www.mojo.nl/concerten/placebo",
           "sourceKind": "official",
-          "checkedAt": "2026-10-24T22:08:46.573Z",
+          "checkedAt": "2026-10-25T17:52:02.832Z",
           "evidence": "Placebo 21:00",
           "at": "2026-10-27T20:00:00.000Z"
         },
@@ -871,7 +871,7 @@
           "status": "expected",
           "sourceUrl": "https://www.mojo.nl/concerten/placebo",
           "sourceKind": "official",
-          "checkedAt": "2026-10-24T22:08:46.573Z",
+          "checkedAt": "2026-10-25T17:52:02.832Z",
           "evidence": "Verwacht einde 22:45",
           "at": "2026-10-27T21:45:00.000Z"
         },
@@ -880,31 +880,32 @@
             "url": "https://www.podiuminfo.nl/concert/456178/Placebo-30th-Anniversary-Tour/Ziggo-Dome/",
             "kind": "secondary",
             "label": "podiuminfo.nl",
-            "checkedAt": "2026-10-24T22:08:46.573Z"
+            "checkedAt": "2026-10-25T17:52:02.832Z"
           },
           {
             "url": "https://www.ziggodome.nl/events/1c4d6a23-e91b-4696-9791-ba5eeb2609a4/",
             "kind": "official",
             "label": "ziggodome.nl",
-            "checkedAt": "2026-10-24T22:08:46.573Z",
+            "checkedAt": "2026-10-25T17:52:02.832Z",
             "adapter": "ziggo-public-programme"
           },
           {
             "url": "https://www.mojo.nl/concerten/placebo",
             "kind": "official",
             "label": "mojo.nl",
-            "checkedAt": "2026-10-24T22:08:46.573Z"
+            "checkedAt": "2026-10-25T17:52:02.832Z"
           }
         ],
-        "lastCheckedAt": "2026-10-24T22:08:46.573Z",
-        "lastAttemptAt": "2026-10-24T22:08:46.573Z",
+        "lastCheckedAt": "2026-10-25T17:52:02.832Z",
+        "lastAttemptAt": "2026-10-25T17:52:02.832Z",
         "checks": {
-          "manual": "2026-10-24T22:08:46.573Z"
+          "manual": "2026-10-24T22:08:46.573Z",
+          "before48h": "2026-10-25T17:52:02.832Z"
         },
         "lastError": null,
         "noSupport": null,
         "refreshRequestedAt": "2026-10-24T22:08:30.176Z",
-        "lastOfficialCheckedAt": "2026-10-24T22:08:46.573Z",
+        "lastOfficialCheckedAt": "2026-10-25T17:52:02.832Z",
         "checkStatus": "official",
         "discovery": {
           "version": 2,
@@ -926,10 +927,6 @@
               "status": "verified"
             },
             {
-              "url": "https://mojo.nl/agenda?query=Placebo",
-              "status": "fetched"
-            },
-            {
               "url": "https://www.mojo.nl/concerten/placebo",
               "status": "fetched"
             },
@@ -942,7 +939,7 @@
             "ziggodome.nl",
             "mojo.nl"
           ],
-          "requests": 5
+          "requests": 4
         },
         "availability": "published"
       }
