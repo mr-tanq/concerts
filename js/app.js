@@ -19,8 +19,8 @@ function mountConcertShare(heading, concert) {
   ));
 }
 
-import { mountPractical, updatePractical } from "./concert-practical.js?v=20261013";
-import { mountSchedule, clearScheduleClock, syncScheduleClock, scheduleCountdown, artistLabel } from "./concert-schedule.js?v=season-polish-20261021";
+import { mountPractical, updatePractical } from "./concert-practical.js?v=night-details-20261025";
+import { mountSchedule, clearScheduleClock, syncScheduleClock, scheduleCountdown, artistLabel } from "./concert-schedule.js?v=night-details-20261025";
 import { buildArchiveView, filterConcerts, searchArchiveConcerts, artistsOf, actuallySeenArtistsOf, venueKey, venueSearchNames } from "./archive-stats.js?v=archive-search-20261016";
 import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, isConflictError } from "./github-api.js";
 import { openConcertSearch } from "./concert-search.js?v=catalogue-search-20261013";
@@ -1059,7 +1059,7 @@ function openSheet(c) {
             ${esc(venueKey({ venue: c.venue }))}, ${esc(c.city)}
             ${planned ? `<br>${workDayBadge(c)}` : ""}
           </div>
-          <p class="lede sheet-memory-line">${planned ? `Going · ${countdownWord(c.date)}` : timesSeenStatement(c)}</p>
+          <p class="lede sheet-memory-line">${planned ? countdownWord(c.date) : timesSeenStatement(c)}</p>
         </div>
 
         ${!planned ? `<dl class="facts">
@@ -1072,7 +1072,10 @@ function openSheet(c) {
           <div class="sheet-section">
             <div class="sheet-going-schedule"></div>
             <div class="sheet-practical"></div>
-            <div class="sheet-warmup"></div>
+            <details class="night-disclosure">
+              <summary>Warm-up <span aria-hidden="true">⌄</span></summary>
+              <div class="sheet-warmup"></div>
+            </details>
             <div class="sheet-going-ticketswap"></div>
           </div>
         ` : `
@@ -1089,13 +1092,12 @@ function openSheet(c) {
         `}
 
         ${planned ? `
-          <div class="sheet-section">
-            <p class="whisper">Change of plan</p>
+          <details class="sheet-section night-disclosure sheet-change-plan">
+            <summary>Change of plan <span aria-hidden="true">⌄</span></summary>
             <div class="act-row" style="padding-left:0;padding-right:0">
-              ${planned.ticketUrl ? `<button class="plain-act" id="sheet-tickets">Tickets</button>` : ""}
               <button class="plain-act" id="sheet-unplan">Not going after all</button>
             </div>
-          </div>` : ""}
+          </details>` : ""}
       </div>
     </div>
   `);
@@ -1120,7 +1122,6 @@ function openSheet(c) {
     if (planned.date >= dutchToday()) {
       mountConcertShare(sheet.querySelector(".sheet-artist"), planned);
     }
-    sheet.querySelector("#sheet-tickets")?.addEventListener("click", () => window.open(planned.ticketUrl, "_blank"));
     const un = sheet.querySelector("#sheet-unplan");
     un.addEventListener("click", async () => {
       if (!getGithubConfig()) { openSettings(); return; }
@@ -1826,7 +1827,6 @@ function mountWarmup(host, concert) {
   ])].filter(Boolean);
   const unique = [...new Map(names.map(name => [normalizeKey(name), name])).values()];
   const section = el(`<section class="night-warmup" aria-label="Listening warm-up">
-    <p class="whisper">Warm-up</p>
     <p class="footnote">${window.weeks.length} recorded weeks · weeks of ${fullDate(window.weeks[0])} – ${fullDate(window.weeks.at(-1))}</p>
     <div class="warmup-artists"></div>
     ${window.updatedAt ? `<p class="footnote warmup-updated">History updated ${esc(fullDate(String(window.updatedAt).slice(0,10)))}</p>` : ''}
@@ -1834,7 +1834,7 @@ function mountWarmup(host, concert) {
   for (const name of unique) {
     const plays = window.plays(name);
     const label = artistLabel(displayPlannedArtist(name));
-    const row = el(`<div class="warmup-artist"><div><strong>${esc(label)}</strong><span>${plays ? `${plays} ${plays === 1 ? 'play' : 'plays'} in this period` : 'No plays recorded in this period'}</span></div>
+    const row = el(`<div class="warmup-artist"><div><strong>${esc(label)}</strong><span>${plays ? `${plays} ${plays === 1 ? 'play' : 'plays'} in this period` : 'Explore their music'}</span></div>
       <a class="plain-act" href="https://open.spotify.com/search/${encodeURIComponent(name)}" target="_blank" rel="noopener noreferrer" aria-label="Find ${esc(label)} on Spotify">Listen ↗</a></div>`);
     section.querySelector('.warmup-artists').appendChild(row);
   }

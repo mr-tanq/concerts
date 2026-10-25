@@ -86,12 +86,20 @@ export function scheduleMarkup(concert) {
   const partial = s?.checkStatus === "secondary-only";
   const explanation = s?.availability === "unsupported-venue" ? "No verified publisher is configured for this venue yet." : failed ? "Latest check failed. Previously confirmed times are kept." : partial ? "The official timetable could not be verified. Some times may be missing." : s?.availability === "not-published" ? "Official event verified; no explicit timetable found on the checked page." : !s?.lastCheckedAt ? "No timetable has been checked yet." : hasUnknown ? "TBA: no confirmed time found in the checked sources." : "Times found in the checked sources.";
   const advertised = s?.start?.unassigned && /^\d{2}:\d{2}$/.test(s.start.time || "") ? `<p class="schedule-check">Published show start: ${escapeHTML(s.start.time)}. Separate act times have not been confirmed.</p>` : "";
-  const unavailable = `<p class="schedule-check">${explanation}</p><p class="schedule-check">Last attempt: ${escapeHTML(format(s?.lastAttemptAt))}<br>Last successful check: ${escapeHTML(format(s?.lastCheckedAt))}</p><button type="button" class="text-btn" data-refresh-schedule>Refresh schedule</button><p class="schedule-check" data-refresh-status role="status" aria-live="polite"></p>`;
-  const footer = sources.length ? `<details class="schedule-sources"><summary><span class="schedule-check">${escapeHTML(checked)}</span><span class="schedule-source-toggle">Sources <span aria-hidden="true">⌄</span></span></summary><div class="schedule-source-list"><p class="schedule-check">All times are local to the venue (${escapeHTML(s?.timeZone || "Europe/Amsterdam")}).</p>${sources.map(x => `<a href="${escapeHTML(safeURL(x.url))}" target="_blank" rel="noopener noreferrer">${escapeHTML(x.label || new URL(x.url).hostname)}${x.kind === "official" ? " · official" : " · secondary"}</a>`).join("")}</div></details>` : `<p class="schedule-check schedule-unchecked">${escapeHTML(checked)} · venue time</p>`;
   const reasons = {"identity-unverified":"Artist/date could not be verified", "venue-mismatch":"Venue did not match", "fetch-failed":"Source could not be read"};
   const issues = (s?.discovery?.attempts || []).filter(a => reasons[a.status] && safeURL(a.url));
-  const diagnostics = issues.length ? `<details class="schedule-sources"><summary>Check details</summary>${issues.slice(-8).map(a=>`<p class="schedule-check"><a href="${escapeHTML(safeURL(a.url))}" target="_blank" rel="noopener noreferrer">${escapeHTML(new URL(a.url).hostname)}</a>: ${escapeHTML(reasons[a.status])}${a.reason ? ` (${escapeHTML(a.reason)})` : ""}</p>`).join("")}</details>` : "";
-  return `<section class="concert-schedule" aria-label="Concert schedule"><p class="whisper">Schedule</p><p class="schedule-live" role="timer" aria-live="off" hidden></p><dl>${rows}</dl>${advertised}${footer}${unavailable}${diagnostics}</section>`;
+  const diagnostics = issues.length ? `<div class="schedule-diagnostics">${issues.slice(-8).map(a=>`<p class="schedule-check"><a href="${escapeHTML(safeURL(a.url))}" target="_blank" rel="noopener noreferrer">${escapeHTML(new URL(a.url).hostname)}</a>: ${escapeHTML(reasons[a.status])}${a.reason ? ` (${escapeHTML(a.reason)})` : ""}</p>`).join("")}</div>` : "";
+  const lastAttempt = s?.lastAttemptAt && s.lastAttemptAt !== s.lastCheckedAt
+    ? `<p class="schedule-check">Last attempt: ${escapeHTML(format(s.lastAttemptAt))}</p>` : "";
+  const footer = `<details class="schedule-sources"><summary><span class="schedule-check">${escapeHTML(checked)}</span><span class="schedule-source-toggle">Details <span aria-hidden="true">⌄</span></span></summary>
+    <div class="schedule-source-list"><p class="schedule-check">${escapeHTML(explanation)}</p>${lastAttempt}
+      <p class="schedule-check">All times are local to the venue (${escapeHTML(s?.timeZone || "Europe/Amsterdam")}).</p>
+      ${sources.map(x => `<a href="${escapeHTML(safeURL(x.url))}" target="_blank" rel="noopener noreferrer">${escapeHTML(x.label || new URL(x.url).hostname)}${x.kind === "official" ? " · official" : " · secondary"}</a>`).join("")}
+      ${diagnostics}
+    </div></details>`;
+  return `<section class="concert-schedule" aria-label="Concert schedule"><p class="whisper">Schedule</p><p class="schedule-live" role="timer" aria-live="off" hidden></p><dl>${rows}</dl>${advertised}
+    <div class="schedule-meta">${footer}<button type="button" class="text-btn" data-refresh-schedule>Refresh</button></div>
+    <p class="schedule-check" data-refresh-status role="status" aria-live="polite"></p></section>`;
 }
 
 let mounted = null, timer = null, stopRefresh = null;

@@ -2101,3 +2101,69 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
   transform:rotate(180deg);
 }
 a.plain-act { text-decoration:none; }
+
+/* Concert details: hours first, essentials next, optional sections folded. */
+.sheet-going .sheet-photo { aspect-ratio:16/9; max-height:240px; }
+.sheet-going .sheet-head { margin-top:-28px; }
+.sheet-going .sheet-memory-line { font-size:24px; color:var(--bone-dim); }
+.sheet-going .sheet-going-schedule .concert-schedule {
+  margin-top:0;
+  padding-top:0;
+  border-top:0;
+}
+.schedule-meta { position:relative; margin-top:12px; }
+.schedule-meta > .schedule-sources { margin-top:0; }
+.schedule-meta > .schedule-sources > summary { padding-right:86px; gap:8px; }
+.schedule-meta .text-btn[data-refresh-schedule] {
+  position:absolute;
+  top:0;
+  right:0;
+  min-height:44px;
+  margin:0;
+  padding:10px 0;
+  border:0;
+  font:10px/1.5 var(--mono);
+  letter-spacing:.1em;
+  color:var(--bone-dim);
+}
+.schedule-meta .text-btn:disabled { opacity:.45; }
+.concert-schedule [data-refresh-status]:empty { display:none; }
+.schedule-source-list > .schedule-check + .schedule-check { margin-top:6px; }
+.concert-essentials { margin-top:20px; padding:20px 0 0; border-top:1px solid var(--hair); }
+.concert-essentials > .whisper { margin-bottom:12px; }
+.concert-essentials .essentials-actions { padding:0; gap:10px 22px; flex-wrap:wrap; }
+.essentials-actions .plain-act { min-height:44px; display:inline-flex; align-items:center; }
+.essentials-actions [hidden] { display:none; }
+.essentials-note { margin-top:8px; }
+.essentials-note form { padding:4px 0 16px; }
+.essentials-note label { display:block; }
+.essentials-note textarea { display:block; width:100%; box-sizing:border-box; margin-top:8px; }
+.essentials-note form > .footnote { margin:12px 0; line-height:1.6; }
+.night-disclosure > summary {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  min-height:56px;
+  padding:16px 0;
+  border-top:1px solid var(--hair);
+  color:var(--bone-dim);
+  font:10.5px/1.5 var(--mono);
+  text-transform:uppercase;
+  letter-spacing:.16em;
+  cursor:pointer;
+  list-style:none;
+}
+.night-disclosure > summary::-webkit-details-marker { display:none; }
+.night-disclosure > summary::marker { content:""; }
+.night-disclosure > summary > span { transition:transform .2s; }
+.night-disclosure[open] > summary > span { transform:rotate(180deg); }
+.night-disclosure > summary:focus-visible,
+.schedule-meta .text-btn:focus-visible { outline:2px solid var(--ember); outline-offset:3px; }
+.sheet-practical + .night-disclosure { margin-top:12px; }
+.night-disclosure .night-warmup { border-top:0; padding:0 0 16px; }
+.night-disclosure .night-warmup > .footnote { margin-top:0; }
+.sheet-going-ticketswap > .plain-act { min-height:56px; padding:16px 0; }
+.sheet-going .sheet-change-plan { margin-top:0; }
+.sheet-change-plan .act-row { padding-top:4px; padding-bottom:16px; }
+.sheet-going .sheet-inner { padding-bottom:32px; }
