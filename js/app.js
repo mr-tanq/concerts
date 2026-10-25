@@ -1,3 +1,4 @@
+import { removeArchiveRecord, mountArchiveRemoval } from "./archive-remove.js?v=archive-remove-20261025";
 import { mutateJSONFiles } from "./github-transaction.js?v=atomic-concerts-20261016";
 import { mountSupportDiscovery } from "./concert-discovery.js?v=image-share-20261015";
 import { shareConcertImage } from "./concert-share.js?v=image-share-20261015";
@@ -1160,6 +1161,21 @@ function openSheet(c) {
   });
 
   if (!planned) {
+    mountArchiveRemoval(sheet.querySelector(".sheet-inner"), c, {
+      connected: () => !!getGithubConfig(),
+      connect: openSettings,
+      remove: () => enqueue(async () => {
+        const path = "data/archive.json";
+        const result = await mutate([path], files => {
+          removeArchiveRecord(files[path], c.id);
+        }, `chore: remove archive entry ${c.id} (app)`);
+        return result[path];
+      }),
+      saved: archive => {
+        refreshArchiveViews(archive);
+        root.innerHTML = "";
+      },
+    });
     renderNote(sheet.querySelector("#sheet-note"), c);
     renderSetlist(sheet.querySelector("#sheet-setlist"), c);
     renderLineupPicker(sheet.querySelector("#sheet-lineup"), sheet.querySelector("#lineup-status"), c, lineup);

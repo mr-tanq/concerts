@@ -2167,3 +2167,10 @@ a.plain-act { text-decoration:none; }
 .sheet-going .sheet-change-plan { margin-top:0; }
 .sheet-change-plan .act-row { padding-top:4px; padding-bottom:16px; }
 .sheet-going .sheet-inner { padding-bottom:32px; }
+
+/* Archive removal: quiet action with an explicit confirmation. */
+.archive-removal [hidden] { display: none; }
+.archive-removal .act-row { padding: 0; justify-content: flex-start; gap: 24px; }
+.archive-removal .plain-act { min-height: 44px; }
+.archive-removal [data-remove] { color: var(--ember); }
+.archive-removal .status { margin-bottom: 0; }
