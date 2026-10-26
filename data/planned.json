@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-26T20:06:58.435Z",
+    "lastUpdated": "2026-10-26T20:07:51.181Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -620,8 +620,110 @@
         "originalScore": 46
       },
       "schedule": {
+        "version": 1,
         "date": "2026-11-23",
-        "refreshRequestedAt": "2026-10-26T20:07:30.308Z"
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": null
+        },
+        "start": {
+          "name": "PROGRAMME START",
+          "time": null
+        },
+        "support": [],
+        "main": {
+          "name": "José González",
+          "time": null
+        },
+        "end": {
+          "name": "END",
+          "time": null
+        },
+        "sources": [],
+        "lastCheckedAt": null,
+        "lastAttemptAt": "2026-10-26T20:07:45.153Z",
+        "checks": {},
+        "lastError": "No matching source could be checked",
+        "noSupport": null,
+        "refreshRequestedAt": "2026-10-26T20:07:30.308Z",
+        "lastOfficialCheckedAt": null,
+        "checkStatus": "failed",
+        "discovery": {
+          "version": 2,
+          "attempts": [
+            {
+              "url": "https://tivolivredenburg.nl/agenda/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.tivolivredenburg.nl/agenda/page/2/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/page/2/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/page/3/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/page/4/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/page/5/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/page/6/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/page/7/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/sitemap.xml",
+              "status": "fetch-failed",
+              "reason": "HTTP 404"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/sitemap_index.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.tivolivredenburg.nl/event-sitemap.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.tivolivredenburg.nl/event_category-sitemap.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.tivolivredenburg.nl/page-sitemap.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.tivolivredenburg.nl/sf_venue_room-sitemap.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.tivolivredenburg.nl/sf_genre-sitemap.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.tivolivredenburg.nl/page-categories-sitemap.xml",
+              "status": "fetched"
+            }
+          ],
+          "configured": [
+            "tivolivredenburg.nl"
+          ],
+          "requests": 16
+        },
+        "availability": "official-unverified"
       }
     },
     {
