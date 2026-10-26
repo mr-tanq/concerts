@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-26T20:15:44.176Z",
+    "lastUpdated": "2026-10-26T20:16:40.258Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -917,8 +917,108 @@
         "askedOn": "2026-10-26"
       },
       "schedule": {
+        "version": 1,
         "date": "2026-11-29",
-        "refreshRequestedAt": "2026-10-26T20:16:19.103Z"
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": null
+        },
+        "start": {
+          "name": "PROGRAMME START",
+          "time": null
+        },
+        "support": [
+          {
+            "name": "Dead Poet Society",
+            "time": "19:30",
+            "dayOffset": 0,
+            "status": "confirmed",
+            "sourceUrl": "https://www.mojo.nl/concerten/muse",
+            "sourceKind": "official",
+            "checkedAt": "2026-10-26T20:16:35.204Z",
+            "evidence": "Support act Dead Poet Society De Passage 100, 1101 AX Amsterdam \n                                            Aanvang: 19:30",
+            "at": "2026-11-29T18:30:00.000Z"
+          }
+        ],
+        "main": {
+          "name": "Muse",
+          "time": null
+        },
+        "end": {
+          "name": "END",
+          "time": null
+        },
+        "sources": [
+          {
+            "url": "https://www.podiuminfo.nl/concert/479038/Muse-The-Wow!-Signal-Europa-Tour/Ziggo-Dome/",
+            "kind": "secondary",
+            "label": "podiuminfo.nl",
+            "checkedAt": "2026-10-26T20:16:35.204Z"
+          },
+          {
+            "url": "https://www.ziggodome.nl/events/31710bab-a5ce-46c9-83a2-fe1c9e751810/",
+            "kind": "official",
+            "label": "ziggodome.nl",
+            "checkedAt": "2026-10-26T20:16:35.204Z",
+            "adapter": "ziggo-public-programme"
+          },
+          {
+            "url": "https://www.mojo.nl/concerten/muse",
+            "kind": "official",
+            "label": "mojo.nl",
+            "checkedAt": "2026-10-26T20:16:35.204Z"
+          }
+        ],
+        "lastCheckedAt": "2026-10-26T20:16:35.204Z",
+        "lastAttemptAt": "2026-10-26T20:16:35.204Z",
+        "checks": {
+          "manual": "2026-10-26T20:16:35.204Z"
+        },
+        "lastError": null,
+        "noSupport": null,
+        "refreshRequestedAt": "2026-10-26T20:16:19.103Z",
+        "lastOfficialCheckedAt": "2026-10-26T20:16:35.204Z",
+        "checkStatus": "official",
+        "discovery": {
+          "version": 2,
+          "attempts": [
+            {
+              "url": "https://www.podiuminfo.nl/concert/479038/Muse-The-Wow!-Signal-Europa-Tour/Ziggo-Dome/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.ziggodome.nl/api/search/Muse",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.ziggodome.nl/api/agenda/events/31710bab-a5ce-46c9-83a2-fe1c9e751810",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.ziggodome.nl/events/31710bab-a5ce-46c9-83a2-fe1c9e751810/",
+              "status": "verified"
+            },
+            {
+              "url": "https://mojo.nl/agenda?query=Muse",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.mojo.nl/concerten/muse",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.mojo.nl/concerten/muse",
+              "status": "verified"
+            }
+          ],
+          "configured": [
+            "ziggodome.nl",
+            "mojo.nl"
+          ],
+          "requests": 5
+        },
+        "availability": "published"
       }
     },
     {
