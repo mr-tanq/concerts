@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-26T20:05:46.714Z",
+    "lastUpdated": "2026-10-26T20:06:58.435Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -1176,8 +1176,144 @@
         "originalScore": 45
       },
       "schedule": {
+        "version": 1,
         "date": "2026-11-22",
-        "refreshRequestedAt": "2026-10-26T20:06:35.584Z"
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": "15:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://iduna.nl/agenda/pro-pain-2/",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-26T20:06:50.152Z",
+          "evidence": "Deur: 15:00 uur",
+          "at": "2026-11-22T14:00:00.000Z"
+        },
+        "start": {
+          "name": "PROGRAMME START",
+          "time": "15:30",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://iduna.nl/agenda/pro-pain-2/",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-26T20:06:50.152Z",
+          "evidence": "Aanvang: 15:30 uur",
+          "at": "2026-11-22T14:30:00.000Z",
+          "unassigned": true
+        },
+        "support": [
+          {
+            "name": "Spear",
+            "time": null
+          },
+          {
+            "name": "Schizm",
+            "time": null
+          }
+        ],
+        "main": {
+          "name": "Pro-Pain",
+          "time": null
+        },
+        "end": {
+          "name": "END",
+          "time": null
+        },
+        "sources": [
+          {
+            "url": "https://www.podiuminfo.nl/concert/473716/Pro-Pain-Stone-Cold-Anger/Iduna/",
+            "kind": "secondary",
+            "label": "podiuminfo.nl",
+            "checkedAt": "2026-10-26T20:06:50.152Z"
+          },
+          {
+            "url": "https://iduna.nl/agenda/pro-pain-2/",
+            "kind": "official",
+            "label": "iduna.nl",
+            "checkedAt": "2026-10-26T20:06:50.152Z"
+          }
+        ],
+        "lastCheckedAt": "2026-10-26T20:06:50.152Z",
+        "lastAttemptAt": "2026-10-26T20:06:50.152Z",
+        "checks": {
+          "manual": "2026-10-26T20:06:50.152Z"
+        },
+        "lastError": null,
+        "noSupport": null,
+        "refreshRequestedAt": "2026-10-26T20:06:35.584Z",
+        "lastOfficialCheckedAt": "2026-10-26T20:06:50.152Z",
+        "checkStatus": "official",
+        "discovery": {
+          "version": 2,
+          "attempts": [
+            {
+              "url": "https://www.podiuminfo.nl/concert/473716/Pro-Pain-Stone-Cold-Anger/Iduna/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://iduna.nl/evenementen/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://iduna.nl/evenementen/page/2/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://iduna.nl/evenementen/page/3/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://iduna.nl/evenementen/page/4/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://iduna.nl/evenementen/page/5/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://iduna.nl/evenementen/page/6/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://iduna.nl/evenementen/page/7/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://iduna.nl/evenementen/page/8/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://iduna.nl/sitemap.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://iduna.nl/agenda-sitemap.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://iduna.nl/agenda/pro-pain/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://iduna.nl/agenda/pro-pain/",
+              "status": "identity-unverified"
+            },
+            {
+              "url": "https://iduna.nl/agenda/pro-pain-2/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://iduna.nl/agenda/pro-pain-2/",
+              "status": "verified"
+            }
+          ],
+          "configured": [
+            "iduna.nl"
+          ],
+          "requests": 13
+        },
+        "availability": "published"
       }
     },
     {
