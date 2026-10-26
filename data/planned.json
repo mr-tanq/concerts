@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-26T20:07:51.181Z",
+    "lastUpdated": "2026-10-26T20:15:44.176Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -1446,8 +1446,151 @@
         "originalScore": 45
       },
       "schedule": {
+        "version": 1,
         "date": "2026-11-23",
-        "refreshRequestedAt": "2026-10-26T20:15:22.357Z"
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": "20:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.tivolivredenburg.nl/agenda/29449734/long-distance-calling-23-11-2026",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-26T20:15:39.974Z",
+          "evidence": "Deuren open 20:00",
+          "at": "2026-11-23T19:00:00.000Z"
+        },
+        "start": {
+          "name": "PROGRAMME START",
+          "time": "21:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.tivolivredenburg.nl/agenda/29449734/long-distance-calling-23-11-2026",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-26T20:15:39.974Z",
+          "evidence": "Aanvang 21:00",
+          "at": "2026-11-23T20:00:00.000Z"
+        },
+        "support": [
+          {
+            "name": "TELEPATHY",
+            "time": "21:00",
+            "dayOffset": 0,
+            "status": "confirmed",
+            "sourceUrl": "https://www.tivolivredenburg.nl/agenda/29449734/long-distance-calling-23-11-2026",
+            "sourceKind": "official",
+            "checkedAt": "2026-10-26T20:15:39.974Z",
+            "evidence": "Aanvang 21:00",
+            "at": "2026-11-23T20:00:00.000Z",
+            "derivedFrom": "programme-start"
+          }
+        ],
+        "main": {
+          "name": "Long Distance Calling",
+          "time": null
+        },
+        "end": {
+          "name": "END",
+          "time": "22:29",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.tivolivredenburg.nl/agenda/29449734/long-distance-calling-23-11-2026",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-26T20:15:39.974Z",
+          "evidence": "endDate: 2026-11-23T22:29",
+          "at": "2026-11-23T21:29:00.000Z"
+        },
+        "sources": [
+          {
+            "url": "https://www.podiuminfo.nl/concert/465393/Long-Distance-Calling-The-Phantom-Void/TivoliVredenburg/",
+            "kind": "secondary",
+            "label": "podiuminfo.nl",
+            "checkedAt": "2026-10-26T20:15:39.974Z"
+          },
+          {
+            "url": "https://www.tivolivredenburg.nl/agenda/29449734/long-distance-calling-23-11-2026",
+            "kind": "official",
+            "label": "tivolivredenburg.nl",
+            "checkedAt": "2026-10-26T20:15:39.974Z"
+          }
+        ],
+        "lastCheckedAt": "2026-10-26T20:15:39.974Z",
+        "lastAttemptAt": "2026-10-26T20:15:39.974Z",
+        "checks": {
+          "manual": "2026-10-26T20:15:39.974Z"
+        },
+        "lastError": null,
+        "noSupport": null,
+        "refreshRequestedAt": "2026-10-26T20:15:22.357Z",
+        "lastOfficialCheckedAt": "2026-10-26T20:15:39.974Z",
+        "checkStatus": "official",
+        "discovery": {
+          "version": 2,
+          "attempts": [
+            {
+              "url": "https://www.podiuminfo.nl/concert/465393/Long-Distance-Calling-The-Phantom-Void/TivoliVredenburg/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.tivolivredenburg.nl/agenda/page/2/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/page/2/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/page/3/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/page/4/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/page/5/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/page/6/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/page/7/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/sitemap.xml",
+              "status": "fetch-failed",
+              "reason": "HTTP 404"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/sitemap_index.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.tivolivredenburg.nl/seo-feed/sf-production-sitemap-xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.tivolivredenburg.nl/agenda/29449734/long-distance-calling-23-11-2026",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.tivolivredenburg.nl/agenda/29449734/long-distance-calling-23-11-2026",
+              "status": "verified"
+            }
+          ],
+          "configured": [
+            "tivolivredenburg.nl"
+          ],
+          "requests": 13
+        },
+        "availability": "published"
       }
     },
     {
