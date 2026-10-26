@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-26T20:18:30.426Z",
+    "lastUpdated": "2026-10-26T20:19:27.071Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -2936,8 +2936,110 @@
         "originalScore": 31
       },
       "schedule": {
+        "version": 1,
         "date": "2026-12-07",
-        "refreshRequestedAt": "2026-10-26T20:19:11.512Z"
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": "19:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.013.nl/programma/145171/queensr%C3%BFche",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-26T20:19:24.376Z",
+          "evidence": "19:00 Zaal open",
+          "at": "2026-12-07T18:00:00.000Z"
+        },
+        "start": {
+          "name": "PROGRAMME START",
+          "time": "20:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.013.nl/programma/145171/queensr%C3%BFche",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-26T20:19:24.376Z",
+          "evidence": "20:00 Aanvang",
+          "at": "2026-12-07T19:00:00.000Z"
+        },
+        "support": [
+          {
+            "name": "Ambush",
+            "time": "20:00",
+            "dayOffset": 0,
+            "status": "confirmed",
+            "sourceUrl": "https://www.013.nl/programma/145171/queensr%C3%BFche",
+            "sourceKind": "official",
+            "checkedAt": "2026-10-26T20:19:24.376Z",
+            "evidence": "20:00 Aanvang",
+            "at": "2026-12-07T19:00:00.000Z",
+            "derivedFrom": "programme-start"
+          }
+        ],
+        "main": {
+          "name": "Queensrÿche",
+          "time": null
+        },
+        "end": {
+          "name": "END",
+          "time": "23:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.013.nl/programma/145171/queensr%C3%BFche",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-26T20:19:24.376Z",
+          "evidence": "endDate: 2026-12-07T23:00:00+01:00",
+          "at": "2026-12-07T22:00:00.000Z"
+        },
+        "sources": [
+          {
+            "url": "https://www.podiuminfo.nl/concert/484045/Queensryche/013/",
+            "kind": "secondary",
+            "label": "podiuminfo.nl",
+            "checkedAt": "2026-10-26T20:19:24.376Z"
+          },
+          {
+            "url": "https://www.013.nl/programma/145171/queensr%C3%BFche",
+            "kind": "official",
+            "label": "013.nl",
+            "checkedAt": "2026-10-26T20:19:24.376Z"
+          }
+        ],
+        "lastCheckedAt": "2026-10-26T20:19:24.376Z",
+        "lastAttemptAt": "2026-10-26T20:19:24.376Z",
+        "checks": {
+          "manual": "2026-10-26T20:19:24.376Z"
+        },
+        "lastError": null,
+        "noSupport": null,
+        "refreshRequestedAt": "2026-10-26T20:19:11.512Z",
+        "lastOfficialCheckedAt": "2026-10-26T20:19:24.376Z",
+        "checkStatus": "official",
+        "discovery": {
+          "version": 2,
+          "attempts": [
+            {
+              "url": "https://www.podiuminfo.nl/concert/484045/Queensryche/013/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://013.nl/programma",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.013.nl/programma/145171/queensr%C3%BFche",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.013.nl/programma/145171/queensr%C3%BFche",
+              "status": "verified"
+            }
+          ],
+          "configured": [
+            "013.nl"
+          ],
+          "requests": 3
+        },
+        "availability": "published"
       }
     },
     {
