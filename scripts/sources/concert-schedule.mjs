@@ -13,7 +13,7 @@ const VENUES = [
   ["Paradiso", "paradiso.nl", "/programma"], ["Melkweg", "melkweg.nl", "/nl/agenda/"],
   ["Ziggo Dome", "ziggodome.nl", "/agenda"], ["Patronaat", "patronaat.nl", "/programma/"],
   ["Doornroosje", "doornroosje.nl", "/programma/"], ["AFAS Live", "afaslive.nl", "/agenda"],
-  ["dB's", "dbstudio.nl", "/programma/"], ["Vera", "vera-groningen.nl", "/events/"],
+  ["dB's", "dbstudio.nl", "/agenda/"], ["Vera", "vera-groningen.nl", "/events/"],
   ["Effenaar", "effenaar.nl", "/agenda"], ["Muziekgieterij", "muziekgieterij.nl", "/agenda/"],
   ["Baroeg", "baroeg.nl", "/agenda/"], ["Annabel", "annabel.nu", "/agenda/"],
   ["Botanique", "botanique.be", "/en/concerts"], ["Bibelot", "bibelot.net", "/programma/"],
@@ -55,6 +55,13 @@ function dateMatches(text, date) {
 
 export function parseSchedule(html, concert, url, kind = "official", checkedAt = new Date().toISOString()) {
   const $ = cheerio.load(html);
+  const dbstudio = new URL(url).hostname.replace(/^www\./, "") === "dbstudio.nl"
+    && /^\/event\/[^/]+\/?$/.test(new URL(url).pathname);
+  const dbTitle = dbstudio ? ($('meta[property="og:title"]').attr("content")
+    || $("title").text().replace(/\s+[–—-]\s+dB[’']s Studio\s*$/i, "")) : "";
+  // dB's metadata has adjacent strong/span elements with no whitespace.
+  // Preserve field boundaries for dates and labelled times.
+  if (dbstudio) $("main .dbstudio-event-meta > div > strong").after(" ");
   const events = [];
   function collect(value) {
     if (Array.isArray(value)) return value.forEach(collect);
@@ -64,7 +71,11 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
   }
   $('script[type="application/ld+json"]').each((_, n) => { try { collect(JSON.parse($(n).text())); } catch {} });
   const sameDate = events.filter(e => wallTime(e.startDate,concert)?.date === concert.date);
-  const performers = e => [e.performer].flat().filter(Boolean).map(p => typeof p === "string" ? p : p.name).filter(Boolean);
+  // dB's emits "Organization" as a placeholder performer.
+  // Real performer names must still match.
+  const performers = e => [e.performer].flat().filter(Boolean)
+    .filter(p => !(dbstudio && p === "Organization"))
+    .map(p => typeof p === "string" ? p : p.name).filter(Boolean);
   const matching = sameDate.filter(e => (!e.location?.address?.addressCountry || !countryCode(concert.country) || countryCode(e.location.address.addressCountry) === countryCode(concert.country)) && matchName(e.name, concert.artist) && (!performers(e).length || performers(e).some(n => matchName(n,concert.artist))));
   if (events.some(e => matchName(e.name,concert.artist) && wallTime(e.startDate,concert)) && !matching.length) return null;
   // A play or show title can equal a band name without being that performer.
@@ -89,6 +100,13 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
   const source = { url, kind, label: new URL(url).hostname.replace(/^www\./,""), checkedAt };
   const values = new Map(), conflicts = new Set();
   const supportNames = [...new Set((concert.supportingArtists || []).filter(Boolean).map(supportName))];
+  // dB's publishes its billing in og:title rather than an h1.
+  if (dbstudio && matchName(dbTitle.split(/\s+\+\s+/)[0], concert.artist)) {
+    for (const name of dbTitle.split(/\s+\+\s+/).slice(1).map(s => s.trim())) {
+      if (/^[\p{L}\p{N} '&.()–-]{2,70}$/u.test(name)
+        && !matchName(name, concert.artist)) supportNames.push(name);
+    }
+  }
   // Plus-billed names directly beside the event heading are support acts.
   root.find("h1").first().parent().children("ul").children("li").each((_, n) => {
     const label = $(n).text().trim();
@@ -231,6 +249,8 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
   }
   // Explicit timetable ranges crossing midnight imply the end is the following day.
   if (values.get("end") && values.get("main") && values.get("end").time < values.get("main").time) values.get("end").dayOffset = 1;
+  // Aanvang identifies programme start, not an individual act.
+  if (dbstudio && values.has("start")) values.get("start").unassigned = true;
   return { source, noSupport, values: Object.fromEntries(values), supportNames: [...new Set(supportNames)], conflicts: [...conflicts] };
 }
 
