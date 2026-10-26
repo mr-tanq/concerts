@@ -180,6 +180,10 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
     normalize($(n).text()) === "support act" &&
     /^(geen voorprogramma|no support(?: act)?)$/.test(
       normalize($(n).next("dd").text())));
+  const unknownSupport = tivoli && root.find("dt").toArray().some(n =>
+    /^(support(?: act)?|voorprogramma)$/.test(normalize($(n).text())) &&
+    /^(nog niet bekend|tba|unknown|to be announced)$/.test(
+      normalize($(n).next("dd").text())));
   // Read support names before assigning programme-start times.
   root.find("dt").each((_, n) => {
     const term = $(n);
@@ -251,6 +255,8 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
   if (values.get("end") && values.get("main") && values.get("end").time < values.get("main").time) values.get("end").dayOffset = 1;
   // Aanvang identifies programme start, not an individual act.
   if (dbstudio && values.has("start")) values.get("start").unassigned = true;
+  // An unknown support does not identify when the headliner starts.
+  if (unknownSupport && values.has("start")) values.get("start").unassigned = true;
   return { source, noSupport, values: Object.fromEntries(values), supportNames: [...new Set(supportNames)], conflicts: [...conflicts] };
 }
 

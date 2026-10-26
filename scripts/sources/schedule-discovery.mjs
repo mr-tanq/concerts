@@ -91,7 +91,9 @@ export async function discoverSchedulePages(concert, config, fetcher, visitEvent
         const child = safe($(n).text().trim(), base);
         if (child && !seenMaps.has(child) && !maps.includes(child)) children.push(child);
       });
-      const rank = url => /archiv/i.test(url) ? 0 : /event|agenda|program/i.test(url) ? 2 : 1;
+      // Production feeds contain current concert URLs; taxonomy maps do not.
+      const rank = url => /archiv|categor|genre|venue.room/i.test(url) ? 0
+        : /production/i.test(url) ? 3 : /event|agenda|program/i.test(url) ? 2 : 1;
       children.sort((a, b) => rank(b) - rank(a));
       maps.unshift(...children);
     } catch { /* A missing sitemap does not invalidate other sources. */ }
