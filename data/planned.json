@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-26T20:01:37.656Z",
+    "lastUpdated": "2026-10-26T20:02:40.273Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -1324,35 +1324,61 @@
         },
         "start": {
           "name": "PROGRAMME START",
-          "time": null
+          "time": "20:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://dbstudio.nl/event/pro-pain-usa-legends/",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-26T20:02:35.460Z",
+          "evidence": "Aanvang 20:00 uur",
+          "unassigned": true,
+          "at": "2026-11-17T19:00:00.000Z"
         },
-        "support": [],
+        "support": [
+          {
+            "name": "Dyslekt",
+            "time": null
+          }
+        ],
         "main": {
           "name": "PRO-PAIN",
           "time": null
         },
         "end": {
           "name": "END",
-          "time": null
+          "time": "23:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://dbstudio.nl/event/pro-pain-usa-legends/",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-26T20:02:35.460Z",
+          "evidence": "endDate: 2026-11-17T23:00:00+01:00",
+          "at": "2026-11-17T22:00:00.000Z"
         },
         "sources": [
           {
             "url": "https://www.podiuminfo.nl/concert/490609/PRO-PAIN/dBs/",
             "kind": "secondary",
             "label": "podiuminfo.nl",
-            "checkedAt": "2026-10-25T23:46:29.028Z"
+            "checkedAt": "2026-10-26T20:02:35.460Z"
+          },
+          {
+            "url": "https://dbstudio.nl/event/pro-pain-usa-legends/",
+            "kind": "official",
+            "label": "dbstudio.nl",
+            "checkedAt": "2026-10-26T20:02:35.460Z"
           }
         ],
-        "lastCheckedAt": "2026-10-25T23:46:29.028Z",
-        "lastAttemptAt": "2026-10-25T23:46:29.028Z",
+        "lastCheckedAt": "2026-10-26T20:02:35.460Z",
+        "lastAttemptAt": "2026-10-26T20:02:35.460Z",
         "checks": {
-          "manual": "2026-10-25T23:46:29.028Z"
+          "manual": "2026-10-26T20:02:35.460Z"
         },
         "lastError": null,
         "noSupport": null,
         "refreshRequestedAt": "2026-10-26T20:01:49.148Z",
-        "lastOfficialCheckedAt": null,
-        "checkStatus": "secondary-only",
+        "lastOfficialCheckedAt": "2026-10-26T20:02:35.460Z",
+        "checkStatus": "official",
         "discovery": {
           "version": 2,
           "attempts": [
@@ -1361,16 +1387,7 @@
               "status": "fetched"
             },
             {
-              "url": "https://dbstudio.nl/programma/",
-              "status": "fetch-failed",
-              "reason": "HTTP 404"
-            },
-            {
-              "url": "https://dbstudio.nl/sitemap.xml",
-              "status": "fetched"
-            },
-            {
-              "url": "https://dbstudio.nl/wp-sitemap-posts-tribe_events-1.xml",
+              "url": "https://dbstudio.nl/agenda/",
               "status": "fetched"
             },
             {
@@ -1378,44 +1395,16 @@
               "status": "fetched"
             },
             {
-              "url": "https://dbs.stager.co/shop/default/events/111669289",
-              "status": "fetched"
-            },
-            {
               "url": "https://dbstudio.nl/event/pro-pain-usa-legends/",
-              "status": "identity-unverified"
-            },
-            {
-              "url": "https://dbstudio.nl/wp-sitemap-taxonomies-tribe_events_cat-1.xml",
-              "status": "fetched"
-            },
-            {
-              "url": "https://dbstudio.nl/wp-sitemap-posts-post-1.xml",
-              "status": "fetched"
-            },
-            {
-              "url": "https://dbstudio.nl/wp-sitemap-posts-page-1.xml",
-              "status": "fetched"
-            },
-            {
-              "url": "https://dbstudio.nl/wp-sitemap-posts-avada_portfolio-1.xml",
-              "status": "fetched"
-            },
-            {
-              "url": "https://dbstudio.nl/wp-sitemap-taxonomies-category-1.xml",
-              "status": "fetched"
-            },
-            {
-              "url": "https://dbstudio.nl/wp-sitemap-taxonomies-post_tag-1.xml",
-              "status": "fetched"
+              "status": "verified"
             }
           ],
           "configured": [
             "dbstudio.nl"
           ],
-          "requests": 12
+          "requests": 3
         },
-        "availability": "official-unverified"
+        "availability": "published"
       }
     },
     {
