@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-27T08:23:03.645Z",
+    "lastUpdated": "2026-10-27T09:23:48.707Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -71,8 +71,111 @@
         "originalScore": 54
       },
       "schedule": {
+        "version": 1,
         "date": "2026-12-13",
-        "refreshRequestedAt": "2026-10-27T09:23:23.238Z"
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": "19:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.paradiso.nl/programma/hermanos-gutierrez/2896806",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-27T09:23:39.133Z",
+          "evidence": "Zaal open: 19:00",
+          "at": "2026-12-13T18:00:00.000Z"
+        },
+        "start": {
+          "name": "PROGRAMME START",
+          "time": null
+        },
+        "support": [],
+        "main": {
+          "name": "Hermanos Gutiérrez",
+          "time": "20:30",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.paradiso.nl/programma/hermanos-gutierrez/2896806",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-27T09:23:39.133Z",
+          "evidence": "Hoofdprogramma: 20:30",
+          "at": "2026-12-13T19:30:00.000Z"
+        },
+        "end": {
+          "name": "END",
+          "time": "21:30",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.paradiso.nl/programma/hermanos-gutierrez/2896806",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-27T09:23:39.133Z",
+          "evidence": "endDate: 2026-12-13T21:30:00+01:00",
+          "at": "2026-12-13T20:30:00.000Z"
+        },
+        "sources": [
+          {
+            "url": "https://www.paradiso.nl/programma/hermanos-gutierrez/2896806",
+            "kind": "official",
+            "label": "paradiso.nl",
+            "checkedAt": "2026-10-27T09:23:39.133Z"
+          }
+        ],
+        "lastCheckedAt": "2026-10-27T09:23:39.133Z",
+        "lastAttemptAt": "2026-10-27T09:23:39.133Z",
+        "checks": {
+          "manual": "2026-10-27T09:23:39.133Z"
+        },
+        "lastError": null,
+        "noSupport": null,
+        "refreshRequestedAt": "2026-10-27T09:23:23.238Z",
+        "lastOfficialCheckedAt": "2026-10-27T09:23:39.133Z",
+        "checkStatus": "official",
+        "discovery": {
+          "version": 2,
+          "attempts": [
+            {
+              "url": "https://paradiso.nl/programma",
+              "status": "fetched"
+            },
+            {
+              "url": "https://paradiso.nl/sitemap.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.paradiso.nl/sitemap/event_1.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.paradiso.nl/sitemap/event_2.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.paradiso.nl/sitemap/event_3.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.paradiso.nl/programma/hermanos-gutierrez/2896810",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.paradiso.nl/programma/hermanos-gutierrez/2896810",
+              "status": "identity-unverified"
+            },
+            {
+              "url": "https://www.paradiso.nl/programma/hermanos-gutierrez/2896806",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.paradiso.nl/programma/hermanos-gutierrez/2896806",
+              "status": "verified"
+            }
+          ],
+          "configured": [
+            "paradiso.nl"
+          ],
+          "requests": 7
+        },
+        "availability": "published"
       }
     },
     {
@@ -1265,7 +1368,7 @@
           "status": "confirmed",
           "sourceUrl": "https://www.mojo.nl/concerten/placebo",
           "sourceKind": "official",
-          "checkedAt": "2026-10-27T08:22:59.291Z",
+          "checkedAt": "2026-10-27T09:23:39.133Z",
           "evidence": "Deuren open 18:30",
           "at": "2026-10-27T17:30:00.000Z"
         },
@@ -1276,7 +1379,7 @@
           "status": "confirmed",
           "sourceUrl": "https://www.mojo.nl/concerten/placebo",
           "sourceKind": "official",
-          "checkedAt": "2026-10-27T08:22:59.291Z",
+          "checkedAt": "2026-10-27T09:23:39.133Z",
           "evidence": "Aanvang: 20:00",
           "at": "2026-10-27T19:00:00.000Z"
         },
@@ -1288,7 +1391,7 @@
             "status": "confirmed",
             "sourceUrl": "https://www.mojo.nl/concerten/placebo",
             "sourceKind": "official",
-            "checkedAt": "2026-10-27T08:22:59.291Z",
+            "checkedAt": "2026-10-27T09:23:39.133Z",
             "evidence": "The Mirror Trap De Passage 100, 1101 AX Amsterdam \n                                            Aanvang: 20:00",
             "at": "2026-10-27T19:00:00.000Z"
           }
@@ -1300,7 +1403,7 @@
           "status": "confirmed",
           "sourceUrl": "https://www.mojo.nl/concerten/placebo",
           "sourceKind": "official",
-          "checkedAt": "2026-10-27T08:22:59.291Z",
+          "checkedAt": "2026-10-27T09:23:39.133Z",
           "evidence": "Placebo 21:00",
           "at": "2026-10-27T20:00:00.000Z"
         },
@@ -1311,7 +1414,7 @@
           "status": "expected",
           "sourceUrl": "https://www.mojo.nl/concerten/placebo",
           "sourceKind": "official",
-          "checkedAt": "2026-10-27T08:22:59.291Z",
+          "checkedAt": "2026-10-27T09:23:39.133Z",
           "evidence": "Verwacht einde 22:45",
           "at": "2026-10-27T21:45:00.000Z"
         },
@@ -1320,34 +1423,34 @@
             "url": "https://www.podiuminfo.nl/concert/456178/Placebo-30th-Anniversary-Tour/Ziggo-Dome/",
             "kind": "secondary",
             "label": "podiuminfo.nl",
-            "checkedAt": "2026-10-27T08:22:59.291Z"
+            "checkedAt": "2026-10-27T09:23:39.133Z"
           },
           {
             "url": "https://www.ziggodome.nl/events/1c4d6a23-e91b-4696-9791-ba5eeb2609a4/",
             "kind": "official",
             "label": "ziggodome.nl",
-            "checkedAt": "2026-10-27T08:22:59.291Z",
+            "checkedAt": "2026-10-27T09:23:39.133Z",
             "adapter": "ziggo-public-programme"
           },
           {
             "url": "https://www.mojo.nl/concerten/placebo",
             "kind": "official",
             "label": "mojo.nl",
-            "checkedAt": "2026-10-27T08:22:59.291Z"
+            "checkedAt": "2026-10-27T09:23:39.133Z"
           }
         ],
-        "lastCheckedAt": "2026-10-27T08:22:59.291Z",
-        "lastAttemptAt": "2026-10-27T08:22:59.291Z",
+        "lastCheckedAt": "2026-10-27T09:23:39.133Z",
+        "lastAttemptAt": "2026-10-27T09:23:39.133Z",
         "checks": {
           "manual": "2026-10-24T22:08:46.573Z",
           "before48h": "2026-10-25T17:52:02.832Z",
           "before24h": "2026-10-26T19:34:40.509Z",
-          "sameDay": "2026-10-27T08:22:59.291Z"
+          "sameDay": "2026-10-27T09:23:39.133Z"
         },
         "lastError": null,
         "noSupport": null,
         "refreshRequestedAt": "2026-10-24T22:08:30.176Z",
-        "lastOfficialCheckedAt": "2026-10-27T08:22:59.291Z",
+        "lastOfficialCheckedAt": "2026-10-27T09:23:39.133Z",
         "checkStatus": "official",
         "discovery": {
           "version": 2,
