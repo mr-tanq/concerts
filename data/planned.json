@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-27T09:25:49.596Z",
+    "lastUpdated": "2026-10-27T10:58:02.891Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -1368,7 +1368,7 @@
           "status": "confirmed",
           "sourceUrl": "https://www.mojo.nl/concerten/placebo",
           "sourceKind": "official",
-          "checkedAt": "2026-10-27T09:23:39.133Z",
+          "checkedAt": "2026-10-27T10:57:55.877Z",
           "evidence": "Deuren open 18:30",
           "at": "2026-10-27T17:30:00.000Z"
         },
@@ -1379,7 +1379,7 @@
           "status": "confirmed",
           "sourceUrl": "https://www.mojo.nl/concerten/placebo",
           "sourceKind": "official",
-          "checkedAt": "2026-10-27T09:23:39.133Z",
+          "checkedAt": "2026-10-27T10:57:55.877Z",
           "evidence": "Aanvang: 20:00",
           "at": "2026-10-27T19:00:00.000Z"
         },
@@ -1391,7 +1391,7 @@
             "status": "confirmed",
             "sourceUrl": "https://www.mojo.nl/concerten/placebo",
             "sourceKind": "official",
-            "checkedAt": "2026-10-27T09:23:39.133Z",
+            "checkedAt": "2026-10-27T10:57:55.877Z",
             "evidence": "The Mirror Trap De Passage 100, 1101 AX Amsterdam \n                                            Aanvang: 20:00",
             "at": "2026-10-27T19:00:00.000Z"
           }
@@ -1403,7 +1403,7 @@
           "status": "confirmed",
           "sourceUrl": "https://www.mojo.nl/concerten/placebo",
           "sourceKind": "official",
-          "checkedAt": "2026-10-27T09:23:39.133Z",
+          "checkedAt": "2026-10-27T10:57:55.877Z",
           "evidence": "Placebo 21:00",
           "at": "2026-10-27T20:00:00.000Z"
         },
@@ -1414,7 +1414,7 @@
           "status": "expected",
           "sourceUrl": "https://www.mojo.nl/concerten/placebo",
           "sourceKind": "official",
-          "checkedAt": "2026-10-27T09:23:39.133Z",
+          "checkedAt": "2026-10-27T10:57:55.877Z",
           "evidence": "Verwacht einde 22:45",
           "at": "2026-10-27T21:45:00.000Z"
         },
@@ -1423,34 +1423,34 @@
             "url": "https://www.podiuminfo.nl/concert/456178/Placebo-30th-Anniversary-Tour/Ziggo-Dome/",
             "kind": "secondary",
             "label": "podiuminfo.nl",
-            "checkedAt": "2026-10-27T09:23:39.133Z"
+            "checkedAt": "2026-10-27T10:57:55.877Z"
           },
           {
             "url": "https://www.ziggodome.nl/events/1c4d6a23-e91b-4696-9791-ba5eeb2609a4/",
             "kind": "official",
             "label": "ziggodome.nl",
-            "checkedAt": "2026-10-27T09:23:39.133Z",
+            "checkedAt": "2026-10-27T10:57:55.877Z",
             "adapter": "ziggo-public-programme"
           },
           {
             "url": "https://www.mojo.nl/concerten/placebo",
             "kind": "official",
             "label": "mojo.nl",
-            "checkedAt": "2026-10-27T09:23:39.133Z"
+            "checkedAt": "2026-10-27T10:57:55.877Z"
           }
         ],
-        "lastCheckedAt": "2026-10-27T09:23:39.133Z",
-        "lastAttemptAt": "2026-10-27T09:23:39.133Z",
+        "lastCheckedAt": "2026-10-27T10:57:55.877Z",
+        "lastAttemptAt": "2026-10-27T10:57:55.877Z",
         "checks": {
           "manual": "2026-10-24T22:08:46.573Z",
           "before48h": "2026-10-25T17:52:02.832Z",
           "before24h": "2026-10-26T19:34:40.509Z",
-          "sameDay": "2026-10-27T09:23:39.133Z"
+          "sameDay": "2026-10-27T10:57:55.877Z"
         },
         "lastError": null,
         "noSupport": null,
         "refreshRequestedAt": "2026-10-24T22:08:30.176Z",
-        "lastOfficialCheckedAt": "2026-10-27T09:23:39.133Z",
+        "lastOfficialCheckedAt": "2026-10-27T10:57:55.877Z",
         "checkStatus": "official",
         "discovery": {
           "version": 2,
@@ -2948,8 +2948,107 @@
         "originalScore": 38
       },
       "schedule": {
+        "version": 1,
         "date": "2027-02-14",
-        "refreshRequestedAt": "2026-10-27T10:57:35.642Z"
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": "19:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.013.nl/programma/131462/amorphis",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-27T10:57:55.877Z",
+          "evidence": "19:00 Zaal open",
+          "at": "2027-02-14T18:00:00.000Z"
+        },
+        "start": {
+          "name": "PROGRAMME START",
+          "time": "19:30",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.013.nl/programma/131462/amorphis",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-27T10:57:55.877Z",
+          "evidence": "19:30 Aanvang",
+          "at": "2027-02-14T18:30:00.000Z",
+          "unassigned": true
+        },
+        "support": [
+          {
+            "name": "Insomnium",
+            "time": null
+          },
+          {
+            "name": "Unto Others",
+            "time": null
+          }
+        ],
+        "main": {
+          "name": "Amorphis",
+          "time": null
+        },
+        "end": {
+          "name": "END",
+          "time": "23:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.013.nl/programma/131462/amorphis",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-27T10:57:55.877Z",
+          "evidence": "endDate: 2027-02-14T23:00:00+01:00",
+          "at": "2027-02-14T22:00:00.000Z"
+        },
+        "sources": [
+          {
+            "url": "https://www.podiuminfo.nl/concert/467043/Amorphis-Borderland-tour/013/",
+            "kind": "secondary",
+            "label": "podiuminfo.nl",
+            "checkedAt": "2026-10-27T10:57:55.877Z"
+          },
+          {
+            "url": "https://www.013.nl/programma/131462/amorphis",
+            "kind": "official",
+            "label": "013.nl",
+            "checkedAt": "2026-10-27T10:57:55.877Z"
+          }
+        ],
+        "lastCheckedAt": "2026-10-27T10:57:55.877Z",
+        "lastAttemptAt": "2026-10-27T10:57:55.877Z",
+        "checks": {
+          "manual": "2026-10-27T10:57:55.877Z"
+        },
+        "lastError": null,
+        "noSupport": null,
+        "refreshRequestedAt": "2026-10-27T10:57:35.642Z",
+        "lastOfficialCheckedAt": "2026-10-27T10:57:55.877Z",
+        "checkStatus": "official",
+        "discovery": {
+          "version": 2,
+          "attempts": [
+            {
+              "url": "https://www.podiuminfo.nl/concert/467043/Amorphis-Borderland-tour/013/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://013.nl/programma",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.013.nl/programma/131462/amorphis",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.013.nl/programma/131462/amorphis",
+              "status": "verified"
+            }
+          ],
+          "configured": [
+            "013.nl"
+          ],
+          "requests": 3
+        },
+        "availability": "published"
       }
     },
     {
