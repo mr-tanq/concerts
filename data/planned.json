@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-27T09:23:48.707Z",
+    "lastUpdated": "2026-10-27T09:24:52.507Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -3222,8 +3222,139 @@
         "originalScore": 32
       },
       "schedule": {
+        "version": 1,
         "date": "2027-02-10",
-        "refreshRequestedAt": "2026-10-27T09:24:28.975Z"
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": "19:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.tivolivredenburg.nl/agenda/83608734/dead-poet-society-10-02-2027",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-27T09:24:44.651Z",
+          "evidence": "Deuren open 19:00",
+          "at": "2027-02-10T18:00:00.000Z"
+        },
+        "start": {
+          "name": "PROGRAMME START",
+          "time": "20:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.tivolivredenburg.nl/agenda/83608734/dead-poet-society-10-02-2027",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-27T09:24:44.651Z",
+          "evidence": "Aanvang 20:00",
+          "unassigned": true,
+          "at": "2027-02-10T19:00:00.000Z"
+        },
+        "support": [],
+        "main": {
+          "name": "Dead Poet Society",
+          "time": null
+        },
+        "end": {
+          "name": "END",
+          "time": "22:29",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.tivolivredenburg.nl/agenda/83608734/dead-poet-society-10-02-2027",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-27T09:24:44.651Z",
+          "evidence": "endDate: 2027-02-10T22:29",
+          "at": "2027-02-10T21:29:00.000Z"
+        },
+        "sources": [
+          {
+            "url": "https://www.podiuminfo.nl/concert/482709/Dead-Poet-Society/TivoliVredenburg/",
+            "kind": "secondary",
+            "label": "podiuminfo.nl",
+            "checkedAt": "2026-10-27T09:24:44.651Z"
+          },
+          {
+            "url": "https://www.tivolivredenburg.nl/agenda/83608734/dead-poet-society-10-02-2027",
+            "kind": "official",
+            "label": "tivolivredenburg.nl",
+            "checkedAt": "2026-10-27T09:24:44.651Z"
+          }
+        ],
+        "lastCheckedAt": "2026-10-27T09:24:44.651Z",
+        "lastAttemptAt": "2026-10-27T09:24:44.651Z",
+        "checks": {
+          "manual": "2026-10-27T09:24:44.651Z"
+        },
+        "lastError": null,
+        "noSupport": null,
+        "refreshRequestedAt": "2026-10-27T09:24:28.975Z",
+        "lastOfficialCheckedAt": "2026-10-27T09:24:44.651Z",
+        "checkStatus": "official",
+        "discovery": {
+          "version": 2,
+          "attempts": [
+            {
+              "url": "https://www.podiuminfo.nl/concert/482709/Dead-Poet-Society/TivoliVredenburg/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.tivolivredenburg.nl/agenda/page/2/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/page/2/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/page/3/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/page/4/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/page/5/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/page/6/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/page/7/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/sitemap.xml",
+              "status": "fetch-failed",
+              "reason": "HTTP 404"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/sitemap_index.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.tivolivredenburg.nl/seo-feed/sf-production-sitemap-xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.tivolivredenburg.nl/agenda/83608734/dead-poet-society-10-02-2027",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.tivolivredenburg.nl/agenda/83608734/dead-poet-society-10-02-2027",
+              "status": "verified"
+            }
+          ],
+          "configured": [
+            "tivolivredenburg.nl"
+          ],
+          "requests": 13
+        },
+        "availability": "published"
       }
     },
     {
