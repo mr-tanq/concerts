@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-28T16:49:57.014Z",
+    "lastUpdated": "2026-10-28T16:51:03.897Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -343,30 +343,73 @@
         "timeZone": "Europe/Amsterdam",
         "doors": {
           "name": "DOORS",
-          "time": null
+          "time": "18:45",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.tivolivredenburg.nl/agenda/36859466/haevn-15-11-2026",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-28T16:50:57.609Z",
+          "evidence": "Deuren open 18:45",
+          "at": "2026-11-15T17:45:00.000Z"
         },
         "start": {
           "name": "PROGRAMME START",
-          "time": null
+          "time": "19:30",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.tivolivredenburg.nl/agenda/36859466/haevn-15-11-2026",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-28T16:50:57.609Z",
+          "evidence": "Aanvang 19:30",
+          "at": "2026-11-15T18:30:00.000Z"
         },
-        "support": [],
+        "support": [
+          {
+            "name": "Alex Apolline",
+            "time": "19:30",
+            "dayOffset": 0,
+            "status": "confirmed",
+            "sourceUrl": "https://www.tivolivredenburg.nl/agenda/36859466/haevn-15-11-2026",
+            "sourceKind": "official",
+            "checkedAt": "2026-10-28T16:50:57.609Z",
+            "evidence": "Aanvang 19:30",
+            "at": "2026-11-15T18:30:00.000Z",
+            "derivedFrom": "programme-start"
+          }
+        ],
         "main": {
           "name": "HAEVN",
           "time": null
         },
         "end": {
           "name": "END",
-          "time": null
+          "time": "22:30",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.tivolivredenburg.nl/agenda/36859466/haevn-15-11-2026",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-28T16:50:57.609Z",
+          "evidence": "endDate: 2026-11-15T22:30",
+          "at": "2026-11-15T21:30:00.000Z"
         },
-        "sources": [],
-        "lastCheckedAt": null,
-        "lastAttemptAt": "2026-10-26T20:05:37.496Z",
-        "checks": {},
-        "lastError": "No matching source could be checked",
+        "sources": [
+          {
+            "url": "https://www.tivolivredenburg.nl/agenda/36859466/haevn-15-11-2026",
+            "kind": "official",
+            "label": "tivolivredenburg.nl",
+            "checkedAt": "2026-10-28T16:50:57.609Z"
+          }
+        ],
+        "lastCheckedAt": "2026-10-28T16:50:57.609Z",
+        "lastAttemptAt": "2026-10-28T16:50:57.609Z",
+        "checks": {
+          "manual": "2026-10-28T16:50:57.609Z"
+        },
+        "lastError": null,
         "noSupport": null,
         "refreshRequestedAt": "2026-10-28T16:50:41.093Z",
-        "lastOfficialCheckedAt": null,
-        "checkStatus": "failed",
+        "lastOfficialCheckedAt": "2026-10-28T16:50:57.609Z",
+        "checkStatus": "official",
         "discovery": {
           "version": 2,
           "attempts": [
@@ -399,10 +442,6 @@
               "status": "fetched"
             },
             {
-              "url": "https://tivolivredenburg.nl/agenda/page/7/",
-              "status": "fetched"
-            },
-            {
               "url": "https://www.tivolivredenburg.nl/agenda/37097990/haevn-14-11-2026",
               "status": "fetched"
             },
@@ -411,45 +450,24 @@
               "status": "identity-unverified"
             },
             {
-              "url": "https://tivolivredenburg.nl/sitemap.xml",
-              "status": "fetch-failed",
-              "reason": "HTTP 404"
-            },
-            {
-              "url": "https://tivolivredenburg.nl/sitemap_index.xml",
+              "url": "https://tivolivredenburg.nl/agenda/page/7/",
               "status": "fetched"
             },
             {
-              "url": "https://www.tivolivredenburg.nl/event-sitemap.xml",
+              "url": "https://www.tivolivredenburg.nl/agenda/36859466/haevn-15-11-2026",
               "status": "fetched"
             },
             {
-              "url": "https://www.tivolivredenburg.nl/event_category-sitemap.xml",
-              "status": "fetched"
-            },
-            {
-              "url": "https://www.tivolivredenburg.nl/page-sitemap.xml",
-              "status": "fetched"
-            },
-            {
-              "url": "https://www.tivolivredenburg.nl/sf_venue_room-sitemap.xml",
-              "status": "fetched"
-            },
-            {
-              "url": "https://www.tivolivredenburg.nl/sf_genre-sitemap.xml",
-              "status": "fetched"
-            },
-            {
-              "url": "https://www.tivolivredenburg.nl/page-categories-sitemap.xml",
-              "status": "fetched"
+              "url": "https://www.tivolivredenburg.nl/agenda/36859466/haevn-15-11-2026",
+              "status": "verified"
             }
           ],
           "configured": [
             "tivolivredenburg.nl"
           ],
-          "requests": 17
+          "requests": 10
         },
-        "availability": "official-unverified"
+        "availability": "published"
       }
     },
     {
