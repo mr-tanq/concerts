@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-28T20:43:21.440Z",
+    "lastUpdated": "2026-10-28T20:44:13.178Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -3603,13 +3603,37 @@
         "timeZone": "Europe/Amsterdam",
         "doors": {
           "name": "DOORS",
-          "time": null
+          "time": "18:30",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://effenaar.nl/agenda/moonspell",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-28T20:44:10.284Z",
+          "evidence": "Zaal open om 18:30",
+          "at": "2027-03-07T17:30:00.000Z"
         },
         "start": {
           "name": "PROGRAMME START",
-          "time": null
+          "time": "19:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://effenaar.nl/agenda/moonspell",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-28T20:44:10.284Z",
+          "evidence": "Programme start: 19:00",
+          "at": "2027-03-07T18:00:00.000Z",
+          "unassigned": true
         },
-        "support": [],
+        "support": [
+          {
+            "name": "IOTUNN",
+            "time": null
+          },
+          {
+            "name": "TodoMal",
+            "time": null
+          }
+        ],
         "main": {
           "name": "Moonspell",
           "time": null
@@ -3623,24 +3647,24 @@
             "url": "https://www.podiuminfo.nl/concert/497443/Moonspell/Effenaar/",
             "kind": "secondary",
             "label": "podiuminfo.nl",
-            "checkedAt": "2026-10-28T16:52:34.903Z"
+            "checkedAt": "2026-10-28T20:44:10.284Z"
           },
           {
             "url": "https://effenaar.nl/agenda/moonspell",
             "kind": "official",
             "label": "effenaar.nl",
-            "checkedAt": "2026-10-28T16:52:34.903Z"
+            "checkedAt": "2026-10-28T20:44:10.284Z"
           }
         ],
-        "lastCheckedAt": "2026-10-28T16:52:34.903Z",
-        "lastAttemptAt": "2026-10-28T16:52:34.903Z",
+        "lastCheckedAt": "2026-10-28T20:44:10.284Z",
+        "lastAttemptAt": "2026-10-28T20:44:10.284Z",
         "checks": {
-          "manual": "2026-10-28T16:52:34.903Z"
+          "manual": "2026-10-28T20:44:10.284Z"
         },
         "lastError": null,
         "noSupport": null,
         "refreshRequestedAt": "2026-10-28T20:43:55.499Z",
-        "lastOfficialCheckedAt": "2026-10-28T16:52:34.903Z",
+        "lastOfficialCheckedAt": "2026-10-28T20:44:10.284Z",
         "checkStatus": "official",
         "discovery": {
           "version": 2,
@@ -3650,24 +3674,20 @@
               "status": "fetched"
             },
             {
-              "url": "https://effenaar.nl/agenda",
-              "status": "fetched"
-            },
-            {
               "url": "https://effenaar.nl/agenda/moonspell",
               "status": "fetched"
             },
             {
               "url": "https://effenaar.nl/agenda/moonspell",
-              "status": "verified-no-times"
+              "status": "verified"
             }
           ],
           "configured": [
             "effenaar.nl"
           ],
-          "requests": 3
+          "requests": 2
         },
-        "availability": "not-published"
+        "availability": "published"
       }
     },
     {
