@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-28T19:51:06.260Z",
+    "lastUpdated": "2026-10-28T20:33:22.309Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -3772,8 +3772,84 @@
         "originalScore": 0
       },
       "schedule": {
+        "version": 1,
         "date": "2027-04-18",
-        "refreshRequestedAt": "2026-10-28T20:33:07.457Z"
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": "18:30",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://patronaat.nl/event/moonspell-iotunn-support-18-04-27/",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-28T20:33:20.421Z",
+          "evidence": "Deuren: 18:30",
+          "at": "2027-04-18T16:30:00.000Z"
+        },
+        "start": {
+          "name": "PROGRAMME START",
+          "time": "19:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://patronaat.nl/event/moonspell-iotunn-support-18-04-27/",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-28T20:33:20.421Z",
+          "evidence": "Start: 19:00",
+          "at": "2027-04-18T17:00:00.000Z"
+        },
+        "support": [],
+        "main": {
+          "name": "Moonspell + Iotunn + TodoMal",
+          "time": "19:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://patronaat.nl/event/moonspell-iotunn-support-18-04-27/",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-28T20:33:20.421Z",
+          "evidence": "Start: 19:00",
+          "at": "2027-04-18T17:00:00.000Z",
+          "derivedFrom": "programme-start"
+        },
+        "end": {
+          "name": "END",
+          "time": null
+        },
+        "sources": [
+          {
+            "url": "https://patronaat.nl/event/moonspell-iotunn-support-18-04-27/",
+            "kind": "official",
+            "label": "patronaat.nl",
+            "checkedAt": "2026-10-28T20:33:20.421Z"
+          }
+        ],
+        "lastCheckedAt": "2026-10-28T20:33:20.421Z",
+        "lastAttemptAt": "2026-10-28T20:33:20.421Z",
+        "checks": {
+          "manual": "2026-10-28T20:33:20.421Z"
+        },
+        "lastError": null,
+        "noSupport": null,
+        "refreshRequestedAt": "2026-10-28T20:33:07.457Z",
+        "lastOfficialCheckedAt": "2026-10-28T20:33:20.421Z",
+        "checkStatus": "official",
+        "discovery": {
+          "version": 2,
+          "attempts": [
+            {
+              "url": "https://patronaat.nl/event/moonspell-iotunn-support-18-04-27/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://patronaat.nl/event/moonspell-iotunn-support-18-04-27/",
+              "status": "verified"
+            }
+          ],
+          "configured": [
+            "patronaat.nl"
+          ],
+          "requests": 1
+        },
+        "availability": "published"
       }
     },
     {
