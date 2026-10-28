@@ -1,7 +1,7 @@
 import { removeArchiveRecord, mountArchiveRemoval } from "./archive-remove.js?v=archive-remove-20261025";
 import { mutateJSONFiles } from "./github-transaction.js?v=atomic-concerts-20261016";
 import { mountSupportDiscovery } from "./concert-discovery.js?v=image-share-20261015";
-import { shareConcertImage } from "./concert-share.js?v=image-share-20261015";
+import { shareConcertImage } from "./concert-share.js?v=share-photos-20261028";
 import { mountTicketSwap } from "./concert-ticketswap.js?v=universal-ticket-match-20261015";
 import { seasonSummary, listeningWindow } from "./going-season.js?v=season-20261021";
 

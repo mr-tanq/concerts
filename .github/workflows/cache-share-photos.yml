@@ -1,0 +1,39 @@
+name: Cache concert share photos
+on:
+  push:
+    branches: [main]
+    paths:
+      - scripts/cache-share-photos.mjs
+      - scripts/share-photos.test.mjs
+      - .github/workflows/cache-share-photos.yml
+      - data/planned.json
+      - data/artist-images.json
+      - data/podiuminfo-cache.json
+  schedule:
+    - cron: '45 5 * * *'
+  workflow_dispatch: {}
+permissions:
+  contents: write
+concurrency:
+  group: share-photos
+  cancel-in-progress: false
+jobs:
+  cache:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node --test scripts/share-photos.test.mjs
+      - run: node scripts/cache-share-photos.mjs
+      - name: Save share photos
+        run: |
+          git config user.name "listening-mirror-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/share-photos.json assets/share-photos
+          git diff --cached --quiet && exit 0
+          git commit -m "chore: cache concert share photos"
+          git pull --rebase origin main
+          git push

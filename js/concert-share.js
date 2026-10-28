@@ -1,3 +1,4 @@
+import { sharePhotoSources } from "./share-photo-source.js?v=share-photos-20261028";
 export function shareConcertImage(concert, dateLabel, imageURL) {
   const button = document.createElement('button');
   button.type = 'button';
@@ -41,25 +42,28 @@ export function shareConcertImage(concert, dateLabel, imageURL) {
       let hasPhoto = false;
 
       if (imageURL && !/e23066163f21176a822b54001ee648a2|placeholder/i.test(imageURL)) {
-        try {
-          const url = new URL(imageURL, location.href);
-          if (!/^https?:$/.test(url.protocol)) throw new Error('Invalid image');
-          const response = await fetch(url, {
-            signal: AbortSignal.timeout(12000)
-          });
-          if (!response.ok) throw new Error('Photo unavailable');
-          const bitmap = await createImageBitmap(await response.blob());
-          const scale = Math.max(1080 / bitmap.width, 1080 / bitmap.height);
-          ctx.drawImage(
-            bitmap,
-            (1080 - bitmap.width * scale) / 2,
-            (1080 - bitmap.height * scale) / 2,
-            bitmap.width * scale,
-            bitmap.height * scale
-          );
-          bitmap.close();
-          hasPhoto = true;
-        } catch {}
+        for (const source of await sharePhotoSources(imageURL)) {
+          try {
+            const url = new URL(source, location.href);
+            if (!/^https?:$/.test(url.protocol)) throw new Error('Invalid image');
+            const response = await fetch(url, {
+              signal: AbortSignal.timeout(12000)
+            });
+            if (!response.ok) throw new Error('Photo unavailable');
+            const bitmap = await createImageBitmap(await response.blob());
+            const scale = Math.max(1080 / bitmap.width, 1080 / bitmap.height);
+            ctx.drawImage(
+              bitmap,
+              (1080 - bitmap.width * scale) / 2,
+              (1080 - bitmap.height * scale) / 2,
+              bitmap.width * scale,
+              bitmap.height * scale
+            );
+            bitmap.close();
+            hasPhoto = true;
+            break;
+          } catch {}
+        }
       }
 
       const fade = ctx.createLinearGradient(0, 630, 0, 1160);
