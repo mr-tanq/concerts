@@ -133,6 +133,32 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
       }
     });
   }
+  const venueHost = new URL(url).hostname.replace(/^www\./, "");
+  const officialPatronaat = kind === "official" && venueHost === "patronaat.nl";
+  const officialEffenaar = kind === "official" && venueHost === "effenaar.nl";
+  const roleNames = [];
+  const addRole = name => {
+    name = String(name || "").trim();
+    if (/^[\p{L}\p{N} '&+().–-]{2,90}$/u.test(name) && !times(name).length) {
+      roleNames.push(name);
+      supportNames.push(name);
+    }
+  };
+  if (officialPatronaat) root.find(".event__support-act--info").each((_, n) => {
+    if (/^support(?: act)?$/.test(normalize($(n).find("h3").first().text()))) {
+      addRole($(n).find("h2").first().text());
+    }
+  });
+  if (officialEffenaar) {
+    const subtitle = root.find(".header-inner .header-subtitle").first().text();
+    const billed = subtitle.match(/(?:^|\|)\s*\+\s*(.+)$/)?.[1];
+    if (billed) for (const name of billed.split(/\s+\+\s+/)) addRole(name);
+  }
+  // Split only when the venue explicitly identifies the remaining acts as supports.
+  const parts = concert.artist.split(/\s+\+\s+/);
+  const mainName = parts.length > 1 && parts.slice(1).every(name =>
+    roleNames.some(role => normalize(role) === normalize(name)))
+    ? parts[0].trim() : concert.artist;
   const set = (key, name, time, evidence, endTime = null) => {
     if (conflicts.has(key)) return;
     const prior = values.get(key);
@@ -153,7 +179,7 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
     if (/^(doors?( open)?|deur(?:en)?( open)?|zaal open|opening doors)$/.test(n)) set("doors", "DOORS", ts[0], evidence);
     else if (/^(start|aanvang|show start|start show|aanvang show|start of event|start programma|programme start|program start|start programma|aanvang programma)$/.test(n)) set("start", "PROGRAMME START", ts[0], evidence);
     else if (/^(end|einde|eindtijd|expected end|verwacht einde|verwachte eindtijd|show ends?)$/.test(n)) set("end", "END", ts[0], evidence);
-    else if (normalize(label) === normalize(concert.artist) || /^(main act|main programme|headliner|hoofdprogramma)$/.test(n)) set("main", concert.artist, ts[0], evidence, ts[1]);
+    else if (normalize(label) === normalize(mainName) || /^(main act|main programme|headliner|hoofdprogramma)$/.test(n)) set("main", mainName, ts[0], evidence, ts[1]);
     else {
       const known = supportNames.find(name => normalize(label) === normalize(name));
       if (known || /^(support( act)?|voorprogramma)$/.test(n)) set(`support:${normalize(known || supportNames[0] || label)}`, known || supportNames[0] || "SUPPORT", ts[0], evidence);
@@ -161,6 +187,15 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
       else if (namedTimetable && /^[\p{L}\p{N} '&+.-]{2,70}$/u.test(label.trim()) && !/start|aanvang|time|tijd|date|datum|price|prijs|tickets|bar|curfew|dj|afterparty/i.test(label)) set(`support:${normalize(label)}`, label.trim(), ts[0], evidence);
     }
   };
+  // Effenaar publishes programme time and doors in separate event-bar spans.
+  if (officialEffenaar) root.find(".event-bar-item.time").each((_, n) => {
+    const start = $(n).find(".time-start-end").first().text().trim();
+    const doors = $(n).find(".time-open").first().text().trim();
+    consume("START", start, `Programme start: ${start}`);
+    consume("DOORS", doors, doors);
+    const range = start.match(/^(\d{1,2}:\d{2})\s*[-–]\s*(\d{1,2}:\d{2})$/);
+    if (range) consume("END", range[2], `End: ${range[2]}`);
+  });
   root.find(".timeline-item").each((_, n) => consume($(n).find(".title").text().trim(), $(n).find(".time").text(), $(n).text(), true));
   root.find("tr,li,div,[role='row']").each((_, n) => {
     const cells = $(n).children().map((_, c) => $(c).text().trim()).get();
@@ -226,7 +261,7 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
       const reversed = clean.match(/^((?:[01]?\d|2[0-3])[:.][0-5]\d)\s*[-–:•·]?\s*(doors?(?: open)?|deur(?:en)?(?: open)?|zaal open|end|einde|eindtijd|expected end|verwacht einde|verwachte eindtijd|start|aanvang|show start|start show|aanvang show|start of event|start programma|programme start|program start|main act|main programme|headliner|hoofdprogramma|support(?: act)?|voorprogramma)$/i);
       if (reversed) consume(reversed[2],reversed[1],clean);
       // Artist-labelled line: name : 21:30, or 21:30 - Hällas. Whole-line match avoids prose dates.
-      for (const name of [concert.artist, ...supportNames]) {
+      for (const name of [mainName, ...supportNames]) {
         const escaped = name.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
         const pair = clean.match(new RegExp(`^(${escaped})\\s*[:–•·-]?\\s*((?:[01]?\\d|2[0-3])[:.][0-5]\\d(?:\\s*[-–]\\s*(?:[01]?\\d|2[0-3])[:.][0-5]\\d)?)$`,"i")) || clean.match(new RegExp(`^((?:[01]?\\d|2[0-3])[:.][0-5]\\d)\\s*[-–:•·]?\\s*(${escaped})$`,"i"));
         if (pair) consume(name, clean, clean);
@@ -257,7 +292,7 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
   if (dbstudio && values.has("start")) values.get("start").unassigned = true;
   // An unknown support does not identify when the headliner starts.
   if (unknownSupport && values.has("start")) values.get("start").unassigned = true;
-  return { source, noSupport, values: Object.fromEntries(values), supportNames: [...new Set(supportNames)], conflicts: [...conflicts] };
+  return { source, noSupport, mainName, values: Object.fromEntries(values), supportNames: [...new Set(supportNames)], conflicts: [...conflicts] };
 }
 
 export function mergeSchedule(concert, results, now, phase) {
@@ -286,11 +321,21 @@ export function mergeSchedule(concert, results, now, phase) {
     const at = venueInstant(concert.date, f.time, zone, f.dayOffset || 0);
     return at ? {...f, name, at} : {name, time:null};
   };
-  const names = [...new Set([...(concert.supportingArtists || []), ...(old.support || []).map(f=>f.name), ...results.flatMap(r=>r.supportNames), ...[...selected].filter(([k])=>k.startsWith("support:")).map(([,f])=>f.name)].map(supportName))];
+  const names = [...new Map([
+    ...(concert.supportingArtists || []),
+    ...(old.support || []).map(f=>f.name),
+    ...results.flatMap(r=>r.supportNames),
+    ...[...selected].filter(([k])=>k.startsWith("support:")).map(([,f])=>f.name)
+  ].map(name => [normalize(name), supportName(name)])).values()];
+  const mainNames = [...new Map(results
+    .filter(r => r.source.kind === "official" && r.mainName)
+    .map(r => [normalize(r.mainName), r.mainName])).values()];
+  const mainName = mainNames.length === 1 ? mainNames[0]
+    : mainNames.length ? concert.artist : old.main?.name || concert.artist;
   const sources = new Map((old.sources || []).map(s=>[s.url,s]));
   for (const r of results) sources.set(r.source.url,r.source);
   const success = results.length > 0;
-  const s = {version:1,date:concert.date,timeZone:zone,doors:make("doors","DOORS"),start:make("start","PROGRAMME START"),support:names.map(name=>make(`support:${normalize(name)}`,name)),main:make("main",concert.artist),end:make("end","END"),sources:[...sources.values()],lastCheckedAt:success ? now : old.lastCheckedAt || null,lastAttemptAt:now,checks:{...(old.checks || {}),...(success ? {[phase]:now} : {})},lastError:success ? null : "No matching source could be checked"};
+  const s = {version:1,date:concert.date,timeZone:zone,doors:make("doors","DOORS"),start:make("start","PROGRAMME START"),support:names.map(name=>make(`support:${normalize(name)}`,name)),main:make("main",mainName),end:make("end","END"),sources:[...sources.values()],lastCheckedAt:success ? now : old.lastCheckedAt || null,lastAttemptAt:now,checks:{...(old.checks || {}),...(success ? {[phase]:now} : {})},lastError:success ? null : "No matching source could be checked"};
   const official = results.filter(r => r.source.kind === "official");
   const absent = official.find(r => r.noSupport === true);
   const contradicts = official.some(r => r.noSupport !== true &&

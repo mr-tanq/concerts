@@ -75,7 +75,7 @@ export function scheduleMarkup(concert) {
   }
   const rows = row("DOORS", s?.doors, "", "doors")
     + support.map(f => row(f.name || "SUPPORT", f, "SUPPORT", "support")).join("")
-    + row(concert.artist || s?.main?.name || "MAIN ACT", s?.main, "MAIN ACT", "main")
+    + row(s?.main?.name || concert.artist || "MAIN ACT", s?.main, "MAIN ACT", "main")
     + row("END", s?.end, "", "end");
   const sources = [...new Map((s?.sources || []).filter(x => safeURL(x.url)).map(x => [x.url, x])).values()];
   let checked = "Not checked yet";
