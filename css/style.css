@@ -2196,3 +2196,26 @@ a.plain-act { text-decoration:none; }
   margin-top:0;
   padding-top:16px;
 }
+
+/* Warm-up: optional setlist references beneath each billed artist. */
+.warmup-entry { border-bottom:1px solid var(--hair-soft); padding-bottom:8px; }
+.warmup-entry .warmup-artist { border-bottom:0; padding-bottom:4px; }
+.warmup-setlist > summary {
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  min-height:44px; padding:10px 0; cursor:pointer; list-style:none;
+  font:10px/1.5 var(--mono); letter-spacing:.12em; text-transform:uppercase;
+  color:var(--bone-dim);
+}
+.warmup-setlist > summary::-webkit-details-marker { display:none; }
+.warmup-setlist > summary::marker { content:""; }
+.warmup-setlist > summary small { margin-left:10px; font:inherit; letter-spacing:.04em; opacity:.7; }
+.warmup-setlist > summary > span:last-child { transition:transform .2s; }
+.warmup-setlist[open] > summary > span:last-child { transform:rotate(180deg); }
+.warmup-setlist > summary:focus-visible { outline:1px solid var(--ember); outline-offset:3px; }
+.warmup-setlist-content { padding:0 0 16px; overflow-wrap:anywhere; }
+.warmup-setlist-content .footnote { margin:8px 0 12px; line-height:1.6; }
+.warmup-setlist-content .plain-act { display:inline-flex; align-items:center; min-height:44px; }
+
+.warmup-setlist > [role="status"]:empty { display:none; }
+.warmup-setlist > button[hidden] { display:none; }
+.warmup-setlist > button { min-height:44px; margin-bottom:12px; }

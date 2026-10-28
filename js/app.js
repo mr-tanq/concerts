@@ -1,3 +1,5 @@
+import { warmupArtists } from "./warmup-setlist-model.js?v=warmup-demand-20261029";
+import { mountWarmupSetlist } from "./warmup-setlists.js?v=warmup-demand-20261029";
 import { removeArchiveRecord, mountArchiveRemoval } from "./archive-remove.js?v=archive-remove-20261025";
 import { mutateJSONFiles } from "./github-transaction.js?v=atomic-concerts-20261016";
 import { mountSupportDiscovery } from "./concert-discovery.js?v=image-share-20261015";
@@ -1736,6 +1738,11 @@ function syncPlannedHeading(sheet, concert) {
   if (text?.nodeType === Node.TEXT_NODE) {
     text.textContent = concert.festivalName || displayPlannedArtist(concert.artist, concert);
   }
+  const warmup = sheet?.querySelector(".sheet-warmup");
+  if (warmup && warmup.dataset.warmupArtists !== JSON.stringify([concert.date, concert.venue, concert.city, concert.country, warmupArtists(concert)])) {
+    warmup.replaceChildren();
+    mountWarmup(warmup, concert);
+  }
 }
 
 function displayPlannedArtist(artist, concert = null) {
@@ -1849,27 +1856,23 @@ let nextNightClock = null;
 function clearNextNightClock() { clearInterval(nextNightClock); nextNightClock = null; }
 
 function mountWarmup(host, concert) {
+  host.dataset.warmupArtists = JSON.stringify([concert.date, concert.venue, concert.city, concert.country, warmupArtists(concert)]);
   const window = listeningWindow(archiveViewData?.timeseriesData, dutchToday());
-  if (!window) {
-    host.appendChild(el('<p class="footnote">Listening history is unavailable right now.</p>'));
-    return;
-  }
-  const schedule = concert.schedule?.date === concert.date ? concert.schedule : null;
-  const names = [displayPlannedArtist(concert.artist, concert), ...(schedule?.noSupport ? [] : [
-    ...(concert.supportingArtists || []), ...(schedule?.support || []).map(s => s.name)
-  ])].filter(Boolean);
-  const unique = [...new Map(names.map(name => [normalizeKey(name), name])).values()];
+  const unique = warmupArtists(concert);
   const section = el(`<section class="night-warmup" aria-label="Listening warm-up">
-    <p class="footnote">${window.weeks.length} recorded weeks · weeks of ${fullDate(window.weeks[0])} – ${fullDate(window.weeks.at(-1))}</p>
+    ${window?.weeks?.length ? `<p class="footnote">${window.weeks.length} recorded weeks · weeks of ${fullDate(window.weeks[0])} – ${fullDate(window.weeks.at(-1))}</p>` : ""}
     <div class="warmup-artists"></div>
-    ${window.updatedAt ? `<p class="footnote warmup-updated">History updated ${esc(fullDate(String(window.updatedAt).slice(0,10)))}</p>` : ''}
+    ${window?.updatedAt ? `<p class="footnote warmup-updated">History updated ${esc(fullDate(String(window.updatedAt).slice(0,10)))}</p>` : ''}
   </section>`);
   for (const name of unique) {
-    const plays = window.plays(name);
+    const plays = window?.plays(name) || 0;
     const label = artistLabel(displayPlannedArtist(name));
     const row = el(`<div class="warmup-artist"><div><strong>${esc(label)}</strong><span>${plays ? `${plays} ${plays === 1 ? 'play' : 'plays'} in this period` : 'Explore their music'}</span></div>
       <a class="plain-act" href="https://open.spotify.com/search/${encodeURIComponent(name)}" target="_blank" rel="noopener noreferrer" aria-label="Find ${esc(label)} on Spotify">Listen ↗</a></div>`);
-    section.querySelector('.warmup-artists').appendChild(row);
+    const entry = el('<div class="warmup-entry"></div>');
+    entry.appendChild(row);
+    mountWarmupSetlist(entry, concert, name, setlists);
+    section.querySelector('.warmup-artists').appendChild(entry);
   }
   host.appendChild(section);
 }
