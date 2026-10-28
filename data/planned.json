@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-28T20:33:22.309Z",
+    "lastUpdated": "2026-10-28T20:43:21.440Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -3782,7 +3782,7 @@
           "status": "confirmed",
           "sourceUrl": "https://patronaat.nl/event/moonspell-iotunn-support-18-04-27/",
           "sourceKind": "official",
-          "checkedAt": "2026-10-28T20:33:20.421Z",
+          "checkedAt": "2026-10-28T20:43:19.764Z",
           "evidence": "Deuren: 18:30",
           "at": "2027-04-18T16:30:00.000Z"
         },
@@ -3793,22 +3793,24 @@
           "status": "confirmed",
           "sourceUrl": "https://patronaat.nl/event/moonspell-iotunn-support-18-04-27/",
           "sourceKind": "official",
-          "checkedAt": "2026-10-28T20:33:20.421Z",
-          "evidence": "Start: 19:00",
-          "at": "2027-04-18T17:00:00.000Z"
-        },
-        "support": [],
-        "main": {
-          "name": "Moonspell + Iotunn + TodoMal",
-          "time": "19:00",
-          "dayOffset": 0,
-          "status": "confirmed",
-          "sourceUrl": "https://patronaat.nl/event/moonspell-iotunn-support-18-04-27/",
-          "sourceKind": "official",
-          "checkedAt": "2026-10-28T20:33:20.421Z",
+          "checkedAt": "2026-10-28T20:43:19.764Z",
           "evidence": "Start: 19:00",
           "at": "2027-04-18T17:00:00.000Z",
-          "derivedFrom": "programme-start"
+          "unassigned": true
+        },
+        "support": [
+          {
+            "name": "Iotunn",
+            "time": null
+          },
+          {
+            "name": "TodoMal",
+            "time": null
+          }
+        ],
+        "main": {
+          "name": "Moonspell",
+          "time": null
         },
         "end": {
           "name": "END",
@@ -3819,18 +3821,18 @@
             "url": "https://patronaat.nl/event/moonspell-iotunn-support-18-04-27/",
             "kind": "official",
             "label": "patronaat.nl",
-            "checkedAt": "2026-10-28T20:33:20.421Z"
+            "checkedAt": "2026-10-28T20:43:19.764Z"
           }
         ],
-        "lastCheckedAt": "2026-10-28T20:33:20.421Z",
-        "lastAttemptAt": "2026-10-28T20:33:20.421Z",
+        "lastCheckedAt": "2026-10-28T20:43:19.764Z",
+        "lastAttemptAt": "2026-10-28T20:43:19.764Z",
         "checks": {
-          "manual": "2026-10-28T20:33:20.421Z"
+          "manual": "2026-10-28T20:43:19.764Z"
         },
         "lastError": null,
         "noSupport": null,
         "refreshRequestedAt": "2026-10-28T20:43:07.898Z",
-        "lastOfficialCheckedAt": "2026-10-28T20:33:20.421Z",
+        "lastOfficialCheckedAt": "2026-10-28T20:43:19.764Z",
         "checkStatus": "official",
         "discovery": {
           "version": 2,
