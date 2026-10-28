@@ -126,5 +126,9 @@ export function syncScheduleClock() {
 export function clearScheduleClock() { clearInterval(timer); timer = null; stopRefresh?.(); stopRefresh = null; mounted = null; }
 export function mountSchedule(host, concert) {
   clearScheduleClock(); host.innerHTML = scheduleMarkup(concert); mounted = { host, concert }; syncScheduleClock();
-  stopRefresh = attachScheduleRefresh(host,concert,fresh=>{Object.assign(concert,fresh);mountSchedule(host,concert);});
+  stopRefresh = attachScheduleRefresh(host,concert,fresh=>{
+    Object.assign(concert,fresh);
+    mountSchedule(host,concert);
+    host.dispatchEvent(new CustomEvent("concert-schedule-updated", {detail:fresh}));
+  });
 }

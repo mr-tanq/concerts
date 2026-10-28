@@ -14,14 +14,14 @@ function mountConcertShare(heading, concert) {
   row.append(heading);
   heading.style.minWidth = "0";
   row.append(shareConcertImage(
-    { ...concert, artist: displayPlannedArtist(concert.artist) },
+    { ...concert, artist: displayPlannedArtist(concert.artist, concert) },
     fullDate(concert.date),
     imageFor(concert)
   ));
 }
 
 import { mountPractical, updatePractical } from "./concert-practical.js?v=night-details-20261025";
-import { mountSchedule, clearScheduleClock, syncScheduleClock, scheduleCountdown, artistLabel } from "./concert-schedule.js?v=billing-20261028";
+import { mountSchedule, clearScheduleClock, syncScheduleClock, scheduleCountdown, artistLabel } from "./concert-schedule.js?v=billing-titles-20261028";
 import { buildArchiveView, filterConcerts, searchArchiveConcerts, artistsOf, actuallySeenArtistsOf, venueKey, venueSearchNames } from "./archive-stats.js?v=archive-search-20261016";
 import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, isConflictError } from "./github-api.js";
 import { openConcertSearch } from "./concert-search.js?v=catalogue-search-20261013";
@@ -712,7 +712,7 @@ function anniversaryLine(view) {
   for (const c of hits) {
     const line = el(`<p class="anniversary-line" role="button" tabindex="0">
       ${titleCase(spell(c.yearsAgo))} year${c.yearsAgo === 1 ? "" : "s"} ago tonight —
-      ${esc(c.festivalName || displayPlannedArtist(c.artist))}<span>, ${esc(venueKey({ venue: c.venue }))}</span>
+      ${esc(c.festivalName || displayPlannedArtist(c.artist, c))}<span>, ${esc(venueKey({ venue: c.venue }))}</span>
     </p>`);
     line.addEventListener("click", () => openSheet(c));
     line.addEventListener("keydown", (event) => {
@@ -749,7 +749,7 @@ function forgottenMemoryLine() {
       <p class="whisper">From the archive</p>
       <p class="anniversary-line">
         ${whenPhrase} —
-        ${esc(c.festivalName || displayPlannedArtist(c.artist))}<span>, ${esc(venueKey({ venue: c.venue }))}</span>
+        ${esc(c.festivalName || displayPlannedArtist(c.artist, c))}<span>, ${esc(venueKey({ venue: c.venue }))}</span>
       </p>
     </div>
   `);
@@ -987,7 +987,7 @@ function archiveEntry(c) {
     <article class="entry ${c.isFestival ? "is-festival" : ""}">
       <div class="entry-text">
         <div class="entry-date">${weekdayShort(c.date)} · ${dayMonth(c.date)}${firstTimeTag}</div>
-        <h3 class="entry-artist">${esc(c.festivalName || displayPlannedArtist(c.artist))}</h3>
+        <h3 class="entry-artist">${esc(c.festivalName || displayPlannedArtist(c.artist, c))}</h3>
         ${withLine}
         <div class="entry-place">${esc(venueKey({ venue: c.venue }))}<span class="dot">·</span>${esc(c.city)}</div>
       </div>
@@ -1054,7 +1054,7 @@ function openSheet(c) {
       <div class="sheet-inner">
         <div class="sheet-photo ${photo ? "" : "is-empty"}"></div>
         <div class="sheet-head">
-          <h2 class="sheet-artist">${esc(c.festivalName || displayPlannedArtist(c.artist))}${planned?ticketMark(planned):""}</h2>
+          <h2 class="sheet-artist">${esc(c.festivalName || displayPlannedArtist(c.artist, c))}${planned?ticketMark(planned):""}</h2>
           <div class="sheet-when">
             ${weekdayShort(c.date)} ${fullDate(c.date)}<br>
             ${esc(venueKey({ venue: c.venue }))}, ${esc(c.city)}
@@ -1109,7 +1109,11 @@ function openSheet(c) {
   if (planned) {
     mountWarmup(sheet.querySelector(".sheet-warmup"), planned);
     const scheduleHost = sheet.querySelector(".sheet-going-schedule");
-    mountSchedule(scheduleHost, { ...planned, artist: displayPlannedArtist(planned.artist) });
+    scheduleHost.addEventListener("concert-schedule-updated", event => {
+      Object.assign(planned, event.detail);
+      syncPlannedHeading(sheet, planned);
+    });
+    mountSchedule(scheduleHost, { ...planned, artist: displayPlannedArtist(planned.artist, planned) });
     refreshGoingSchedule(planned, scheduleHost);
     const swapHost = sheet.querySelector(".sheet-going-ticketswap");
     mountTicketSwap(swapHost, planned);
@@ -1154,9 +1158,10 @@ function openSheet(c) {
     root.innerHTML = "";
     if (planned) {
       clearScheduleClock();
+      renderConcertsShell("going");
       const host = document.querySelector("#panel-concerts .schedule-host");
       const next = plannedConcerts.find(item => item.id === host?.dataset.concertId);
-      if (host && next) mountSchedule(host, { ...next, artist: displayPlannedArtist(next.artist) });
+      if (host && next) mountSchedule(host, { ...next, artist: displayPlannedArtist(next.artist, next) });
     }
   });
 
@@ -1473,7 +1478,7 @@ function stageCard(c) {
       <div class="stage-score">${c.manualSearch ? "Added by you" : `<b>${esc(c.match.score)}</b>${esc(c.match.label)}`}</div>
       <div class="stage-copy">
         <div class="stage-when">${weekdayShort(c.date)} ${dayMonth(c.date)} ${yearOf(c.date)}${time}</div>
-        <h2 class="stage-artist">${esc(displayPlannedArtist(c.artist))}</h2>
+        <h2 class="stage-artist">${esc(displayPlannedArtist(c.artist, c))}</h2>
         ${support.length ? `<div class="stage-with">with ${esc(support.slice(0, 3).join(", "))}</div>` : ""}
         <div class="stage-venue">${esc(c.venue)} <span>· ${esc(c.city)}</span></div>
         ${c.match.matchedBy === "similar" ? `<div class="stage-why">${esc(c.match.reason)}</div>` : ""}
@@ -1648,7 +1653,7 @@ function upcomingHero(c, withSchedule = false) {
     <div class="upcoming-hero${withSchedule ? " has-schedule" : ""}">
       <div class="upcoming-photo"></div>
       <div class="countdown">${withSchedule && c.date < dutchToday() ? "Tonight" : countdownWord(c.date)}</div>
-      <h3 class="entry-artist">${esc(displayPlannedArtist(c.artist))}${ticketMark(c)}</h3>
+      <h3 class="entry-artist">${esc(displayPlannedArtist(c.artist, c))}${ticketMark(c)}</h3>
       ${support.length ? `<div class="entry-with">with ${esc(support.slice(0, 3).join(", "))}</div>` : ""}
       <div class="entry-place"><span class="event-venue">${esc(c.venue)} · ${esc(c.city)}</span><span class="event-date">${fullDate(c.date)}</span></div>
       <div>${workDayBadge(c)}</div>
@@ -1663,7 +1668,7 @@ function upcomingHero(c, withSchedule = false) {
   setPhoto(node.querySelector(".upcoming-photo"), imageFor(c));
   mountConcertShare(node.querySelector(".entry-artist"), c);
   mountTicketSwap(node.querySelector(".ticketswap-host"), c);
-  if (withSchedule) mountSchedule(node.querySelector(".schedule-host"), { ...c, artist: displayPlannedArtist(c.artist) });
+  if (withSchedule) mountSchedule(node.querySelector(".schedule-host"), { ...c, artist: displayPlannedArtist(c.artist, c) });
 
   if (withSchedule) mountPractical(node.querySelector(".practical-host"),c,changes=>saveConcertPractical(c,changes));
 
@@ -1720,11 +1725,23 @@ async function refreshGoingSchedule(concert, host) {
         }).finally(() => { scheduleFetchPromise = null; });
     }
     if (scheduleFetchPromise) await scheduleFetchPromise;
-    if (host?.isConnected) mountSchedule(host, { ...concert, artist: displayPlannedArtist(concert.artist) });
+    if (host?.isConnected) mountSchedule(host, { ...concert, artist: displayPlannedArtist(concert.artist, concert) });
+    syncPlannedHeading(host?.closest(".sheet-going"), concert);
   } catch (err) { console.warn("Schedule snapshot unavailable", err); }
 }
 
-function displayPlannedArtist(artist) {
+function syncPlannedHeading(sheet, concert) {
+  const heading = sheet?.querySelector(".sheet-artist");
+  const text = heading?.firstChild;
+  if (text?.nodeType === Node.TEXT_NODE) {
+    text.textContent = concert.festivalName || displayPlannedArtist(concert.artist, concert);
+  }
+}
+
+function displayPlannedArtist(artist, concert = null) {
+  const schedule = concert?.schedule?.date === concert?.date ? concert?.schedule : null;
+  const main = schedule?.main?.name;
+  if (typeof main === "string" && main.trim()) artist = main.trim();
   if (normalizeKey(artist) === "hallas") return "Hällas";
   const sameArtist = plannedConcerts.find((concert) =>
     normalizeKey(concert.artist) === normalizeKey(artist)
@@ -1798,7 +1815,7 @@ function renderGoingCalendar(body) {
       style="--day-shift:${color || 'transparent'}" aria-label="${esc(fullDate(date))}, ${esc(shift?.label || "")}, ${concerts.length} concerts">
       <span class="calendar-number">${day}</span>
       ${color ? `<span class="calendar-shift" title="${esc(shift?.label || "")}">${esc(shift?.label || "")}</span>` : ''}
-      ${concerts.slice(0, 2).map((c) => `<span class="calendar-event" data-ticket-event="${esc(c.id)}" style="${c.practical?.ticketBought===true?'background:#244d59;color:#d2f3fb':''}">${esc(displayPlannedArtist(c.artist))}${ticketMark(c)}</span>`).join("")}
+      ${concerts.slice(0, 2).map((c) => `<span class="calendar-event" data-ticket-event="${esc(c.id)}" style="${c.practical?.ticketBought===true?'background:#244d59;color:#d2f3fb':''}">${esc(displayPlannedArtist(c.artist, c))}${ticketMark(c)}</span>`).join("")}
       ${concerts.length > 2 ? `<span class="calendar-more">+${concerts.length - 2} more</span>` : ""}
     </button>`);
     cell.addEventListener("click", () => {
@@ -1816,7 +1833,7 @@ function renderGoingCalendar(body) {
     if (!concerts.length) agenda.appendChild(el('<p class="calendar-empty">No concerts on this day.</p>'));
     for (const c of concerts) {
       const row = el(`<button class="calendar-agenda-row">
-        <strong>${esc(displayPlannedArtist(c.artist))}${ticketMark(c)}</strong>
+        <strong>${esc(displayPlannedArtist(c.artist, c))}${ticketMark(c)}</strong>
         <span>${esc(c.venue)} · ${esc(c.city)}${c.time ? ` · ${esc(c.time)}` : ""}</span>
       </button>`);
       row.addEventListener("click", () => openSheet(c));
@@ -1838,7 +1855,7 @@ function mountWarmup(host, concert) {
     return;
   }
   const schedule = concert.schedule?.date === concert.date ? concert.schedule : null;
-  const names = [concert.artist, ...(schedule?.noSupport ? [] : [
+  const names = [displayPlannedArtist(concert.artist, concert), ...(schedule?.noSupport ? [] : [
     ...(concert.supportingArtists || []), ...(schedule?.support || []).map(s => s.name)
   ])].filter(Boolean);
   const unique = [...new Map(names.map(name => [normalizeKey(name), name])).values()];
@@ -1880,12 +1897,12 @@ function seasonOverview(concerts) {
 function nextNight(concert) {
   const node = el(`<section class="next-night" aria-label="Next night">
     <p class="whisper">The next night</p>
-    <button type="button" class="next-night-open" aria-label="Open ${esc(displayPlannedArtist(concert.artist))}: times and essentials">
+    <button type="button" class="next-night-open" aria-label="Open ${esc(displayPlannedArtist(concert.artist, concert))}: times and essentials">
       <span class="next-night-photo" aria-hidden="true"></span>
       <span class="next-night-copy">
         <span class="next-night-count" aria-hidden="true"><b>${Math.max(0, daysUntil(concert.date))}</b><span>${daysUntil(concert.date) <= 0 ? 'Tonight' : daysUntil(concert.date) === 1 ? 'Night to go' : 'Nights to go'}</span></span>
         <span class="next-night-date">${weekdayShort(concert.date)} · ${fullDate(concert.date)}</span>
-        <strong>${esc(displayPlannedArtist(concert.artist))}${ticketMark(concert)}</strong>
+        <strong>${esc(displayPlannedArtist(concert.artist, concert))}${ticketMark(concert)}</strong>
         <span class="next-night-venue">${esc([concert.venue,concert.city].filter(Boolean).join(', '))}</span>
       </span>
     </button>
@@ -2029,7 +2046,7 @@ function renderUpcoming(body) {
         <button type="button" class="upcoming-row season-row">
           <span class="when"><span>${weekdayShort(c.date)}</span><b>${esc(String(Number(c.date.slice(8,10))))}</b></span>
           <div class="who">
-            <b>${esc(displayPlannedArtist(c.artist))}${ticketMark(c)}</b>
+            <b>${esc(displayPlannedArtist(c.artist, c))}${ticketMark(c)}</b>
             <span class="event-meta"><span class="event-venue">${esc(c.venue)} · ${esc(c.city)}</span></span>
             <div>${workDayBadge(c)}</div>
           </div>
@@ -2078,7 +2095,7 @@ function renderAside(body) {
       <div class="aside-row">
         <div class="entry-photo"></div>
         <div class="who">
-          <b>${esc(displayPlannedArtist(rec.artist))}</b>
+          <b>${esc(displayPlannedArtist(rec.artist, rec))}</b>
           <span>${esc(rec.venue)} · ${esc(rec.city)} · ${fullDate(rec.date)}</span>
         </div>
         <button class="plain-act">Back</button>
@@ -2362,7 +2379,7 @@ function askWorkArrangements() {
         <p class="whisper">Work and concerts</p>
         <p class="lede">${question}</p>
         <div class="prompt-photo"></div>
-        <p class="lede" style="font-size:24px;margin-top:20px">${esc(displayPlannedArtist(concert.artist))}</p>
+        <p class="lede" style="font-size:24px;margin-top:20px">${esc(displayPlannedArtist(concert.artist, concert))}</p>
         <p class="footnote" style="margin-top:8px">${weekdayShort(concert.date)} ${fullDate(concert.date)} · ${esc(concert.venue)}, ${esc(concert.city)}</p>
         <div>${workDayBadge(concert)}</div>
         <p class="status" id="work-prompt-status"></p>
@@ -2422,7 +2439,7 @@ function askAboutPast(queue) {
         <p class="whisper">${queue.length > 1 ? `${queue.length} nights to confirm` : "One night to confirm"}</p>
         <p class="lede">Were you there?</p>
         <div class="prompt-photo"></div>
-        <p class="lede" style="font-size:24px;margin-top:20px">${esc(displayPlannedArtist(rec.artist))}</p>
+        <p class="lede" style="font-size:24px;margin-top:20px">${esc(displayPlannedArtist(rec.artist, rec))}</p>
         <p class="footnote" style="margin-top:8px">${weekdayShort(rec.date)} ${fullDate(rec.date)} · ${esc(rec.venue)}, ${esc(rec.city)}</p>
         ${lineup.length > 1 ? `<p class="prompt-lineup">${esc(lineup.join(" · "))}</p>` : ""}
         <p class="status" id="prompt-status"></p>
