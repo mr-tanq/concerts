@@ -2174,3 +2174,25 @@ a.plain-act { text-decoration:none; }
 .archive-removal .plain-act { min-height: 44px; }
 .archive-removal [data-remove] { color: var(--ember); }
 .archive-removal .status { margin-bottom: 0; }
+
+/* Concert photos: show the complete image instead of cropping faces. */
+.next-night-photo,
+.sheet-photo,
+.sheet-going .sheet-photo {
+  height:clamp(240px,62vw,340px);
+  max-height:none;
+  aspect-ratio:auto;
+  background-size:contain;
+  background-position:center;
+  background-repeat:no-repeat;
+  background-color:var(--black);
+}
+.next-night-photo::after,
+.sheet-photo::after {
+  background:linear-gradient(180deg,transparent 88%,var(--black));
+}
+.sheet-head,
+.sheet-going .sheet-head {
+  margin-top:0;
+  padding-top:16px;
+}
