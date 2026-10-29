@@ -74,6 +74,25 @@ export function parseOfficialEvents(html, url, venue, artist) {
     const displayArtist = performers.find(p=>isTrackedName(p,tracked)) || splitLineup(String(e.name || artist),tracked).find(p=>isTrackedName(p,tracked)) || artist;
     output.push({ artist:displayArtist, eventName:e.name || displayArtist, lineup: performers.length ? performers : [displayArtist], supportingArtists: performers.filter(p => searchKey(p) !== searchKey(displayArtist)), date, venue: location.name, city: location.address.addressLocality, country: code, sourceUrl, image: safeURL(rawImage), ticketUrl: safeURL([e.offers].flat().find(o => o?.url)?.url) });
   }
+  // AFAS Live publishes its bill and date in HTML rather than MusicEvent
+  // data. Read only matching ticket panels on a single-event venue page.
+  if (!output.length && domain === 'afaslive.nl' && officialURL(url,domain) && /^\/agenda\/[^/]+\/?$/.test(new URL(url).pathname)) {
+    const header = $('.agenda-item .floated > h2').first().clone();
+    header.find('small').remove();
+    const heading = header.text().replace(/\s+/g,' ').trim();
+    const infoHeading = $('.agendaInfo h2').first().text().replace(/\s+/g,' ').trim();
+    const support = $('.agenda-item ul.act li').map((_,n)=>$(n).text().replace(/^\s*(?:special guests?|support(?: act)?)[\s:–-]*/i,'').trim()).get().filter(Boolean);
+    const lineup = [...new Map([heading,...support].map(n=>[searchKey(n),n])).values()];
+    if (searchKey(heading) === searchKey(infoHeading) && lineup.some(n=>artistInTitle(n,artist)) && !/afgelast|cancelled|geannuleerd|verplaatst/i.test(heading)) {
+      $('.floated.dates > details').each((_,n)=>{
+        const panel = $(n), panelName = panel.find('h3').first().text().trim();
+        const date = namedDate(panel.find('datetime').first().text());
+        const summaryDate = namedDate(panel.find('summary .desktop date').first().text());
+        if (!date || date !== summaryDate || searchKey(panelName) !== searchKey(heading) || /afgelast|cancelled|geannuleerd|verplaatst/i.test(panel.find('summary').text())) return;
+        output.push({artist:heading,eventName:heading,lineup,supportingArtists:support,date,venue:name,city,country,sourceUrl:url,image:safeURL($('.agenda-item figure img').first().attr('src')),ticketUrl:safeURL(panel.find('a.button.first').first().attr('href'))});
+      });
+    }
+  }
   // Patronaat has WebPage JSON-LD, not MusicEvent. Its event info bar is the
   // date authority. Remote locations without a verified city are excluded.
   if (!output.length && domain === 'patronaat.nl' && /^\/event\/[^/]+\/?$/.test(new URL(url).pathname)) {

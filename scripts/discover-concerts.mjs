@@ -33,6 +33,7 @@
 // at which filter each match was kept or dropped. Set it temporarily in
 // the workflow's env: to answer "why isn't X showing up".
 
+import { concertSearchEnd } from '../js/concert-search-window.js';
 import { readFile, writeFile, rename } from "node:fs/promises";
 import path from "node:path";
 import { preserveManualConcerts, sameSearchConcert } from "../js/concert-search-model.js";
@@ -382,9 +383,7 @@ function pruneCaches({ today, lookaheadEnd, protectedConcertIds }) {
 
 async function main() {
   const today = new Date().toISOString().slice(0, 10);
-  const lookaheadEnd = new Date(Date.now() + CONFIG.discovery.lookaheadDays * 86400000)
-    .toISOString()
-    .slice(0, 10);
+  const lookaheadEnd = concertSearchEnd(today, CONFIG.discovery);
 
   // --- Listening signal: a failure here is fatal, never "no artists" ---
   let signals;

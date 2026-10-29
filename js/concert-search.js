@@ -52,9 +52,10 @@ export function openConcertSearch({ button, stateFor, addConcert, showDeciding, 
     if (result.status==='error') {say(result.message || 'Search could not finish. Please try again.',true);return;}
     const concerts=Array.isArray(result.concerts) ? result.concerts : [];
     const location = searchLocation(request.place), scope = !location.place && !location.country ? ' worldwide' : location.country ? ` in ${location.label}` : '';
-    say(concerts.length ? `${concerts.length} ${concerts.length===1?'show':'shows'} found${scope}. Choose the date and venue you want.` : `No verified matches found${scope} in the next 12 months. Try the full artist name${request.place ? ' or another country, venue or city' : ''}.`);
+    say(concerts.length ? `${concerts.length} ${concerts.length===1?'show':'shows'} found${scope}. Choose the date and venue you want.` : `No verified matches found${scope} in the checked date range. Try the full artist name${request.place ? ' or another country, venue or city' : ''}.`);
     if (!request.artist) say(concerts.length ? `${concerts.length} shows matched to your listening in ${request.place}.` : `No verified matches in this focused search for ${request.place}. Try another location or a specific artist.`);
     if (!concerts.length && result.coverage?.unavailable) say('The concert sources could not be checked. Please try again.',true);
+    if (result.coverage?.startDate && result.coverage?.endDate) results.appendChild(node('p',`Dates checked: ${result.coverage.startDate} → ${result.coverage.endDate}.`,'footnote'));
     if (Number.isInteger(result.coverage?.artistsCompared)) results.appendChild(node('p',`Programme matches checked against ${result.coverage.artistsCompared.toLocaleString('en-GB')} artists from your saved listening history and related suggestions.`, 'footnote'));
     const warnings = Array.isArray(result.warnings) ? [...new Set(result.warnings.filter(w=>typeof w==='string' && w.trim()))] : [];
     if (warnings.length) {

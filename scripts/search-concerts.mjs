@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { searchConcerts } from './sources/manual-concert-search.mjs';
 import { validateSearchRequest } from '../js/concert-search-model.js';
+import { concertSearchEnd } from '../js/concert-search-window.js';
 import { localDate } from '../js/concert-schedule.js';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const readJSON = p => readFile(path.join(ROOT,p),'utf8').then(JSON.parse);
@@ -24,11 +25,12 @@ async function main() {
   if (!request.id) { console.log('No search requested.'); return; }
   validateSearchRequest(request);
   const now = new Date().toISOString(), startDate = localDate(Date.now(),'Europe/Amsterdam');
-  const end = new Date(startDate+'T12:00:00Z'); end.setUTCFullYear(end.getUTCFullYear()+1);
+  const config = await readJSON('data/config.json');
+  const endDate = concertSearchEnd(startDate, config.discovery);
   let result;
   try {
     const cache = await readJSON('data/podiuminfo-day-cache.json').catch(()=>({entries:{}}));
-    const options={dayCacheEntries:cache.entries || {},startDate,endDate:end.toISOString().slice(0,10)};
+    const options={dayCacheEntries:cache.entries || {},startDate,endDate};
     const found = String(request.artist || '').trim() ? await searchConcerts(request,options) : await searchByTaste(request,{...options,identity:await readJSON('data/identity.json')});
     result = {requestId:request.id,artist:request.artist,place:request.place,status:'complete',checkedAt:new Date().toISOString(),...found};
   } catch (error) {
