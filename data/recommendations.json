@@ -1,19 +1,57 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-10-29T09:18:58.302Z",
+    "lastUpdated": "2026-10-29T12:12:45.197Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 549,
-      "daysFresh": 184,
-      "daysCached": 365,
+      "daysFresh": 365,
+      "daysCached": 184,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 19,
+      "concertsOpened": 4,
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-500168",
+      "source": "podiuminfo",
+      "sourceId": "500168",
+      "artist": "The Skatalites",
+      "lineup": [
+        "The Skatalites"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "The Skatalites"
+      ],
+      "date": "2027-03-28",
+      "time": null,
+      "venue": "Effenaar",
+      "city": "Eindhoven",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/765/100_The_Skatalites_1.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/500168/The-Skatalites/Effenaar/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: The Skatalites",
+        "matchedArtists": [
+          "The Skatalites"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-10-29T12:12:45.197Z",
+      "lastSeenAt": "2026-10-29T12:12:45.197Z"
+    }
+  ]
 }
