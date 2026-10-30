@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-30T09:55:28.191Z",
+    "lastUpdated": "2026-10-30T09:55:40.638Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -3474,107 +3474,6 @@
       "planning": {
         "plannedAt": "2026-10-04T13:25:53.602Z",
         "originalScore": 46
-      }
-    },
-    {
-      "id": "planned-podiuminfo-484861",
-      "source": "podiuminfo",
-      "sourceId": "484861",
-      "artist": "Kadavar",
-      "lineup": [
-        "Kadavar"
-      ],
-      "supportingArtists": [],
-      "date": "2026-12-09",
-      "time": null,
-      "venue": "Melkweg",
-      "city": "Amsterdam",
-      "country": "NL",
-      "isFestival": false,
-      "image": "https://www.festivalinfo.nl/img/artist/70719/100_Kadavar_2.jpg",
-      "ticketUrl": "https://www.podiuminfo.nl/ticket/139419/cd/Kadavar/Melkweg/",
-      "sourceUrl": "https://www.podiuminfo.nl/concert/484861/Kadavar/Melkweg/",
-      "recommendationId": "rec-podiuminfo-484861",
-      "planning": {
-        "plannedAt": "2026-10-06T09:54:16.781Z",
-        "originalScore": 32
-      },
-      "schedule": {
-        "version": 1,
-        "date": "2026-12-09",
-        "timeZone": "Europe/Amsterdam",
-        "doors": {
-          "name": "DOORS",
-          "time": null
-        },
-        "start": {
-          "name": "PROGRAMME START",
-          "time": null
-        },
-        "support": [
-          {
-            "name": "Scott Hepple & The Sun Band",
-            "time": null
-          }
-        ],
-        "main": {
-          "name": "Kadavar",
-          "time": null
-        },
-        "end": {
-          "name": "END",
-          "time": null
-        },
-        "sources": [
-          {
-            "url": "https://www.podiuminfo.nl/concert/484861/Kadavar/Melkweg/",
-            "kind": "secondary",
-            "label": "podiuminfo.nl",
-            "checkedAt": "2026-10-26T20:20:06.471Z"
-          },
-          {
-            "url": "https://www.melkweg.nl/nl/agenda/kadavar-09-12-2026/",
-            "kind": "official",
-            "label": "melkweg.nl",
-            "checkedAt": "2026-10-26T20:20:06.471Z"
-          }
-        ],
-        "lastCheckedAt": "2026-10-26T20:20:06.471Z",
-        "lastAttemptAt": "2026-10-26T20:20:06.471Z",
-        "checks": {
-          "manual": "2026-10-26T20:20:06.471Z"
-        },
-        "lastError": null,
-        "noSupport": null,
-        "refreshRequestedAt": "2026-10-26T20:19:43.743Z",
-        "lastOfficialCheckedAt": "2026-10-26T20:20:06.471Z",
-        "checkStatus": "official",
-        "discovery": {
-          "version": 2,
-          "attempts": [
-            {
-              "url": "https://www.podiuminfo.nl/concert/484861/Kadavar/Melkweg/",
-              "status": "fetched"
-            },
-            {
-              "url": "https://melkweg.nl/nl/agenda/",
-              "status": "fetched"
-            },
-            {
-              "url": "https://www.melkweg.nl/nl/agenda/kadavar-09-12-2026/",
-              "status": "fetched"
-            },
-            {
-              "url": "https://www.melkweg.nl/nl/agenda/kadavar-09-12-2026/",
-              "status": "verified-no-times"
-            }
-          ],
-          "configured": [
-            "melkweg.nl"
-          ],
-          "requests": 3
-        },
-        "availability": "not-published"
       }
     },
     {
