@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-10-30T10:01:37.196Z",
+    "lastUpdated": "2026-10-30T10:02:39.265Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -3664,8 +3664,83 @@
         "originalScore": 49
       },
       "schedule": {
+        "version": 1,
         "date": "2027-01-27",
-        "refreshRequestedAt": "2026-10-30T10:02:19.461Z"
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": null
+        },
+        "start": {
+          "name": "PROGRAMME START",
+          "time": null
+        },
+        "support": [],
+        "main": {
+          "name": "The Ocean",
+          "time": null
+        },
+        "end": {
+          "name": "END",
+          "time": "00:30",
+          "dayOffset": 1,
+          "status": "confirmed",
+          "sourceUrl": "https://www.doornroosje.nl/event/the-ocean-3/",
+          "sourceKind": "official",
+          "checkedAt": "2026-10-30T10:02:34.941Z",
+          "evidence": "endDate: 2027-01-27T23:30:00+00:00",
+          "at": "2027-01-27T23:30:00.000Z"
+        },
+        "sources": [
+          {
+            "url": "https://www.podiuminfo.nl/concert/497730/The-Ocean-Solaris/Doornroosje/",
+            "kind": "secondary",
+            "label": "podiuminfo.nl",
+            "checkedAt": "2026-10-30T10:02:34.941Z"
+          },
+          {
+            "url": "https://www.doornroosje.nl/event/the-ocean-3/",
+            "kind": "official",
+            "label": "doornroosje.nl",
+            "checkedAt": "2026-10-30T10:02:34.941Z"
+          }
+        ],
+        "lastCheckedAt": "2026-10-30T10:02:34.941Z",
+        "lastAttemptAt": "2026-10-30T10:02:34.941Z",
+        "checks": {
+          "manual": "2026-10-30T10:02:34.941Z"
+        },
+        "lastError": null,
+        "noSupport": null,
+        "refreshRequestedAt": "2026-10-30T10:02:19.461Z",
+        "lastOfficialCheckedAt": "2026-10-30T10:02:34.941Z",
+        "checkStatus": "official",
+        "discovery": {
+          "version": 2,
+          "attempts": [
+            {
+              "url": "https://www.podiuminfo.nl/concert/497730/The-Ocean-Solaris/Doornroosje/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://doornroosje.nl/programma/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.doornroosje.nl/event/the-ocean-3/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.doornroosje.nl/event/the-ocean-3/",
+              "status": "verified"
+            }
+          ],
+          "configured": [
+            "doornroosje.nl"
+          ],
+          "requests": 3
+        },
+        "availability": "published"
       }
     },
     {
