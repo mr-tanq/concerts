@@ -3,7 +3,7 @@
 import * as cheerio from 'cheerio';
 import {normalizeArtistName, isTrackedName} from './podiuminfo.mjs';
 import {validDate} from '../../js/concert-schedule.js';
-import {searchKey} from '../../js/concert-search-model.js';
+import {searchKey,isFestivalBrowse} from '../../js/concert-search-model.js';
 import {countryCode} from '../../js/concert-countries.js';
 const VERSION = 1;
 const DAY = 86400000;
@@ -69,7 +69,7 @@ export async function discoverFestivals({trackedArtistNames,festivalQuery='',acc
   const stats={monthsTotal:0,monthsMissing:0,monthsStale:0,editionsFailed:0,editionsStale:0};
   const wanted=e=>!e.cancelled&&(e.endDate||e.date)>=startDate&&e.date<=endDate&&(!countries || countries.includes(e.country))&&acceptEvent(e);
   const festivalKey=(name,year)=>searchKey(name).replace(new RegExp('(?:^| )'+year+'$'),'').replace(/\bfestival\b/g,'').trim();
-  const matches=e=>e.lineup.some(n=>isTrackedName(n,tracked)) || (!!festivalQuery && !!festivalKey(festivalQuery,e.date.slice(0,4)) && festivalKey(festivalQuery,e.date.slice(0,4))===festivalKey(e.festivalName,e.date.slice(0,4)));
+  const matches=e=>isFestivalBrowse(festivalQuery) || e.lineup.some(n=>isTrackedName(n,tracked)) || (!!festivalQuery && !!festivalKey(festivalQuery,e.date.slice(0,4)) && festivalKey(festivalQuery,e.date.slice(0,4))===festivalKey(e.festivalName,e.date.slice(0,4)));
   for(const month of festivalMonthKeys(startDate,endDate)) {
     stats.monthsTotal++;
     const old=cache.months[month];let events;

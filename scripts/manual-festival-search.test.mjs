@@ -71,3 +71,37 @@ test('manually added festival survives discovery until its final day',async()=>{
   assert.equal(preserveManualConcerts([],[c],{today:'2027-04-17',history:{}}).length,1);
   assert.equal(preserveManualConcerts([],[c],{today:'2027-04-19',history:{}}).length,0);
 });
+
+test('festival keywords browse the destination without requiring a known band',async()=>{
+  for(const word of ['festival','festivals','φεστιβάλ','ΦΕΣΤΙΒΑΛ']) {
+    const c=(await run(req(word,'Tilburg'))).concerts;
+    assert.equal(c.length,1);assert.equal(c[0].artist,'Roadburn');assert.deepEqual(c[0].matchedArtists,[]);
+  }
+  assert.equal((await run(req('festival','Belgium'))).concerts.length,0);
+  assert.equal((await run(req('festival','Amsterdam'))).concerts.length,0);
+});
+test('festival browse includes editions whose lineup has not been announced',async()=>{
+  const empty={...event,performer:[]};
+  const r=await run(req('φεστιβάλ','Netherlands'),{fetcher:async u=>u===url?page(empty):month(empty)});
+  assert.equal(r.concerts.length,1);assert.deepEqual(r.concerts[0].lineup,[]);
+});
+test('festival keyword skips band lookup and reports the festival browsing mode',async()=>{
+  let calls=0;
+  const r=await searchIncludingFestivals(req('festival','Netherlands'),options,{
+    concerts:async()=>{throw Error('must not search for a band named festival');},
+    festivals:async()=>{calls++;return {concerts:[],coverage:{unavailable:false}};}
+  });
+  assert.equal(calls,1);assert.equal(r.coverage.mode,'festivals');assert.equal(r.coverage.endDate,options.endDate);
+});
+test('festival-only source outage stays unavailable and is not masked by concert coverage',async()=>{
+  const r=await searchIncludingFestivals(req('festival','Netherlands'),options,{
+    festivals:async()=>({concerts:[],coverage:{unavailable:true},warnings:['Source unavailable']})
+  });
+  assert.equal(r.coverage.unavailable,true);assert.ok(r.warnings.length);
+});
+test('destination browsing returns different festivals regardless of their bands',async()=>{
+  const second={...event,url:url.replace('36695','40000').replace('Roadburn','Other-Festival'),name:'Other Festival',performer:[{name:'Tool'}]};
+  const foreign={...event,url:url.replace('36695','50000'),name:'Belgian Festival',location:{name:'Belgian Festival',address:{addressLocality:'Antwerpen',addressCountry:'BE'}}};
+  const r=await run(req('festival','Netherlands'),{fetcher:async u=>u===url?page(event):u===second.url?page(second):u===foreign.url?page(foreign):month(event)+page(second)+page(foreign)});
+  assert.deepEqual(r.concerts.map(c=>c.artist),['Roadburn','Other Festival']);
+});

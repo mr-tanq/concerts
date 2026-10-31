@@ -2,6 +2,7 @@ import { countryCode, locationKey } from './concert-countries.js?v=world-search-
 // Shared event identity for search, persistence and scheduled discovery.
 export const searchKey = value => String(value || '').normalize('NFKD')
   .replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+export const isFestivalBrowse = value => ['festival','festivals','φεστιβαλ'].includes(searchKey(value));
 export function sameSearchConcert(a, b) {
   if ((a.id && a.id === b.id) || (a.recommendationId && a.recommendationId === b.id) || (b.recommendationId && b.recommendationId === a.id)) return true;
   if (a.source && a.source === b.source && a.sourceId && b.sourceId) return String(a.sourceId) === String(b.sourceId);

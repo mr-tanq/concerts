@@ -1,5 +1,5 @@
 import { getGithubConfig, getFile, putFile, isConflictError } from './github-api.js';
-import { validateSearchRequest } from './concert-search-model.js?v=taste-search-20261013';
+import { validateSearchRequest, isFestivalBrowse } from './concert-search-model.js?v=festival-browse-20261031';
 import { searchLocation, countryCode, countryName } from './concert-countries.js?v=world-search-20261012';
 const REQUEST_PATH = 'data/concert-search-request.json';
 const delay = ms => new Promise(resolve=>setTimeout(resolve,ms));
@@ -32,7 +32,7 @@ export function openConcertSearch({ button, stateFor, addConcert, showDeciding, 
     <form class="concert-search-form">
       <div class="field"><label for="concert-search-artist">Artist, band or festival (optional)</label><input id="concert-search-artist" name="artist" minlength="2" maxlength="100" placeholder="Groundation, Roadburn…" autocomplete="off"></div>
       <div class="field"><label for="concert-search-place">Country, venue or city (optional)</label><input id="concert-search-place" name="place" minlength="2" maxlength="120" placeholder="Worldwide (default), Greece…" autocomplete="off" aria-describedby="concert-search-scope"></div>
-      <p id="concert-search-scope" class="footnote">Artist or festival only: search worldwide. Festivals match by name or confirmed line-up. Location only: discover shows from your listening favourites and similar artists. For cities abroad, enter e.g. Athens, Greece.</p>
+      <p id="concert-search-scope" class="footnote">Artist or festival name: search worldwide. Type “festival” or “φεστιβάλ” to browse festivals in your chosen location. Location only: match your listening. For cities abroad, enter e.g. Athens, Greece.</p>
       <button type="submit" class="plain-act">Search</button>
     </form>
     <p class="concert-search-status footnote" role="status" aria-live="polite"></p>
@@ -53,6 +53,7 @@ export function openConcertSearch({ button, stateFor, addConcert, showDeciding, 
     const concerts=Array.isArray(result.concerts) ? result.concerts : [];
     const location = searchLocation(request.place), scope = !location.place && !location.country ? ' worldwide' : location.country ? ` in ${location.label}` : '';
     say(concerts.length ? `${concerts.length} ${concerts.length===1?'show':'shows'} found${scope}. Choose the date and venue you want.` : `No verified matches found${scope} in the checked date range. Try the full artist name${request.place ? ' or another country, venue or city' : ''}.`);
+    if(isFestivalBrowse(request.artist)) say(concerts.length ? `${concerts.length} ${concerts.length===1?'festival':'festivals'} found${scope}. Choose one to add to Deciding.` : `No verified festivals found${scope} in the checked date range. Check Search coverage for any source limitations.`);
     if (!request.artist) say(concerts.length ? `${concerts.length} shows matched to your listening in ${request.place}.` : `No verified matches in this focused search for ${request.place}. Try another location or a specific artist.`);
     if (!concerts.length && result.coverage?.unavailable) say('The concert sources could not be checked. Please try again.',true);
     if (result.coverage?.startDate && result.coverage?.endDate) results.appendChild(node('p',`Dates checked: ${result.coverage.startDate} → ${result.coverage.endDate}.`,'footnote'));
@@ -74,7 +75,7 @@ export function openConcertSearch({ button, stateFor, addConcert, showDeciding, 
       row.appendChild(node('p',period,'concert-search-date'));
       if(c.isFestival) {
         const matches=c.matchedArtists || c.match?.matchedArtists || [];
-        row.appendChild(node('p',matches.length?`Festival · Your matches: ${matches.join(' · ')}`:'Festival · Confirmed line-up on the source page','footnote'));
+        row.appendChild(node('p',matches.length?`Festival · Your matches: ${matches.join(' · ')}`:c.lineup?.length?'Festival · Line-up on the source page':'Festival · Line-up not announced yet','footnote'));
       }
       const source=safeLink(c.officialUrl || c.sourceUrl);
       if (source) {const link=node('a',c.officialUrl || c.source==='official'?'Official event ↗':c.source==='songkick'?'Songkick ↗':c.source==='more'?'More.com ↗':c.source==='festivalinfo'?'Festivalinfo ↗':'Podiuminfo ↗','concert-search-source');link.href=source;link.target='_blank';link.rel='noopener noreferrer';row.appendChild(link);}
