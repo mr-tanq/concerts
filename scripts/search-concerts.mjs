@@ -1,8 +1,7 @@
-import { searchByTaste } from './sources/taste-concert-search.mjs';
+import { searchIncludingFestivals } from './sources/manual-festival-search.mjs';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { searchConcerts } from './sources/manual-concert-search.mjs';
 import { validateSearchRequest } from '../js/concert-search-model.js';
 import { concertSearchEnd } from '../js/concert-search-window.js';
 import { localDate } from '../js/concert-schedule.js';
@@ -30,8 +29,9 @@ async function main() {
   let result;
   try {
     const cache = await readJSON('data/podiuminfo-day-cache.json').catch(()=>({entries:{}}));
-    const options={dayCacheEntries:cache.entries || {},startDate,endDate};
-    const found = String(request.artist || '').trim() ? await searchConcerts(request,options) : await searchByTaste(request,{...options,identity:await readJSON('data/identity.json')});
+    const festivalCache=await readJSON('data/festivalinfo-cache.json').catch(()=>({months:{},editions:{}}));
+    const identity=String(request.artist || '').trim()?{}:await readJSON('data/identity.json');
+    const found=await searchIncludingFestivals(request,{dayCacheEntries:cache.entries || {},festivalCache,identity,startDate,endDate});
     result = {requestId:request.id,artist:request.artist,place:request.place,status:'complete',checkedAt:new Date().toISOString(),...found};
   } catch (error) {
     console.error('Search failed:',error.message);

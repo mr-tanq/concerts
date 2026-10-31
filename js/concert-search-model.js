@@ -26,7 +26,7 @@ export function concertSearchState(c, { recommendations = [], planned = [], dism
 export function preserveManualConcerts(generated, previous, { today, history, archive = [] }) {
   const kept = [...generated];
   for (const c of previous) {
-    if (!c.manualSearch || c.date < today) continue;
+    if (!c.manualSearch || (c.isFestival ? c.endDate || c.date : c.date) < today) continue;
     if (concertSearchState(c, { plannedIds: history.plannedIds || [], dismissedIds: history.dismissedIds || [], dismissed: history.dismissed || [], archived: archive })) continue;
     const index = kept.findIndex(x => sameSearchConcert(c, x));
     if (index >= 0) kept[index] = { ...kept[index], id: c.id, manualSearch: c.manualSearch, match: c.match, discoveredAt: c.discoveredAt };

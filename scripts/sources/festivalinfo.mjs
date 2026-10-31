@@ -3,6 +3,7 @@
 import * as cheerio from 'cheerio';
 import {normalizeArtistName, isTrackedName} from './podiuminfo.mjs';
 import {validDate} from '../../js/concert-schedule.js';
+import {searchKey} from '../../js/concert-search-model.js';
 import {countryCode} from '../../js/concert-countries.js';
 const VERSION = 1;
 const DAY = 86400000;
@@ -62,17 +63,19 @@ export async function fetchFestivalPage(url) {
   }
   throw last;
 }
-export async function discoverFestivals({trackedArtistNames,startDate,endDate,countries=['NL','BE'],cache={months:{},editions:{}},fetcher=fetchFestivalPage,now=Date.now(),pause=()=>new Promise(r=>setTimeout(r,1000))}) {
+export async function discoverFestivals({trackedArtistNames,festivalQuery='',acceptEvent=()=>true,deadline=Infinity,clock=Date.now,startDate,endDate,countries=['NL','BE'],cache={months:{},editions:{}},fetcher=fetchFestivalPage,now=Date.now(),pause=()=>new Promise(r=>setTimeout(r,1000))}) {
   cache.months ||= {};cache.editions ||= {};
   const tracked=new Set(trackedArtistNames.map(normalizeArtistName)), candidates=new Map();
   const stats={monthsTotal:0,monthsMissing:0,monthsStale:0,editionsFailed:0,editionsStale:0};
-  const wanted=e=>!e.cancelled&&(e.endDate||e.date)>=startDate&&e.date<=endDate&&countries.includes(e.country);
-  const matches=e=>e.lineup.some(n=>isTrackedName(n,tracked));
+  const wanted=e=>!e.cancelled&&(e.endDate||e.date)>=startDate&&e.date<=endDate&&(!countries || countries.includes(e.country))&&acceptEvent(e);
+  const festivalKey=(name,year)=>searchKey(name).replace(new RegExp('(?:^| )'+year+'$'),'').replace(/\bfestival\b/g,'').trim();
+  const matches=e=>e.lineup.some(n=>isTrackedName(n,tracked)) || (!!festivalQuery && !!festivalKey(festivalQuery,e.date.slice(0,4)) && festivalKey(festivalQuery,e.date.slice(0,4))===festivalKey(e.festivalName,e.date.slice(0,4)));
   for(const month of festivalMonthKeys(startDate,endDate)) {
     stats.monthsTotal++;
     const old=cache.months[month];let events;
     if(old?.version===VERSION && now-old.checkedAt<20*3600000)events=old.events;
     else try {
+      if(clock()>deadline-70000)throw new Error('Festival search time limit');
       await pause();
       const html=await fetcher(`https://www.festivalinfo.nl/festivals/?type_select=maand&maand=${month.slice(5)}&jaar=${month.slice(0,4)}`);
       // A challenge page or ignored month parameter must not wipe the cache.
@@ -98,6 +101,7 @@ export async function discoverFestivals({trackedArtistNames,startDate,endDate,co
     const old=cache.editions[candidate.url];let event;
     if(old?.version===VERSION&&now-old.checkedAt<20*3600000)event=old.event;
     else try {
+      if(clock()>deadline-70000)throw new Error('Festival search time limit');
       await pause();
       event=parseFestivalEvents(await fetcher(candidate.url),candidate.url,{includeCancelled:true})[0];
       if(!event)throw new Error('Unrecognised festival edition');

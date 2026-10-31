@@ -22,6 +22,8 @@ jobs:
         with:
           node-version: '20'
       - run: npm install --ignore-scripts
+      - name: Validate festival searches
+        run: node --test scripts/festival-discovery.test.mjs scripts/manual-festival-search.test.mjs
       - name: Find and verify concerts
         run: node scripts/search-concerts.mjs
         env:

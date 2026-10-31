@@ -26,7 +26,7 @@ import { mountPractical, updatePractical } from "./concert-practical.js?v=night-
 import { mountSchedule, clearScheduleClock, syncScheduleClock, scheduleCountdown, artistLabel } from "./concert-schedule.js?v=billing-titles-20261028";
 import { buildArchiveView, filterConcerts, searchArchiveConcerts, artistsOf, actuallySeenArtistsOf, venueKey, venueSearchNames } from "./archive-stats.js?v=archive-search-20261016";
 import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, isConflictError } from "./github-api.js";
-import { openConcertSearch } from "./concert-search.js?v=search-horizon-20261029";
+import { openConcertSearch } from "./concert-search.js?v=festival-add-20261031";
 import { concertSearchState, sameSearchConcert } from "./concert-search-model.js?v=taste-search-20261013";
 import { initMirror, renderMirror, stopPolling as stopMirrorPolling } from "./mirror.js";
 import { initIdentity, renderHero, renderExplore as renderIdentityExplore, renderRightNow, openArtistSheet } from "./identity.js";
@@ -383,7 +383,7 @@ function plannedRecordFrom(rec) {
 async function addSearchConcertRemote(concert) {
   const RECS = "data/recommendations.json", PLANNED = "data/planned.json";
   const HIST = "data/recommendation-history.json", ARCHIVE = "data/archive.json";
-  if (!concert.id || !concert.artist || !concert.venue || !concert.city || !/^\d{4}-\d{2}-\d{2}$/.test(concert.date) || concert.date < dutchToday()) throw new Error("This concert is no longer upcoming. Please search again.");
+  if (!concert.id || !concert.artist || !concert.venue || !concert.city || !/^\d{4}-\d{2}-\d{2}$/.test(concert.date) || (concert.endDate || concert.date) < dutchToday()) throw new Error("This concert is no longer upcoming. Please search again.");
   pendingWrites++; renderSaving();
   try {
     const saved = await enqueue(() => mutate([RECS, PLANNED, HIST, ARCHIVE], files => {

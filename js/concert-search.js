@@ -30,9 +30,9 @@ export function openConcertSearch({ button, stateFor, addConcert, showDeciding, 
     <h2 id="concert-search-title">Something missing?</h2>
     <p class="footnote">Find a show and add it to Deciding. You can choose Going or Pass afterwards.</p>
     <form class="concert-search-form">
-      <div class="field"><label for="concert-search-artist">Artist or band (optional)</label><input id="concert-search-artist" name="artist" minlength="2" maxlength="100" placeholder="Groundation" autocomplete="off"></div>
+      <div class="field"><label for="concert-search-artist">Artist, band or festival (optional)</label><input id="concert-search-artist" name="artist" minlength="2" maxlength="100" placeholder="Groundation, Roadburn…" autocomplete="off"></div>
       <div class="field"><label for="concert-search-place">Country, venue or city (optional)</label><input id="concert-search-place" name="place" minlength="2" maxlength="120" placeholder="Worldwide (default), Greece…" autocomplete="off" aria-describedby="concert-search-scope"></div>
-      <p id="concert-search-scope" class="footnote">Artist only: search worldwide. Location only: discover shows from your listening favourites and similar artists. For cities abroad, enter e.g. Athens, Greece.</p>
+      <p id="concert-search-scope" class="footnote">Artist or festival only: search worldwide. Festivals match by name or confirmed line-up. Location only: discover shows from your listening favourites and similar artists. For cities abroad, enter e.g. Athens, Greece.</p>
       <button type="submit" class="plain-act">Search</button>
     </form>
     <p class="concert-search-status footnote" role="status" aria-live="polite"></p>
@@ -69,10 +69,15 @@ export function openConcertSearch({ button, stateFor, addConcert, showDeciding, 
       row.append(node('h3',c.artist),node('p',`${c.venue} · ${c.city}${countryCode(c.country) && countryCode(c.country)!=='NL' ? ` · ${countryName(c.country)}` : ''}`,'footnote'));
       if (!request.artist && c.match?.reason) row.appendChild(node('p',c.match.reason,'footnote'));
       if (c.supportingArtists?.length) row.appendChild(node('p',`With ${c.supportingArtists.join(' · ')}`,'footnote'));
-      const date=new Date(`${c.date}T12:00:00Z`);
-      row.appendChild(node('p',Number.isFinite(date.getTime())?new Intl.DateTimeFormat('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric',timeZone:'UTC'}).format(date):c.date,'concert-search-date'));
+      const formatDate=value=>{const date=new Date(`${value}T12:00:00Z`);return Number.isFinite(date.getTime())?new Intl.DateTimeFormat('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric',timeZone:'UTC'}).format(date):value;};
+      const period=formatDate(c.date)+(c.isFestival&&c.endDate&&c.endDate!==c.date?' → '+formatDate(c.endDate):'');
+      row.appendChild(node('p',period,'concert-search-date'));
+      if(c.isFestival) {
+        const matches=c.matchedArtists || c.match?.matchedArtists || [];
+        row.appendChild(node('p',matches.length?`Festival · Your matches: ${matches.join(' · ')}`:'Festival · Confirmed line-up on the source page','footnote'));
+      }
       const source=safeLink(c.officialUrl || c.sourceUrl);
-      if (source) {const link=node('a',c.officialUrl || c.source==='official'?'Official event ↗':c.source==='songkick'?'Songkick ↗':c.source==='more'?'More.com ↗':'Podiuminfo ↗','concert-search-source');link.href=source;link.target='_blank';link.rel='noopener noreferrer';row.appendChild(link);}
+      if (source) {const link=node('a',c.officialUrl || c.source==='official'?'Official event ↗':c.source==='songkick'?'Songkick ↗':c.source==='more'?'More.com ↗':c.source==='festivalinfo'?'Festivalinfo ↗':'Podiuminfo ↗','concert-search-source');link.href=source;link.target='_blank';link.rel='noopener noreferrer';row.appendChild(link);}
       const action=node('button',stateFor(c) || 'Add to Deciding','plain-act');action.type='button';action.disabled=!!stateFor(c);row.appendChild(action);
       if (action.textContent==='In Set aside') row.appendChild(node('p','You can bring this back from Set aside.','footnote'));
       action.addEventListener('click',async()=>{
