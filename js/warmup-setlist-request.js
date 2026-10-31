@@ -1,5 +1,5 @@
 import {getFile,putFile,isConflictError} from './github-api.js';
-import {warmupArtistKey,warmupIdentity,warmupRequestKey} from './warmup-setlist-model.js?v=warmup-demand-20261029';
+import {warmupArtistKey,warmupIdentity,warmupRequestKey} from './warmup-setlist-model.js?v=festival-discovery-20261031';
 const QUEUE='data/warmup-setlist-requests.json',RESULTS='data/warmup-setlists.json';
 export async function requestWarmupSetlist(config,c,artist,options={}) {
   const read=options.read||getFile,write=options.write||putFile;

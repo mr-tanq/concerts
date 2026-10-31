@@ -1,7 +1,8 @@
 export const warmupArtistKey=value=>String(value||'').normalize('NFKD').replace(/\p{M}/gu,'').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim();
 export function warmupArtists(c) {
   const s=c.schedule?.date===c.date?c.schedule:null;
-  return [...new Map([s?.main?.name||c.artist,...(s?.noSupport?[]:[...(c.supportingArtists||[]),...(s?.support||[]).map(a=>a.name)])]
+  const names=c.isFestival ? (c.lineup || []) : [s?.main?.name||c.artist,...(s?.noSupport?[]:[...(c.supportingArtists||[]),...(s?.support||[]).map(a=>a.name)])];
+  return [...new Map(names
     .filter(n=>typeof n==='string'&&n.trim()&&!/^(support|support act|voorprogramma|tba|unknown|nog niet bekend)$/i.test(n.trim()))
     .map(n=>[warmupArtistKey(n),n.trim()])).values()];
 }

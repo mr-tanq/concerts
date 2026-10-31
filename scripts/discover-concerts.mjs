@@ -34,16 +34,19 @@
 // the workflow's env: to answer "why isn't X showing up".
 
 import { concertSearchEnd } from '../js/concert-search-window.js';
+import { discoverFestivals } from './sources/festivalinfo.mjs';
 import { readFile, writeFile, rename } from "node:fs/promises";
 import path from "node:path";
 import { preserveManualConcerts, sameSearchConcert } from "../js/concert-search-model.js";
 import {
   discoverEvents,
   normalizeArtistName,
+  isTrackedName,
 } from "./sources/podiuminfo.mjs";
 
 const ROOT = path.resolve(new URL(".", import.meta.url).pathname, "..");
 const DAY_CACHE_PATH = path.join(ROOT, "data/podiuminfo-day-cache.json");
+const FESTIVAL_CACHE_PATH = path.join(ROOT, "data/festivalinfo-cache.json");
 const CONCERT_CACHE_PATH = path.join(ROOT, "data/podiuminfo-cache.json");
 const RECS_PATH = path.join(ROOT, "data/recommendations.json");
 
@@ -76,6 +79,7 @@ let DAY_CACHE = await loadJsonSafe(DAY_CACHE_PATH, { entries: {} });
 if (!DAY_CACHE.entries) DAY_CACHE.entries = {};
 let CONCERT_CACHE = await loadJsonSafe(CONCERT_CACHE_PATH, { entries: {} });
 if (!CONCERT_CACHE.entries) CONCERT_CACHE.entries = {};
+const FESTIVAL_CACHE = await loadJsonSafe(FESTIVAL_CACHE_PATH, {months:{},editions:{}});
 const EXISTING_RECS = await loadJsonSafe(RECS_PATH, { concerts: [] });
 
 const FORCE_REFRESH = process.env.FORCE_REFRESH_DAYS === "true";
@@ -254,8 +258,8 @@ async function getSimilarArtists(topArtists, cfg) {
 const slug = (s) => (s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
 // Canonical id, stable across artist/venue/date text changes.
-function makeRecId(concertId) {
-  return `rec-podiuminfo-${concertId}`;
+function makeRecId(concertId, source = "podiuminfo") {
+  return `rec-${source}-${concertId}`;
 }
 
 // The pre-migration id scheme was per-matched-artist, so one concert could
@@ -266,7 +270,7 @@ function legacyRecIds(event) {
 }
 
 function isExcluded(event, excludedIds) {
-  if (excludedIds.has(makeRecId(event.concertId))) return true;
+  if (excludedIds.has(makeRecId(event.concertId, event.source))) return true;
   return legacyRecIds(event).some((id) => excludedIds.has(id));
 }
 
@@ -274,8 +278,9 @@ function isExcluded(event, excludedIds) {
 // only as a fallback for records added before sourceId existed.
 function alreadyInArchive(event, archiveConcerts) {
   return archiveConcerts.some((c) => {
-    if (c.source === "podiuminfo" && c.sourceId && String(c.sourceId) === String(event.concertId)) return true;
+    if (c.source === (event.source || "podiuminfo") && c.sourceId && String(c.sourceId) === String(event.concertId)) return true;
     if (c.date !== event.date) return false;
+    if (event.isFestival && normalizeArtistName(c.festivalName || c.artist) === normalizeArtistName(event.festivalName)) return true;
     if (normalizeArtistName(c.venue) !== normalizeArtistName(event.venue)) return false;
     return event.matchedTracked.some((a) => normalizeArtistName(a) === normalizeArtistName(c.artist));
   });
@@ -506,11 +511,28 @@ async function main() {
     process.exit(1);
   }
 
+  // Festivals are an independent source: an outage must not erase a
+  // previously discovered edition or stop ordinary concert discovery.
+  let festivalStats;
+  try {
+    const festivals = await discoverFestivals({trackedArtistNames,startDate:today,endDate:lookaheadEnd,
+      countries:[...new Set([...(CONFIG.location.searchCountries || []),...(CONFIG.location.highScoreSearchCountries || [])])],cache:FESTIVAL_CACHE});
+    events.push(...festivals.events);
+    festivalStats=festivals.stats;
+  } catch(error) {
+    console.warn(`Festival discovery failed: ${error.message}`);
+    festivalStats={failed:true};
+  }
+  await writeJsonAtomic(FESTIVAL_CACHE_PATH,FESTIVAL_CACHE);
+  const festivalIncomplete=festivalStats.failed || festivalStats.monthsMissing || festivalStats.monthsStale || festivalStats.editionsFailed;
+  if(festivalIncomplete)status="DEGRADED";
+  console.log(`Festivalinfo: ${events.filter(e=>e.isFestival).length} matching editions; ${JSON.stringify(festivalStats)}`);
+
   // --- Build recommendations: exactly one per concert id ---
   const excludedIds = new Set([...(HISTORY.dismissedIds || []), ...(HISTORY.plannedIds || [])]);
   const previousById = new Map((EXISTING_RECS.concerts || []).map((c) => [c.id, c]));
   const previousBySourceId = new Map(
-    (EXISTING_RECS.concerts || []).filter((c) => c.sourceId).map((c) => [String(c.sourceId), c])
+    (EXISTING_RECS.concerts || []).filter((c) => c.sourceId).map((c) => [`${c.source || "podiuminfo"}:${c.sourceId}`, c])
   );
 
   const nowIso = new Date().toISOString();
@@ -531,7 +553,7 @@ async function main() {
     const isDebugTarget = DEBUG_ARTIST && event.matchedTracked.some((a) => normalizeArtistName(a) === DEBUG_ARTIST);
     const trace = (reason) => { if (isDebugTarget) console.log(`[debug] ${event.date} ${event.venue}: dropped — ${reason}`); };
 
-    if (!event.date || event.date < today || event.date > lookaheadEnd) { dropped.outOfDateRange++; trace("outside the lookahead window"); continue; }
+    if (!event.date || (event.endDate || event.date) < today || event.date > lookaheadEnd) { dropped.outOfDateRange++; trace("outside the lookahead window"); continue; }
 
     // Country rule: NL always; BE only for high scores. An UNKNOWN country
     // is not silently promoted to NL — it's only kept if unknowns are
@@ -541,7 +563,7 @@ async function main() {
     if (alreadyInArchive(event, ARCHIVE.concerts)) { dropped.alreadyInArchive++; trace("already in the archive"); continue; }
     if (isExcluded(event, excludedIds)) { dropped.previouslyHandled++; trace("already dismissed or planned before"); continue; }
     const manualHandled = [...(HISTORY.dismissed || []), ...(PLANNED.concerts || [])].filter(c => c.manualSearch);
-    if (manualHandled.some(c => sameSearchConcert(c, { source: "podiuminfo", sourceId: event.concertId, artist: event.matchedTracked[0], lineup: event.lineup, date: event.date, venue: event.venue, city: event.city }))) { dropped.previouslyHandled++; continue; }
+    if (manualHandled.some(c => sameSearchConcert(c, { source: event.source || "podiuminfo", sourceId: event.concertId, artist: event.matchedTracked[0], lineup: event.lineup, date: event.date, venue: event.venue, city: event.city }))) { dropped.previouslyHandled++; continue; }
 
     const { displayArtist, match } = scoreEvent(event, signalByName, similarByName, CONFIG);
     if (isDebugTarget) console.log(`[debug] ${event.date} ${event.venue}: score ${match.score} (${match.matchedBy}) — ${match.reason}`);
@@ -554,28 +576,29 @@ async function main() {
         : CONFIG.location.searchCountries;
     if (event.country !== null && !allowedCountries.includes(event.country)) { dropped.countryNotAllowed++; trace(`country ${event.country} not allowed at this score`); continue; }
 
-    const id = makeRecId(event.concertId);
-    const prior = previousBySourceId.get(String(event.concertId)) || previousById.get(id);
+    const id = makeRecId(event.concertId, event.source);
+    const prior = previousBySourceId.get(`${event.source || "podiuminfo"}:${event.concertId}`) || previousById.get(id);
 
     if (isDebugTarget) console.log(`[debug] ${event.date} ${event.venue}: PUBLISHED as ${id}`);
 
     results.push({
       id,
-      source: "podiuminfo",
+      source: event.source || "podiuminfo",
       sourceId: event.concertId,
-      artist: displayArtist,
+      artist: event.isFestival ? event.festivalName : displayArtist,
+      ...(event.isFestival ? {festivalName:event.festivalName,endDate:event.endDate} : {}),
       lineup: event.lineup,
-      supportingArtists: event.lineup.filter((n) => normalizeArtistName(n) !== normalizeArtistName(displayArtist)),
+      supportingArtists: event.isFestival ? [] : event.lineup.filter((n) => normalizeArtistName(n) !== normalizeArtistName(displayArtist)),
       matchedArtists: event.matchedTracked,
       date: event.date,
       time: null,
       venue: event.venue || "Unknown venue",
       city: event.city || "Unknown city",
       country: event.country || "??",
-      isFestival: false,
+      isFestival: !!event.isFestival,
       image: event.image,
       ticketUrl: event.ticketUrl || null,
-      sourceApis: ["podiuminfo"],
+      sourceApis: [event.source || "podiuminfo"],
       sourceUrl: event.url,
       match,
       // discoveredAt is when we FIRST saw it — preserved across runs so
@@ -585,6 +608,15 @@ async function main() {
     });
   }
 
+  if(festivalIncomplete) {
+    for(const c of EXISTING_RECS.concerts || []) {
+      if(c.source!=="festivalinfo" || (c.endDate || c.date)<today || c.date>lookaheadEnd || results.some(r=>r.id===c.id))continue;
+      const cached=Object.values(FESTIVAL_CACHE.editions).find(e=>String(e.event.concertId)===String(c.sourceId));
+      if(cached && (cached.event.cancelled || !cached.event.lineup.some(n=>isTrackedName(n,new Set(trackedArtistNames.map(normalizeArtistName))))))continue;
+      if(excludedIds.has(c.id) || [...(PLANNED.concerts || []),...(HISTORY.dismissed || []),...(ARCHIVE.concerts || [])].some(x=>sameSearchConcert(x,c)))continue;
+      results.push(c);
+    }
+  }
   results = preserveManualConcerts(results, EXISTING_RECS.concerts || [], { today, history: HISTORY, archive: ARCHIVE.concerts });
   results.sort((a, b) => Number(!!b.manualSearch) - Number(!!a.manualSearch) || b.match.score - a.match.score || a.date.localeCompare(b.date));
 
@@ -607,6 +639,7 @@ async function main() {
       generatedBy: "discover-concerts.mjs",
       runStatus: status,
       crawl: stats,
+      festivals: festivalStats,
     },
     concerts: results,
   };

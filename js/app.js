@@ -1,5 +1,5 @@
-import { warmupArtists } from "./warmup-setlist-model.js?v=warmup-demand-20261029";
-import { mountWarmupSetlist } from "./warmup-setlists.js?v=warmup-demand-20261029";
+import { warmupArtists } from "./warmup-setlist-model.js?v=festival-discovery-20261031";
+import { mountWarmupSetlist } from "./warmup-setlists.js?v=festival-discovery-20261031";
 import { removeArchiveRecord, mountArchiveRemoval } from "./archive-remove.js?v=archive-remove-20261025";
 import { mutateJSONFiles } from "./github-transaction.js?v=atomic-concerts-20261016";
 import { mountSupportDiscovery } from "./concert-discovery.js?v=image-share-20261015";
@@ -87,7 +87,7 @@ let goingBody = null;
 function ticketedUpcoming() {
   return plannedConcerts.filter(c =>
     c.practical?.ticketBought === true &&
-    (c.date >= dutchToday() ||
+    ((c.endDate || c.date) >= dutchToday() ||
       (c.schedule?.date === c.date &&
        Date.parse(c.schedule.end?.at) > Date.now()))
   ).sort((a,b) => a.date.localeCompare(b.date));
@@ -369,6 +369,7 @@ function plannedRecordFrom(rec) {
     city: rec.city,
     country: rec.country,
     isFestival: rec.isFestival || false,
+    ...(rec.isFestival ? {festivalName:rec.festivalName || rec.artist,endDate:rec.endDate || rec.date} : {}),
     image: rec.image || null,
     ticketUrl: rec.ticketUrl || null,
     sourceUrl: rec.sourceUrl || null,
@@ -1058,7 +1059,7 @@ function openSheet(c) {
         <div class="sheet-head">
           <h2 class="sheet-artist">${esc(c.festivalName || displayPlannedArtist(c.artist, c))}${planned?ticketMark(planned):""}</h2>
           <div class="sheet-when">
-            ${weekdayShort(c.date)} ${fullDate(c.date)}<br>
+            ${weekdayShort(c.date)} ${fullDate(c.date)}${c.isFestival && c.endDate && c.endDate !== c.date ? ` → ${fullDate(c.endDate)}` : ""}<br>
             ${esc(venueKey({ venue: c.venue }))}, ${esc(c.city)}
             ${planned ? `<br>${workDayBadge(c)}` : ""}
           </div>
@@ -1468,7 +1469,7 @@ function renderStage(body) {
 }
 
 function stageCard(c) {
-  const support = (c.supportingArtists || []).filter(Boolean);
+  const support = (c.isFestival ? c.matchedArtists || c.match?.matchedArtists || [] : c.supportingArtists || []).filter(Boolean);
   const time = c.time ? ` · ${esc(c.time)}` : "";
 
   const stage = el(`
@@ -1479,9 +1480,9 @@ function stageCard(c) {
       <div class="verdict no">Not this one</div>
       <div class="stage-score">${c.manualSearch ? "Added by you" : `<b>${esc(c.match.score)}</b>${esc(c.match.label)}`}</div>
       <div class="stage-copy">
-        <div class="stage-when">${weekdayShort(c.date)} ${dayMonth(c.date)} ${yearOf(c.date)}${time}</div>
+        <div class="stage-when">${weekdayShort(c.date)} ${dayMonth(c.date)} ${yearOf(c.date)}${c.isFestival && c.endDate && c.endDate !== c.date ? ` → ${fullDate(c.endDate)}` : ""}${time}</div>
         <h2 class="stage-artist">${esc(displayPlannedArtist(c.artist, c))}</h2>
-        ${support.length ? `<div class="stage-with">with ${esc(support.slice(0, 3).join(", "))}</div>` : ""}
+        ${support.length ? `<div class="stage-with">${c.isFestival ? "Your matches:" : "with"} ${esc(support.slice(0, 3).join(", "))}${support.length > 3 ? ` +${support.length - 3}` : ""}</div>` : ""}
         <div class="stage-venue">${esc(c.venue)} <span>· ${esc(c.city)}</span></div>
         ${c.match.matchedBy === "similar" ? `<div class="stage-why">${esc(c.match.reason)}</div>` : ""}
         <div>${workDayBadge(c)}</div>
@@ -1988,7 +1989,7 @@ function renderUpcoming(body) {
 
   const today = dutchToday();
   const sorted = [...(goingTicketsOnly ? ticketedUpcoming() : plannedConcerts)].sort((a, b) => String(a.date).localeCompare(String(b.date)));
-  const stillUpcoming = c => c.date >= today || (c.schedule?.date === c.date && Date.parse(c.schedule.end?.at) > Date.now());
+  const stillUpcoming = c => (c.endDate || c.date) >= today || (c.schedule?.date === c.date && Date.parse(c.schedule.end?.at) > Date.now());
   const upcoming = sorted.filter(stillUpcoming);
   const past = sorted.filter(c => !stillUpcoming(c));
   if (upcoming.length) body.appendChild(seasonOverview(upcoming));
@@ -2181,6 +2182,7 @@ function archiveRecordFrom(p) {
     country: p.country || null,
     isFestival: p.isFestival || false,
     festivalName: p.festivalName || null,
+    ...(p.isFestival ? {endDate:p.endDate || p.date} : {}),
     image: p.image || imageFor(p) || null,
     urls: [p.sourceUrl, p.ticketUrl].filter(Boolean),
     genreHints: p.genreHints || [],
@@ -2244,7 +2246,7 @@ function pastPlannedConcerts(historyData) {
   const today = dutchToday();
   const settled = new Set(historyData?.notAttendedIds || []);
   return plannedConcerts
-    .filter((c) => c.date && c.date < today && !settled.has(c.id))
+    .filter((c) => c.date && (c.endDate || c.date) < today && !settled.has(c.id))
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 

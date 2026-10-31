@@ -1,5 +1,5 @@
-import {selectWarmupReference,sameTourReference,referenceURL,warmupArtistKey,warmupIdentity} from './warmup-setlist-model.js?v=warmup-demand-20261029';
-import {requestWarmupSetlist} from './warmup-setlist-request.js?v=warmup-demand-20261029';
+import {selectWarmupReference,sameTourReference,referenceURL,warmupArtistKey,warmupIdentity} from './warmup-setlist-model.js?v=festival-discovery-20261031';
+import {requestWarmupSetlist} from './warmup-setlist-request.js?v=festival-discovery-20261031';
 import {getGithubConfig,getFile} from './github-api.js';
 let snapshot;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
