@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-10-31T20:51:59.540Z",
+    "lastUpdated": "2026-10-31T21:31:26.458Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
@@ -15,5 +15,49 @@
       "rejectedByLineup": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-festivalinfo-36695",
+      "source": "festivalinfo",
+      "sourceId": "36695",
+      "artist": "Roadburn",
+      "festivalName": "Roadburn",
+      "isFestival": true,
+      "date": "2027-04-15",
+      "endDate": "2027-04-18",
+      "venue": "Roadburn",
+      "city": "Tilburg",
+      "country": "NL",
+      "lineup": [
+        "Neurosis",
+        "Emma Ruth Rundle",
+        "Sadness",
+        "Trhä"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [],
+      "time": null,
+      "image": null,
+      "ticketUrl": "https://www.festivalinfo.nl/ticket/135659/df/Roadburn-2027-Neurosis-Kulk-Poor-Creature/",
+      "sourceUrl": "https://www.festivalinfo.nl/festival/36695/Roadburn/2027/",
+      "sourceApis": [
+        "festivalinfo"
+      ],
+      "match": {
+        "score": 0,
+        "label": "Added by you",
+        "matchedBy": "manual",
+        "reason": "Festival found by name",
+        "matchedArtists": []
+      },
+      "manualSearch": {
+        "artist": "Roadburn",
+        "place": "Netherlands",
+        "checkedAt": "2026-10-31T21:30:33.299Z",
+        "addedAt": "2026-10-31T21:31:24.101Z"
+      },
+      "discoveredAt": "2026-10-31T21:31:26.458Z",
+      "lastSeenAt": "2026-10-31T21:31:26.458Z"
+    }
+  ]
 }
