@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-11-01T05:26:37.070Z",
+    "lastUpdated": "2026-11-01T05:27:01.868Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -4818,6 +4818,44 @@
       "planning": {
         "plannedAt": "2026-11-01T05:26:37.070Z",
         "originalScore": 45
+      },
+      "schedule": {
+        "version": 1,
+        "date": "2026-11-05",
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": null
+        },
+        "start": {
+          "name": "PROGRAMME START",
+          "time": null
+        },
+        "support": [],
+        "main": {
+          "name": "Le Guess Who?",
+          "time": null
+        },
+        "end": {
+          "name": "END",
+          "time": null
+        },
+        "sources": [],
+        "lastCheckedAt": null,
+        "lastAttemptAt": "2026-11-01T05:27:01.291Z",
+        "checks": {},
+        "lastError": "No matching source could be checked",
+        "noSupport": null,
+        "refreshRequestedAt": null,
+        "lastOfficialCheckedAt": null,
+        "checkStatus": "failed",
+        "discovery": {
+          "version": 2,
+          "attempts": [],
+          "configured": [],
+          "requests": 0
+        },
+        "availability": "unsupported-venue"
       }
     }
   ]
