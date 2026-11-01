@@ -108,6 +108,7 @@ let concertImageBySourceId = new Map();
 let concertImageByVenueDate = new Map();
 let concertImageByArtist = new Map();
 let artistImages = new Map();
+let festivalImages = new Map();
 let setlists = new Map();
 
 // ---------- tiny helpers ----------
@@ -255,6 +256,7 @@ function normalizeKey(s) {
 // which is what rescues records saved before the schema carried sourceId.
 function imageFor(rec) {
   if (!rec) return null;
+  if (rec.isFestival) return rec.image || festivalImages.get(rec.sourceUrl) || null;
 
   // Deezer's curated 1000px photo must be checked FIRST. rec.image (set
   // directly from the concert's own source page — Podiuminfo's artist
@@ -1473,7 +1475,7 @@ function stageCard(c) {
   const time = c.time ? ` · ${esc(c.time)}` : "";
 
   const stage = el(`
-    <div class="stage">
+    <div class="stage${c.isFestival ? " is-festival" : ""}">
       <div class="stage-photo"></div>
       <div class="stage-veil"></div>
       <div class="verdict yes">Going</div>
@@ -2642,7 +2644,7 @@ async function init() {
   setActiveTab(new URLSearchParams(location.search).has("code") ? "mirror" : "concerts");
 
   try {
-    const [archiveResult, recsResult, plannedResult, historyResult, cacheResult, imagesResult, setlistsResult, identityResult, originsResult, timeseriesResult] =
+    const [archiveResult, recsResult, plannedResult, historyResult, cacheResult, imagesResult, setlistsResult, identityResult, originsResult, timeseriesResult, festivalImagesResult] =
       await Promise.allSettled([
         loadRequiredJSON("data/archive.json", "concerts"),
         loadRequiredJSON("data/recommendations.json", "concerts"),
@@ -2654,6 +2656,7 @@ async function init() {
         loadJSON("data/identity.json").catch(() => ({ meta: {} })),
         loadJSON("data/artist-origins.json").catch(() => ({ artists: {} })),
         loadJSON("data/listening-timeseries.json").catch(() => ({ meta: { weekStarts: [] }, artists: {} })),
+        loadJSON("data/festival-images.json").catch(() => ({ editions: {} })),
       ]);
 
     const concertCache = cacheResult.value || { entries: {} };
@@ -2663,6 +2666,7 @@ async function init() {
     const originsData = originsResult.value || { artists: {} };
     const timeseriesData = timeseriesResult.value || { meta: { weekStarts: [] }, artists: {} };
 
+    festivalImages = new Map(Object.entries(festivalImagesResult.value?.editions || {}).filter(([,v])=>v?.image).map(([url,v])=>[url,v.image]));
     setlists = new Map(Object.entries(setlistData.setlists || {}));
 
     artistImages = new Map(

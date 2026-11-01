@@ -14,6 +14,44 @@ export function festivalURL(raw, base='https://www.festivalinfo.nl/') {
   } catch {return null;}
 }
 const httpsURL=raw=>{try{const u=new URL(raw);return u.protocol==='https:'&&!u.username&&!u.password?u.href:null;}catch{return null;}};
+export function festivalImage($,event,url,ownPage=false) {
+  const clean=raw=>{
+    if(typeof raw!=='string'||!raw.trim())return null;
+    try {
+      const u=new URL(raw,url);
+      if(u.protocol!=='https:'||u.username||u.password||/\/(?:icons?|artist)\/|\/(?:logo|trans|spacer|placeholder|noavatar)[^/]*\.(?:png|gif|jpg)/i.test(u.pathname))return null;
+      return u.href;
+    }catch{return null;}
+  };
+  for(const value of [event.image].flat()) {
+    const image=clean(typeof value==='string'?value:value?.url||value?.contentUrl);
+    if(image)return image;
+  }
+  if(!ownPage)return null;
+  const meta=clean($('meta[property="og:image"]').attr('content')||$('meta[name="twitter:image"]').attr('content'));
+  if(meta)return meta;
+  const name=searchKey(event.name),year=String(event.startDate).slice(0,4);
+  const sameName=text=>(' '+searchKey(text)+' ').includes(' '+name+' ');
+  // Exact edition links can carry their own lazy-loaded logo or artwork.
+  let result=null;
+  $('a[href] img').each((_,n)=>{
+    if(result)return;
+    const img=$(n),link=img.closest('a').attr('href');
+    if(festivalURL(link,url)!==festivalURL(url))return;
+    result=clean(img.attr('data-src')||img.attr('src'));
+  });
+  if(result)return result;
+  // Festivalinfo sometimes exposes artwork only in edition-related news.
+  // Require the festival name AND year on the image itself, not just in
+  // article prose, so a band portrait or previous edition cannot win.
+  $('.news article img').each((_,n)=>{
+    if(result)return;
+    const img=$(n),src=img.attr('data-src')||img.attr('src'),label=img.attr('alt')||'';
+    const filename=String(src||'').split('/').at(-1);
+    if(sameName(label+' '+filename)&&new RegExp('(?:^|\\D)'+year+'(?:\\D|$)').test(label+' '+filename))result=clean(src);
+  });
+  return result;
+}
 export function parseFestivalEvents(html, expectedURL=null, {includeCancelled=false}={}) {
   const $=cheerio.load(html), output=new Map(), expected=expectedURL && festivalURL(expectedURL);
   if(expectedURL && !expected)return [];
@@ -34,8 +72,8 @@ export function parseFestivalEvents(html, expectedURL=null, {includeCancelled=fa
         if(expected) $('#grootte .confirmed_artist p, #alfabet .confirmed_artist p').each((_,n)=>{
           const artist=$(n).text().trim();if(artist&&!lineup.some(a=>normalizeArtistName(a)===normalizeArtistName(artist)))lineup.push(artist);
         });
-        const image=(typeof e.image==='string'?e.image:e.image?.url) || (expected ? $('meta[property="og:image"]').attr('content') : null);
-        output.set(url,{source:'festivalinfo',cancelled,concertId:url.split('/')[4],festivalName:name,isFestival:true,lineup,date,endDate,venue:String(loc[0].name || name).trim(),city,country,url,image:httpsURL(image),ticketUrl:httpsURL([e.offers].flat().find(o=>o?.url)?.url)});
+        const image=festivalImage($,e,url,!!expected);
+        output.set(url,{source:'festivalinfo',cancelled,concertId:url.split('/')[4],festivalName:name,isFestival:true,lineup,date,endDate,venue:String(loc[0].name || name).trim(),city,country,url,image,imageVersion:1,ticketUrl:httpsURL([e.offers].flat().find(o=>o?.url)?.url)});
       }
     }
     for(const key of ['@graph','itemListElement','item'])if(e[key])visit(e[key]);
@@ -99,7 +137,7 @@ export async function discoverFestivals({trackedArtistNames,festivalQuery='',acc
   const events=[];
   for(const candidate of candidates.values()) {
     const old=cache.editions[candidate.url];let event;
-    if(old?.version===VERSION&&now-old.checkedAt<20*3600000)event=old.event;
+    if(old?.version===VERSION&&old.event?.imageVersion===1&&now-old.checkedAt<20*3600000)event=old.event;
     else try {
       if(clock()>deadline-70000)throw new Error('Festival search time limit');
       await pause();

@@ -2219,3 +2219,11 @@ a.plain-act { text-decoration:none; }
 .warmup-setlist > [role="status"]:empty { display:none; }
 .warmup-setlist > button[hidden] { display:none; }
 .warmup-setlist > button { min-height:44px; margin-bottom:12px; }
+
+/* Festival artwork: keep posters and logos whole in Deciding. */
+.stage.is-festival .stage-photo {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center 15%;
+  transform: none;
+}
