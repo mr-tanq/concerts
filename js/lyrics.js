@@ -37,8 +37,8 @@ export function pickBestSyncedResult(results,signature) {
   return candidates(results,signature).find(r=>!r.instrumental&&parseLrc(r.syncedLyrics).length)||null;
 }
 const plain=value=>typeof value==='string'&&value.trim()&&value.length<=100000?value.trim():null;
-async function fetchJson(url) {
-  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),6000);
+async function fetchJson(url,timeout=6000) {
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout);
   try {
     const res=await fetch(url,{signal:controller.signal,headers:{Accept:'application/json'}});
     if(res.status===404)return null;
@@ -47,6 +47,28 @@ async function fetchJson(url) {
   }finally{clearTimeout(timer);}
 }
 const empty=status=>({lines:null,plainLyrics:null,source:null,status,instrumental:false});
+// Lyrica adds extra providers without a local Worker.
+export function pickLyricaResult(response,signature) {
+  const data=response?.status==='success'?response.data:null;
+  if(!data||data.hasTimestamps!==true||data.instrumental||
+    normalize(data.artist)!==normalize(signature.artist)||
+    normalize(cleanTrackTitle(data.title))!==normalize(cleanTrackTitle(signature.track)))return null;
+  const duration=Number(data.duration);
+  if(Number.isFinite(duration)&&duration>0&&Number.isFinite(signature.durationSec)&&signature.durationSec>0&&Math.abs(duration-signature.durationSec)>3)return null;
+  const raw=data.timed_lyrics;
+  if(!Array.isArray(raw)||raw.length<2||raw.length>5000)return null;
+  const lines=[];let total=0,previous=-1;
+  for(const line of raw) {
+    if(!line||typeof line.text!=='string'||typeof line.start_time!=='number'||!Number.isFinite(line.start_time)||line.start_time<0||line.start_time<previous)return null;
+    previous=line.start_time;
+    const text=line.text.trim();if(!text)continue;
+    total+=text.length;if(text.length>2000||total>100000)return null;
+    if(Number.isFinite(signature.durationSec)&&signature.durationSec>0&&line.start_time>(signature.durationSec+10)*1000)return null;
+    lines.push({ms:line.start_time,text});
+  }
+  if(lines.length<2||new Set(lines.map(line=>line.ms)).size<2)return null;
+  return {lines,plainLyrics:null,source:'Lyrica',status:'synced',instrumental:false};
+}
 async function lookup({artist,track,album,durationSec}) {
   if(!normalize(artist)||!normalize(track))return empty('not-found');
   const signature={artist,track,durationSec},found=[];let failed=false;
@@ -70,10 +92,17 @@ async function lookup({artist,track,album,durationSec}) {
     const synced=pickBestSyncedResult(found,signature);
     if(synced)return fromSynced(synced);
   }
-  const bestPlain=candidates(found,signature).find(r=>!r.instrumental&&plain(r.plainLyrics));
-  if(bestPlain)return {...empty('plain'),plainLyrics:plain(bestPlain.plainLyrics),source:'LRCLIB'};
   const instrumental=candidates(found,signature).find(r=>r.instrumental&&Number.isFinite(durationSec)&&Math.abs(Number(r.duration)-durationSec)<=DURATION_TOLERANCE_SEC);
   if(instrumental)return {...empty('instrumental'),instrumental:true,source:'LRCLIB'};
+  try {
+    const params=new URLSearchParams({artist,song:cleanTrackTitle(track),timestamps:'true',pass:'true',sequence:'4,5,3,7',fast:'true'});
+    const response=await fetchJson('https://test-0k.onrender.com/lyrics/?'+params,10000);
+    const extra=pickLyricaResult(response,signature);
+    if(extra)return extra;
+    if(response?.status==='error'&&response.error?.message!=='No lyrics found')failed=true;
+  }catch{failed=true;}
+  const bestPlain=candidates(found,signature).find(r=>!r.instrumental&&plain(r.plainLyrics));
+  if(bestPlain)return {...empty('plain'),plainLyrics:plain(bestPlain.plainLyrics),source:'LRCLIB'};
   // lyrics.ovh is an artist/title API returning plain text, not timed LRC.
   // Keep live/remix/acoustic labels in the request; clean only metadata noise.
   const response=await attempt(`https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(cleanTrackTitle(track))}`);

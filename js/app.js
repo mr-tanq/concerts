@@ -28,7 +28,7 @@ import { buildArchiveView, filterConcerts, searchArchiveConcerts, artistsOf, act
 import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, isConflictError } from "./github-api.js";
 import { openConcertSearch } from "./concert-search.js?v=festival-browse-20261031";
 import { concertSearchState, sameSearchConcert } from "./concert-search-model.js?v=festival-browse-20261031";
-import { initMirror, renderMirror, stopPolling as stopMirrorPolling } from "./mirror.js?v=lyrics-fallback-20261101";
+import { initMirror, renderMirror, stopPolling as stopMirrorPolling } from "./mirror.js?v=lyrica-20261101";
 import { initIdentity, renderHero, renderExplore as renderIdentityExplore, renderRightNow, openArtistSheet } from "./identity.js";
 import { initRealm, renderRealm } from "./realm.js";
 import { computeListeningLife, selectEditorialMoments, renderListeningLife, renderEditorialMoments } from "./self-timeline.js?v=self-20261004-rotation";

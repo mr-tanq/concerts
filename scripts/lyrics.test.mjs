@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {getSyncedLyrics,pickBestSyncedResult,parseLrc,cleanTrackTitle,currentLine,cacheKey,_clearCache} from '../js/lyrics.js';
+import {getSyncedLyrics,pickLyricaResult,pickBestSyncedResult,parseLrc,cleanTrackTitle,currentLine,cacheKey,_clearCache} from '../js/lyrics.js';
 const sig={artist:'Example Band',track:'Example Song',album:'Example Album',durationSec:180};
 const record=(extra={})=>({artistName:sig.artist,trackName:sig.track,albumName:sig.album,duration:180,syncedLyrics:'[00:01.00]Example first line\n[00:02.00]Example second line',...extra});
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'Content-Type':'application/json'}});
@@ -60,4 +60,44 @@ test('a confirmed miss differs from source failure and invalid input makes no re
   let calls=0;setup(t,async()=>{calls++;return json(null,404);});
   assert.equal((await getSyncedLyrics(sig)).status,'not-found');const first=calls;
   await getSyncedLyrics({...sig,artist:''});assert.equal(calls,first);
+});
+
+test('Lyrica adds timed lyrics after LRCLIB misses and before plain fallback',async t=>{
+  const calls=[];setup(t,async u=>{
+    calls.push(u);
+    if(u.includes('onrender.com'))return json({status:'success',data:{artist:sig.artist,title:sig.track,hasTimestamps:true,source:'netease',timed_lyrics:[{start_time:1000,text:'Example one'},{start_time:2000,text:'Example two'}]}});
+    return json(u.includes('/api/search?')?[record({syncedLyrics:null,plainLyrics:'Example plain'})]:record({syncedLyrics:null,plainLyrics:'Example plain'}));
+  });
+  const result=await getSyncedLyrics(sig);
+  assert.equal(result.source,'Lyrica');assert.equal(currentLine(result.lines,1500),'Example one');
+  const url=new URL(calls.at(-1));assert.equal(url.searchParams.get('sequence'),'4,5,3,7');assert.equal(url.searchParams.get('timestamps'),'true');
+  const count=calls.length;await getSyncedLyrics(sig);assert.equal(calls.length,count);
+});
+test('Lyrica validates identity, version, duration and real numeric timestamps',()=>{
+  const data={artist:sig.artist,title:sig.track,hasTimestamps:true,timed_lyrics:[{start_time:0,text:'Example one'},{start_time:1000,text:'Example two'}]};
+  const pick=extra=>pickLyricaResult({status:'success',data:{...data,...extra}},sig);
+  assert.equal(pick({}).source,'Lyrica');
+  for(const extra of [{artist:'Cover Band'},{title:sig.track+' (Live)'},{duration:200},{hasTimestamps:false},{timed_lyrics:[{start_time:'0',text:'Wrong'},{start_time:1000,text:'Example'}]},{timed_lyrics:[{start_time:2000,text:'Wrong'},{start_time:1000,text:'Order'}]},{timed_lyrics:[{start_time:0,text:'Wrong'},{start_time:999000,text:'Version'}]},{timed_lyrics:[{start_time:0,text:'Wrong'},{start_time:0,text:'Untimed'}]}])assert.equal(pick(extra),null);
+  assert.equal(pickLyricaResult({status:'error',data},sig),null);
+});
+test('Lyrica errors preserve plain LRCLIB lyrics',async t=>{
+  setup(t,async u=>{
+    if(u.includes('onrender.com'))throw Error('offline');
+    return json(u.includes('/api/search?')?[record({syncedLyrics:null,plainLyrics:'Example plain'})]:record({syncedLyrics:null,plainLyrics:'Example plain'}));
+  });
+  const result=await getSyncedLyrics(sig);assert.equal(result.source,'LRCLIB');assert.equal(result.status,'plain');
+});
+test('Lyrica failure does not prevent lyrics.ovh fallback',async t=>{
+  setup(t,async u=>u.includes('onrender.com')?json({},503):u.includes('lyrics.ovh')?json({lyrics:'Example plain'}):json(null,404));
+  const result=await getSyncedLyrics(sig);assert.equal(result.source,'lyrics.ovh');assert.equal(result.lines,null);
+});
+test('Lyrica confirmed misses differ from unavailable service',async t=>{
+  let unavailable=false;setup(t,async u=>u.includes('onrender.com')?json(unavailable?{}:{status:'error',error:{message:'No lyrics found'}},unavailable?503:200):json(null,404));
+  assert.equal((await getSyncedLyrics(sig)).status,'not-found');
+  unavailable=true;assert.equal((await getSyncedLyrics(sig,{force:true})).status,'unavailable');
+});
+test('Lyrica HTML errors and plain-only results never become synced lyrics',async t=>{
+  setup(t,async u=>u.includes('onrender.com')?new Response('<html>Unavailable</html>'):u.includes('lyrics.ovh')?json({lyrics:'Example plain'}):json(null,404));
+  assert.equal((await getSyncedLyrics(sig)).status,'plain');
+  assert.equal(pickLyricaResult({status:'success',data:{artist:sig.artist,title:sig.track,hasTimestamps:false,lyrics:'Example plain'}},sig),null);
 });

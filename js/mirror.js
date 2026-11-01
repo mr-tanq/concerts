@@ -29,7 +29,7 @@ import {
 } from "./listening-source-provider.js";
 import { getReadSecret } from "./relay-config.js";
 import { identityKeyFor, isValidPlaybackNumber } from "./listening-state.js";
-import { getSyncedLyrics, currentLine } from "./lyrics.js?v=lyrics-fallback-20261101";
+import { getSyncedLyrics, currentLine } from "./lyrics.js?v=lyrica-20261101";
 
 // How often the lyric line re-checks itself against elapsed time. The
 // active provider is only asked for a fresh state occasionally (5s for
