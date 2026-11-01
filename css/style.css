@@ -2227,3 +2227,11 @@ a.plain-act { text-decoration:none; }
   background-position: center 15%;
   transform: none;
 }
+
+/* Lyrics fallback: explicit, optional reading without invented timing. */
+.mirror-plain-lyrics { border-top: 1px solid var(--hair); margin-top: 20px; text-align: left; }
+.mirror-plain-lyrics summary { cursor: pointer; font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; min-height: 44px; display: flex; align-items: center; justify-content: space-between; list-style: none; }
+.mirror-plain-lyrics summary::-webkit-details-marker { display: none; }
+.mirror-plain-lyrics summary::after { content: '+'; }
+.mirror-plain-lyrics[open] summary::after { content: '−'; }
+.mirror-plain-text { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 17px; line-height: 1.7; margin: 12px 0; }

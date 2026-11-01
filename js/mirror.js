@@ -29,7 +29,7 @@ import {
 } from "./listening-source-provider.js";
 import { getReadSecret } from "./relay-config.js";
 import { identityKeyFor, isValidPlaybackNumber } from "./listening-state.js";
-import { getSyncedLyrics, currentLine } from "./lyrics.js";
+import { getSyncedLyrics, currentLine } from "./lyrics.js?v=lyrics-fallback-20261101";
 
 // How often the lyric line re-checks itself against elapsed time. The
 // active provider is only asked for a fresh state occasionally (5s for
@@ -40,6 +40,7 @@ import { getSyncedLyrics, currentLine } from "./lyrics.js";
 const LYRIC_TICK_MS = 200;
 let lyricClockTimer = null;
 let currentIdentityKey = null;
+let currentLyricResult;
 let currentLyricLines; // undefined = still fetching · null = confirmed no lyrics · array = loaded
 let syncedProgressMs = 0;   // position as of the last state update
 let syncedAtMs = 0;         // performance.now() when that update was captured
@@ -169,6 +170,7 @@ function setupPrompt(root, stage) {
 function resetMirrorSession() {
   currentIdentityKey = null;
   currentLyricLines = undefined;
+  currentLyricResult = undefined;
   syncedProgressMs = 0;
   syncedAtMs = 0;
   hasReliablePosition = false;
@@ -270,6 +272,7 @@ async function handleListeningState(body, state) {
     missingPollStreak = 0;
     currentIdentityKey = null;
     currentLyricLines = undefined;
+    currentLyricResult = undefined;
     hasReliablePosition = false;
     isPlayingNow = false;
     syncedProgressMs = 0;
@@ -300,6 +303,7 @@ async function handleListeningState(body, state) {
   if (key !== currentIdentityKey) {
     currentIdentityKey = key;
     currentLyricLines = undefined;
+    currentLyricResult = undefined;
     body.innerHTML = "";
     body.appendChild(el(`
       <div class="mirror-now">
@@ -310,6 +314,7 @@ async function handleListeningState(body, state) {
           <span class="mirror-track-artist"> — ${esc(state.artist)}</span>
         </div>
         <div class="mirror-progress"><div class="mirror-progress-fill" id="mirror-progress-fill"></div></div>
+        <div id="mirror-lyrics-more"></div>
         ${state.controlsSupported ? `
         <div class="mirror-controls">
           <button class="plain-act" data-a="previous">Prev</button>
@@ -326,24 +331,21 @@ async function handleListeningState(body, state) {
     // (first-credited) artist alone, not the joined display string —
     // preserved exactly via state.primaryArtist rather than state.artist.
     const requestKey = key; // which track identity started this lookup
-    getSyncedLyrics({
+    const signature={
       artist: state.primaryArtist || state.artist,
       track: state.track,
       album: state.album,
       durationSec: isValidPlaybackNumber(state.durationMs) ? state.durationMs / 1000 : undefined,
-    }).then(({ lines }) => {
-      // Discard if a different track is active by the time this resolves.
-      // Without this, a slow response for a track the person has since
-      // moved past can arrive AFTER a faster response for the current
-      // one and silently overwrite it with the wrong lyrics.
-      if (requestKey !== currentIdentityKey) return;
-      currentLyricLines = lines;
-      // The CURRENT playback anchor, not the position captured when this
-      // request started — the track's identity may still match, but the
-      // position itself can be seconds stale by now (a seek, a pause, or
-      // simply the normal passage of time while lrclib was still loading).
-      updateLyricLine(body, estimateProgressMs());
-    });
+    };
+    const loadLyrics=async(force=false)=>{
+      const result=await getSyncedLyrics(signature,{force});
+      if(requestKey!==currentIdentityKey)return;
+      currentLyricLines=result.lines;
+      currentLyricResult=result;
+      renderLyricsExtras(body,result,()=>loadLyrics(true));
+      updateLyricLine(body,estimateProgressMs());
+    };
+    loadLyrics();
   }
 
   const fill = body.querySelector("#mirror-progress-fill");
@@ -362,22 +364,14 @@ function updateLyricLine(body, progressMs) {
   const host = body.querySelector("#mirror-line");
   if (!host) return;
 
-  // lyrics.js's currentLine() has no way to distinguish "position
-  // unknown" from "position zero" — it just compares numbers, and an
-  // invalid position makes that comparison silently wrong (undefined
-  // returns the LAST line; null returns the FIRST; NaN/negative/Infinity
-  // are untested and no more trustworthy). The guard has to live here,
-  // before ever calling it, for any source that can't report a reliable
-  // position. Inert for Spotify today, since it always provides a valid
-  // finite non-negative number. Zero itself is explicitly valid — a
-  // track that just started is not the same as an unknown position.
-  if (!isValidPlaybackNumber(progressMs)) return;
+  // A missing playback position must never select a timed line, but plain
+  // lyrics and source-status messages remain useful without a time anchor.
 
   let text = null;
-  let emptyMessage = ""; // still fetching, or before the first lyric — nothing wrong, say nothing
+  let emptyMessage = currentLyricLines === undefined ? "Finding lyrics…" : "";
   if (currentLyricLines === null) {
-    emptyMessage = "No synced lyrics for this one."; // confirmed miss, worth saying
-  } else if (Array.isArray(currentLyricLines)) {
+    emptyMessage = currentLyricResult?.status === "instrumental" ? "Instrumental." : currentLyricResult?.status === "plain" ? "Lyrics available below — not synced." : currentLyricResult?.status === "unavailable" ? "Lyrics sources are temporarily unavailable." : "No lyrics found for this one.";
+  } else if (Array.isArray(currentLyricLines) && isValidPlaybackNumber(progressMs)) {
     text = currentLine(currentLyricLines, progressMs);
   }
 
@@ -394,6 +388,30 @@ function updateLyricLine(body, progressMs) {
   node.dataset.lyricText = key;
   host.replaceWith(node);
   node.id = "mirror-line";
+}
+
+export function renderLyricsExtras(body,result,retry) {
+  const host=body.querySelector('#mirror-lyrics-more');
+  if(!host)return;
+  host.replaceChildren();
+  if(result.plainLyrics) {
+    const details=document.createElement('details');details.className='mirror-plain-lyrics';
+    const summary=document.createElement('summary');summary.textContent='Read lyrics · Not synced';
+    const source=document.createElement('a');source.className='footnote';source.textContent=result.source;
+    source.href=result.source==='LRCLIB'?'https://lrclib.net/':'https://lyrics.ovh/';source.target='_blank';source.rel='noopener noreferrer';
+    details.appendChild(summary);
+    details.addEventListener('toggle',()=>{
+      if(!details.open||details.querySelector('.mirror-plain-text'))return;
+      const text=document.createElement('p');text.className='mirror-plain-text';text.textContent=result.plainLyrics;
+      details.append(text,source);
+    });
+    host.appendChild(details);
+  }
+  if(['not-found','unavailable'].includes(result.status)) {
+    const button=document.createElement('button');button.type='button';button.className='plain-act';button.textContent='Retry lyrics';
+    button.addEventListener('click',async()=>{button.disabled=true;button.textContent='Checking…';try{await retry();}finally{button.disabled=false;button.textContent='Retry lyrics';}});
+    host.appendChild(button);
+  }
 }
 
 function wireControls(body) {
