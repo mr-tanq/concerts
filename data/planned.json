@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-11-01T16:37:47.485Z",
+    "lastUpdated": "2026-11-01T16:37:51.886Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -5034,6 +5034,44 @@
       "planning": {
         "plannedAt": "2026-11-01T16:37:39.583Z",
         "originalScore": 40
+      },
+      "schedule": {
+        "version": 1,
+        "date": "2026-11-06",
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": null
+        },
+        "start": {
+          "name": "PROGRAMME START",
+          "time": null
+        },
+        "support": [],
+        "main": {
+          "name": "Brainstorm Festival",
+          "time": null
+        },
+        "end": {
+          "name": "END",
+          "time": null
+        },
+        "sources": [],
+        "lastCheckedAt": null,
+        "lastAttemptAt": "2026-11-01T16:37:51.654Z",
+        "checks": {},
+        "lastError": "No matching source could be checked",
+        "noSupport": null,
+        "refreshRequestedAt": null,
+        "lastOfficialCheckedAt": null,
+        "checkStatus": "failed",
+        "discovery": {
+          "version": 2,
+          "attempts": [],
+          "configured": [],
+          "requests": 0
+        },
+        "availability": "unsupported-venue"
       }
     },
     {
