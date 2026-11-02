@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-11-02T16:01:55.053Z",
+    "lastUpdated": "2026-11-02T21:06:32.764Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -1202,20 +1202,13 @@
           "status": "confirmed",
           "sourceUrl": "https://www.013.nl/programma/128504/puscifer",
           "sourceKind": "official",
-          "checkedAt": "2026-11-01T18:44:12.719Z",
-          "evidence": "19:00 Zaal open",
+          "checkedAt": "2026-11-02T21:06:31.293Z",
+          "evidence": "19:00 Zaal Open",
           "at": "2026-11-03T18:00:00.000Z"
         },
         "start": {
           "name": "PROGRAMME START",
-          "time": "20:00",
-          "dayOffset": 0,
-          "status": "confirmed",
-          "sourceUrl": "https://www.013.nl/programma/128504/puscifer",
-          "sourceKind": "official",
-          "checkedAt": "2026-11-01T18:44:12.719Z",
-          "evidence": "20:00 Aanvang",
-          "at": "2026-11-03T19:00:00.000Z"
+          "time": null
         },
         "support": [
           {
@@ -1225,10 +1218,9 @@
             "status": "confirmed",
             "sourceUrl": "https://www.013.nl/programma/128504/puscifer",
             "sourceKind": "official",
-            "checkedAt": "2026-11-01T18:44:12.719Z",
-            "evidence": "20:00 Aanvang",
-            "at": "2026-11-03T19:00:00.000Z",
-            "derivedFrom": "programme-start"
+            "checkedAt": "2026-11-02T21:06:31.293Z",
+            "evidence": "20:00\n                        \n                                                    -\n                        \n                                                    20:30 Dave Hill",
+            "at": "2026-11-03T19:00:00.000Z"
           }
         ],
         "main": {
@@ -1237,39 +1229,33 @@
         },
         "end": {
           "name": "END",
-          "time": "22:30",
-          "dayOffset": 0,
-          "status": "confirmed",
-          "sourceUrl": "https://www.013.nl/programma/128504/puscifer",
-          "sourceKind": "official",
-          "checkedAt": "2026-11-01T18:44:12.719Z",
-          "evidence": "endDate: 2026-11-03T22:30:00+01:00",
-          "at": "2026-11-03T21:30:00.000Z"
+          "time": null
         },
         "sources": [
           {
             "url": "https://www.podiuminfo.nl/concert/469662/Puscifer-The-Normal-Isnt-Tour/013/",
             "kind": "secondary",
             "label": "podiuminfo.nl",
-            "checkedAt": "2026-11-01T18:44:12.719Z"
+            "checkedAt": "2026-11-02T21:06:31.293Z"
           },
           {
             "url": "https://www.013.nl/programma/128504/puscifer",
             "kind": "official",
             "label": "013.nl",
-            "checkedAt": "2026-11-01T18:44:12.719Z"
+            "checkedAt": "2026-11-02T21:06:31.293Z"
           }
         ],
-        "lastCheckedAt": "2026-11-01T18:44:12.719Z",
-        "lastAttemptAt": "2026-11-01T18:44:12.719Z",
+        "lastCheckedAt": "2026-11-02T21:06:31.293Z",
+        "lastAttemptAt": "2026-11-02T21:06:31.293Z",
         "checks": {
           "manual": "2026-10-28T19:51:04.202Z",
-          "before48h": "2026-11-01T18:44:12.719Z"
+          "before48h": "2026-11-01T18:44:12.719Z",
+          "before24h": "2026-11-02T21:06:31.293Z"
         },
         "lastError": null,
         "noSupport": null,
         "refreshRequestedAt": "2026-10-28T19:50:51.901Z",
-        "lastOfficialCheckedAt": "2026-11-01T18:44:12.719Z",
+        "lastOfficialCheckedAt": "2026-11-02T21:06:31.293Z",
         "checkStatus": "official",
         "discovery": {
           "version": 2,
@@ -4779,7 +4765,7 @@
         },
         "sources": [],
         "lastCheckedAt": null,
-        "lastAttemptAt": "2026-11-01T20:54:36.506Z",
+        "lastAttemptAt": "2026-11-02T21:06:31.293Z",
         "checks": {},
         "lastError": "No matching source could be checked",
         "noSupport": null,
