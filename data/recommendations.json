@@ -1,17 +1,17 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-11-02T04:11:08.044Z",
+    "lastUpdated": "2026-11-02T14:40:11.974Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 548,
-      "daysFresh": 0,
-      "daysCached": 548,
+      "daysFresh": 548,
+      "daysCached": 0,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 8,
       "rejectedByLineup": 0
     },
     "festivals": {
@@ -28,6 +28,8 @@
       "source": "festivalinfo",
       "sourceId": "36809",
       "artist": "Best Kept Secret",
+      "festivalName": "Best Kept Secret",
+      "endDate": "2027-06-13",
       "lineup": [
         "Bonobo",
         "King Gizzard & The Lizard Wizard",
@@ -53,17 +55,18 @@
         "Twisted Teens",
         "Fauna",
         "Mercury",
-        "Frost Children",
         "Piss",
+        "Frost Children",
         "Sofia Isella",
         "Underscores",
         "Lee Fields",
         "milolaathetlukken",
         "TTSSFU",
         "Friko",
-        "Annabelle Dinda",
+        "Geordie Kieffer",
         "Checkpoint",
         "Greg Freeman",
+        "Annabelle Dinda",
         "Theatre",
         "Super Jet Kinoko",
         "Truman Sinclair",
@@ -71,16 +74,15 @@
         "ear",
         "@",
         "Racing Mount Pleasant",
-        "Geordie Kieffer",
-        "Beach Bunny",
         "Flipturn",
         "Benwal",
+        "Beach Bunny",
         "Villano Antillano",
         "Romperayo"
       ],
       "supportingArtists": [],
       "matchedArtists": [
-        "Best Kept Secret"
+        "Bonobo"
       ],
       "date": "2027-06-11",
       "time": null,
@@ -91,20 +93,172 @@
       "image": "https://www.festivalinfo.nl/img/upload/f/c//Best_Kept_Secret_2026_logo.jpg",
       "ticketUrl": "https://www.festivalinfo.nl/ticket/144046/df/Best-Kept-Secret-2027/",
       "sourceApis": [
-        "podiuminfo"
+        "festivalinfo"
       ],
       "sourceUrl": "https://www.festivalinfo.nl/festival/36809/Best-Kept-Secret/2027/",
       "match": {
         "score": 48,
         "label": "Strong match",
         "matchedBy": "direct",
-        "reason": "Known artist: Best Kept Secret",
+        "reason": "Known artist: Bonobo",
         "matchedArtists": [
-          "Best Kept Secret"
-        ]
+          "Bonobo"
+        ],
+        "similarVia": null
       },
       "discoveredAt": "2026-11-02T04:11:08.044Z",
-      "lastSeenAt": "2026-11-02T04:11:08.044Z"
+      "lastSeenAt": "2026-11-02T14:40:11.974Z"
+    },
+    {
+      "id": "rec-podiuminfo-500788",
+      "source": "podiuminfo",
+      "sourceId": "500788",
+      "artist": "The Cinematic Orchestra",
+      "lineup": [
+        "The Cinematic Orchestra"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "The Cinematic Orchestra"
+      ],
+      "date": "2027-04-16",
+      "time": null,
+      "venue": "Paradiso",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/2187/100_The_Cinematic_Orchestra_2.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/500788/The-Cinematic-Orchestra/Paradiso/",
+      "match": {
+        "score": 46,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: The Cinematic Orchestra",
+        "matchedArtists": [
+          "The Cinematic Orchestra"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-11-02T14:40:11.974Z",
+      "lastSeenAt": "2026-11-02T14:40:11.974Z"
+    },
+    {
+      "id": "rec-podiuminfo-500785",
+      "source": "podiuminfo",
+      "sourceId": "500785",
+      "artist": "The Cinematic Orchestra",
+      "lineup": [
+        "The Cinematic Orchestra"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "The Cinematic Orchestra"
+      ],
+      "date": "2027-04-18",
+      "time": null,
+      "venue": "TivoliVredenburg",
+      "city": "Utrecht",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/2187/100_The_Cinematic_Orchestra_1.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/500785/The-Cinematic-Orchestra/TivoliVredenburg/",
+      "match": {
+        "score": 46,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: The Cinematic Orchestra",
+        "matchedArtists": [
+          "The Cinematic Orchestra"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-11-02T14:40:11.974Z",
+      "lastSeenAt": "2026-11-02T14:40:11.974Z"
+    },
+    {
+      "id": "rec-podiuminfo-500794",
+      "source": "podiuminfo",
+      "sourceId": "500794",
+      "artist": "Joshua Radin",
+      "lineup": [
+        "Joshua Radin"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Joshua Radin"
+      ],
+      "date": "2027-02-11",
+      "time": null,
+      "venue": "Muziekgebouw Eindhoven",
+      "city": "Eindhoven",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/28750/100_Joshua_Radin_1.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/500794/Joshua-Radin/Muziekgebouw-Eindhoven/",
+      "match": {
+        "score": 32,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Damien Rice",
+        "matchedArtists": [
+          "Joshua Radin"
+        ],
+        "similarVia": "Damien Rice"
+      },
+      "discoveredAt": "2026-11-02T14:40:11.974Z",
+      "lastSeenAt": "2026-11-02T14:40:11.974Z"
+    },
+    {
+      "id": "rec-podiuminfo-500825",
+      "source": "podiuminfo",
+      "sourceId": "500825",
+      "artist": "Tanith",
+      "lineup": [
+        "MMM: Year of the Goat",
+        "Tanith"
+      ],
+      "supportingArtists": [
+        "MMM: Year of the Goat"
+      ],
+      "matchedArtists": [
+        "Tanith"
+      ],
+      "date": "2027-02-22",
+      "time": null,
+      "venue": "Sound Dog",
+      "city": "Breda",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.podiuminfo.nl/img/podiuminfo-rond.png",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/500825/MMM-Year-of-the-Goat-Tanith/Sound-Dog/",
+      "match": {
+        "score": 32,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Hällas",
+        "matchedArtists": [
+          "Tanith"
+        ],
+        "similarVia": "Hällas"
+      },
+      "discoveredAt": "2026-11-02T14:40:11.974Z",
+      "lastSeenAt": "2026-11-02T14:40:11.974Z"
     }
   ]
 }
