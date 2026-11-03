@@ -1,17 +1,17 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-11-03T00:18:06.108Z",
+    "lastUpdated": "2026-11-03T13:37:51.943Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 548,
-      "daysFresh": 1,
-      "daysCached": 547,
+      "daysFresh": 547,
+      "daysCached": 1,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 7,
       "rejectedByLineup": 0
     },
     "festivals": {
@@ -22,5 +22,43 @@
       "editionsStale": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-501031",
+      "source": "podiuminfo",
+      "sourceId": "501031",
+      "artist": "Antimatter",
+      "lineup": [
+        "Antimatter"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Antimatter"
+      ],
+      "date": "2027-04-22",
+      "time": null,
+      "venue": "DRU Industriepark",
+      "city": "Ulft",
+      "country": "??",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/61485/100_Antimatter_2.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/501031/Antimatter-Leaving-Eden/DRU-Industriepark/",
+      "match": {
+        "score": 42,
+        "label": "Possible match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Antimatter",
+        "matchedArtists": [
+          "Antimatter"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-11-03T13:37:51.943Z",
+      "lastSeenAt": "2026-11-03T13:37:51.943Z"
+    }
+  ]
 }
