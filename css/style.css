@@ -2235,3 +2235,6 @@ a.plain-act { text-decoration:none; }
 .mirror-plain-lyrics summary::after { content: '+'; }
 .mirror-plain-lyrics[open] summary::after { content: '−'; }
 .mirror-plain-text { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 17px; line-height: 1.7; margin: 12px 0; }
+
+/* Published timetable ranges: keep multiple sets readable on small screens. */
+.schedule-row--main .schedule-time-range { font-size:14px; font-weight:500; }

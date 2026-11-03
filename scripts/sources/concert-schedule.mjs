@@ -176,7 +176,7 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
       label=supportName(namedSupport); supportNames.push(label);
     }
     const n = normalize(label);
-    if (/^(doors?( open)?|deur(?:en)?( open)?|zaal open|opening doors)$/.test(n)) set("doors", "DOORS", ts[0], evidence);
+    if (/^(doors?( open)?|deur(?:en)?( open)?|zaal open|hall open|opening doors)$/.test(n)) set("doors", "DOORS", ts[0], evidence);
     else if (/^(start|aanvang|show start|start show|aanvang show|start of event|start programma|programme start|program start|start programma|aanvang programma)$/.test(n)) set("start", "PROGRAMME START", ts[0], evidence);
     else if (/^(end|einde|eindtijd|expected end|verwacht einde|verwachte eindtijd|show ends?)$/.test(n)) set("end", "END", ts[0], evidence);
     else if (normalize(label) === normalize(mainName) || /^(main act|main programme|headliner|hoofdprogramma)$/.test(n)) set("main", mainName, ts[0], evidence, ts[1]);
@@ -187,6 +187,29 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
       else if (namedTimetable && /^[\p{L}\p{N} '&+.-]{2,70}$/u.test(label.trim()) && !/start|aanvang|time|tijd|date|datum|price|prijs|tickets|bar|curfew|dj|afterparty/i.test(label)) set(`support:${normalize(label)}`, label.trim(), ts[0], evidence);
     }
   };
+  // 013 publishes multiple sets of the same act in one Tijden/Times list.
+  // Keep those explicit non-overlapping ranges together, rather than treating
+  // their different starts as contradictory assertions of a single start.
+  const setRows = [], breakRows = [], extraRows = [];
+  if (kind === "official" && venueHost === "013.nl") {
+    root.find(".ribbon_basic").each((_, n) => {
+      if (!/^(tijden|times)$/.test(normalize($(n).text()))) return;
+      const box = $(n).parent(), rows = box.children("ul").children("li");
+      if (!rows.length) return;
+      rows.each((_, item) => {
+        const label = $(item).children("div").first().text().replace(/\s+/g," ").trim();
+        const clock = $(item).children("b").first().text().replace(/\s+/g," ").trim();
+        if (!label || !/^\d{1,2}:\d{2}(?:\s*[-–—]\s*\d{1,2}:\d{2})?$/.test(clock)) return;
+        const row = {label,clock,ts:times(clock),evidence:`${clock} ${label}`};
+        if (normalize(label) === normalize(mainName)) setRows.push(row);
+        else if (/^(pauze|break|intermission)$/.test(normalize(label))) breakRows.push(row);
+        else if (!/\b(vip|check in)\b/.test(normalize(label))) extraRows.push(row);
+      });
+      // These rows are consumed once below; generic readers must not turn
+      // the second set into a conflicting main-act assertion.
+      box.remove();
+    });
+  }
   // Effenaar publishes programme time and doors in separate event-bar spans.
   if (officialEffenaar) root.find(".event-bar-item.time").each((_, n) => {
     const start = $(n).find(".time-start-end").first().text().trim();
@@ -283,6 +306,55 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
         if (wall.date === concert.date && main && wall.time <= main.time) continue;
         set("end","END",wall.time,`endDate: ${e.endDate}`);
         if (values.has("end")) values.get("end").dayOffset = wall.date === concert.date ? 0 : 1;
+      }
+    }
+  }
+  for (const row of extraRows) {
+    consume(row.label,row.clock,row.evidence,true);
+    const key = /^(doors?( open)?|zaal open|hall open)$/.test(normalize(row.label))
+      ? "doors" : `support:${normalize(row.label)}`;
+    const field = values.get(key);
+    if (field && row.ts.length === 2) {
+      field.endTime=row.ts[1];
+      field.endDayOffset=(field.dayOffset || 0)+(row.ts[1]<row.ts[0]?1:0);
+    }
+  }
+  const uniqueSets = [...new Map(setRows.map(row=>[`${row.ts.join("-")}`,row])).values()];
+  if (uniqueSets.length === 1 && uniqueSets[0].ts.length === 1) {
+    consume(mainName,uniqueSets[0].clock,uniqueSets[0].evidence);
+  } else if (uniqueSets.length && uniqueSets.every(row=>row.ts.length === 2)) {
+    let offset=0, previous=null;
+    const ranges=uniqueSets.map(row=>{
+      if(previous && row.ts[0] < previous) offset++;
+      const startDay=offset, endDay=startDay+(row.ts[1]<row.ts[0]?1:0);
+      previous=row.ts[1];offset=endDay;
+      return {...row,dayOffset:startDay,endDayOffset:endDay,
+        at:venueInstant(concert.date,row.ts[0],zoneFor(concert),startDay),
+        endAt:venueInstant(concert.date,row.ts[1],zoneFor(concert),endDay)};
+    });
+    // An ordinary evening cannot wrap to tomorrow to conceal overlapping sets.
+    const overlap = uniqueSets.some((row,i)=>i && row.ts[0]<uniqueSets[i-1].ts[1]
+      && !(uniqueSets[i-1].ts[1]>="18:00" && row.ts[0]<"06:00"));
+    if (!overlap && ranges.every((row,i)=>row.at && row.endAt && row.at<row.endAt
+      && (!i || ranges[i-1].endAt<=row.at))) {
+      const first=ranges[0],last=ranges.at(-1);
+      consume(mainName,first.ts[0],ranges.map(row=>row.evidence).join(" / "));
+      set("end","END",last.ts[1],last.evidence);
+      if(values.has("end"))values.get("end").dayOffset=last.endDayOffset;
+      const main=values.get("main");
+      if(main) {
+        const base={...main};
+        const field=row=>({...base,time:row.ts[0],endTime:row.ts[1],dayOffset:row.dayOffset,
+          endDayOffset:row.endDayOffset,evidence:row.evidence});
+        main.sets=ranges.map(field);
+        main.breaks=[...new Map(breakRows.filter(row=>row.ts.length===2).map(row=>[row.clock,row])).values()]
+          .flatMap(row=>ranges.slice(0,-1).flatMap((before,i)=>{
+            const after=ranges[i+1],start=venueInstant(concert.date,row.ts[0],zoneFor(concert),before.endDayOffset);
+            const endDay=before.endDayOffset+(row.ts[1]<row.ts[0]?1:0);
+            const end=venueInstant(concert.date,row.ts[1],zoneFor(concert),endDay);
+            return start && end && before.endAt<=start && start<end && end<=after.at
+              ? [{...field({...row,dayOffset:before.endDayOffset,endDayOffset:endDay}),name:"BREAK"}] : [];
+          }));
       }
     }
   }

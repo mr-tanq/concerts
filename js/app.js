@@ -23,7 +23,7 @@ function mountConcertShare(heading, concert) {
 }
 
 import { mountPractical, updatePractical } from "./concert-practical.js?v=night-details-20261025";
-import { mountSchedule, clearScheduleClock, syncScheduleClock, scheduleCountdown, artistLabel } from "./concert-schedule.js?v=billing-titles-20261028";
+import { mountSchedule, clearScheduleClock, syncScheduleClock, scheduleCountdown, artistLabel } from "./concert-schedule.js?v=013-sets-20261103";
 import { buildArchiveView, filterConcerts, searchArchiveConcerts, artistsOf, actuallySeenArtistsOf, venueKey, venueSearchNames } from "./archive-stats.js?v=archive-search-20261016";
 import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, isConflictError } from "./github-api.js";
 import { openConcertSearch } from "./concert-search.js?v=festival-browse-20261031";

@@ -25,6 +25,31 @@ export function venueInstant(date, time, zone = "Europe/Amsterdam", dayOffset = 
   return matches.length === 1 ? new Date(matches[0]).toISOString() : null;
 }
 
+// Recompute all interval boundaries from venue wall time, never cached at values.
+function mainSegments(concert) {
+  const s=concert.schedule,sets=s?.main?.sets;
+  if(s?.date!==concert.date || !Array.isArray(sets) || !sets.length || sets.length>24)return [];
+  const convert=(field,kind)=>{
+    let at,end;
+    try {
+      at=Date.parse(venueInstant(concert.date,field.time,s.timeZone || "Europe/Amsterdam",field.dayOffset || 0));
+      end=Date.parse(venueInstant(concert.date,field.endTime,s.timeZone || "Europe/Amsterdam",field.endDayOffset ?? field.dayOffset ?? 0));
+    }catch{return null;}
+    return Number.isFinite(at) && Number.isFinite(end) && at<end ? {field,kind,at,end} : null;
+  };
+  const acts=sets.map(field=>convert(field,"main"));
+  if(acts.some((act,i)=>!act || (i && acts[i-1].end>act.at)) || sets[0].time!==s.main.time || (sets[0].dayOffset || 0)!==(s.main.dayOffset || 0))return [];
+  const breaks=(Array.isArray(s.main.breaks)?s.main.breaks:[]).slice(0,24)
+    .map(field=>convert(field,"break")).filter(Boolean)
+    .filter(pause=>acts.slice(0,-1).some((act,i)=>act.end<=pause.at && pause.end<=acts[i+1].at));
+  const segments=[...acts,...breaks].sort((a,b)=>a.at-b.at);
+  return segments.some((part,i)=>i && segments[i-1].end>part.at)?acts:segments;
+}
+const waitLabel=(minutes)=>{
+  const hours=Math.floor(minutes/60);
+  return `${hours ? `${hours}H ` : ""}${String(minutes%60).padStart(hours?2:1,"0")}M`;
+};
+
 export function scheduleCountdown(concert, now = Date.now()) {
   const s = concert.schedule;
   if (!s || s.date !== concert.date) return "";
@@ -41,6 +66,14 @@ export function scheduleCountdown(concert, now = Date.now()) {
   if (Number.isFinite(end) && now >= end) return "SHOW ENDED";
   if (localDate(now, zone) !== concert.date && !(Number.isFinite(end) && now < end && now >= main)) return "";
   const name = (s.main?.name || concert.artist || "MAIN ACT").toUpperCase();
+  const segments=mainSegments(concert);
+  if(segments.length && now>=segments[0].at) {
+    const active=segments.find(part=>part.at<=now && now<part.end);
+    if(active?.kind==="main")return `${name} · LIVE NOW`;
+    const next=segments.find(part=>part.kind==="main" && part.at>now);
+    if(next)return `${active?.kind==="break" ? "BREAK · " : ""}${name} RESUMES IN ${waitLabel(Math.ceil((next.at-now)/60000))}`;
+    return `${name} · SETS FINISHED`;
+  }
   // Unknown end: a start is known, but we cannot claim it is still live.
   if (Number.isFinite(main) && now >= main) return Number.isFinite(end) ? `${name} · LIVE NOW` : `${name} · START TIME PASSED`;
   const next = fields.map(f => ({ f, at: instant(f) })).filter(x => Number.isFinite(x.at) && x.at > now).sort((a,b) => a.at - b.at)[0];
@@ -66,16 +99,26 @@ export function scheduleMarkup(concert) {
     const known = /^([01]\d|2[0-3]):[0-5]\d$/.test(field?.time || "");
     let at = null;
     try { if (known) at = venueInstant(concert.date, field.time, s?.timeZone || "Europe/Amsterdam", field.dayOffset || 0); } catch {}
-    return `<div class="schedule-row schedule-row--${kind}" data-schedule-kind="${kind}"${at ? ` data-schedule-at="${escapeHTML(at)}"` : ""}><dt>${escapeHTML(role ? artistLabel(label) : label)}${role ? `<small>${role}</small>` : ""}</dt><dd${known ? "" : ' class="schedule-tba"'}>${known ? escapeHTML(field.time) + (field.dayOffset === 1 ? ' <small>+1 day</small>' : "") : "TBA"}${known && field.status === "expected" ? '<small>expected</small>' : ""}</dd></div>`;
+    let until=null;
+    try { if(known && field.endTime) until=venueInstant(concert.date,field.endTime,s?.timeZone || "Europe/Amsterdam",field.endDayOffset ?? field.dayOffset ?? (field.endTime<field.time?1:0)); }catch{}
+    if(until && (!at || until<=at))until=null;
+    const clock=known ? (until ? `<span class="schedule-time-range">${escapeHTML(field.time)}–${escapeHTML(field.endTime)}</span>` : escapeHTML(field.time)) + (field.dayOffset===1 || (until && field.endDayOffset===1) ? ' <small>+1 day</small>' : "") : "TBA";
+    return `<div class="schedule-row schedule-row--${kind}" data-schedule-kind="${kind}"${at ? ` data-schedule-at="${escapeHTML(at)}"` : ""}${until ? ` data-schedule-until="${escapeHTML(until)}"` : ""}><dt>${escapeHTML(role ? artistLabel(label) : label)}${role ? `<small>${role}</small>` : ""}</dt><dd${known ? "" : ' class="schedule-tba"'}>${clock}${known && field.status === "expected" ? '<small>expected</small>' : ""}</dd></div>`;
   };
   const supportKey = name => String(name || "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
   const support = s?.noSupport ? [] : [...(s?.support || [])];
   for (const name of s?.noSupport ? [] : (concert.supportingArtists || [])) {
     if (name && !support.some(field => supportKey(field.name) === supportKey(name))) support.push({ name });
   }
+  const segments=mainSegments(concert),setCount=segments.filter(part=>part.kind==="main").length;
+  let setIndex=0;
+  const mainRows=segments.length ? segments.map(part=>part.kind==="break"
+    ? row("BREAK",part.field,"","break")
+    : row(s.main.name || concert.artist,part.field,setCount>1?`MAIN ACT · SET ${++setIndex}`:"MAIN ACT","main")).join("")
+    : row(s?.main?.name || concert.artist || "MAIN ACT",s?.main,"MAIN ACT","main");
   const rows = row("DOORS", s?.doors, "", "doors")
     + support.map(f => row(f.name || "SUPPORT", f, "SUPPORT", "support")).join("")
-    + row(s?.main?.name || concert.artist || "MAIN ACT", s?.main, "MAIN ACT", "main")
+    + mainRows
     + row("END", s?.end, "", "end");
   const sources = [...new Map((s?.sources || []).filter(x => safeURL(x.url)).map(x => [x.url, x])).values()];
   let checked = "Not checked yet";
@@ -112,7 +155,8 @@ function tick() {
   const end = rows.find(row => row.dataset.scheduleKind === "end");
   const at = row => Date.parse(row?.dataset.scheduleAt);
   const live = Number.isFinite(at(end)) && now >= at(main) && now < at(end);
-  const current = text ? (live ? main : rows.filter(row => row !== end && at(row) > now).sort((a, b) => at(a) - at(b))[0]) : null;
+  const interval=rows.find(row=>at(row)<=now && now<Date.parse(row.dataset.scheduleUntil));
+  const current = text ? (interval || (live && !mounted.concert.schedule?.main?.sets?.length ? main : rows.filter(row => row !== end && at(row) > now).sort((a, b) => at(a) - at(b))[0])) : null;
   for (const row of rows) {
     if (row === current) row.setAttribute("aria-current", "step");
     else row.removeAttribute("aria-current");
