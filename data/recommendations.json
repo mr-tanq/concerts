@@ -1,13 +1,13 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-11-03T19:33:41.038Z",
+    "lastUpdated": "2026-11-03T22:46:21.165Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 548,
-      "daysFresh": 548,
-      "daysCached": 0,
+      "daysFresh": 0,
+      "daysCached": 548,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
@@ -41,23 +41,24 @@
       "city": "Tilburg",
       "country": "NL",
       "isFestival": false,
-      "image": "https://www.festivalinfo.nl/img/artist/31438/100_Puscifer_1.jpg",
+      "image": "https://www.festivalinfo.nl/img/artist/31438/100_Puscifer_3.jpg",
       "ticketUrl": "https://www.podiuminfo.nl/ticket/134510/cd/Puscifer-The-Normal-Isnt-Tour/013/",
       "sourceApis": [
         "podiuminfo"
       ],
       "sourceUrl": "https://www.podiuminfo.nl/concert/469662/Puscifer-The-Normal-Isnt-Tour/013/",
       "match": {
-        "score": 48,
+        "score": 47,
         "label": "Strong match",
         "matchedBy": "direct",
         "reason": "Known artist: Puscifer",
         "matchedArtists": [
           "Puscifer"
-        ]
+        ],
+        "similarVia": null
       },
       "discoveredAt": "2026-11-03T19:33:41.038Z",
-      "lastSeenAt": "2026-11-03T19:33:41.038Z"
+      "lastSeenAt": "2026-11-03T22:46:21.165Z"
     }
   ]
 }
