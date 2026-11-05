@@ -1,17 +1,17 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-11-04T23:04:21.704Z",
+    "lastUpdated": "2026-11-05T14:02:40.735Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 548,
-      "daysFresh": 0,
-      "daysCached": 548,
+      "daysFresh": 548,
+      "daysCached": 0,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 27,
       "rejectedByLineup": 0
     },
     "festivals": {
@@ -22,5 +22,524 @@
       "editionsStale": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-501667",
+      "source": "podiuminfo",
+      "sourceId": "501667",
+      "artist": "U2",
+      "lineup": [
+        "U2"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "U2"
+      ],
+      "date": "2027-06-09",
+      "time": null,
+      "venue": "Johan Cruijff ArenA",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/322/100_U2_2.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/144661/cd/U2/Johan-Cruijff-ArenA/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/501667/U2/Johan-Cruijff-ArenA/",
+      "match": {
+        "score": 37,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Coldplay",
+        "matchedArtists": [
+          "U2"
+        ],
+        "similarVia": "Coldplay"
+      },
+      "discoveredAt": "2026-11-05T14:02:40.735Z",
+      "lastSeenAt": "2026-11-05T14:02:40.735Z"
+    },
+    {
+      "id": "rec-podiuminfo-501014",
+      "source": "podiuminfo",
+      "sourceId": "501014",
+      "artist": "Son Mieux",
+      "lineup": [
+        "Son Mieux"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Son Mieux"
+      ],
+      "date": "2027-01-15",
+      "time": null,
+      "venue": "Amare",
+      "city": "Den Haag",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/97184/100_Son_Mieux_2.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/501014/Son-Mieux/Amare/",
+      "match": {
+        "score": 36,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Haevn",
+        "matchedArtists": [
+          "Son Mieux"
+        ],
+        "similarVia": "Haevn"
+      },
+      "discoveredAt": "2026-11-05T14:02:40.735Z",
+      "lastSeenAt": "2026-11-05T14:02:40.735Z"
+    },
+    {
+      "id": "rec-podiuminfo-458869",
+      "source": "podiuminfo",
+      "sourceId": "458869",
+      "artist": "Son Mieux",
+      "lineup": [
+        "Son Mieux"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Son Mieux"
+      ],
+      "date": "2027-01-22",
+      "time": null,
+      "venue": "Ziggo Dome",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/97184/100_Son_Mieux_1.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/132058/cd/Son-Mieux/Ziggo-Dome/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/458869/Son-Mieux/Ziggo-Dome/",
+      "match": {
+        "score": 36,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Haevn",
+        "matchedArtists": [
+          "Son Mieux"
+        ],
+        "similarVia": "Haevn"
+      },
+      "discoveredAt": "2026-11-05T14:02:40.735Z",
+      "lastSeenAt": "2026-11-05T14:02:40.735Z"
+    },
+    {
+      "id": "rec-podiuminfo-452059",
+      "source": "podiuminfo",
+      "sourceId": "452059",
+      "artist": "Son Mieux",
+      "lineup": [
+        "Son Mieux"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Son Mieux"
+      ],
+      "date": "2026-11-06",
+      "time": null,
+      "venue": "Posthoorn",
+      "city": "Hamont-Achel",
+      "country": "??",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/97184/100_Son_Mieux_4.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/130306/cd/Son-Mieux-EU-Album-Tour/Posthoorn/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/452059/Son-Mieux-EU-Album-Tour/Posthoorn/",
+      "match": {
+        "score": 31,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Haevn",
+        "matchedArtists": [
+          "Son Mieux"
+        ],
+        "similarVia": "Haevn"
+      },
+      "discoveredAt": "2026-11-05T14:02:40.735Z",
+      "lastSeenAt": "2026-11-05T14:02:40.735Z"
+    },
+    {
+      "id": "rec-podiuminfo-461883",
+      "source": "podiuminfo",
+      "sourceId": "461883",
+      "artist": "MEAU",
+      "lineup": [
+        "MEAU"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "MEAU"
+      ],
+      "date": "2026-11-07",
+      "time": null,
+      "venue": "Wilminktheater",
+      "city": "Enschede",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/136893/100_MEAU_5.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/461883/MEAU/Wilminktheater/",
+      "match": {
+        "score": 30,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Haevn",
+        "matchedArtists": [
+          "MEAU"
+        ],
+        "similarVia": "Haevn"
+      },
+      "discoveredAt": "2026-11-05T14:02:40.735Z",
+      "lastSeenAt": "2026-11-05T14:02:40.735Z"
+    },
+    {
+      "id": "rec-podiuminfo-463152",
+      "source": "podiuminfo",
+      "sourceId": "463152",
+      "artist": "Meau",
+      "lineup": [
+        "Meau"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Meau"
+      ],
+      "date": "2026-11-15",
+      "time": null,
+      "venue": "Flint",
+      "city": "Amersfoort",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/136893/100_MEAU_1.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/463152/Meau/Flint/",
+      "match": {
+        "score": 30,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Haevn",
+        "matchedArtists": [
+          "Meau"
+        ],
+        "similarVia": "Haevn"
+      },
+      "discoveredAt": "2026-11-05T14:02:40.735Z",
+      "lastSeenAt": "2026-11-05T14:02:40.735Z"
+    },
+    {
+      "id": "rec-podiuminfo-463154",
+      "source": "podiuminfo",
+      "sourceId": "463154",
+      "artist": "Meau",
+      "lineup": [
+        "Meau"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Meau"
+      ],
+      "date": "2026-11-21",
+      "time": null,
+      "venue": "Schouwburg Het Park",
+      "city": "Hoorn",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/136893/100_MEAU_3.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/463154/Meau/Schouwburg-Het-Park/",
+      "match": {
+        "score": 30,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Haevn",
+        "matchedArtists": [
+          "Meau"
+        ],
+        "similarVia": "Haevn"
+      },
+      "discoveredAt": "2026-11-05T14:02:40.735Z",
+      "lastSeenAt": "2026-11-05T14:02:40.735Z"
+    },
+    {
+      "id": "rec-podiuminfo-463155",
+      "source": "podiuminfo",
+      "sourceId": "463155",
+      "artist": "MEAU",
+      "lineup": [
+        "MEAU"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "MEAU"
+      ],
+      "date": "2026-11-26",
+      "time": null,
+      "venue": "Amare",
+      "city": "Den Haag",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/136893/100_MEAU_5.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/463155/MEAU-Liefde-Onderschat/Amare/",
+      "match": {
+        "score": 30,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Haevn",
+        "matchedArtists": [
+          "MEAU"
+        ],
+        "similarVia": "Haevn"
+      },
+      "discoveredAt": "2026-11-05T14:02:40.735Z",
+      "lastSeenAt": "2026-11-05T14:02:40.735Z"
+    },
+    {
+      "id": "rec-podiuminfo-463156",
+      "source": "podiuminfo",
+      "sourceId": "463156",
+      "artist": "Meau",
+      "lineup": [
+        "Meau"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Meau"
+      ],
+      "date": "2026-11-28",
+      "time": null,
+      "venue": "Orpheus",
+      "city": "Apeldoorn",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/136893/100_Meau_6.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/463156/Meau/Orpheus/",
+      "match": {
+        "score": 30,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Haevn",
+        "matchedArtists": [
+          "Meau"
+        ],
+        "similarVia": "Haevn"
+      },
+      "discoveredAt": "2026-11-05T14:02:40.735Z",
+      "lastSeenAt": "2026-11-05T14:02:40.735Z"
+    },
+    {
+      "id": "rec-podiuminfo-484651",
+      "source": "podiuminfo",
+      "sourceId": "484651",
+      "artist": "The Haunted Youth",
+      "lineup": [
+        "The Haunted Youth"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "The Haunted Youth"
+      ],
+      "date": "2027-03-10",
+      "time": null,
+      "venue": "Effenaar",
+      "city": "Eindhoven",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/136830/100_The_Haunted_Youth_3.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/139354/cd/The-Haunted-Youth/Effenaar/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/484651/The-Haunted-Youth/Effenaar/",
+      "match": {
+        "score": 30,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Haevn",
+        "matchedArtists": [
+          "The Haunted Youth"
+        ],
+        "similarVia": "Haevn"
+      },
+      "discoveredAt": "2026-11-05T14:02:40.735Z",
+      "lastSeenAt": "2026-11-05T14:02:40.735Z"
+    },
+    {
+      "id": "rec-podiuminfo-484652",
+      "source": "podiuminfo",
+      "sourceId": "484652",
+      "artist": "The Haunted Youth",
+      "lineup": [
+        "The Haunted Youth"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "The Haunted Youth"
+      ],
+      "date": "2027-03-13",
+      "time": null,
+      "venue": "Paard",
+      "city": "Den Haag",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/136830/100_The_Haunted_Youth_1.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/139355/cd/The-Haunted-Youth/Paard/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/484652/The-Haunted-Youth-Boys-Cry-Too/Paard/",
+      "match": {
+        "score": 30,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Haevn",
+        "matchedArtists": [
+          "The Haunted Youth"
+        ],
+        "similarVia": "Haevn"
+      },
+      "discoveredAt": "2026-11-05T14:02:40.735Z",
+      "lastSeenAt": "2026-11-05T14:02:40.735Z"
+    },
+    {
+      "id": "rec-podiuminfo-484653",
+      "source": "podiuminfo",
+      "sourceId": "484653",
+      "artist": "The Haunted Youth",
+      "lineup": [
+        "The Haunted Youth"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "The Haunted Youth"
+      ],
+      "date": "2027-03-15",
+      "time": null,
+      "venue": "SPOT / De Oosterpoort",
+      "city": "Groningen",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/136830/100_The_Haunted_Youth_2.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/139353/cd/The-Haunted-Youth/SPOT-De-Oosterpoort/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/484653/The-Haunted-Youth/SPOT-De-Oosterpoort/",
+      "match": {
+        "score": 30,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Haevn",
+        "matchedArtists": [
+          "The Haunted Youth"
+        ],
+        "similarVia": "Haevn"
+      },
+      "discoveredAt": "2026-11-05T14:02:40.735Z",
+      "lastSeenAt": "2026-11-05T14:02:40.735Z"
+    },
+    {
+      "id": "rec-podiuminfo-484654",
+      "source": "podiuminfo",
+      "sourceId": "484654",
+      "artist": "The Haunted Youth",
+      "lineup": [
+        "The Haunted Youth"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "The Haunted Youth"
+      ],
+      "date": "2027-03-17",
+      "time": null,
+      "venue": "Doornroosje",
+      "city": "Nijmegen",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/136830/100_The_Haunted_Youth_1.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/139357/cd/The-Haunted-Youth/Doornroosje/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/484654/The-Haunted-Youth/Doornroosje/",
+      "match": {
+        "score": 30,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Haevn",
+        "matchedArtists": [
+          "The Haunted Youth"
+        ],
+        "similarVia": "Haevn"
+      },
+      "discoveredAt": "2026-11-05T14:02:40.735Z",
+      "lastSeenAt": "2026-11-05T14:02:40.735Z"
+    },
+    {
+      "id": "rec-podiuminfo-484657",
+      "source": "podiuminfo",
+      "sourceId": "484657",
+      "artist": "The Haunted Youth",
+      "lineup": [
+        "The Haunted Youth"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "The Haunted Youth"
+      ],
+      "date": "2027-03-18",
+      "time": null,
+      "venue": "TivoliVredenburg",
+      "city": "Utrecht",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/136830/100_The_Haunted_Youth_3.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/139356/cd/The-Haunted-Youth/TivoliVredenburg/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/484657/The-Haunted-Youth/TivoliVredenburg/",
+      "match": {
+        "score": 30,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Haevn",
+        "matchedArtists": [
+          "The Haunted Youth"
+        ],
+        "similarVia": "Haevn"
+      },
+      "discoveredAt": "2026-11-05T14:02:40.735Z",
+      "lastSeenAt": "2026-11-05T14:02:40.735Z"
+    }
+  ]
 }
