@@ -1,17 +1,17 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-11-06T09:02:06.762Z",
+    "lastUpdated": "2026-11-06T13:46:22.309Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 548,
-      "daysFresh": 0,
-      "daysCached": 548,
+      "daysFresh": 548,
+      "daysCached": 0,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 2,
       "rejectedByLineup": 0
     },
     "festivals": {
@@ -22,5 +22,43 @@
       "editionsStale": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-501859",
+      "source": "podiuminfo",
+      "sourceId": "501859",
+      "artist": "U2",
+      "lineup": [
+        "U2"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "U2"
+      ],
+      "date": "2027-06-11",
+      "time": null,
+      "venue": "Johan Cruijff ArenA",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/322/100_U2_1.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/144743/cd/U2-The-Greatest-Show-On-Earth-World-Tour/Johan-Cruijff-ArenA/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/501859/U2/Johan-Cruijff-ArenA/",
+      "match": {
+        "score": 37,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Coldplay",
+        "matchedArtists": [
+          "U2"
+        ],
+        "similarVia": "Coldplay"
+      },
+      "discoveredAt": "2026-11-06T13:46:22.309Z",
+      "lastSeenAt": "2026-11-06T13:46:22.309Z"
+    }
+  ]
 }
