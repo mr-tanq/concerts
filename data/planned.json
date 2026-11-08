@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-11-08T16:20:48.633Z",
+    "lastUpdated": "2026-11-08T19:00:32.184Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -704,132 +704,6 @@
       },
       "practical": {
         "ticketBought": false
-      }
-    },
-    {
-      "id": "planned-eek-a-mouse-annabel-2026-11-13",
-      "artist": "Eek-A-Mouse",
-      "supportingArtists": [],
-      "date": "2026-11-13",
-      "time": null,
-      "venue": "Annabel",
-      "city": "Rotterdam",
-      "country": "NL",
-      "isFestival": false,
-      "image": null,
-      "ticketUrl": null,
-      "sourceApis": [
-        "podiuminfo"
-      ],
-      "recommendationId": "rec-eek-a-mouse-annabel-2026-11-13",
-      "planning": {
-        "plannedAt": "2026-07-27T15:19:39.271Z",
-        "originalScore": 46
-      },
-      "schedule": {
-        "version": 1,
-        "date": "2026-11-13",
-        "timeZone": "Europe/Amsterdam",
-        "doors": {
-          "name": "DOORS",
-          "time": null
-        },
-        "start": {
-          "name": "PROGRAMME START",
-          "time": null
-        },
-        "support": [],
-        "main": {
-          "name": "Eek-A-Mouse",
-          "time": null
-        },
-        "end": {
-          "name": "END",
-          "time": null
-        },
-        "sources": [],
-        "lastCheckedAt": null,
-        "lastAttemptAt": "2026-11-07T19:37:45.979Z",
-        "checks": {},
-        "lastError": "No matching source could be checked",
-        "noSupport": null,
-        "refreshRequestedAt": null,
-        "lastOfficialCheckedAt": null,
-        "checkStatus": "failed",
-        "discovery": {
-          "version": 2,
-          "attempts": [
-            {
-              "url": "https://annabel.nu/agenda/",
-              "status": "fetched"
-            },
-            {
-              "url": "https://annabel.nu/eek-a-mouse/",
-              "status": "fetched"
-            },
-            {
-              "url": "https://annabel.nu/eek-a-mouse/",
-              "status": "identity-unverified"
-            },
-            {
-              "url": "https://annabel.nu/agenda/page/2/",
-              "status": "fetched"
-            },
-            {
-              "url": "https://annabel.nu/agenda/page/3/",
-              "status": "fetched"
-            },
-            {
-              "url": "https://annabel.nu/agenda/page/4/",
-              "status": "fetched"
-            },
-            {
-              "url": "https://annabel.nu/agenda/page/5/",
-              "status": "fetched"
-            },
-            {
-              "url": "https://annabel.nu/agenda/page/6/",
-              "status": "fetched"
-            },
-            {
-              "url": "https://annabel.nu/agenda/page/7/",
-              "status": "fetched"
-            },
-            {
-              "url": "https://annabel.nu/agenda/page/8/",
-              "status": "fetched"
-            },
-            {
-              "url": "https://annabel.nu/sitemap.xml",
-              "status": "fetched"
-            },
-            {
-              "url": "https://annabel.nu/post-sitemap.xml",
-              "status": "fetched"
-            },
-            {
-              "url": "https://annabel.nu/page-sitemap.xml",
-              "status": "fetched"
-            },
-            {
-              "url": "https://annabel.nu/category-sitemap.xml",
-              "status": "fetched"
-            },
-            {
-              "url": "https://annabel.nu/sitemap_index.xml",
-              "status": "fetched"
-            },
-            {
-              "url": "https://annabel.nu/wp-sitemap.xml",
-              "status": "fetched"
-            }
-          ],
-          "configured": [
-            "annabel.nu"
-          ],
-          "requests": 15
-        },
-        "availability": "official-unverified"
       }
     },
     {
