@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-11-10T17:00:53.640Z",
+    "lastUpdated": "2026-11-10T21:47:54.722Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -626,8 +626,8 @@
           "status": "confirmed",
           "sourceUrl": "https://patronaat.nl/event/eek-a-mouse-jahvolution-rude-boy-jamaican-12-11-26/",
           "sourceKind": "official",
-          "checkedAt": "2026-10-24T22:11:50.274Z",
-          "evidence": "Deuren: 19:30",
+          "checkedAt": "2026-11-10T21:47:52.034Z",
+          "evidence": "Deuren open • 19:30",
           "at": "2026-11-12T18:30:00.000Z"
         },
         "start": {
@@ -637,7 +637,7 @@
           "status": "confirmed",
           "sourceUrl": "https://patronaat.nl/event/eek-a-mouse-jahvolution-rude-boy-jamaican-12-11-26/",
           "sourceKind": "official",
-          "checkedAt": "2026-10-24T22:11:50.274Z",
+          "checkedAt": "2026-11-10T21:47:52.034Z",
           "evidence": "Start: 20:30",
           "at": "2026-11-12T19:30:00.000Z"
         },
@@ -649,7 +649,7 @@
             "status": "confirmed",
             "sourceUrl": "https://patronaat.nl/event/eek-a-mouse-jahvolution-rude-boy-jamaican-12-11-26/",
             "sourceKind": "official",
-            "checkedAt": "2026-10-24T22:11:50.274Z",
+            "checkedAt": "2026-11-10T21:47:52.034Z",
             "evidence": "Start: 20:30",
             "at": "2026-11-12T19:30:00.000Z",
             "derivedFrom": "programme-start"
@@ -661,33 +661,37 @@
         },
         "end": {
           "name": "END",
-          "time": null
+          "time": "22:00",
+          "dayOffset": 0,
+          "status": "expected",
+          "sourceUrl": "https://patronaat.nl/event/eek-a-mouse-jahvolution-rude-boy-jamaican-12-11-26/",
+          "sourceKind": "official",
+          "checkedAt": "2026-11-10T21:47:52.034Z",
+          "evidence": "Verwacht einde • 22:00",
+          "at": "2026-11-12T21:00:00.000Z"
         },
         "sources": [
           {
             "url": "https://patronaat.nl/event/eek-a-mouse-jahvolution-rude-boy-jamaican-12-11-26/",
             "kind": "official",
             "label": "patronaat.nl",
-            "checkedAt": "2026-10-24T22:11:50.274Z"
+            "checkedAt": "2026-11-10T21:47:52.034Z"
           }
         ],
-        "lastCheckedAt": "2026-10-24T22:11:50.274Z",
-        "lastAttemptAt": "2026-10-24T22:11:50.274Z",
+        "lastCheckedAt": "2026-11-10T21:47:52.034Z",
+        "lastAttemptAt": "2026-11-10T21:47:52.034Z",
         "checks": {
-          "manual": "2026-10-24T22:11:50.274Z"
+          "manual": "2026-10-24T22:11:50.274Z",
+          "before48h": "2026-11-10T21:47:52.034Z"
         },
         "lastError": null,
         "noSupport": null,
         "refreshRequestedAt": "2026-10-24T22:11:34.707Z",
-        "lastOfficialCheckedAt": "2026-10-24T22:11:50.274Z",
+        "lastOfficialCheckedAt": "2026-11-10T21:47:52.034Z",
         "checkStatus": "official",
         "discovery": {
           "version": 2,
           "attempts": [
-            {
-              "url": "https://patronaat.nl/programma/",
-              "status": "fetched"
-            },
             {
               "url": "https://patronaat.nl/event/eek-a-mouse-jahvolution-rude-boy-jamaican-12-11-26/",
               "status": "fetched"
@@ -700,7 +704,7 @@
           "configured": [
             "patronaat.nl"
           ],
-          "requests": 2
+          "requests": 1
         },
         "availability": "published"
       },
@@ -3877,7 +3881,7 @@
           "status": "confirmed",
           "sourceUrl": "https://www.013.nl/programma/141473/nordic-giants",
           "sourceKind": "official",
-          "checkedAt": "2026-10-19T12:22:50.504Z",
+          "checkedAt": "2026-11-10T21:47:52.034Z",
           "evidence": "19:00 Zaal open",
           "at": "2026-11-12T18:00:00.000Z"
         },
@@ -3888,7 +3892,7 @@
           "status": "confirmed",
           "sourceUrl": "https://www.013.nl/programma/141473/nordic-giants",
           "sourceKind": "official",
-          "checkedAt": "2026-10-19T12:22:50.504Z",
+          "checkedAt": "2026-11-10T21:47:52.034Z",
           "evidence": "20:00 Aanvang",
           "at": "2026-11-12T19:00:00.000Z"
         },
@@ -3900,7 +3904,7 @@
             "status": "confirmed",
             "sourceUrl": "https://www.013.nl/programma/141473/nordic-giants",
             "sourceKind": "official",
-            "checkedAt": "2026-10-19T12:22:50.504Z",
+            "checkedAt": "2026-11-10T21:47:52.034Z",
             "evidence": "20:00 Aanvang",
             "at": "2026-11-12T19:00:00.000Z",
             "derivedFrom": "programme-start"
@@ -3917,8 +3921,8 @@
           "status": "confirmed",
           "sourceUrl": "https://www.013.nl/programma/141473/nordic-giants",
           "sourceKind": "official",
-          "checkedAt": "2026-10-19T12:22:50.504Z",
-          "evidence": "endDate: 2026-11-12T22:30:00+01:00",
+          "checkedAt": "2026-11-10T21:47:52.034Z",
+          "evidence": "22:30 Einde",
           "at": "2026-11-12T21:30:00.000Z"
         },
         "sources": [
@@ -3926,34 +3930,31 @@
             "url": "https://www.podiuminfo.nl/concert/480758/Nordic-Giants/Little-Devil/",
             "kind": "secondary",
             "label": "podiuminfo.nl",
-            "checkedAt": "2026-10-19T12:22:50.504Z"
+            "checkedAt": "2026-11-10T21:47:52.034Z"
           },
           {
             "url": "https://www.013.nl/programma/141473/nordic-giants",
             "kind": "official",
             "label": "013.nl",
-            "checkedAt": "2026-10-19T12:22:50.504Z"
+            "checkedAt": "2026-11-10T21:47:52.034Z"
           }
         ],
-        "lastCheckedAt": "2026-10-19T12:22:50.504Z",
-        "lastAttemptAt": "2026-10-19T12:22:50.504Z",
+        "lastCheckedAt": "2026-11-10T21:47:52.034Z",
+        "lastAttemptAt": "2026-11-10T21:47:52.034Z",
         "checks": {
-          "manual": "2026-10-19T12:22:50.504Z"
+          "manual": "2026-10-19T12:22:50.504Z",
+          "before48h": "2026-11-10T21:47:52.034Z"
         },
         "lastError": null,
         "noSupport": null,
         "refreshRequestedAt": "2026-10-19T12:22:39.414Z",
-        "lastOfficialCheckedAt": "2026-10-19T12:22:50.504Z",
+        "lastOfficialCheckedAt": "2026-11-10T21:47:52.034Z",
         "checkStatus": "official",
         "discovery": {
           "version": 2,
           "attempts": [
             {
               "url": "https://www.podiuminfo.nl/concert/480758/Nordic-Giants/Little-Devil/",
-              "status": "fetched"
-            },
-            {
-              "url": "https://013.nl/programma",
               "status": "fetched"
             },
             {
@@ -3968,7 +3969,7 @@
           "configured": [
             "013.nl"
           ],
-          "requests": 3
+          "requests": 2
         },
         "availability": "published"
       }
