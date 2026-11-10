@@ -1,17 +1,17 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-11-10T10:45:36.706Z",
+    "lastUpdated": "2026-11-10T14:18:12.186Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 548,
-      "daysFresh": 1,
-      "daysCached": 547,
+      "daysFresh": 547,
+      "daysCached": 1,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 5,
       "rejectedByLineup": 0
     },
     "festivals": {
@@ -22,5 +22,154 @@
       "editionsStale": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-502342",
+      "source": "podiuminfo",
+      "sourceId": "502342",
+      "artist": "Neurosis",
+      "lineup": [
+        "Neurosis"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Neurosis"
+      ],
+      "date": "2027-08-23",
+      "time": null,
+      "venue": "Doornroosje",
+      "city": "Nijmegen",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/3969/100_Neurosis_1.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/502342/Neurosis/Doornroosje/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Neurosis",
+        "matchedArtists": [
+          "Neurosis"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-11-10T14:18:12.186Z",
+      "lastSeenAt": "2026-11-10T14:18:12.186Z"
+    },
+    {
+      "id": "rec-podiuminfo-502280",
+      "source": "podiuminfo",
+      "sourceId": "502280",
+      "artist": "The Dead South",
+      "lineup": [
+        "The Dead South"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "The Dead South"
+      ],
+      "date": "2027-11-26",
+      "time": null,
+      "venue": "013",
+      "city": "Tilburg",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/94678/100_The_Dead_South_7.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/144912/cd/The-Dead-South/013/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/502280/The-Dead-South/013/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: The Dead South",
+        "matchedArtists": [
+          "The Dead South"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-11-10T14:18:12.186Z",
+      "lastSeenAt": "2026-11-10T14:18:12.186Z"
+    },
+    {
+      "id": "rec-podiuminfo-502281",
+      "source": "podiuminfo",
+      "sourceId": "502281",
+      "artist": "The Dead South",
+      "lineup": [
+        "The Dead South"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "The Dead South"
+      ],
+      "date": "2027-11-27",
+      "time": null,
+      "venue": "SPOT / De Oosterpoort",
+      "city": "Groningen",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/94678/100_The_Dead_South_11.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/144913/cd/The-Dead-South/SPOT-De-Oosterpoort/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/502281/The-Dead-South/SPOT-De-Oosterpoort/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: The Dead South",
+        "matchedArtists": [
+          "The Dead South"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-11-10T14:18:12.186Z",
+      "lastSeenAt": "2026-11-10T14:18:12.186Z"
+    },
+    {
+      "id": "rec-podiuminfo-502259",
+      "source": "podiuminfo",
+      "sourceId": "502259",
+      "artist": "James Vincent McMorrow",
+      "lineup": [
+        "James Vincent McMorrow"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "James Vincent McMorrow"
+      ],
+      "date": "2026-12-04",
+      "time": null,
+      "venue": "Tolhuistuin",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/55912/100_James_Vincent_McMorrow_1.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/502259/James-Vincent-McMorrow/Tolhuistuin/",
+      "match": {
+        "score": 40,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to RY X",
+        "matchedArtists": [
+          "James Vincent McMorrow"
+        ],
+        "similarVia": "RY X"
+      },
+      "discoveredAt": "2026-11-10T14:18:12.186Z",
+      "lastSeenAt": "2026-11-10T14:18:12.186Z"
+    }
+  ]
 }
