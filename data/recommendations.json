@@ -1,13 +1,13 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-11-09T22:22:42.852Z",
+    "lastUpdated": "2026-11-10T01:03:10.499Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 548,
-      "daysFresh": 548,
-      "daysCached": 0,
+      "daysFresh": 1,
+      "daysCached": 547,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
@@ -22,5 +22,45 @@
       "editionsStale": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-festivalinfo-36807",
+      "source": "festivalinfo",
+      "sourceId": "36807",
+      "artist": "March Into Walhalla",
+      "festivalName": "March Into Walhalla",
+      "endDate": "2027-02-13",
+      "lineup": [
+        "Groza"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Groza"
+      ],
+      "date": "2027-02-13",
+      "time": null,
+      "venue": "March Into Walhalla",
+      "city": "Apeldoorn",
+      "country": "NL",
+      "isFestival": true,
+      "image": null,
+      "ticketUrl": null,
+      "sourceApis": [
+        "festivalinfo"
+      ],
+      "sourceUrl": "https://www.festivalinfo.nl/festival/36807/March-Into-Walhalla/2027/",
+      "match": {
+        "score": 40,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Der Weg einer Freiheit",
+        "matchedArtists": [
+          "Groza"
+        ],
+        "similarVia": "Der Weg einer Freiheit"
+      },
+      "discoveredAt": "2026-11-10T01:03:10.499Z",
+      "lastSeenAt": "2026-11-10T01:03:10.499Z"
+    }
+  ]
 }
