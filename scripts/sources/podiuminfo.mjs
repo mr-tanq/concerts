@@ -24,6 +24,7 @@
 //     exponential backoff + jitter, and are never written to cache.
 
 import * as cheerio from "cheerio";
+import {podiuminfoArtistImage} from "../../js/concert-image-quality.js";
 
 const MONTHS = {
   januari: "01", februari: "02", maart: "03", april: "04", mei: "05", juni: "06",
@@ -321,24 +322,29 @@ export function parseConcertPageTitle(html, trackedSet) {
 // embedded map. We try both, then fall back to any artist image URL in the
 // markup. Note these are small (the ~100px "100_NAME_1.jpg" variant), so
 // they're deliberately used as a blurred backdrop rather than sharp art.
-function extractArtistImage($, html) {
-  const fromImgTag = $('a[href*="/artist/"] img').map((_, n) => $(n).attr("src")).get()
-    .find((src) => src && /\/img\/artist\//.test(src));
-  if (fromImgTag) {
-    return fromImgTag.startsWith("http") ? fromImgTag : `https://www.podiuminfo.nl${fromImgTag}`;
-  }
-
-  const marker = html.match(/markerimage=(https?:\/\/[^&"'\s]+\.(?:jpg|jpeg|png))/i);
-  if (marker) return marker[1];
-
-  const any = html.match(/https?:\/\/[^"'\s)]*\/img\/artist\/\d+\/[^"'\s)]+\.(?:jpg|jpeg|png)/i);
-  return any ? any[0] : null;
+export function extractArtistImage($,html) {
+  // Links to actual artists are the only trusted image evidence. The
+  // embedded map's generic Podiuminfo marker used to be mistaken for an
+  // artist portrait (the giant blue circular site logo in Going).
+  let photo=null;
+  $('a[href*="/artist/"] img').each((_,n)=>{
+    if(photo)return;
+    const src=$(n).attr('data-src')||$(n).attr('src');
+    if(!src)return;
+    try{photo=podiuminfoArtistImage(new URL(src,'https://www.podiuminfo.nl').href);}catch{}
+  });
+  if(photo)return photo;
+  const marker=html.match(/markerimage=(https?:\/\/[^&"'\s]+\.(?:jpg|jpeg|png|webp))/i);
+  if(marker)photo=podiuminfoArtistImage(marker[1]);
+  if(photo)return photo;
+  const all=html.match(/https?:\/\/[^"'\s)]*\/img\/artist\/\d+\/[^"'\s)]+\.(?:jpg|jpeg|png|webp)/gi)||[];
+  return all.map(podiuminfoArtistImage).find(Boolean)||null;
 }
 
 // Bumping this invalidates cached concert details so a parser improvement
 // actually reaches existing entries instead of being masked by the cache.
 // v2 added artist-image extraction.
-const CONCERT_PARSER_VERSION = 2;
+const CONCERT_PARSER_VERSION = 3;
 const CONCERT_CACHE_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 
 // ---------- Country detection ----------

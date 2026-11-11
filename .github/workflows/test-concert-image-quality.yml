@@ -1,0 +1,36 @@
+name: Test concert image quality
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'js/app.js'
+      - 'js/concert-image-quality.js'
+      - 'scripts/sources/podiuminfo.mjs'
+      - 'scripts/cache-share-photos.mjs'
+      - 'scripts/concert-image-quality.test.mjs'
+      - 'scripts/share-photos.test.mjs'
+      - 'scripts/festival-images.test.mjs'
+      - '.github/workflows/test-concert-image-quality.yml'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  photo-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - name: Validate modules and browser app syntax
+        run: |
+          node --check js/app.js
+          node --check js/concert-image-quality.js
+          node --check scripts/sources/podiuminfo.mjs
+          node --check scripts/cache-share-photos.mjs
+      - name: Run source-image, UI, sharing and festival regression tests
+        run: node --test scripts/concert-image-quality.test.mjs scripts/share-photos.test.mjs scripts/festival-images.test.mjs scripts/festival-discovery.test.mjs

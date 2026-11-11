@@ -2,6 +2,7 @@ import {readFile,writeFile,mkdir,readdir,unlink,access} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
+import {usableConcertImage} from '../js/concert-image-quality.js';
 
 export function photoURL(raw) {
   try {
@@ -9,7 +10,8 @@ export function photoURL(raw) {
     if(u.protocol!=='https:' || u.username || u.password || u.port
       || !/^[a-z0-9.-]+\.[a-z]{2,}$/i.test(u.hostname)
       || /(^|\.)(localhost|local|internal|test|invalid)$/.test(u.hostname)
-      || /e23066163f21176a822b54001ee648a2|placeholder/i.test(u.href))return null;
+      || /e23066163f21176a822b54001ee648a2|placeholder/i.test(u.href)
+      || !usableConcertImage(u.href))return null;
     u.hash='';return u.href;
   }catch{return null;}
 }
@@ -24,13 +26,16 @@ export function photoCandidates(planned,artists,cache) {
     if(v.venue && v.date)byVenue.set(key(v.venue)+'|'+v.date,v.image);
   }
   for(const c of planned.concerts||[]) {
-    let image=artists.artists?.[key(c.artist)]?.image || c.image || byArtist.get(key(c.artist));
-    if(!image) {
-      const id=c.sourceId || String(c.id||'').match(/podiuminfo-(\d+)/)?.[1]
-        || String(c.recommendationId||'').match(/podiuminfo-(\d+)/)?.[1];
-      image=cache.entries?.[id]?.image || byVenue.get(key(c.venue)+'|'+c.date);
-    }
-    const u=photoURL(image);
+    const id=c.sourceId || String(c.id||'').match(/podiuminfo-(\d+)/)?.[1]
+      || String(c.recommendationId||'').match(/podiuminfo-(\d+)/)?.[1];
+    const candidates=[
+      artists.artists?.[key(c.artist)]?.image,
+      c.image,
+      byArtist.get(key(c.artist)),
+      cache.entries?.[id]?.image,
+      byVenue.get(key(c.venue)+'|'+c.date)
+    ];
+    const u=candidates.map(photoURL).find(Boolean);
     // This verified CDN already permits canvas export through CORS.
     if(u && new URL(u).hostname!=='cdn-images.dzcdn.net')urls.add(u);
   }
