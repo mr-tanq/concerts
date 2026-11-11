@@ -261,7 +261,15 @@ function imageFor(rec) {
   if (rec.isFestival) {
     const cached=festivalImages.get(rec.sourceUrl);
     if(cached && festivalArtworkMatchesEdition(cached,rec.date)) return cached;
-    return festivalArtworkMatchesEdition(rec.image,rec.date) ? rec.image : null;
+    if(festivalArtworkMatchesEdition(rec.image,rec.date))return rec.image;
+    // Last-resort photo of a named, matched lineup artist—not a random
+    // stock festival poster or a falsely labelled previous edition.
+    const artists=rec.matchedArtists || rec.match?.matchedArtists || [];
+    for(const artist of artists){
+      const photo=artistImages.get(normalizeKey(artist));
+      if(photo)return photo;
+    }
+    return null;
   }
 
   // Deezer's curated 1000px photo must be checked FIRST. rec.image (set
@@ -1489,10 +1497,16 @@ function stageCard(c) {
   const added=c.festivalUpdate?.newMatchingArtists||[];
   const newNames=added.slice(0,3).join(", ")+(added.length>3?` +${added.length-3} more`:"");
 
+  const hasEditionArtwork=c.isFestival&&(festivalArtworkMatchesEdition(festivalImages.get(c.sourceUrl),c.date)
+    ||festivalArtworkMatchesEdition(c.image,c.date));
+  const fallbackArtist=c.isFestival&&!hasEditionArtwork
+    ?(c.matchedArtists||c.match?.matchedArtists||[]).find(name=>artistImages.has(normalizeKey(name))):null;
+
   const stage = el(`
     <div class="stage${c.isFestival ? " is-festival" : ""}">
       <div class="stage-photo"></div>
       <div class="stage-veil"></div>
+      ${fallbackArtist ? `<div class="festival-artist-photo-credit">Artist photo: ${esc(fallbackArtist)}</div>` : ""}
       <div class="verdict yes">Going</div>
       <div class="verdict no">Not this one</div>
       <div class="stage-score">${c.manualSearch ? "Added by you" : `<b>${esc(c.match.score)}</b>${esc(c.match.label)}`}</div>
