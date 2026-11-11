@@ -1,7 +1,7 @@
 import {readFile,writeFile,rename} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
-import {warmupArtistKey,pendingWarmupRequests} from '../js/warmup-setlist-model.js';
+import {warmupArtistKey,pendingWarmupRequests,automaticWarmupCandidates,warmupRequestKey} from '../js/warmup-setlist-model.js';
 import {targetIdentity} from './lib/setlist-resolver.mjs';
 import {resolveWarmupSetlist} from './lib/warmup-setlist-resolver.mjs';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
@@ -17,7 +17,11 @@ const now=Date.now(),stamp=new Date(now).toISOString();
 const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Amsterdam',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(now));
 const requestsData=await read('data/warmup-setlist-requests.json',{version:1,requests:{}});
 if(requestsData.version!==1||!requestsData.requests||typeof requestsData.requests!=='object'||Array.isArray(requestsData.requests))throw Error('Invalid setlist request queue');
-const queue=pendingWarmupRequests(planned,requestsData,store,now);
+const manual=pendingWarmupRequests(planned,requestsData,store,now);
+const requestedKeys=new Set(manual.map(q=>warmupRequestKey(q.c,q.artist)));
+const auto=automaticWarmupCandidates(planned,store,now)
+  .filter(q=>!requestedKeys.has(warmupRequestKey(q.c,q.artist)));
+const queue=[...manual,...auto];
 if(queue.length&&!token)throw Error('Missing SETLISTFM_API_KEY');
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 let lastCall=0;
@@ -36,21 +40,23 @@ const get=url=>{
   return requests.get(url);
 };
 let checked=0,errors=0;
-for(const {c,artist,old,request}of queue.slice(0,limit)) {
+let autoChecked=0;
+for(const {c,artist,old,request,automatic}of queue.slice(0,limit)) {
+  if(automatic)autoChecked++;
   const entry=store.concerts[c.id] ||= {artists:{}};
   const identity=targetIdentity(c,artist),compatible=old?.targetIdentity===identity;
   checked++;
   try {
     const result=await resolveWarmupSetlist(c,artist,get,now);
-    entry.artists[warmupArtistKey(artist)]={...(result||(compatible?old:null)||{artist,sets:[],matchType:'missing'}),targetIdentity:identity,requestId:request.requestId,lastAttemptAt:stamp,lastError:null};
+    entry.artists[warmupArtistKey(artist)]={...(result||(compatible?old:null)||{artist,sets:[],matchType:'missing'}),targetIdentity:identity,...(request?{requestId:request.requestId}:{}),lastAttemptAt:stamp,lastError:null};
   }catch(e){
     errors++;
-    entry.artists[warmupArtistKey(artist)]={...(compatible?old:{artist,sets:[]}),targetIdentity:identity,requestId:request.requestId,lastAttemptAt:stamp,lastError:'Check unavailable'};
+    entry.artists[warmupArtistKey(artist)]={...(compatible?old:{artist,sets:[]}),targetIdentity:identity,...(request?{requestId:request.requestId}:{}),lastAttemptAt:stamp,lastError:'Check unavailable'};
     console.warn('Warm-up setlist check unavailable for',artist);
     if(/HTTP (401|403|429)/.test(e.message)||errors>=3)break;
   }
 }
-store.meta={updatedAt:stamp,checked,errors,pending:Math.max(0,queue.length-checked)};
+store.meta={updatedAt:stamp,checked,autoChecked,errors,pending:Math.max(0,queue.length-checked)};
 await writeFile(path.join(root,'data/warmup-setlists.json.tmp'),JSON.stringify(store,null,2)+'\n');
 await rename(path.join(root,'data/warmup-setlists.json.tmp'),path.join(root,'data/warmup-setlists.json'));
 console.log('Warm-up setlists:',checked,'checked,',store.meta.pending,'pending');

@@ -1,0 +1,29 @@
+name: Test setlist guide
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'js/warmup-setlist-model.js'
+      - 'js/setlist-prediction.js'
+      - 'js/warmup-setlists.js'
+      - 'scripts/lib/warmup-setlist-resolver.mjs'
+      - 'scripts/fetch-warmup-setlists.mjs'
+      - 'scripts/*setlist*.test.mjs'
+      - 'scripts/warmup-demand.test.mjs'
+      - '.github/workflows/*setlist*.yml'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check setlist matching, forecasting and refresh logic
+        run: node --test scripts/warmup-setlists.test.mjs scripts/warmup-demand.test.mjs scripts/setlist-resolver.test.mjs scripts/setlist-country.test.mjs scripts/setlist-nearby.test.mjs

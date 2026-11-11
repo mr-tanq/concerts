@@ -66,9 +66,9 @@ test('a saved setlist remains available without automatic expiry',()=>{
  const r={...cache,artist:'Band',matchType:'recent-reference',sourceUrl:'https://www.setlist.fm/setlist/band/2025/test.html',sourceEvent:{artist:'Band',date:'2025-01-01'},sets:[{songs:['Song']}]};
  assert.equal(selectWarmupReference(c,'Band',results(r),new Map(),'2026-10-29'),r);
 });
-test('warm-up workflow is request-driven and the archive workflow does not fetch Going',()=>{
+test('warm-up workflow retains on-demand requests and schedules daily near-show checks',()=>{
  const warmup=readFileSync(new URL('../.github/workflows/fetch-warmup-setlists.yml',import.meta.url),'utf8');
  const archive=readFileSync(new URL('../.github/workflows/fetch-setlists.yml',import.meta.url),'utf8');
- assert.ok(warmup.includes('data/warmup-setlist-requests.json'));assert.ok(!warmup.includes('cron:'));
+ assert.ok(warmup.includes('data/warmup-setlist-requests.json'));assert.ok(warmup.includes('cron:'));
  assert.ok(!archive.includes('fetch-warmup-setlists.mjs'));
 });

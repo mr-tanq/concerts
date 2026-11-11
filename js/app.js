@@ -1,5 +1,5 @@
 import { warmupArtists } from "./warmup-setlist-model.js?v=festival-discovery-20261031";
-import { mountWarmupSetlist } from "./warmup-setlists.js?v=festival-discovery-20261031";
+import { mountWarmupSetlist } from "./warmup-setlists.js?v=setlist-guide-20261111";
 import { removeArchiveRecord, mountArchiveRemoval } from "./archive-remove.js?v=archive-remove-20261025";
 import { mutateJSONFiles } from "./github-transaction.js?v=atomic-concerts-20261016";
 import { mountSupportDiscovery } from "./concert-discovery.js?v=image-share-20261015";

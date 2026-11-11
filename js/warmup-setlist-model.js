@@ -60,3 +60,28 @@ export function pendingWarmupRequests(planned,requests,store,now=Date.now()) {
   }
   return out.sort((a,b)=>a.request.requestedAt.localeCompare(b.request.requestedAt));
 }
+
+
+// Daily near-show checks are deliberately bounded. They complement (and
+// never replace) explicit on-demand requests for support/festival artists.
+export function automaticWarmupCandidates(planned,store,now=Date.now()) {
+  const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Amsterdam',
+    year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(now));
+  const start=Date.parse(today+'T12:00Z');
+  const queue=[];
+  for(const c of planned?.concerts||[]) {
+    if(!c?.id||!referenceDate(c.date)||c.isFestival)continue;
+    const gap=Math.round((Date.parse(c.date+'T12:00Z')-start)/86400000);
+    if(gap<0||gap>7)continue;
+    // Only the headline act is automatic. Support acts can be requested
+    // individually, without exhausting the setlist.fm API allowance.
+    const artist=warmupArtists(c)[0];
+    if(!artist)continue;
+    const identity=warmupIdentity(c,artist);
+    const old=store?.concerts?.[c.id]?.artists?.[warmupArtistKey(artist)];
+    const age=now-Date.parse(old?.lastAttemptAt||'');
+    if(old?.targetIdentity===identity&&Number.isFinite(age)&&age>=0&&age<23*3600000)continue;
+    queue.push({c,artist,old,automatic:true,gap});
+  }
+  return queue.sort((a,b)=>a.gap-b.gap||String(a.old?.lastAttemptAt||'').localeCompare(String(b.old?.lastAttemptAt||'')));
+}
