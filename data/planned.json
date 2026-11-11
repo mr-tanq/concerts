@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-11-11T09:13:28.671Z",
+    "lastUpdated": "2026-11-11T13:09:38.170Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -462,104 +462,71 @@
           "status": "confirmed",
           "sourceUrl": "https://www.tivolivredenburg.nl/agenda/40280132/jose-gonzalez-23-11-2026",
           "sourceKind": "official",
-          "checkedAt": "2026-10-26T20:18:26.181Z",
+          "checkedAt": "2026-11-11T13:09:36.677Z",
           "evidence": "Deuren open 19:00",
           "at": "2026-11-23T18:00:00.000Z"
         },
         "start": {
           "name": "PROGRAMME START",
-          "time": "20:00",
+          "time": "20:30",
           "dayOffset": 0,
           "status": "confirmed",
           "sourceUrl": "https://www.tivolivredenburg.nl/agenda/40280132/jose-gonzalez-23-11-2026",
           "sourceKind": "official",
-          "checkedAt": "2026-10-26T20:18:26.181Z",
-          "evidence": "Aanvang 20:00",
-          "unassigned": true,
-          "at": "2026-11-23T19:00:00.000Z"
+          "checkedAt": "2026-11-11T13:09:36.677Z",
+          "evidence": "Aanvang 20:30",
+          "at": "2026-11-23T19:30:00.000Z"
         },
-        "support": [],
+        "support": [
+          {
+            "name": "Geen",
+            "time": "20:30",
+            "dayOffset": 0,
+            "status": "confirmed",
+            "sourceUrl": "https://www.tivolivredenburg.nl/agenda/40280132/jose-gonzalez-23-11-2026",
+            "sourceKind": "official",
+            "checkedAt": "2026-11-11T13:09:36.677Z",
+            "evidence": "Aanvang 20:30",
+            "at": "2026-11-23T19:30:00.000Z",
+            "derivedFrom": "programme-start"
+          }
+        ],
         "main": {
           "name": "José González",
           "time": null
         },
         "end": {
           "name": "END",
-          "time": "22:29",
+          "time": "22:00",
           "dayOffset": 0,
           "status": "confirmed",
           "sourceUrl": "https://www.tivolivredenburg.nl/agenda/40280132/jose-gonzalez-23-11-2026",
           "sourceKind": "official",
-          "checkedAt": "2026-10-26T20:18:26.181Z",
-          "evidence": "endDate: 2026-11-23T22:29",
-          "at": "2026-11-23T21:29:00.000Z"
+          "checkedAt": "2026-11-11T13:09:36.677Z",
+          "evidence": "endDate: 2026-11-23T22:00",
+          "at": "2026-11-23T21:00:00.000Z"
         },
         "sources": [
           {
             "url": "https://www.tivolivredenburg.nl/agenda/40280132/jose-gonzalez-23-11-2026",
             "kind": "official",
             "label": "tivolivredenburg.nl",
-            "checkedAt": "2026-10-26T20:18:26.181Z"
+            "checkedAt": "2026-11-11T13:09:36.677Z"
           }
         ],
-        "lastCheckedAt": "2026-10-26T20:18:26.181Z",
-        "lastAttemptAt": "2026-10-26T20:18:26.181Z",
+        "lastCheckedAt": "2026-11-11T13:09:36.677Z",
+        "lastAttemptAt": "2026-11-11T13:09:36.677Z",
         "checks": {
-          "manual": "2026-10-26T20:18:26.181Z"
+          "manual": "2026-11-11T13:09:36.677Z"
         },
         "lastError": null,
         "noSupport": null,
         "refreshRequestedAt": "2026-11-11T13:09:25.401Z",
-        "lastOfficialCheckedAt": "2026-10-26T20:18:26.181Z",
+        "lastOfficialCheckedAt": "2026-11-11T13:09:36.677Z",
         "checkStatus": "official",
         "discovery": {
           "version": 2,
           "attempts": [
-            {
-              "url": "https://tivolivredenburg.nl/agenda/",
-              "status": "fetched"
-            },
-            {
-              "url": "https://www.tivolivredenburg.nl/agenda/page/2/",
-              "status": "fetched"
-            },
-            {
-              "url": "https://tivolivredenburg.nl/agenda/page/2/",
-              "status": "fetched"
-            },
-            {
-              "url": "https://tivolivredenburg.nl/agenda/page/3/",
-              "status": "fetched"
-            },
-            {
-              "url": "https://tivolivredenburg.nl/agenda/page/4/",
-              "status": "fetched"
-            },
-            {
-              "url": "https://tivolivredenburg.nl/agenda/page/5/",
-              "status": "fetched"
-            },
-            {
-              "url": "https://tivolivredenburg.nl/agenda/page/6/",
-              "status": "fetched"
-            },
-            {
-              "url": "https://tivolivredenburg.nl/agenda/page/7/",
-              "status": "fetched"
-            },
-            {
-              "url": "https://tivolivredenburg.nl/sitemap.xml",
-              "status": "fetch-failed",
-              "reason": "HTTP 404"
-            },
-            {
-              "url": "https://tivolivredenburg.nl/sitemap_index.xml",
-              "status": "fetched"
-            },
-            {
-              "url": "https://www.tivolivredenburg.nl/seo-feed/sf-production-sitemap-xml",
-              "status": "fetched"
-            },
             {
               "url": "https://www.tivolivredenburg.nl/agenda/40280132/jose-gonzalez-23-11-2026",
               "status": "fetched"
@@ -572,7 +539,7 @@
           "configured": [
             "tivolivredenburg.nl"
           ],
-          "requests": 12
+          "requests": 1
         },
         "availability": "published"
       }
