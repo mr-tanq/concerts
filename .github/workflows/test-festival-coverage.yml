@@ -1,0 +1,36 @@
+name: Test festival coverage and artwork
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'js/festival-artwork.js'
+      - 'js/app.js'
+      - 'scripts/sources/festivalinfo.mjs'
+      - 'scripts/discover-concerts.mjs'
+      - 'scripts/cache-festival-images.mjs'
+      - 'scripts/festival-*.test.mjs'
+      - '.github/workflows/test-festival-coverage.yml'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - name: Check updated JavaScript syntax
+        run: |
+          node --check js/app.js
+          node --check js/festival-artwork.js
+          node --check scripts/sources/festivalinfo.mjs
+          node --check scripts/cache-festival-images.mjs
+          node --check scripts/discover-concerts.mjs
+      - name: Verify festival discovery, images and reappearance
+        run: node --test scripts/festival-discovery.test.mjs scripts/festival-images.test.mjs scripts/festival-revisit.test.mjs scripts/going-season.test.mjs

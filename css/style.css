@@ -476,6 +476,14 @@ main { max-width: 720px; margin: 0 auto; }
   color: var(--bone);
   text-shadow: 0 1px 12px rgba(0,0,0,0.8);
 }
+/* A lineup portrait is a fallback, never an edition poster. */
+.festival-artist-photo-credit {
+  position:absolute; top:17px;right:16px;z-index:2;
+  max-width:52%; text-align:right;
+  color:var(--bone-dim);font:10px/1.4 var(--mono);
+  letter-spacing:.02em;text-shadow:0 1px 12px rgba(0,0,0,.9);
+}
+
 .stage-score b {
   font-weight: 500;
   color: var(--ember);

@@ -34,7 +34,7 @@
 // the workflow's env: to answer "why isn't X showing up".
 
 import { concertSearchEnd } from '../js/concert-search-window.js';
-import { discoverFestivals } from './sources/festivalinfo.mjs';
+import { discoverFestivals,watchedFestivalUrls } from './sources/festivalinfo.mjs';
 import {festivalLineupRevisit,sameFestivalUpdate} from '../js/festival-revisit-model.js';
 import { readFile, writeFile, rename } from "node:fs/promises";
 import path from "node:path";
@@ -516,8 +516,10 @@ async function main() {
   // previously discovered edition or stop ordinary concert discovery.
   let festivalStats;
   try {
+    const watchedUrls=watchedFestivalUrls([...(HISTORY.dismissed||[]),...(PLANNED.concerts||[]),...(EXISTING_RECS.concerts||[])],today,lookaheadEnd);
     const festivals = await discoverFestivals({trackedArtistNames,startDate:today,endDate:lookaheadEnd,
-      countries:[...new Set([...(CONFIG.location.searchCountries || []),...(CONFIG.location.highScoreSearchCountries || [])])],cache:FESTIVAL_CACHE});
+      countries:[...new Set([...(CONFIG.location.searchCountries || []),...(CONFIG.location.highScoreSearchCountries || [])])],
+      cache:FESTIVAL_CACHE,watchedUrls});
     events.push(...festivals.events);
     festivalStats=festivals.stats;
   } catch(error) {
