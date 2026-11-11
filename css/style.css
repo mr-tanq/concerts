@@ -2238,3 +2238,15 @@ a.plain-act { text-decoration:none; }
 
 /* Published timetable ranges: keep multiple sets readable on small screens. */
 .schedule-row--main .schedule-time-range { font-size:14px; font-weight:500; }
+
+
+/* Multi-show setlist evidence: readable on phone, without fake running order. */
+.setlist-evidence { list-style:none; margin:10px 0 18px; padding:0; }
+.setlist-evidence li { display:flex; align-items:baseline; justify-content:space-between; gap:14px;
+  padding:9px 0; border-bottom:1px solid var(--hair-soft); font-size:13px; line-height:1.5; }
+.setlist-evidence li > span:first-child { min-width:0; flex:1; }
+.setlist-evidence-count { font:10px/1.5 var(--mono); color:var(--bone-dim); white-space:nowrap; }
+.setlist-evidence-sources { margin:12px 0 16px; font-size:11px; color:var(--bone-dim); }
+.setlist-evidence-sources summary { cursor:pointer; min-height:44px; display:flex; align-items:center; }
+.setlist-evidence-sources ul { padding-left:18px; margin:4px 0 12px; }
+.setlist-evidence-sources li { margin:7px 0; line-height:1.6; }
