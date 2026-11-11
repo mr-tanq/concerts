@@ -69,3 +69,18 @@ test('app rejects a wrong-year fallback even when an old planned record still ho
   assert.equal(ctx.imageFor(item),null);
   assert.equal(ctx.imageFor({...item,image:'https://cdn.test/Roadburn_2027_logo.jpg'}),'https://cdn.test/Roadburn_2027_logo.jpg');
 });
+
+
+test('a missing edition poster uses a matched band portrait with no invented festival art',()=>{
+  ctx.artistImages.set('mono','https://cdn.example.com/mono.jpg');
+  const item={isFestival:true,artist:'Roadburn',date:'2027-04-15',sourceUrl:'https://example.com/unknown',
+    image:null,matchedArtists:['MONO']};
+  assert.equal(ctx.imageFor(item),'https://cdn.example.com/mono.jpg');
+  assert.equal(ctx.imageFor({...item,matchedArtists:['Band without photo']}),null);
+});
+test('artwork refresh monitors Set aside and catalog entries, not just planned shows',async()=>{
+  const script=await readFile(new URL('./cache-festival-images.mjs',import.meta.url),'utf8');
+  assert.match(script,/data\/recommendation-history\.json/);
+  assert.match(script,/data\/festivalinfo-cache\.json/);
+  assert.match(script,/fromCache/);
+});
