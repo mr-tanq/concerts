@@ -5,6 +5,7 @@ import {readFile} from 'node:fs/promises';
 import {parseFestivalEvents} from './sources/festivalinfo.mjs';
 import {cacheFestivalImages} from './cache-festival-images.mjs';
 import {festivalArtworkMatchesEdition} from '../js/festival-artwork.js';
+import {usableConcertImage} from '../js/concert-image-quality.js';
 const url='https://www.festivalinfo.nl/festival/36695/Roadburn/2027/';
 const e={'@type':'Festival',name:'Roadburn',url,startDate:'2027-04-15',endDate:'2027-04-18',location:{name:'Roadburn',address:{addressLocality:'Tilburg',addressCountry:'NL'}},performer:[{name:'Neurosis'}]};
 const html=extra=>`<script type="application/ld+json">${JSON.stringify(e)}</script>${extra||''}`;
@@ -35,7 +36,7 @@ test('photo-source failure preserves the last saved image and ignores unsafe edi
 });
 const app=await readFile(new URL('../js/app.js',import.meta.url),'utf8');
 const functionText=app.slice(app.indexOf('function imageFor(rec)'),app.indexOf('// Photos are applied',app.indexOf('function imageFor(rec)')));
-const ctx={festivalArtworkMatchesEdition,normalizeKey:s=>s.toLowerCase(),artistImages:new Map([['roadburn','https://cdn.example.com/wrong-band.jpg']]),festivalImages:new Map([[url,'https://cdn.example.com/festival.jpg']]),concertImageByArtist:new Map(),concertImageBySourceId:new Map(),concertImageByVenueDate:new Map()};vm.createContext(ctx);vm.runInContext(functionText,ctx);
+const ctx={festivalArtworkMatchesEdition,usableConcertImage,normalizeKey:s=>s.toLowerCase(),artistImages:new Map([['roadburn','https://cdn.example.com/wrong-band.jpg']]),festivalImages:new Map([[url,'https://cdn.example.com/festival.jpg']]),concertImageByArtist:new Map(),concertImageBySourceId:new Map(),concertImageByVenueDate:new Map()};vm.createContext(ctx);vm.runInContext(functionText,ctx);
 test('festival artwork and saved fallback take priority over artist-photo matches',()=>{
   assert.equal(ctx.imageFor({isFestival:true,artist:'Roadburn',sourceUrl:url,date:'2027-04-15'}),'https://cdn.example.com/festival.jpg');
   assert.equal(ctx.imageFor({isFestival:true,artist:'Roadburn',sourceUrl:url,date:'2027-04-15',image:'https://cdn.example.com/new.jpg'}),'https://cdn.example.com/festival.jpg');
