@@ -7,6 +7,7 @@ on:
       - 'scripts/sources/official-festivals.mjs'
       - 'scripts/lib/merge-official-festivals.mjs'
       - 'scripts/official-festivals.test.mjs'
+      - 'scripts/official-festival-live-smoke.mjs'
       - 'scripts/discover-concerts.mjs'
       - 'js/festival-revisit-model.js'
       - '.github/workflows/discover-concerts.yml'
@@ -31,5 +32,7 @@ jobs:
           node --check scripts/lib/merge-official-festivals.mjs
           node --check scripts/discover-concerts.mjs
           node --check js/festival-revisit-model.js
+      - name: Verify both current official festival sites live (read only)
+        run: node scripts/official-festival-live-smoke.mjs
       - name: Run official and original festival regressions
         run: node --test scripts/official-festivals.test.mjs scripts/festival-discovery.test.mjs scripts/festival-revisit.test.mjs scripts/festival-images.test.mjs
