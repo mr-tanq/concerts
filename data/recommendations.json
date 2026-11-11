@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-11-11T15:44:02.133Z",
+    "lastUpdated": "2026-11-11T15:48:36.705Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
@@ -22,5 +22,42 @@
       "editionsStale": 0
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-eek-a-mouse-patronaat-2026-11-12",
+      "source": "podiuminfo",
+      "sourceId": null,
+      "artist": "Eek-a-Mouse",
+      "lineup": [],
+      "supportingArtists": [
+        "Jahvolution - Rude Boy Jamaican"
+      ],
+      "matchedArtists": [
+        "Eek-a-Mouse"
+      ],
+      "date": "2026-11-12",
+      "time": null,
+      "venue": "Patronaat",
+      "city": "Haarlem",
+      "country": "NL",
+      "isFestival": false,
+      "image": null,
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": null,
+      "match": {
+        "score": 46,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Eek-a-Mouse",
+        "matchedArtists": [
+          "Eek-a-Mouse"
+        ]
+      },
+      "discoveredAt": "2026-11-11T15:48:36.705Z",
+      "lastSeenAt": "2026-11-11T15:48:36.705Z"
+    }
+  ]
 }

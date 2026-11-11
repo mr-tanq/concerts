@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-11-11T15:44:02.133Z",
+    "lastUpdated": "2026-11-11T15:48:36.705Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -310,125 +310,6 @@
           "requests": 1
         },
         "availability": "published"
-      }
-    },
-    {
-      "id": "planned-eek-a-mouse-patronaat-2026-11-12",
-      "artist": "Eek-a-Mouse",
-      "supportingArtists": [
-        "Jahvolution - Rude Boy Jamaican"
-      ],
-      "date": "2026-11-12",
-      "time": null,
-      "venue": "Patronaat",
-      "city": "Haarlem",
-      "country": "NL",
-      "isFestival": false,
-      "image": null,
-      "ticketUrl": null,
-      "sourceApis": [
-        "podiuminfo"
-      ],
-      "recommendationId": "rec-eek-a-mouse-patronaat-2026-11-12",
-      "planning": {
-        "plannedAt": "2026-07-27T15:19:28.360Z",
-        "originalScore": 46
-      },
-      "schedule": {
-        "version": 1,
-        "date": "2026-11-12",
-        "timeZone": "Europe/Amsterdam",
-        "doors": {
-          "name": "DOORS",
-          "time": "19:30",
-          "dayOffset": 0,
-          "status": "confirmed",
-          "sourceUrl": "https://patronaat.nl/event/eek-a-mouse-jahvolution-rude-boy-jamaican-12-11-26/",
-          "sourceKind": "official",
-          "checkedAt": "2026-11-10T21:47:52.034Z",
-          "evidence": "Deuren open • 19:30",
-          "at": "2026-11-12T18:30:00.000Z"
-        },
-        "start": {
-          "name": "PROGRAMME START",
-          "time": "20:30",
-          "dayOffset": 0,
-          "status": "confirmed",
-          "sourceUrl": "https://patronaat.nl/event/eek-a-mouse-jahvolution-rude-boy-jamaican-12-11-26/",
-          "sourceKind": "official",
-          "checkedAt": "2026-11-10T21:47:52.034Z",
-          "evidence": "Start: 20:30",
-          "at": "2026-11-12T19:30:00.000Z"
-        },
-        "support": [
-          {
-            "name": "Jahvolution - Rude Boy Jamaican",
-            "time": "20:30",
-            "dayOffset": 0,
-            "status": "confirmed",
-            "sourceUrl": "https://patronaat.nl/event/eek-a-mouse-jahvolution-rude-boy-jamaican-12-11-26/",
-            "sourceKind": "official",
-            "checkedAt": "2026-11-10T21:47:52.034Z",
-            "evidence": "Start: 20:30",
-            "at": "2026-11-12T19:30:00.000Z",
-            "derivedFrom": "programme-start"
-          }
-        ],
-        "main": {
-          "name": "Eek-a-Mouse",
-          "time": null
-        },
-        "end": {
-          "name": "END",
-          "time": "22:00",
-          "dayOffset": 0,
-          "status": "expected",
-          "sourceUrl": "https://patronaat.nl/event/eek-a-mouse-jahvolution-rude-boy-jamaican-12-11-26/",
-          "sourceKind": "official",
-          "checkedAt": "2026-11-10T21:47:52.034Z",
-          "evidence": "Verwacht einde • 22:00",
-          "at": "2026-11-12T21:00:00.000Z"
-        },
-        "sources": [
-          {
-            "url": "https://patronaat.nl/event/eek-a-mouse-jahvolution-rude-boy-jamaican-12-11-26/",
-            "kind": "official",
-            "label": "patronaat.nl",
-            "checkedAt": "2026-11-10T21:47:52.034Z"
-          }
-        ],
-        "lastCheckedAt": "2026-11-10T21:47:52.034Z",
-        "lastAttemptAt": "2026-11-10T21:47:52.034Z",
-        "checks": {
-          "manual": "2026-10-24T22:11:50.274Z",
-          "before48h": "2026-11-10T21:47:52.034Z"
-        },
-        "lastError": null,
-        "noSupport": null,
-        "refreshRequestedAt": "2026-10-24T22:11:34.707Z",
-        "lastOfficialCheckedAt": "2026-11-10T21:47:52.034Z",
-        "checkStatus": "official",
-        "discovery": {
-          "version": 2,
-          "attempts": [
-            {
-              "url": "https://patronaat.nl/event/eek-a-mouse-jahvolution-rude-boy-jamaican-12-11-26/",
-              "status": "fetched"
-            },
-            {
-              "url": "https://patronaat.nl/event/eek-a-mouse-jahvolution-rude-boy-jamaican-12-11-26/",
-              "status": "verified"
-            }
-          ],
-          "configured": [
-            "patronaat.nl"
-          ],
-          "requests": 1
-        },
-        "availability": "published"
-      },
-      "practical": {
-        "ticketBought": false
       }
     },
     {
