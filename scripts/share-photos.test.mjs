@@ -58,3 +58,17 @@ test('reuses cached files, preserves concert data and removes unused generated f
     await assert.rejects(readFile(path.join(root,file)));
   }finally{await rm(root,{recursive:true,force:true});}
 });
+
+
+test('Boogie Belgique generic Podiuminfo icon is never downloaded as share art',()=>{
+  const badge='https://www.podiuminfo.nl/img/podiuminfo-rond.png';
+  const photo='https://images.example.com/boogie-belgique.jpg';
+  assert.equal(photoURL(badge),null);
+  assert.deepEqual(photoCandidates({concerts:[
+    {artist:'Boogie Belgique',image:badge,sourceId:'502384',venue:'TivoliVredenburg',date:'2027-05-01'}
+  ]},{artists:{}},{entries:{
+    '502384':{image:photo,lineup:['Boogie Belgique'],venue:'TivoliVredenburg',date:'2027-05-01'}
+  }}),[photo]);
+  assert.deepEqual(photoCandidates({concerts:[{artist:'Boogie Belgique',image:badge}]},
+    {artists:{}},{entries:{}}),[]);
+});
