@@ -1,6 +1,7 @@
 import { warmupArtists } from "./warmup-setlist-model.js?v=festival-discovery-20261031";
 import {canShowFestivalRevisit} from "./festival-revisit-model.js?v=festival-revisit-20261111";
 import {festivalArtworkMatchesEdition} from "./festival-artwork.js?v=festival-images-20261111";
+import {usableConcertImage} from "./concert-image-quality.js?v=source-logo-20261111";
 import { mountWarmupSetlist } from "./warmup-setlists.js?v=setlist-guide-20261111";
 import { removeArchiveRecord, mountArchiveRemoval } from "./archive-remove.js?v=archive-remove-20261025";
 import { mutateJSONFiles } from "./github-transaction.js?v=atomic-concerts-20261016";
@@ -267,7 +268,7 @@ function imageFor(rec) {
     const artists=rec.matchedArtists || rec.match?.matchedArtists || [];
     for(const artist of artists){
       const photo=artistImages.get(normalizeKey(artist));
-      if(photo)return photo;
+      if(usableConcertImage(photo))return photo;
     }
     return null;
   }
@@ -280,12 +281,12 @@ function imageFor(rec) {
   // actual order was the real cause of "blurry" (upscaled tiny thumbnail)
   // photos on the Tonight/Discover stage.
   const byName = artistImages.get(normalizeKey(rec.artist));
-  if (byName) return byName;
+  if (usableConcertImage(byName)) return byName;
 
-  if (rec.image) return rec.image;
+  if (usableConcertImage(rec.image)) return rec.image;
 
   const cached = concertImageByArtist.get(normalizeKey(rec.artist));
-  if (cached) return cached;
+  if (usableConcertImage(cached)) return cached;
 
   let sid = (!rec.source || rec.source === "podiuminfo") && rec.sourceId ? String(rec.sourceId) : null;
   if (!sid) {
@@ -293,22 +294,79 @@ function imageFor(rec) {
               String(rec.recommendationId || "").match(/podiuminfo-(\d+)/);
     if (m) sid = m[1];
   }
-  if (sid && concertImageBySourceId.has(sid)) return concertImageBySourceId.get(sid);
+  if (sid && usableConcertImage(concertImageBySourceId.get(sid))) return concertImageBySourceId.get(sid);
 
   if (rec.venue && rec.date) {
     const hit = concertImageByVenueDate.get(`${normalizeKey(rec.venue)}|${rec.date}`);
-    if (hit) return hit;
+    if (usableConcertImage(hit)) return hit;
   }
   return null;
 }
 
 // Photos are applied from JS rather than inlined into the markup so a URL
 // containing quotes can never break out of a style attribute.
-function setPhoto(node, url) {
-  if (!node) return false;
-  if (!url) { node.classList.add("is-empty"); return false; }
-  node.style.backgroundImage = `url("${url.replace(/"/g, "%22")}")`;
+function setPhoto(node, url, record=null) {
+  if(!node)return false;
+  if(record?.artist&&!record.isFestival)
+    node.dataset.photoArtist=normalizeKey(record.artist);
+  const safe=usableConcertImage(url);
+  if(!safe){
+    node.classList.add('is-empty');
+    node.style.removeProperty('background-image');
+    return false;
+  }
+  node.classList.remove('is-empty');
+  node.style.backgroundImage='url("'+safe.replace(/"/g,'%22')+'")';
   return true;
+}
+
+// Deezer enrichment is a separate GitHub Action. A newly planned concert
+// can appear ~10-30s *before* its new artist photo is committed. Refresh a
+// bounded number of times, and update mounted cards/sheets in-place rather
+// than forcing the user to reload (or resetting their open details view).
+let artistPhotoTimer=null;
+let artistPhotoAttempts=0;
+let artistPhotoRequest=null;
+let lastArtistPhotoFetch=0;
+const ARTIST_PHOTO_RETRY_LIMIT=8;
+const ARTIST_PHOTO_RETRY_MS=20_000;
+function hasPendingPlannedPhoto() {
+  return plannedConcerts.some(c=>!c.isFestival&&c.artist
+    &&!usableConcertImage(artistImages.get(normalizeKey(c.artist))));
+}
+function repaintNewArtistPhotos(){
+  document.querySelectorAll('[data-photo-artist]').forEach(node=>{
+    const photo=usableConcertImage(artistImages.get(node.dataset.photoArtist));
+    if(photo) setPhoto(node,photo);
+  });
+}
+async function refreshArtistImages() {
+  if(document.hidden||artistPhotoRequest||!hasPendingPlannedPhoto())return;
+  if(Date.now()-lastArtistPhotoFetch<10_000)return;
+  lastArtistPhotoFetch=Date.now();
+  artistPhotoRequest=loadJSON('data/artist-images.json?refresh='+Date.now())
+    .then(data=>{
+      for(const [key,entry] of Object.entries(data?.artists||{})){
+        const photo=usableConcertImage(entry?.image);
+        if(photo)artistImages.set(key,photo);
+      }
+      repaintNewArtistPhotos();
+    })
+    .catch(error=>console.warn('Artist photo refresh unavailable:',error))
+    .finally(()=>{artistPhotoRequest=null;});
+  return artistPhotoRequest;
+}
+function watchForNewArtistPhotos(){
+  if(artistPhotoTimer||!hasPendingPlannedPhoto())return;
+  artistPhotoAttempts=0;
+  artistPhotoTimer=setInterval(()=>{
+    if(!hasPendingPlannedPhoto()||artistPhotoAttempts>=ARTIST_PHOTO_RETRY_LIMIT){
+      clearInterval(artistPhotoTimer);artistPhotoTimer=null;return;
+    }
+    if(document.hidden)return;
+    artistPhotoAttempts++;
+    void refreshArtistImages();
+  },ARTIST_PHOTO_RETRY_MS);
 }
 
 // ---------- staleness shield ----------
@@ -1017,7 +1075,7 @@ function archiveEntry(c) {
       <div class="entry-photo"></div>
     </article>
   `);
-  setPhoto(node.querySelector(".entry-photo"), imageFor(c));
+  setPhoto(node.querySelector(".entry-photo"), imageFor(c), c);
   node.addEventListener("click", () => openSheet(c));
   return node;
 }
@@ -1176,7 +1234,7 @@ function openSheet(c) {
     });
   }
 
-  setPhoto(sheet.querySelector(".sheet-photo"), photo);
+  setPhoto(sheet.querySelector(".sheet-photo"), photo, c);
   sheet.querySelector(".sheet-close").addEventListener("click", () => {
     root.innerHTML = "";
     if (planned) {
@@ -1453,6 +1511,7 @@ function renderConcerts(recsData, plannedData, historyData) {
   legacyDismissedIds = (historyData?.dismissedIds || []).filter((id) => !snapshotIds.has(id));
 
   renderConcertsShell();
+  watchForNewArtistPhotos();
 }
 
 function renderConcertsShell(view = "stage") {
@@ -1521,7 +1580,7 @@ function stageCard(c) {
       </div>
     </div>
   `);
-  setPhoto(stage.querySelector(".stage-photo"), imageFor(c));
+  setPhoto(stage.querySelector(".stage-photo"), imageFor(c), c);
 
   const yes = stage.querySelector(".verdict.yes");
   const no = stage.querySelector(".verdict.no");
@@ -1580,6 +1639,7 @@ function stageCard(c) {
     const oldAside=dismissedConcerts.find(d=>d.id===c.id);
     if (action === "plan") {
       plannedConcerts.push(plannedRecordFrom(c));
+      watchForNewArtistPhotos();
       dismissedConcerts=dismissedConcerts.filter(d=>d.id!==c.id);
     } else {
       dismissedConcerts=dismissedConcerts.filter(d=>d.id!==c.id);
@@ -1708,7 +1768,7 @@ function upcomingHero(c, withSchedule = false) {
       </div>
     </div>
   `);
-  setPhoto(node.querySelector(".upcoming-photo"), imageFor(c));
+  setPhoto(node.querySelector(".upcoming-photo"), imageFor(c), c);
   mountConcertShare(node.querySelector(".entry-artist"), c);
   mountTicketSwap(node.querySelector(".ticketswap-host"), c);
   if (withSchedule) mountSchedule(node.querySelector(".schedule-host"), { ...c, artist: displayPlannedArtist(c.artist, c) });
@@ -1954,7 +2014,7 @@ function nextNight(concert) {
     <p class="next-night-live" role="timer" aria-live="off" hidden></p>
     <button type="button" class="next-night-essentials">Times & essentials <span aria-hidden="true">→</span></button>
   </section>`);
-  setPhoto(node.querySelector('.next-night-photo'), imageFor(concert));
+  setPhoto(node.querySelector('.next-night-photo'), imageFor(concert), concert);
   node.querySelectorAll('button').forEach(button => button.addEventListener('click', () => openSheet(concert)));
   const tick = () => {
     if (!node.isConnected) { clearNextNightClock(); return; }
@@ -2145,7 +2205,7 @@ function renderAside(body) {
         <button class="plain-act">Back</button>
       </div>
     `);
-    setPhoto(row.querySelector(".entry-photo"), imageFor(rec));
+    setPhoto(row.querySelector(".entry-photo"), imageFor(rec), rec);
     const btn = row.querySelector("button");
     btn.addEventListener("click", async () => {
       btn.disabled = true; btn.textContent = "…";
@@ -2437,7 +2497,7 @@ function askWorkArrangements() {
     </div>
   `);
   root.appendChild(veil);
-  setPhoto(veil.querySelector(".prompt-photo"), imageFor(concert));
+  setPhoto(veil.querySelector(".prompt-photo"), imageFor(concert), concert);
 
   const buttons = [...veil.querySelectorAll("button")];
   const status = veil.querySelector("#work-prompt-status");
@@ -2497,7 +2557,7 @@ function askAboutPast(queue) {
     </div>
   `);
   root.appendChild(veil);
-  setPhoto(veil.querySelector(".prompt-photo"), imageFor(rec));
+  setPhoto(veil.querySelector(".prompt-photo"), imageFor(rec), rec);
 
   const status = veil.querySelector("#prompt-status");
   const yes = veil.querySelector("#p-yes");
@@ -2709,7 +2769,7 @@ async function init() {
 
     artistImages = new Map(
       Object.entries(artistImageData.artists || {})
-        .filter(([, v]) => v && v.image)
+        .filter(([, v]) => usableConcertImage(v?.image))
         .map(([key, v]) => [key, v.image])
     );
 
@@ -2717,7 +2777,7 @@ async function init() {
     concertImageByVenueDate = new Map();
     concertImageByArtist = new Map();
     for (const [id, v] of Object.entries(concertCache.entries || {})) {
-      if (!v || !v.image) continue;
+      if (!v || !usableConcertImage(v.image)) continue;
       concertImageBySourceId.set(String(id), v.image);
       if (v.venue && v.date) concertImageByVenueDate.set(`${normalizeKey(v.venue)}|${v.date}`, v.image);
       // The extractor picks the first artist link on the page, i.e. the
@@ -2759,6 +2819,10 @@ async function init() {
     document.addEventListener("visibilitychange", () => {
       syncScheduleClock();
       if (!document.hidden && concertsReady) askWorkArrangements();
+      if(!document.hidden&&concertsReady&&hasPendingPlannedPhoto()){
+        watchForNewArtistPhotos();
+        void refreshArtistImages();
+      }
       if (!document.hidden) {
         const host = document.querySelector("#panel-concerts.active .schedule-host");
         const next = plannedConcerts.find(c => c.id === host?.dataset.concertId);
