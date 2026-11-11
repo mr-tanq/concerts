@@ -4,6 +4,8 @@ on:
     branches: [main]
     paths:
       - data/warmup-setlist-requests.json
+  schedule:
+    - cron: '25 4 * * *'
   workflow_dispatch: {}
 permissions:
   contents: write
@@ -25,6 +27,7 @@ jobs:
       - name: Fetch only requested setlists
         env:
           SETLISTFM_API_KEY: ${{ secrets.SETLISTFM_API_KEY }}
+          MAX_WARMUP_LOOKUPS: ${{ github.event_name == 'schedule' && '8' || '40' }}
         run: node scripts/fetch-warmup-setlists.mjs
       - name: Save requested setlists
         run: |
