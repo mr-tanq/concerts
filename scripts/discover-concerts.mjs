@@ -35,6 +35,7 @@
 
 import { concertSearchEnd } from '../js/concert-search-window.js';
 import { discoverFestivals } from './sources/festivalinfo.mjs';
+import {festivalLineupRevisit,sameFestivalUpdate} from '../js/festival-revisit-model.js';
 import { readFile, writeFile, rename } from "node:fs/promises";
 import path from "node:path";
 import { preserveManualConcerts, sameSearchConcert } from "../js/concert-search-model.js";
@@ -530,6 +531,8 @@ async function main() {
 
   // --- Build recommendations: exactly one per concert id ---
   const excludedIds = new Set([...(HISTORY.dismissedIds || []), ...(HISTORY.plannedIds || [])]);
+  const previousDismissals=new Map((HISTORY.dismissed||[]).map(d=>[d.id,d]));
+  const plannedIds=new Set((HISTORY.plannedIds||[]));
   const previousById = new Map((EXISTING_RECS.concerts || []).map((c) => [c.id, c]));
   const previousBySourceId = new Map(
     (EXISTING_RECS.concerts || []).filter((c) => c.sourceId).map((c) => [`${c.source || "podiuminfo"}:${c.sourceId}`, c])
@@ -561,9 +564,15 @@ async function main() {
     if (event.country === null && !CONFIG.location.allowUnknownCountry) { dropped.unknownCountryRejected++; trace("country unknown and unknowns not allowed"); continue; }
 
     if (alreadyInArchive(event, ARCHIVE.concerts)) { dropped.alreadyInArchive++; trace("already in the archive"); continue; }
-    if (isExcluded(event, excludedIds)) { dropped.previouslyHandled++; trace("already dismissed or planned before"); continue; }
+    const id = makeRecId(event.concertId, event.source);
+    const previousDismissal=previousDismissals.get(id);
+    const festivalUpdate=festivalLineupRevisit(event,previousDismissal,signalByName,minPlaycount);
+    // Planning is always final until the user unplans. Dismissed festivals
+    // may return only when their verified bill adds a newly liked artist.
+    const isPlanned=plannedIds.has(id)||PLANNED.concerts.some(p=>p.recommendationId===id);
+    if (isPlanned || (isExcluded(event, excludedIds) && !festivalUpdate)) { dropped.previouslyHandled++; trace("already dismissed or planned before"); continue; }
     const manualHandled = [...(HISTORY.dismissed || []), ...(PLANNED.concerts || [])].filter(c => c.manualSearch);
-    if (manualHandled.some(c => sameSearchConcert(c, { source: event.source || "podiuminfo", sourceId: event.concertId, artist: event.matchedTracked[0], lineup: event.lineup, date: event.date, venue: event.venue, city: event.city }))) { dropped.previouslyHandled++; continue; }
+    if (!festivalUpdate && manualHandled.some(c => sameSearchConcert(c, { source: event.source || "podiuminfo", sourceId: event.concertId, artist: event.matchedTracked[0], lineup: event.lineup, date: event.date, venue: event.venue, city: event.city }))) { dropped.previouslyHandled++; continue; }
 
     const { displayArtist, match } = scoreEvent(event, signalByName, similarByName, CONFIG);
     if (isDebugTarget) console.log(`[debug] ${event.date} ${event.venue}: score ${match.score} (${match.matchedBy}) — ${match.reason}`);
@@ -574,10 +583,11 @@ async function main() {
       match.score >= highScoreThreshold
         ? CONFIG.location.highScoreSearchCountries || CONFIG.location.searchCountries
         : CONFIG.location.searchCountries;
-    if (event.country !== null && !allowedCountries.includes(event.country)) { dropped.countryNotAllowed++; trace(`country ${event.country} not allowed at this score`); continue; }
+    const relevantFestivalCountry=!!festivalUpdate && (CONFIG.location.highScoreSearchCountries||[]).includes(event.country);
+    if (event.country !== null && !allowedCountries.includes(event.country) && !relevantFestivalCountry) { dropped.countryNotAllowed++; trace(`country ${event.country} not allowed at this score`); continue; }
 
-    const id = makeRecId(event.concertId, event.source);
     const prior = previousBySourceId.get(`${event.source || "podiuminfo"}:${event.concertId}`) || previousById.get(id);
+    const revisit=festivalUpdate?{...festivalUpdate,detectedAt:sameFestivalUpdate(prior?.festivalUpdate,festivalUpdate)?prior.festivalUpdate.detectedAt:nowIso}:null;
 
     if (isDebugTarget) console.log(`[debug] ${event.date} ${event.venue}: PUBLISHED as ${id}`);
 
@@ -601,6 +611,7 @@ async function main() {
       sourceApis: [event.source || "podiuminfo"],
       sourceUrl: event.url,
       match,
+      ...(revisit?{festivalUpdate:revisit}:{}),
       // discoveredAt is when we FIRST saw it — preserved across runs so
       // "new this week" stays meaningful. lastSeenAt is this crawl.
       discoveredAt: prior?.discoveredAt || nowIso,
@@ -618,7 +629,7 @@ async function main() {
     }
   }
   results = preserveManualConcerts(results, EXISTING_RECS.concerts || [], { today, history: HISTORY, archive: ARCHIVE.concerts });
-  results.sort((a, b) => Number(!!b.manualSearch) - Number(!!a.manualSearch) || b.match.score - a.match.score || a.date.localeCompare(b.date));
+  results.sort((a, b) => Number(!!b.manualSearch) - Number(!!a.manualSearch) || Number(!!b.festivalUpdate)-Number(!!a.festivalUpdate) || b.match.score - a.match.score || a.date.localeCompare(b.date));
 
   // --- Prune caches (never drop anything still referenced) ---
   const protectedConcertIds = new Set(results.map((r) => String(r.sourceId)));
@@ -639,7 +650,7 @@ async function main() {
       generatedBy: "discover-concerts.mjs",
       runStatus: status,
       crawl: stats,
-      festivals: festivalStats,
+      festivals: {...festivalStats,revisited:results.filter(r=>r.festivalUpdate).length},
     },
     concerts: results,
   };
