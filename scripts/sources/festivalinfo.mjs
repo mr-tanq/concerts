@@ -5,7 +5,9 @@ import {normalizeArtistName, isTrackedName} from './podiuminfo.mjs';
 import {validDate} from '../../js/concert-schedule.js';
 import {searchKey,isFestivalBrowse} from '../../js/concert-search-model.js';
 import {countryCode} from '../../js/concert-countries.js';
+import {editionArtworkScore} from '../../js/festival-artwork.js';
 const VERSION = 1;
+const IMAGE_VERSION = 2;
 const DAY = 86400000;
 export function festivalURL(raw, base='https://www.festivalinfo.nl/') {
   try {
@@ -15,42 +17,45 @@ export function festivalURL(raw, base='https://www.festivalinfo.nl/') {
 }
 const httpsURL=raw=>{try{const u=new URL(raw);return u.protocol==='https:'&&!u.username&&!u.password?u.href:null;}catch{return null;}};
 export function festivalImage($,event,url,ownPage=false) {
+  const choices=[];
   const clean=raw=>{
     if(typeof raw!=='string'||!raw.trim())return null;
     try {
       const u=new URL(raw,url);
-      if(u.protocol!=='https:'||u.username||u.password||/\/(?:icons?|artist)\/|\/(?:logo|trans|spacer|placeholder|noavatar)[^/]*\.(?:png|gif|jpg)/i.test(u.pathname))return null;
+      if(u.protocol!=='https:'||u.username||u.password
+        ||/\/(?:icons?|artist)\/|\/(?:logo|trans|spacer|placeholder|noavatar)[^/]*\.(?:png|gif|jpe?g)/i.test(u.pathname))return null;
       return u.href;
     }catch{return null;}
   };
-  for(const value of [event.image].flat()) {
-    const image=clean(typeof value==='string'?value:value?.url||value?.contentUrl);
-    if(image)return image;
+  const consider=(raw,label='',priority=0)=>{
+    const img=clean(raw);
+    if(!img)return;
+    const score=editionArtworkScore(img,event.startDate,label);
+    if(score>=0)choices.push({img,rank:score*10+priority});
+  };
+  for(const value of [event.image].flat())
+    consider(typeof value==='string'?value:value?.url||value?.contentUrl,'',4);
+  if(ownPage) {
+    consider($('meta[property="og:image"]').attr('content'),'',3);
+    consider($('meta[name="twitter:image"]').attr('content'),'',2);
+    // Only an exact-identity edition page may supply fallback artwork.
+    $('a[href] img').each((_,n)=>{
+      const img=$(n);
+      if(festivalURL(img.closest('a').attr('href'),url)!==festivalURL(url))return;
+      consider(img.attr('data-src')||img.attr('src'),img.attr('alt')||'',1);
+    });
+    const name=searchKey(event.name),year=String(event.startDate).slice(0,4);
+    const sameName=value=>(' '+searchKey(value)+' ').includes(' '+name+' ');
+    $('.news article img').each((_,n)=>{
+      const img=$(n),raw=img.attr('data-src')||img.attr('src');
+      const label=img.attr('alt')||'',filename=String(raw||'').split('/').at(-1)||'';
+      // Require the festival name AND this year on the image (not article prose).
+      if(sameName(label+' '+filename)&&new RegExp('(?:^|\\D)'+year+'(?:\\D|$)').test(label+' '+filename))
+        consider(raw,label,0);
+    });
   }
-  if(!ownPage)return null;
-  const meta=clean($('meta[property="og:image"]').attr('content')||$('meta[name="twitter:image"]').attr('content'));
-  if(meta)return meta;
-  const name=searchKey(event.name),year=String(event.startDate).slice(0,4);
-  const sameName=text=>(' '+searchKey(text)+' ').includes(' '+name+' ');
-  // Exact edition links can carry their own lazy-loaded logo or artwork.
-  let result=null;
-  $('a[href] img').each((_,n)=>{
-    if(result)return;
-    const img=$(n),link=img.closest('a').attr('href');
-    if(festivalURL(link,url)!==festivalURL(url))return;
-    result=clean(img.attr('data-src')||img.attr('src'));
-  });
-  if(result)return result;
-  // Festivalinfo sometimes exposes artwork only in edition-related news.
-  // Require the festival name AND year on the image itself, not just in
-  // article prose, so a band portrait or previous edition cannot win.
-  $('.news article img').each((_,n)=>{
-    if(result)return;
-    const img=$(n),src=img.attr('data-src')||img.attr('src'),label=img.attr('alt')||'';
-    const filename=String(src||'').split('/').at(-1);
-    if(sameName(label+' '+filename)&&new RegExp('(?:^|\\D)'+year+'(?:\\D|$)').test(label+' '+filename))result=clean(src);
-  });
-  return result;
+  choices.sort((a,b)=>b.rank-a.rank);
+  return choices[0]?.img||null;
 }
 export function parseFestivalEvents(html, expectedURL=null, {includeCancelled=false}={}) {
   const $=cheerio.load(html), output=new Map(), expected=expectedURL && festivalURL(expectedURL);
@@ -73,13 +78,27 @@ export function parseFestivalEvents(html, expectedURL=null, {includeCancelled=fa
           const artist=$(n).text().trim();if(artist&&!lineup.some(a=>normalizeArtistName(a)===normalizeArtistName(artist)))lineup.push(artist);
         });
         const image=festivalImage($,e,url,!!expected);
-        output.set(url,{source:'festivalinfo',cancelled,concertId:url.split('/')[4],festivalName:name,isFestival:true,lineup,date,endDate,venue:String(loc[0].name || name).trim(),city,country,url,image,imageVersion:1,ticketUrl:httpsURL([e.offers].flat().find(o=>o?.url)?.url)});
+        output.set(url,{source:'festivalinfo',cancelled,concertId:url.split('/')[4],festivalName:name,isFestival:true,lineup,date,endDate,venue:String(loc[0].name || name).trim(),city,country,url,image,imageVersion:IMAGE_VERSION,ticketUrl:httpsURL([e.offers].flat().find(o=>o?.url)?.url)});
       }
     }
     for(const key of ['@graph','itemListElement','item'])if(e[key])visit(e[key]);
   }
   $('script[type="application/ld+json"]').each((_,n)=>{try{visit(JSON.parse($(n).text()));}catch{}});
   return [...output.values()];
+}
+// Editions the user has already seen or planned remain discoverable even
+// when a month listing no longer includes them. Validate the exact URL.
+export function watchedFestivalUrls(records,startDate,endDate,max=250) {
+  const seen=new Set();
+  for(const c of records||[]) {
+    if(!c?.isFestival||!validDate(c.date))continue;
+    const end=c.endDate||c.date,url=festivalURL(c.sourceUrl);
+    if(!validDate(end)||end<startDate||c.date>endDate||!url
+      ||!url.endsWith('/'+c.date.slice(0,4)+'/'))continue;
+    seen.add(url);
+    if(seen.size>=max)break;
+  }
+  return [...seen];
 }
 export function festivalMonthKeys(startDate,endDate) {
   const out=[],cursor=new Date(startDate.slice(0,7)+'-01T12:00Z');
@@ -101,10 +120,10 @@ export async function fetchFestivalPage(url) {
   }
   throw last;
 }
-export async function discoverFestivals({trackedArtistNames,festivalQuery='',acceptEvent=()=>true,deadline=Infinity,clock=Date.now,startDate,endDate,countries=['NL','BE'],cache={months:{},editions:{}},fetcher=fetchFestivalPage,now=Date.now(),pause=()=>new Promise(r=>setTimeout(r,1000))}) {
+export async function discoverFestivals({trackedArtistNames,festivalQuery='',acceptEvent=()=>true,deadline=Infinity,clock=Date.now,startDate,endDate,countries=['NL','BE'],cache={months:{},editions:{}},watchedUrls=[],fetcher=fetchFestivalPage,now=Date.now(),pause=()=>new Promise(r=>setTimeout(r,1000))}) {
   cache.months ||= {};cache.editions ||= {};
   const tracked=new Set(trackedArtistNames.map(normalizeArtistName)), candidates=new Map();
-  const stats={monthsTotal:0,monthsMissing:0,monthsStale:0,editionsFailed:0,editionsStale:0};
+  const stats={monthsTotal:0,monthsMissing:0,monthsStale:0,editionsFailed:0,editionsStale:0,watchedUrls:0,watchedRecovered:0};
   const wanted=e=>!e.cancelled&&(e.endDate||e.date)>=startDate&&e.date<=endDate&&(!countries || countries.includes(e.country))&&acceptEvent(e);
   const festivalKey=(name,year)=>searchKey(name).replace(new RegExp('(?:^| )'+year+'$'),'').replace(/\bfestival\b/g,'').trim();
   const matches=e=>isFestivalBrowse(festivalQuery) || e.lineup.some(n=>isTrackedName(n,tracked)) || (!!festivalQuery && !!festivalKey(festivalQuery,e.date.slice(0,4)) && festivalKey(festivalQuery,e.date.slice(0,4))===festivalKey(e.festivalName,e.date.slice(0,4)));
@@ -134,10 +153,22 @@ export async function discoverFestivals({trackedArtistNames,festivalQuery='',acc
   // Recheck previously matched editions as well: an edition can disappear
   // from the catalogue because of cancellation or a changed bill.
   for(const old of Object.values(cache.editions))if(old.version===VERSION && wanted(old.event) && matches(old.event) && !candidates.has(old.event.url))candidates.set(old.event.url,old.event);
+  const watched=[...new Set((watchedUrls||[]).map(url=>festivalURL(url)).filter(Boolean))].slice(0,250);
+  stats.watchedUrls=watched.length;
+  for(const url of watched) {
+    const old=cache.editions[url]?.event;
+    const editionYear=url.split('/').at(-2);
+    if(editionYear<startDate.slice(0,4)||editionYear>endDate.slice(0,4))continue;
+    if(old && !wanted(old))continue;
+    if(!candidates.has(url)) {
+      candidates.set(url,old||{url});
+      stats.watchedRecovered++;
+    }
+  }
   const events=[];
   for(const candidate of candidates.values()) {
     const old=cache.editions[candidate.url];let event;
-    if(old?.version===VERSION&&old.event?.imageVersion===1&&now-old.checkedAt<20*3600000)event=old.event;
+    if(old?.version===VERSION&&old.event?.imageVersion===IMAGE_VERSION&&now-old.checkedAt<20*3600000)event=old.event;
     else try {
       if(clock()>deadline-70000)throw new Error('Festival search time limit');
       await pause();
