@@ -2250,3 +2250,14 @@ a.plain-act { text-decoration:none; }
 .setlist-evidence-sources summary { cursor:pointer; min-height:44px; display:flex; align-items:center; }
 .setlist-evidence-sources ul { padding-left:18px; margin:4px 0 12px; }
 .setlist-evidence-sources li { margin:7px 0; line-height:1.6; }
+
+/* Festival Discovery 2.0: explain why a previously passed festival returned. */
+.festival-revisit-notice {
+  display:flex;flex-direction:column;gap:4px;max-width:100%;
+  margin:8px 0 12px;padding:10px 12px;border-radius:4px;
+  border-left:2px solid var(--ember);
+  background:rgba(8,8,10,.83);color:var(--bone);line-height:1.4;
+  text-shadow:0 1px 4px rgba(0,0,0,.7);
+}
+.festival-revisit-notice strong {font:10px/1.5 var(--mono);letter-spacing:.08em;color:var(--ember);}
+.festival-revisit-notice span {font:13px/1.45 var(--sans);overflow-wrap:anywhere;}

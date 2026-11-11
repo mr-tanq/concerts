@@ -1,4 +1,5 @@
 import { warmupArtists } from "./warmup-setlist-model.js?v=festival-discovery-20261031";
+import {canShowFestivalRevisit} from "./festival-revisit-model.js?v=festival-revisit-20261111";
 import { mountWarmupSetlist } from "./warmup-setlists.js?v=setlist-guide-20261111";
 import { removeArchiveRecord, mountArchiveRemoval } from "./archive-remove.js?v=archive-remove-20261025";
 import { mutateJSONFiles } from "./github-transaction.js?v=atomic-concerts-20261016";
@@ -325,12 +326,11 @@ function clearRecentlyHandled(ids) {
   try { localStorage.setItem(RECENT_KEY, JSON.stringify(map)); } catch {}
 }
 function filterStaleRecommendations(concerts, historyData) {
-  const excluded = new Set([
-    ...(historyData?.dismissedIds || []),
-    ...(historyData?.plannedIds || []),
-    ...Object.keys(loadRecentlyHandled()),
-  ]);
-  return concerts.filter((c) => !excluded.has(c.id));
+  const dismissed = new Set(historyData?.dismissedIds || []);
+  const planned = new Set(historyData?.plannedIds || []);
+  const recent = new Set(Object.keys(loadRecentlyHandled()));
+  return concerts.filter(c=>!recent.has(c.id)&&!planned.has(c.id)
+    &&(!dismissed.has(c.id)||canShowFestivalRevisit(c,historyData)));
 }
 
 // ---------- serialized, conflict-safe repo writes ----------
@@ -431,6 +431,9 @@ async function planConcertRemote(rec) {
     planned.meta.lastUpdated = new Date().toISOString();
 
     if (!history.plannedIds.includes(rec.id)) history.plannedIds.push(rec.id);
+    // Revisited festivals leave Set aside when explicitly planned.
+    history.dismissedIds=(history.dismissedIds||[]).filter(id=>id!==rec.id);
+    history.dismissed=(history.dismissed||[]).filter(d=>d.id!==rec.id);
   }, `chore: plan ${rec.id} (app)`);
 }
 
@@ -451,9 +454,11 @@ async function dismissConcertRemote(rec) {
     // A full snapshot, not just the id — otherwise a set-aside concert is
     // unreviewable and unrestorable.
     if (!Array.isArray(history.dismissed)) history.dismissed = [];
-    if (!history.dismissed.some((d) => d.id === rec.id)) {
-      history.dismissed.unshift({ ...rec, dismissedAt: new Date().toISOString() });
-    }
+    // A second Pass snapshots the new lineup, so the same artists never
+    // automatically bring this festival back a second time.
+    history.dismissed=history.dismissed.filter(d=>d.id!==rec.id);
+    const {festivalUpdate,...clean}=rec;
+    history.dismissed.unshift({...clean,dismissedAt:new Date().toISOString()});
   }, `chore: dismiss ${rec.id} (app)`);
 }
 
@@ -470,7 +475,7 @@ async function restoreConcertsRemote(recsToRestore, legacyIdsToRestore = []) {
 
     for (const rec of recsToRestore) {
       if (recs.concerts.some((c) => c.id === rec.id)) continue;
-      const { dismissedAt, ...clean } = rec;
+      const { dismissedAt, festivalUpdate, ...clean } = rec;
       recs.concerts.push(clean);
     }
     recs.concerts.sort((a, b) => (b.match?.score ?? 0) - (a.match?.score ?? 0));
@@ -1427,8 +1432,10 @@ function renderConcerts(recsData, plannedData, historyData) {
   const savedDismissed = [...(historyData?.dismissed || [])];
   const snapshotIds = new Set(savedDismissed.map((d) => d.id));
   const today = dutchToday();
+  const activeUpdates=new Set(deckQueue.filter(c=>c.festivalUpdate).map(c=>c.id));
   dismissedConcerts = savedDismissed.filter((c) =>
-    !c.date || calendarDaysBetween(c.date, today) < 3
+    (!c.date || calendarDaysBetween(c.date, today) < 3)
+    && !activeUpdates.has(c.id)
   );
   legacyDismissedIds = (historyData?.dismissedIds || []).filter((id) => !snapshotIds.has(id));
 
@@ -1474,6 +1481,9 @@ function stageCard(c) {
   const support = (c.isFestival ? c.matchedArtists || c.match?.matchedArtists || [] : c.supportingArtists || []).filter(Boolean);
   const time = c.time ? ` · ${esc(c.time)}` : "";
 
+  const added=c.festivalUpdate?.newMatchingArtists||[];
+  const newNames=added.slice(0,3).join(", ")+(added.length>3?` +${added.length-3} more`:"");
+
   const stage = el(`
     <div class="stage${c.isFestival ? " is-festival" : ""}">
       <div class="stage-photo"></div>
@@ -1484,6 +1494,7 @@ function stageCard(c) {
       <div class="stage-copy">
         <div class="stage-when">${weekdayShort(c.date)} ${dayMonth(c.date)} ${yearOf(c.date)}${c.isFestival && c.endDate && c.endDate !== c.date ? ` → ${fullDate(c.endDate)}` : ""}${time}</div>
         <h2 class="stage-artist">${esc(displayPlannedArtist(c.artist, c))}</h2>
+        ${added.length ? `<div class="festival-revisit-notice" role="note"><strong>BACK IN DECIDING · LINEUP UPDATED</strong><span>New since you passed: ${esc(newNames)}</span></div>` : ""}
         ${support.length ? `<div class="stage-with">${c.isFestival ? "Your matches:" : "with"} ${esc(support.slice(0, 3).join(", "))}${support.length > 3 ? ` +${support.length - 3}` : ""}</div>` : ""}
         <div class="stage-venue">${esc(c.venue)} <span>· ${esc(c.city)}</span></div>
         ${c.match.matchedBy === "similar" ? `<div class="stage-why">${esc(c.match.reason)}</div>` : ""}
@@ -1547,8 +1558,15 @@ function stageCard(c) {
 
     deckQueue.shift();
     markRecentlyHandled(c.id);
-    if (action === "plan") plannedConcerts.push(plannedRecordFrom(c));
-    else dismissedConcerts.unshift({ ...c, dismissedAt: new Date().toISOString() });
+    const oldAside=dismissedConcerts.find(d=>d.id===c.id);
+    if (action === "plan") {
+      plannedConcerts.push(plannedRecordFrom(c));
+      dismissedConcerts=dismissedConcerts.filter(d=>d.id!==c.id);
+    } else {
+      dismissedConcerts=dismissedConcerts.filter(d=>d.id!==c.id);
+      const {festivalUpdate,...clean}=c;
+      dismissedConcerts.unshift({ ...clean, dismissedAt: new Date().toISOString() });
+    }
 
     pendingWrites++; renderSaving();
 
@@ -1562,6 +1580,7 @@ function stageCard(c) {
         if (action === "plan") {
           const i = plannedConcerts.findIndex((p) => p.recommendationId === c.id);
           if (i !== -1) plannedConcerts.splice(i, 1);
+          if(oldAside)dismissedConcerts.unshift(oldAside);
         } else {
           const i = dismissedConcerts.findIndex((d) => d.id === c.id);
           if (i !== -1) dismissedConcerts.splice(i, 1);
