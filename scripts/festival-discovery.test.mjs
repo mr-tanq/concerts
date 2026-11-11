@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFile} from 'node:fs/promises';
-import {parseFestivalEvents,festivalMonthKeys,festivalURL,discoverFestivals} from './sources/festivalinfo.mjs';
+import {parseFestivalEvents,festivalMonthKeys,festivalURL,discoverFestivals,watchedFestivalUrls} from './sources/festivalinfo.mjs';
 import {normalizeArtistName} from './sources/podiuminfo.mjs';
 import {warmupArtists} from '../js/warmup-setlist-model.js';
 const url='https://www.festivalinfo.nl/festival/36695/Roadburn/2027/';
@@ -77,4 +77,47 @@ test('festival IDs cannot collide with concert IDs; handled editions remain excl
   assert.equal(ctx.isExcluded(event,new Set(['rec-podiuminfo-36695'])),false);
   assert.equal(ctx.alreadyInArchive(event,[{source:'festivalinfo',sourceId:'36695'}]),true);
   assert.equal(ctx.alreadyInArchive(event,[{source:'podiuminfo',sourceId:'36695'}]),false);
+});
+
+
+test('a dismissed festival remains watched even when the month index has no matching artist',async()=>{
+  const old={isFestival:true,date:'2027-04-15',endDate:'2027-04-18',
+    sourceUrl:url,lineup:['Neurosis'],source:'festivalinfo'};
+  const watched=watchedFestivalUrls([old,old,{...old,sourceUrl:'https://bad.example/'},
+    {...old,date:'2028-04-15'}],'2027-04-01','2027-04-30');
+  assert.deepEqual(watched,[url]);
+  const updated={...festival,performer:[{name:'Neurosis'},{name:'MONO'}]};
+  const fetches=[];
+  const found=await discoverFestivals({...options,trackedArtistNames:['MONO'],
+    watchedUrls:watched,cache:{},fetcher:async u=>{
+      fetches.push(u);return u===url?html(updated):month(festival);
+    }});
+  assert.deepEqual(found.events.map(e=>e.festivalName),['Roadburn']);
+  assert.deepEqual(found.events[0].matchedTracked,['MONO']);
+  assert.equal(found.stats.watchedRecovered,1);
+  assert.equal(found.stats.watchedUrls,1);
+  assert.equal(fetches.filter(u=>u===url).length,1);
+});
+test('watched edition survives month-index failure but cancelled edition stays hidden',async()=>{
+  const missing=await discoverFestivals({...options,trackedArtistNames:['Neurosis'],
+    watchedUrls:[url,'https://evil.test/festival/1/A/2027/'],cache:{},
+    fetcher:async u=>u===url?html():'<html>challenge</html>'});
+  assert.equal(missing.stats.monthsMissing,1);
+  assert.equal(missing.events.length,1);
+  assert.equal(missing.stats.watchedRecovered,1);
+  const cancelled={...festival,eventStatus:'https://schema.org/EventCancelled'};
+  const hidden=await discoverFestivals({...options,watchedUrls:[url],cache:{},
+    fetcher:async u=>u===url?html(cancelled):month(festival)});
+  assert.equal(hidden.events.length,0);
+});
+test('untracked watched festival is cached for future lineup updates without publishing',async()=>{
+  const cache={};
+  const watched=await discoverFestivals({...options,trackedArtistNames:['MONO'],watchedUrls:[url],cache,
+    fetcher:async u=>u===url?html():month(festival)});
+  assert.equal(watched.events.length,0);
+  assert.ok(cache.editions[url].event);
+  const updated={...festival,performer:[{name:'Neurosis'},{name:'MONO'}]};
+  const newer=await discoverFestivals({...options,trackedArtistNames:['MONO'],watchedUrls:[url],cache,
+    now:Date.now()+86400000,fetcher:async u=>u===url?html(updated):month(festival)});
+  assert.deepEqual(newer.events[0].matchedTracked,['MONO']);
 });
