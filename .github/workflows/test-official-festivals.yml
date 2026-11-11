@@ -1,0 +1,35 @@
+name: Test official festival sources
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/sources/official-festivals.mjs'
+      - 'scripts/lib/merge-official-festivals.mjs'
+      - 'scripts/official-festivals.test.mjs'
+      - 'scripts/discover-concerts.mjs'
+      - 'js/festival-revisit-model.js'
+      - '.github/workflows/discover-concerts.yml'
+      - '.github/workflows/test-official-festivals.yml'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - name: Check new modules and discovery syntax
+        run: |
+          node --check scripts/sources/official-festivals.mjs
+          node --check scripts/lib/merge-official-festivals.mjs
+          node --check scripts/discover-concerts.mjs
+          node --check js/festival-revisit-model.js
+      - name: Run official and original festival regressions
+        run: node --test scripts/official-festivals.test.mjs scripts/festival-discovery.test.mjs scripts/festival-revisit.test.mjs scripts/festival-images.test.mjs
