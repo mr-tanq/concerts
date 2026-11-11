@@ -1,5 +1,6 @@
 import { warmupArtists } from "./warmup-setlist-model.js?v=festival-discovery-20261031";
 import {canShowFestivalRevisit} from "./festival-revisit-model.js?v=festival-revisit-20261111";
+import {festivalArtworkMatchesEdition} from "./festival-artwork.js?v=festival-images-20261111";
 import { mountWarmupSetlist } from "./warmup-setlists.js?v=setlist-guide-20261111";
 import { removeArchiveRecord, mountArchiveRemoval } from "./archive-remove.js?v=archive-remove-20261025";
 import { mutateJSONFiles } from "./github-transaction.js?v=atomic-concerts-20261016";
@@ -257,7 +258,11 @@ function normalizeKey(s) {
 // which is what rescues records saved before the schema carried sourceId.
 function imageFor(rec) {
   if (!rec) return null;
-  if (rec.isFestival) return rec.image || festivalImages.get(rec.sourceUrl) || null;
+  if (rec.isFestival) {
+    const cached=festivalImages.get(rec.sourceUrl);
+    if(cached && festivalArtworkMatchesEdition(cached,rec.date)) return cached;
+    return festivalArtworkMatchesEdition(rec.image,rec.date) ? rec.image : null;
+  }
 
   // Deezer's curated 1000px photo must be checked FIRST. rec.image (set
   // directly from the concert's own source page — Podiuminfo's artist
