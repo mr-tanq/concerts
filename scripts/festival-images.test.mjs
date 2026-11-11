@@ -4,6 +4,7 @@ import vm from 'node:vm';
 import {readFile} from 'node:fs/promises';
 import {parseFestivalEvents} from './sources/festivalinfo.mjs';
 import {cacheFestivalImages} from './cache-festival-images.mjs';
+import {festivalArtworkMatchesEdition} from '../js/festival-artwork.js';
 const url='https://www.festivalinfo.nl/festival/36695/Roadburn/2027/';
 const e={'@type':'Festival',name:'Roadburn',url,startDate:'2027-04-15',endDate:'2027-04-18',location:{name:'Roadburn',address:{addressLocality:'Tilburg',addressCountry:'NL'}},performer:[{name:'Neurosis'}]};
 const html=extra=>`<script type="application/ld+json">${JSON.stringify(e)}</script>${extra||''}`;
@@ -34,10 +35,37 @@ test('photo-source failure preserves the last saved image and ignores unsafe edi
 });
 const app=await readFile(new URL('../js/app.js',import.meta.url),'utf8');
 const functionText=app.slice(app.indexOf('function imageFor(rec)'),app.indexOf('// Photos are applied',app.indexOf('function imageFor(rec)')));
-const ctx={normalizeKey:s=>s.toLowerCase(),artistImages:new Map([['roadburn','https://cdn.example.com/wrong-band.jpg']]),festivalImages:new Map([[url,'https://cdn.example.com/festival.jpg']]),concertImageByArtist:new Map(),concertImageBySourceId:new Map(),concertImageByVenueDate:new Map()};vm.createContext(ctx);vm.runInContext(functionText,ctx);
+const ctx={festivalArtworkMatchesEdition,normalizeKey:s=>s.toLowerCase(),artistImages:new Map([['roadburn','https://cdn.example.com/wrong-band.jpg']]),festivalImages:new Map([[url,'https://cdn.example.com/festival.jpg']]),concertImageByArtist:new Map(),concertImageBySourceId:new Map(),concertImageByVenueDate:new Map()};vm.createContext(ctx);vm.runInContext(functionText,ctx);
 test('festival artwork and saved fallback take priority over artist-photo matches',()=>{
-  assert.equal(ctx.imageFor({isFestival:true,artist:'Roadburn',sourceUrl:url}),'https://cdn.example.com/festival.jpg');
-  assert.equal(ctx.imageFor({isFestival:true,artist:'Roadburn',sourceUrl:url,image:'https://cdn.example.com/new.jpg'}),'https://cdn.example.com/new.jpg');
-  assert.equal(ctx.imageFor({isFestival:true,artist:'Roadburn',sourceUrl:'https://example.com/unknown'}),null);
+  assert.equal(ctx.imageFor({isFestival:true,artist:'Roadburn',sourceUrl:url,date:'2027-04-15'}),'https://cdn.example.com/festival.jpg');
+  assert.equal(ctx.imageFor({isFestival:true,artist:'Roadburn',sourceUrl:url,date:'2027-04-15',image:'https://cdn.example.com/new.jpg'}),'https://cdn.example.com/festival.jpg');
+  assert.equal(ctx.imageFor({isFestival:true,artist:'Roadburn',date:'2027-04-15',sourceUrl:'https://example.com/unknown'}),null);
   assert.equal(ctx.imageFor({artist:'Roadburn'}),'https://cdn.example.com/wrong-band.jpg');
+});
+
+
+test('current edition poster wins over generic images and older-year logos',()=>{
+  const oldStructured={...e,image:'https://example.com/Roadburn_2026_logo.jpg'};
+  const p=html('<meta property="og:image" content="https://festivalinfo.nl/img/upload/cover.jpg"><section class="news"><article><img alt="Roadburn 2026" src="/img/upload/Roadburn_2026.jpg"></article><article><img alt="Roadburn 2027" src="/img/upload/Roadburn_2027.jpg"></article></section>')
+    .replace(JSON.stringify(e),JSON.stringify(oldStructured));
+  assert.equal(image(p),'https://www.festivalinfo.nl/img/upload/Roadburn_2027.jpg');
+  assert.equal(image(html().replace(JSON.stringify(e),JSON.stringify(oldStructured))),null);
+  assert.equal(festivalArtworkMatchesEdition('https://cdn.test/Helldorado_2025_logo.jpg','2026-11-14'),false);
+  assert.equal(festivalArtworkMatchesEdition('https://cdn.test/Helldorado_2026.jpg','2026-11-14'),true);
+  assert.equal(festivalArtworkMatchesEdition('https://cdn.test/poster.jpg','2026-11-14'),true);
+  assert.equal(festivalArtworkMatchesEdition('https://cdn.test/%ZZ','2026-11-14'),false);
+});
+test('edition image cache is refreshed when previous version is obsolete',async()=>{
+  const prior={editions:{[url]:{image:'https://cdn.test/Roadburn_2026.jpg',imageVersion:1,checkedAt:100000}}};
+  let fetched=0;
+  const next=await cacheFestivalImages([{isFestival:true,sourceUrl:url,date:'2027-04-15'}],prior,{
+    now:100001,pause:async()=>{},fetcher:async()=>{fetched++;return html('<meta property="og:image" content="/img/upload/Roadburn_2027.jpg">');}
+  });
+  assert.equal(fetched,1);assert.equal(next.editions[url].imageVersion,2);
+  assert.equal(next.editions[url].image,'https://www.festivalinfo.nl/img/upload/Roadburn_2027.jpg');
+});
+test('app rejects a wrong-year fallback even when an old planned record still holds it',()=>{
+  const item={isFestival:true,artist:'Roadburn',date:'2027-04-15',sourceUrl:'https://example.com/other',image:'https://cdn.test/Roadburn_2026_logo.jpg'};
+  assert.equal(ctx.imageFor(item),null);
+  assert.equal(ctx.imageFor({...item,image:'https://cdn.test/Roadburn_2027_logo.jpg'}),'https://cdn.test/Roadburn_2027_logo.jpg');
 });
