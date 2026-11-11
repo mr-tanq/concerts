@@ -27,7 +27,7 @@ jobs:
       - run: npm install
 
       - name: Validate festival discovery
-        run: node --test scripts/festival-discovery.test.mjs scripts/festival-images.test.mjs scripts/going-season.test.mjs
+        run: node --test scripts/festival-discovery.test.mjs scripts/festival-images.test.mjs scripts/going-season.test.mjs scripts/festival-revisit.test.mjs
 
       - name: Run discovery script
         env:
