@@ -35,6 +35,8 @@
 
 import { concertSearchEnd } from '../js/concert-search-window.js';
 import { discoverFestivals,watchedFestivalUrls } from './sources/festivalinfo.mjs';
+import {discoverOfficialFestivals} from './sources/official-festivals.mjs';
+import {mergeOfficialFestivalEvents} from './lib/merge-official-festivals.mjs';
 import {festivalLineupRevisit,sameFestivalUpdate} from '../js/festival-revisit-model.js';
 import { readFile, writeFile, rename } from "node:fs/promises";
 import path from "node:path";
@@ -81,6 +83,8 @@ if (!DAY_CACHE.entries) DAY_CACHE.entries = {};
 let CONCERT_CACHE = await loadJsonSafe(CONCERT_CACHE_PATH, { entries: {} });
 if (!CONCERT_CACHE.entries) CONCERT_CACHE.entries = {};
 const FESTIVAL_CACHE = await loadJsonSafe(FESTIVAL_CACHE_PATH, {months:{},editions:{}});
+const OFFICIAL_FESTIVAL_CACHE_PATH=path.join(ROOT,'data/official-festival-cache.json');
+const OFFICIAL_FESTIVAL_CACHE=await loadJsonSafe(OFFICIAL_FESTIVAL_CACHE_PATH,{version:1,editions:{}});
 const EXISTING_RECS = await loadJsonSafe(RECS_PATH, { concerts: [] });
 
 const FORCE_REFRESH = process.env.FORCE_REFRESH_DAYS === "true";
@@ -531,6 +535,29 @@ async function main() {
   if(festivalIncomplete)status="DEGRADED";
   console.log(`Festivalinfo: ${events.filter(e=>e.isFestival).length} matching editions; ${JSON.stringify(festivalStats)}`);
 
+  // Independent, fixed-edition official sources: verify the organiser's
+  // year/date evidence and published band links before using their lineup.
+  // Keep historical Festivalinfo IDs so previous Pass/Going actions survive.
+  let officialStats={sources:0,verified:0,reused:0,failed:0,published:0};
+  try{
+    const official=await discoverOfficialFestivals({
+      trackedArtistNames,startDate:today,endDate:lookaheadEnd,
+      countries:[...new Set([...(CONFIG.location.searchCountries||[]),
+        ...(CONFIG.location.highScoreSearchCountries||[])])],
+      cache:OFFICIAL_FESTIVAL_CACHE
+    });
+    officialStats=official.stats;
+    const combined=mergeOfficialFestivalEvents(events,official.events,FESTIVAL_CACHE);
+    events=combined.events;
+    officialStats.merge=combined.stats;
+  }catch(error){
+    officialStats.failed++;
+    console.warn('Official festival source unavailable:',error.message);
+  }
+  if(officialStats.failed)status="DEGRADED";
+  await writeJsonAtomic(OFFICIAL_FESTIVAL_CACHE_PATH,OFFICIAL_FESTIVAL_CACHE);
+  console.log('Official festivals:',JSON.stringify(officialStats));
+
   // --- Build recommendations: exactly one per concert id ---
   const excludedIds = new Set([...(HISTORY.dismissedIds || []), ...(HISTORY.plannedIds || [])]);
   const previousDismissals=new Map((HISTORY.dismissed||[]).map(d=>[d.id,d]));
@@ -610,7 +637,8 @@ async function main() {
       isFestival: !!event.isFestival,
       image: event.image,
       ticketUrl: event.ticketUrl || null,
-      sourceApis: [event.source || "podiuminfo"],
+      sourceApis: event.sourceApis || [event.source || "podiuminfo"],
+      ...(event.officialUrl?{officialUrl:event.officialUrl}:{}),
       sourceUrl: event.url,
       match,
       ...(revisit?{festivalUpdate:revisit}:{}),
@@ -652,7 +680,7 @@ async function main() {
       generatedBy: "discover-concerts.mjs",
       runStatus: status,
       crawl: stats,
-      festivals: {...festivalStats,revisited:results.filter(r=>r.festivalUpdate).length},
+      festivals: {...festivalStats,revisited:results.filter(r=>r.festivalUpdate).length,official:officialStats},
     },
     concerts: results,
   };

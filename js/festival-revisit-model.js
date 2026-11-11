@@ -1,12 +1,13 @@
 // A festival can return to Deciding only after a *new* confirmed artist
 // is added to its lineup since the user's last Pass. "Liked" means an artist
 // with real listening history, not a similar-artist suggestion.
+const supportedSource=s=>['festivalinfo','officialfestival'].includes(s);
 const key=value=>String(value||'').normalize('NFKD')
   .replace(/\p{M}/gu,'').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim();
 
 export function festivalLineupRevisit(event,dismissed,signalByName,minPlaycount=5) {
-  if(event?.isFestival!==true||event.source!=='festivalinfo'
-    ||!event.concertId||!dismissed || dismissed.source!=='festivalinfo'
+  if(event?.isFestival!==true||!supportedSource(event.source)
+    ||!event.concertId||!dismissed || dismissed.source!==event.source
     ||String(dismissed.sourceId)!==String(event.concertId)
     ||!dismissed.dismissedAt || !Number.isFinite(Date.parse(dismissed.dismissedAt))
     ||!Array.isArray(event.lineup)||!Array.isArray(dismissed.lineup)
@@ -33,7 +34,7 @@ export function festivalLineupRevisit(event,dismissed,signalByName,minPlaycount=
 // Defense in depth: old cached recommendation files must not bypass a new Pass.
 // The latest dismissal snapshot always wins. No resurface if already planned.
 export function canShowFestivalRevisit(rec,history) {
-  if(rec?.isFestival!==true||rec.source!=='festivalinfo'
+  if(rec?.isFestival!==true||!supportedSource(rec.source)
     ||rec.festivalUpdate?.kind!=='new-liked-artist'
     ||!Array.isArray(rec.festivalUpdate.newMatchingArtists)
     ||!rec.festivalUpdate.newMatchingArtists.length
