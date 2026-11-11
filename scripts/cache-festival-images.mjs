@@ -1,7 +1,7 @@
 import {readFile,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
-import {fetchFestivalPage,parseFestivalEvents,festivalURL,watchedFestivalUrls} from './sources/festivalinfo.mjs';
+import {fetchFestivalPage,parseFestivalEvents,festivalURL} from './sources/festivalinfo.mjs';
 const ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 export async function cacheFestivalImages(records,previous={editions:{}},{fetcher=fetchFestivalPage,now=Date.now(),pause=()=>new Promise(r=>setTimeout(r,1000))}={}) {
   const editions={...previous.editions},wanted=new Map();
