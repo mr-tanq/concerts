@@ -9,7 +9,9 @@ export function festivalArtworkMatchesEdition(raw, date) {
     url=new URL(raw);
     if(url.protocol!=='https:'||url.username||url.password)return false;
   }catch{return false;}
-  const filename=decodeURIComponent(url.pathname.split('/').at(-1)||'');
+  let filename;
+  try { filename=decodeURIComponent(url.pathname.split('/').at(-1)||''); }
+  catch { return false; }
   const years=[...filename.matchAll(/(?:^|[^\d])(20\d{2})(?!\d)/g)].map(m=>m[1]);
   return !years.length||years.every(y=>y===year);
 }
