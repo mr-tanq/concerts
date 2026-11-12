@@ -119,7 +119,7 @@ export function scheduleMarkup(concert) {
   const rows = row("DOORS", s?.doors, "", "doors")
     + support.map(f => row(f.name || "SUPPORT", f, "SUPPORT", "support")).join("")
     + mainRows
-    + row("END", s?.end, "", "end");
+    + (s?.end?.time || !segments.length ? row("END", s?.end, "", "end") : "");
   const sources = [...new Map((s?.sources || []).filter(x => safeURL(x.url)).map(x => [x.url, x])).values()];
   let checked = "Not checked yet";
   if (Number.isFinite(Date.parse(s?.lastCheckedAt))) checked = `Checked ${new Intl.DateTimeFormat("en-GB", { timeZone: s.timeZone || "Europe/Amsterdam", day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit" }).format(new Date(s.lastCheckedAt))}`;
