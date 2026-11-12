@@ -88,3 +88,21 @@ test('013 wrong event identity and other publisher conflicts are not relaxed',()
   const malformed={...merged(),main:{...merged().main,sets:[{time:'21:00',endTime:'21:55'},{time:'20:00',endTime:'22:50'}]}};
   assert.equal((scheduleMarkup({...c,schedule:malformed}).match(/data-schedule-kind="main"/g)||[]).length,1);
 });
+
+test('013 café opening before hall doors is not a support act and does not erase times',()=>{
+  const show={...c,artist:'Nordic Giants',date:'2026-11-12',venue:'Little Devil'};
+  const html=`<main><h1>Nordic Giants</h1><time datetime="2026-11-12">do 12 nov 2026</time>
+    <div><div class="ribbon_basic">Tijden</div><ul>
+      ${row('17:00','Café Open')}
+      ${row('19:15','Zaal Open')}
+      ${row('19:45 - 20:30','L.O.E.')}
+      ${row('21:00 - 22:00','Nordic Giants')}
+    </ul></div></main>`;
+  const result=parseSchedule(html,show,'https://www.013.nl/programma/141473/nordic-giants','official',stamp);
+  assert.ok(result);
+  const s=mergeSchedule(show,[result],stamp,'manual');
+  assert.equal(s.doors.time,'19:15');
+  assert.equal(s.main.time,'21:00');
+  assert.equal(s.end.time,'22:00');
+  assert.deepEqual(s.support.map(x=>[x.name,x.time]),[['L.O.E.','19:45']]);
+});
