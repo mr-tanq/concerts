@@ -399,7 +399,7 @@ export function mergeSchedule(concert, results, now, phase) {
   };
   const names = [...new Map([
     ...(concert.supportingArtists || []),
-    ...(old.support || []).map(f=>f.name),
+    ...(old.support || []).filter(f=>!results.some(r=>r.source.url===f.sourceUrl)).map(f=>f.name),
     ...results.flatMap(r=>r.supportNames),
     ...[...selected].filter(([k])=>k.startsWith("support:")).map(([,f])=>f.name)
   ].map(name => [normalize(name), supportName(name)])).values()];
