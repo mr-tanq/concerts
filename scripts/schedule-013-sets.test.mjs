@@ -105,4 +105,10 @@ test('013 café opening before hall doors is not a support act and does not eras
   assert.equal(s.main.time,'21:00');
   assert.equal(s.end.time,'22:00');
   assert.deepEqual(s.support.map(x=>[x.name,x.time]),[['L.O.E.','19:45']]);
+  const old={...show,schedule:{...s,support:[{name:'Café Open',time:null,sourceUrl:'https://www.013.nl/programma/141473/nordic-giants'},...s.support]}};
+  const refreshed=mergeSchedule(old,[result],stamp,'manual');
+  assert.deepEqual(refreshed.support.map(x=>x.name),['L.O.E.']);
+  const markup=scheduleMarkup({...show,schedule:{...refreshed,end:{name:'END',time:null}}});
+  assert.ok(!markup.includes('Café Open'));
+  assert.ok(!markup.includes('>END<'));
 });
