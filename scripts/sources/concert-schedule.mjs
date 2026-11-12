@@ -176,6 +176,10 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
       label=supportName(namedSupport); supportNames.push(label);
     }
     const n = normalize(label);
+    // Venue hospitality/opening rows are not performers. In particular, a café
+    // opening before hall doors must never enter the support timeline and cause
+    // the chronological validation to discard every confirmed show time.
+    if (/^(cafe|café|bar|foyer|restaurant|kassa|box office)( open| opens| opening)?$/.test(n)) return;
     if (/^(doors?( open)?|deur(?:en)?( open)?|zaal open|hall open|opening doors)$/.test(n)) set("doors", "DOORS", ts[0], evidence);
     else if (/^(start|aanvang|show start|start show|aanvang show|start of event|start programma|programme start|program start|start programma|aanvang programma)$/.test(n)) set("start", "PROGRAMME START", ts[0], evidence);
     else if (/^(end|einde|eindtijd|expected end|verwacht einde|verwachte eindtijd|show ends?)$/.test(n)) set("end", "END", ts[0], evidence);
