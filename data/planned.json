@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-11-12T17:06:36.088Z",
+    "lastUpdated": "2026-11-12T17:14:10.354Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -3443,13 +3443,14 @@
         "timeZone": "Europe/Amsterdam",
         "doors": {
           "name": "DOORS",
-          "time": null,
+          "time": "19:15",
           "dayOffset": 0,
           "status": "confirmed",
           "sourceUrl": "https://www.013.nl/programma/141473/nordic-giants",
           "sourceKind": "official",
-          "checkedAt": "2026-11-12T17:06:34.410Z",
-          "evidence": "19:15 Zaal Open"
+          "checkedAt": "2026-11-12T17:14:08.698Z",
+          "evidence": "19:15 Zaal Open",
+          "at": "2026-11-12T18:15:00.000Z"
         },
         "start": {
           "name": "PROGRAMME START",
@@ -3457,36 +3458,31 @@
         },
         "support": [
           {
-            "name": "Café Open",
-            "time": null,
-            "dayOffset": 0,
-            "status": "confirmed",
-            "sourceUrl": "https://www.013.nl/programma/141473/nordic-giants",
-            "sourceKind": "official",
-            "checkedAt": "2026-11-12T17:06:34.410Z",
-            "evidence": "17:00 Café Open"
-          },
-          {
             "name": "L.O.E.",
-            "time": null,
+            "time": "19:45",
             "dayOffset": 0,
             "status": "confirmed",
             "sourceUrl": "https://www.013.nl/programma/141473/nordic-giants",
             "sourceKind": "official",
-            "checkedAt": "2026-11-12T17:06:34.410Z",
+            "checkedAt": "2026-11-12T17:14:08.698Z",
             "evidence": "19:45 - 20:30 L.O.E.",
             "endTime": "20:30",
-            "endDayOffset": 0
+            "endDayOffset": 0,
+            "at": "2026-11-12T18:45:00.000Z"
+          },
+          {
+            "name": "Café Open",
+            "time": null
           }
         ],
         "main": {
           "name": "Nordic Giants",
-          "time": null,
+          "time": "21:00",
           "dayOffset": 0,
           "status": "confirmed",
           "sourceUrl": "https://www.013.nl/programma/141473/nordic-giants",
           "sourceKind": "official",
-          "checkedAt": "2026-11-12T17:06:34.410Z",
+          "checkedAt": "2026-11-12T17:14:08.698Z",
           "evidence": "21:00 - 22:00 Nordic Giants",
           "sets": [
             {
@@ -3496,13 +3492,14 @@
               "status": "confirmed",
               "sourceUrl": "https://www.013.nl/programma/141473/nordic-giants",
               "sourceKind": "official",
-              "checkedAt": "2026-11-12T17:06:34.410Z",
+              "checkedAt": "2026-11-12T17:14:08.698Z",
               "evidence": "21:00 - 22:00 Nordic Giants",
               "endTime": "22:00",
               "endDayOffset": 0
             }
           ],
-          "breaks": []
+          "breaks": [],
+          "at": "2026-11-12T20:00:00.000Z"
         },
         "end": {
           "name": "END",
@@ -3513,26 +3510,26 @@
             "url": "https://www.podiuminfo.nl/concert/480758/Nordic-Giants/Little-Devil/",
             "kind": "secondary",
             "label": "podiuminfo.nl",
-            "checkedAt": "2026-11-12T17:06:34.410Z"
+            "checkedAt": "2026-11-12T17:14:08.698Z"
           },
           {
             "url": "https://www.013.nl/programma/141473/nordic-giants",
             "kind": "official",
             "label": "013.nl",
-            "checkedAt": "2026-11-12T17:06:34.410Z"
+            "checkedAt": "2026-11-12T17:14:08.698Z"
           }
         ],
-        "lastCheckedAt": "2026-11-12T17:06:34.410Z",
-        "lastAttemptAt": "2026-11-12T17:06:34.410Z",
+        "lastCheckedAt": "2026-11-12T17:14:08.698Z",
+        "lastAttemptAt": "2026-11-12T17:14:08.698Z",
         "checks": {
-          "manual": "2026-11-12T17:06:34.410Z",
+          "manual": "2026-11-12T17:14:08.698Z",
           "before48h": "2026-11-10T21:47:52.034Z",
           "sameDay": "2026-11-12T13:17:12.475Z"
         },
         "lastError": null,
         "noSupport": null,
         "refreshRequestedAt": "2026-11-12T17:13:53.767Z",
-        "lastOfficialCheckedAt": "2026-11-12T17:06:34.410Z",
+        "lastOfficialCheckedAt": "2026-11-12T17:14:08.698Z",
         "checkStatus": "official",
         "discovery": {
           "version": 2,
