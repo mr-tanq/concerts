@@ -57,6 +57,7 @@ export async function checkConcert(c, old, request, now = new Date(), selectedEv
   const stamp = now.toISOString();
   const same = old?.identity === identity(c);
   let event = same ? old.event : null;
+  let phase = 'selection';
 
   try {
     if (selectedEventId) {
@@ -79,7 +80,9 @@ export async function checkConcert(c, old, request, now = new Date(), selectedEv
     }
 
     if (!event) {
+      phase = 'search';
       const search = await request('search_events', { query: c.artist });
+      phase = 'matching';
       const resolution = resolveTicketSwap(c, search.results, search.page_info);
       const found = resolution.event;
 
@@ -127,6 +130,7 @@ export async function checkConcert(c, old, request, now = new Date(), selectedEv
       };
     }
 
+    phase = 'listings';
     const data = await request('get_event_listings', {
       event_id: event.id,
       listing_status: 'AVAILABLE',
@@ -134,6 +138,7 @@ export async function checkConcert(c, old, request, now = new Date(), selectedEv
       limit: 30
     });
 
+    phase = 'validation';
     if (data.event_id !== event.id) throw new Error('Wrong event');
 
     return {
@@ -143,7 +148,8 @@ export async function checkConcert(c, old, request, now = new Date(), selectedEv
       ...summarizeListings(data),
       checkedAt: stamp,
       lastAttemptAt: stamp,
-      lastError: null
+      lastError: null,
+      errorPhase: null
     };
   } catch {
     return {
@@ -152,7 +158,15 @@ export async function checkConcert(c, old, request, now = new Date(), selectedEv
       ...(event ? { event } : {}),
       status: 'error',
       lastAttemptAt: stamp,
-      lastError: 'TicketSwap check failed'
+      // These are fixed, non-secret labels; never store provider errors or credentials.
+      errorPhase: phase,
+      lastError: ({
+        selection: 'Invalid saved event selection',
+        search: 'TicketSwap event search failed',
+        matching: 'TicketSwap event matching failed',
+        listings: 'TicketSwap listing request failed',
+        validation: 'TicketSwap listings response invalid'
+      })[phase] || 'TicketSwap check failed'
     };
   }
 }
