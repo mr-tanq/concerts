@@ -141,7 +141,14 @@ async function renderTicketSwap(host, concert) {
     if (entry.status === 'error') {
       const error = document.createElement('p');
       error.className = 'footnote';
-      error.textContent = 'Latest check failed.';
+      const reasons = {
+        selection: 'The saved TicketSwap event selection was invalid.',
+        search: 'The TicketSwap event search failed. Please retry later.',
+        matching: 'TicketSwap could not process the event search results.',
+        listings: 'TicketSwap could not load listings for this event.',
+        validation: 'TicketSwap returned an invalid listings response.'
+      };
+      error.textContent = reasons[entry.errorPhase] || 'Latest check failed.';
       section.append(error);
     }
 
