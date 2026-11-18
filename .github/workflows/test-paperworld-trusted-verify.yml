@@ -1,0 +1,29 @@
+name: Paperworld trusted verifier pre-merge tests
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.paperworld/**'
+      - '.github/workflows/paperworld-verify.yml'
+      - '.github/workflows/test-paperworld-trusted-verify.yml'
+permissions:
+  contents: read
+jobs:
+  test-trusted-runner:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run trusted named tests
+        run: bash .paperworld/run-tests.sh . /tmp/paperworld-tests.tsv
+      - name: Validate attestation gate
+        env:
+          SOURCE_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          node .paperworld/gate.cjs .paperworld/project.json /tmp/paperworld-tests.tsv '["festival_revisit","festival_discovery","identity_profile","setlist_resolver"]' "$SOURCE_SHA" 11111111-1111-4111-8111-111111111111 > /tmp/result.json
+          node -e "const p=require('/tmp/result.json');if(p.required_tests.length!==4)process.exit(1)"
