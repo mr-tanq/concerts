@@ -1,5 +1,7 @@
 import { attachTicketSwapCheck } from './ticketswap-check.js?v=universal-ticket-match-20261015';
 let snapshotPromise;
+let snapshotFetchedAt = 0;
+const snapshotCacheMs = 60000;
 
 const identity = c => JSON.stringify([
   c.artist, c.date, c.venue, c.city, c.country
@@ -21,15 +23,19 @@ async function renderTicketSwap(host, concert) {
   if (!host) return;
 
   try {
-    snapshotPromise ||= fetch('data/ticketswap.json', { cache: 'no-store' })
-      .then(r => {
-        if (!r.ok) throw new Error('Snapshot unavailable');
-        return r.json();
-      })
-      .catch(e => {
-        snapshotPromise = null;
-        throw e;
-      });
+    if (!snapshotPromise || Date.now() - snapshotFetchedAt >= snapshotCacheMs) {
+      snapshotFetchedAt = Date.now();
+      snapshotPromise = fetch('data/ticketswap.json', { cache: 'no-store' })
+        .then(r => {
+          if (!r.ok) throw new Error('Snapshot unavailable');
+          return r.json();
+        })
+        .catch(e => {
+          snapshotPromise = null;
+          snapshotFetchedAt = 0;
+          throw e;
+        });
+    }
 
     const data = await snapshotPromise;
     if (!host.isConnected) return;
@@ -107,6 +113,7 @@ async function renderTicketSwap(host, concert) {
 
           attachTicketSwapCheck(choice, concert, async updated => {
             snapshotPromise = Promise.resolve(updated);
+            snapshotFetchedAt = Date.now();
             await renderTicketSwap(host, concert);
           }, {
             selectedEventId: candidate.id,
@@ -184,6 +191,7 @@ export function mountTicketSwap(host, concert) {
 
   attachTicketSwapCheck(controls, concert, async data => {
     snapshotPromise = Promise.resolve(data);
+    snapshotFetchedAt = Date.now();
     results.replaceChildren();
     await renderTicketSwap(results, concert);
   });
