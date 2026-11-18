@@ -7,6 +7,30 @@ const identity = c => JSON.stringify([
   c.artist, c.date, c.venue, c.city, c.country
 ]);
 
+const words = value => String(value ?? '')
+  .normalize('NFKD')
+  .replace(/\p{M}/gu, '')
+  .toLowerCase()
+  .replace(/&/g, ' and ')
+  .replace(/[^\p{L}\p{N}]+/gu, ' ')
+  .trim()
+  .split(/\s+/)
+  .filter(Boolean);
+
+function matchesConcert(concert, candidate) {
+  const artist = words(concert.artist);
+  const title = words(candidate.name);
+  const city = words(concert.city).join('');
+
+  return candidate.date === concert.date
+    && city !== ''
+    && words(candidate.city).join('') === city
+    && artist.length > 0
+    && title.some((_, i) =>
+      artist.every((word, j) => title[i + j] === word)
+    );
+}
+
 function safeURL(value) {
   try {
     const u = new URL(value);
@@ -94,6 +118,7 @@ async function renderTicketSwap(host, concert) {
 
     if (entry.status === 'needs-review') {
       for (const candidate of entry.matchCandidates || []) {
+        if (!matchesConcert(concert, candidate)) continue;
         const candidateURL = safeURL(candidate.url);
         if (!candidateURL) continue;
 
