@@ -1,0 +1,28 @@
+{
+  "schema": "paperworld-project-v1",
+  "projectId": "listening",
+  "directorId": "listening-director",
+  "repository": "mr-tanq/concerts",
+  "allowedPaths": [
+    "js/",
+    "css/",
+    "scripts/",
+    "tests/",
+    "workers/",
+    "server/"
+  ],
+  "protectedPaths": [
+    ".github/",
+    ".paperworld/",
+    "node_modules/",
+    "package.json",
+    "package-lock.json"
+  ],
+  "requiredTestIds": [
+    "festival_revisit",
+    "festival_discovery",
+    "identity_profile",
+    "setlist_resolver"
+  ],
+  "maxFiles": 10
+}
