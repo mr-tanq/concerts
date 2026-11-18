@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-11-17T18:34:42.793Z",
+    "lastUpdated": "2026-11-18T00:18:53.948Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -1143,124 +1143,6 @@
       "planning": {
         "plannedAt": "2026-08-17T19:41:33.797Z",
         "originalScore": 45
-      }
-    },
-    {
-      "id": "planned-podiuminfo-490609",
-      "source": "podiuminfo",
-      "sourceId": "490609",
-      "artist": "PRO-PAIN",
-      "lineup": [
-        "PRO-PAIN"
-      ],
-      "supportingArtists": [],
-      "date": "2026-11-17",
-      "time": null,
-      "venue": "dB's",
-      "city": "Utrecht",
-      "country": "NL",
-      "isFestival": false,
-      "image": "https://www.festivalinfo.nl/img/review/small/6002/l976bb4cg7kh3s62w6.jpg",
-      "ticketUrl": null,
-      "sourceUrl": "https://www.podiuminfo.nl/concert/490609/PRO-PAIN/dBs/",
-      "recommendationId": "rec-podiuminfo-490609",
-      "planning": {
-        "plannedAt": "2026-08-20T08:30:57.631Z",
-        "originalScore": 45
-      },
-      "practical": {
-        "ticketBought": true
-      },
-      "schedule": {
-        "version": 1,
-        "date": "2026-11-17",
-        "timeZone": "Europe/Amsterdam",
-        "doors": {
-          "name": "DOORS",
-          "time": null
-        },
-        "start": {
-          "name": "PROGRAMME START",
-          "time": "20:00",
-          "dayOffset": 0,
-          "status": "confirmed",
-          "sourceUrl": "https://dbstudio.nl/event/pro-pain-usa-legends/",
-          "sourceKind": "official",
-          "checkedAt": "2026-11-17T18:34:40.244Z",
-          "evidence": "Aanvang 20:00 uur",
-          "unassigned": true,
-          "at": "2026-11-17T19:00:00.000Z"
-        },
-        "support": [
-          {
-            "name": "Dyslekt",
-            "time": null
-          }
-        ],
-        "main": {
-          "name": "PRO-PAIN",
-          "time": null
-        },
-        "end": {
-          "name": "END",
-          "time": "23:00",
-          "dayOffset": 0,
-          "status": "confirmed",
-          "sourceUrl": "https://dbstudio.nl/event/pro-pain-usa-legends/",
-          "sourceKind": "official",
-          "checkedAt": "2026-11-17T18:34:40.244Z",
-          "evidence": "endDate: 2026-11-17T23:00:00+01:00",
-          "at": "2026-11-17T22:00:00.000Z"
-        },
-        "sources": [
-          {
-            "url": "https://www.podiuminfo.nl/concert/490609/PRO-PAIN/dBs/",
-            "kind": "secondary",
-            "label": "podiuminfo.nl",
-            "checkedAt": "2026-11-17T18:34:40.244Z"
-          },
-          {
-            "url": "https://dbstudio.nl/event/pro-pain-usa-legends/",
-            "kind": "official",
-            "label": "dbstudio.nl",
-            "checkedAt": "2026-11-17T18:34:40.244Z"
-          }
-        ],
-        "lastCheckedAt": "2026-11-17T18:34:40.244Z",
-        "lastAttemptAt": "2026-11-17T18:34:40.244Z",
-        "checks": {
-          "manual": "2026-10-26T20:02:35.460Z",
-          "before48h": "2026-11-15T20:35:19.925Z",
-          "before24h": "2026-11-16T21:39:37.524Z",
-          "sameDay": "2026-11-17T18:34:40.244Z"
-        },
-        "lastError": null,
-        "noSupport": null,
-        "refreshRequestedAt": "2026-10-26T20:01:49.148Z",
-        "lastOfficialCheckedAt": "2026-11-17T18:34:40.244Z",
-        "checkStatus": "official",
-        "discovery": {
-          "version": 2,
-          "attempts": [
-            {
-              "url": "https://www.podiuminfo.nl/concert/490609/PRO-PAIN/dBs/",
-              "status": "fetched"
-            },
-            {
-              "url": "https://dbstudio.nl/event/pro-pain-usa-legends/",
-              "status": "fetched"
-            },
-            {
-              "url": "https://dbstudio.nl/event/pro-pain-usa-legends/",
-              "status": "verified"
-            }
-          ],
-          "configured": [
-            "dbstudio.nl"
-          ],
-          "requests": 2
-        },
-        "availability": "published"
       }
     },
     {
