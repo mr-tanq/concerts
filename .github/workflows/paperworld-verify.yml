@@ -1,0 +1,65 @@
+name: Paperworld trusted verify
+run-name: paperworld-verify ${{ inputs.commit_sha }} ${{ inputs.mission }}
+on:
+  workflow_dispatch:
+    inputs:
+      commit_sha:
+        description: Exact source commit SHA
+        required: true
+        type: string
+      mission:
+        description: Paperworld mission UUID
+        required: true
+        type: string
+      required_tests:
+        description: JSON array of approved test IDs
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Validate immutable source commit
+        env:
+          SHA: ${{ inputs.commit_sha }}
+          MISSION: ${{ inputs.mission }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$SHA" =~ ^[a-fA-F0-9]{40}$ ]]
+          [[ "$MISSION" =~ ^[a-fA-F0-9-]{36}$ ]]
+      - name: Checkout trusted verifier from main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: trusted
+          persist-credentials: false
+      - name: Checkout immutable source to test
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.commit_sha }}
+          path: work
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Execute trusted regression suite
+        shell: bash
+        run: bash trusted/.paperworld/run-tests.sh work trusted-tests.tsv
+      - name: Gate required test IDs and write attestation
+        env:
+          REQUIRED: ${{ inputs.required_tests }}
+          SOURCE_SHA: ${{ inputs.commit_sha }}
+          MISSION: ${{ inputs.mission }}
+        shell: bash
+        run: |
+          node trusted/.paperworld/gate.cjs trusted/.paperworld/project.json trusted-tests.tsv "$REQUIRED" "$SOURCE_SHA" "$MISSION" > paperworld-result.json
+      - name: Save trusted result
+        uses: actions/upload-artifact@v4
+        with:
+          name: paperworld-result
+          path: paperworld-result.json
+          if-no-files-found: error
