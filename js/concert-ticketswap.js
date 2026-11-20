@@ -1,9 +1,35 @@
 import { attachTicketSwapCheck } from './ticketswap-check.js?v=universal-ticket-match-20261015';
 let snapshotPromise;
+let snapshotFetchedAt = 0;
+const snapshotCacheMs = 60000;
 
 const identity = c => JSON.stringify([
   c.artist, c.date, c.venue, c.city, c.country
 ]);
+
+const words = value => String(value ?? '')
+  .normalize('NFKD')
+  .replace(/\p{M}/gu, '')
+  .toLowerCase()
+  .replace(/&/g, ' and ')
+  .replace(/[^\p{L}\p{N}]+/gu, ' ')
+  .trim()
+  .split(/\s+/)
+  .filter(Boolean);
+
+function matchesConcert(concert, candidate) {
+  const artist = words(concert.artist);
+  const title = words(candidate.name);
+  const city = words(concert.city).join('');
+
+  return candidate.date === concert.date
+    && city !== ''
+    && words(candidate.city).join('') === city
+    && artist.length > 0
+    && title.some((_, i) =>
+      artist.every((word, j) => title[i + j] === word)
+    );
+}
 
 function safeURL(value) {
   try {
@@ -21,15 +47,19 @@ async function renderTicketSwap(host, concert) {
   if (!host) return;
 
   try {
-    snapshotPromise ||= fetch('data/ticketswap.json', { cache: 'no-store' })
-      .then(r => {
-        if (!r.ok) throw new Error('Snapshot unavailable');
-        return r.json();
-      })
-      .catch(e => {
-        snapshotPromise = null;
-        throw e;
-      });
+    if (!snapshotPromise || Date.now() - snapshotFetchedAt >= snapshotCacheMs) {
+      snapshotFetchedAt = Date.now();
+      snapshotPromise = fetch('data/ticketswap.json', { cache: 'no-store' })
+        .then(r => {
+          if (!r.ok) throw new Error('Snapshot unavailable');
+          return r.json();
+        })
+        .catch(e => {
+          snapshotPromise = null;
+          snapshotFetchedAt = 0;
+          throw e;
+        });
+    }
 
     const data = await snapshotPromise;
     if (!host.isConnected) return;
@@ -88,6 +118,7 @@ async function renderTicketSwap(host, concert) {
 
     if (entry.status === 'needs-review') {
       for (const candidate of entry.matchCandidates || []) {
+        if (!matchesConcert(concert, candidate)) continue;
         const candidateURL = safeURL(candidate.url);
         if (!candidateURL) continue;
 
@@ -107,6 +138,7 @@ async function renderTicketSwap(host, concert) {
 
           attachTicketSwapCheck(choice, concert, async updated => {
             snapshotPromise = Promise.resolve(updated);
+            snapshotFetchedAt = Date.now();
             await renderTicketSwap(host, concert);
           }, {
             selectedEventId: candidate.id,
@@ -184,6 +216,7 @@ export function mountTicketSwap(host, concert) {
 
   attachTicketSwapCheck(controls, concert, async data => {
     snapshotPromise = Promise.resolve(data);
+    snapshotFetchedAt = Date.now();
     results.replaceChildren();
     await renderTicketSwap(results, concert);
   });
