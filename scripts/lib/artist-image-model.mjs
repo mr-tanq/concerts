@@ -25,3 +25,7 @@ export function usableArtistPhoto(value) {
   try { return new URL(value).protocol === 'https:' ? value : null; }
   catch { return null; }
 }
+
+export function shouldPersistArtistImages(found, missed) {
+  return found > 0 || missed > 0;
+}

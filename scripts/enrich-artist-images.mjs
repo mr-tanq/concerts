@@ -23,7 +23,7 @@
 
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { collectArtistImageNames, usableArtistPhoto } from "./lib/artist-image-model.mjs";
+import { collectArtistImageNames, shouldPersistArtistImages, usableArtistPhoto } from "./lib/artist-image-model.mjs";
 
 const ROOT = path.resolve(new URL(".", import.meta.url).pathname, "..");
 const OUT = path.join(ROOT, "data/artist-images.json");
@@ -142,17 +142,20 @@ for (const [key, display] of todo) {
   }
 }
 
-const output = {
-  $schema: "Listening Mirror Artist Images v1",
-  meta: {
-    lastUpdated: new Date().toISOString(),
-    totalArtists: Object.keys(store).length,
-    withImage: Object.values(store).filter((a) => a.image).length,
-  },
-  artists: store,
-};
-
-await writeFile(OUT, JSON.stringify(output, null, 2) + "\n");
+const totalArtists = Object.keys(store).length;
+const withImage = Object.values(store).filter((a) => a.image).length;
+if (shouldPersistArtistImages(found, missed)) {
+  const output = {
+    $schema: "Listening Mirror Artist Images v1",
+    meta: {
+      lastUpdated: new Date().toISOString(),
+      totalArtists,
+      withImage,
+    },
+    artists: store,
+  };
+  await writeFile(OUT, JSON.stringify(output, null, 2) + "\n");
+}
 
 console.log(`Found ${found}, no exact match ${missed}, errors ${failed}.`);
-console.log(`data/artist-images.json now has ${output.meta.withImage}/${output.meta.totalArtists} artists with a photo.`);
+console.log(`data/artist-images.json now has ${withImage}/${totalArtists} artists with a photo.`);
