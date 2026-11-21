@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {collectArtistImageNames,usableArtistPhoto} from './lib/artist-image-model.mjs';
+import {collectArtistImageNames,shouldPersistArtistImages,usableArtistPhoto} from './lib/artist-image-model.mjs';
 
 test('collects headliner, lineup, separate supports and timetable-only supports together',()=>{
   const c={artist:'Placebo',date:'2026-10-27',lineup:['Placebo'],supportingArtists:['Guest Band'],
@@ -20,4 +20,10 @@ test('placeholder artwork is not accepted as an artist photo',()=>{
   assert.equal(usableArtistPhoto('https://cdn-images.dzcdn.net/images/artist/e23066163f21176a822b54001ee648a2/1000.jpg'),null);
   assert.equal(usableArtistPhoto('javascript:alert(1)'),null);
   assert.equal(usableArtistPhoto('https://images.example.com/artist.jpg'),'https://images.example.com/artist.jpg');
+});
+
+test('only persists artist images when a lookup updated the store',()=>{
+  assert.equal(shouldPersistArtistImages(0,0),false);
+  assert.equal(shouldPersistArtistImages(1,0),true);
+  assert.equal(shouldPersistArtistImages(0,1),true);
 });
