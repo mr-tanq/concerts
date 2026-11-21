@@ -28,7 +28,11 @@ export function searchLocation(value) {
 const cityAliases = new Map(Object.entries({athens:'athens',athina:'athens',αθηνα:'athens',thessaloniki:'thessaloniki',θεσσαλονικη:'thessaloniki',patras:'patras',patra:'patras',πατρα:'patras',piraeus:'piraeus',πειραιας:'piraeus'}));
 export function locationKey(value) { const normal=key(value);return cityAliases.get(normal) || normal; }
 export function matchesLocation(concert, scope) {
-  return (!scope.country || countryCode(concert.country)===scope.country) && (!scope.place || [concert.city,concert.venue].some(v=>locationKey(v).includes(locationKey(scope.place))));
+  if (scope.country && countryCode(concert.country)!==scope.country) return false;
+  if (!scope.place) return true;
+  const place=locationKey(scope.place);
+  if (locationKey(concert.city)) return locationKey(concert.city)===place;
+  return locationKey(concert.venue).includes(place);
 }
 // Only unambiguous venue zones used by the schedule. Countries spanning several
 // time zones need a venue-specific zone; an Amsterdam clock is never substituted.
