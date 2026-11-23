@@ -48,6 +48,14 @@ test('known venue aliases and families can be searched',()=>{
   assert.deepEqual(ids(searchArchiveConcerts(concerts,'Building')),['aliases']);
 });
 
+test('city filters match a selected city within a qualified location name',()=>{
+  const locations=[
+    {...concerts[0],city:'Utrecht Centrum'},
+    concerts[1]
+  ];
+  assert.deepEqual(ids(filterConcerts(locations,{mode:'city',value:'Utrecht'})),['utrecht']);
+});
+
 test('festival names and seen support acts are searchable',()=>{
   assert.deepEqual(ids(searchArchiveConcerts(concerts,'test festival')),['festival']);
   assert.deepEqual(ids(searchArchiveConcerts(concerts,'Hāllas Utrecht')),['utrecht']);
