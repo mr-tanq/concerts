@@ -3,7 +3,7 @@
 // array into every derived view the Archive tab needs. Keeping this in one
 // module means Overview / Signature / Milestones / Timeline / Explore all
 // read from exactly the same numbers — no drift between sections.
-import { locationKey } from "./concert-countries.js";
+import { locationKey, matchesPlace } from "./concert-countries.js";
 
 // A venue "family" groups rooms that belong to one building: De Helling and
 // Pandora are both TivoliVredenburg. Counting raw room names instead would
@@ -198,7 +198,7 @@ export function filterConcerts(concerts, { mode, value } = {}) {
       return concerts.filter((c) => actuallySeenArtistsOf(c).some((n) => artistKey(n) === artistKey(value)));
     case "city": {
       const city = locationKey(value);
-      return city ? concerts.filter((c) => locationKey(c.city).includes(city)) : concerts;
+      return city ? concerts.filter((c) => matchesPlace(c.city, city)) : concerts;
     }
     case "venue":
       return concerts.filter((c) => venueKey(c) === venueKey({ venue: value }));

@@ -24,6 +24,7 @@ test('band search finds its confirmed festival bill without substring matches',a
 });
 test('country, city, worldwide and wrong-country filters remain explicit',async()=>{
   assert.equal((await run(req('Roadburn','Tilburg'))).concerts.length,1);
+  assert.equal((await run(req('Roadburn','burg'))).concerts.length,0);
   assert.equal((await run(req('Roadburn','Netherlands'))).concerts.length,1);
   assert.equal((await run(req('Roadburn','Belgium'))).concerts.length,0);
   assert.equal((await run(req('Roadburn','Amsterdam'))).concerts.length,0);

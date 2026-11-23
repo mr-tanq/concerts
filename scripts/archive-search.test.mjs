@@ -56,6 +56,10 @@ test('city filters match a selected city within a qualified location name',()=>{
   assert.deepEqual(ids(filterConcerts(locations,{mode:'city',value:'Utrecht'})),['utrecht']);
 });
 
+test('city filters do not match a city name as an interior substring',()=>{
+  assert.deepEqual(ids(filterConcerts(concerts,{mode:'city',value:'Dam'})),[]);
+});
+
 test('festival names and seen support acts are searchable',()=>{
   assert.deepEqual(ids(searchArchiveConcerts(concerts,'test festival')),['festival']);
   assert.deepEqual(ids(searchArchiveConcerts(concerts,'Hāllas Utrecht')),['utrecht']);
