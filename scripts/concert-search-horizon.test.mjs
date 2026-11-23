@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {concertSearchEnd} from '../js/concert-search-window.js';
-import {parseOfficialEvents, searchConcerts, SEARCH_VENUES} from './sources/manual-concert-search.mjs';
+import {parseOfficialEvents, searchConcerts, SEARCH_VENUES, placeMatches} from './sources/manual-concert-search.mjs';
 import {matchesLocation, searchLocation} from '../js/concert-countries.js';
 const config = JSON.parse(await readFile(new URL('../data/config.json',import.meta.url),'utf8'));
 const venue = SEARCH_VENUES.find(v=>v[0]==='AFAS Live');
@@ -60,4 +60,8 @@ test('Belgian shows do not leak into a Netherlands-only search',()=>{
   const c={artist:'Manowar',country:'BE',city:'Antwerpen',venue:'AFAS Dome'};
   assert.equal(matchesLocation(c,searchLocation('Netherlands')),false);
   assert.equal(matchesLocation(c,searchLocation('Belgium')),true);
+});
+test('place searches require whole-word matches',()=>{
+  assert.equal(placeMatches({city:'Amsterdam',venue:'Paradiso'},'Dam'),false);
+  assert.equal(placeMatches({city:'Utrecht Centrum',venue:'TivoliVredenburg'},'Utrecht'),true);
 });
