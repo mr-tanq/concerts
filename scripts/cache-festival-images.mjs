@@ -29,6 +29,7 @@ async function main() {
     ...x.event,sourceUrl:x.event.url
   }));
   const all=[...(recs.concerts||[]),...(planned.concerts||[]),...(history.dismissed||[]),...fromCache];
+  const previous=await read('data/festival-images.json').catch(()=>({editions:{}}));
   const result=await cacheFestivalImages(all,previous);
   await writeFile(path.join(ROOT,'data/festival-images.json'),JSON.stringify(result,null,2)+'\n');
   console.log(`Festival images saved: ${Object.values(result.editions).filter(e=>e.image).length}`);
