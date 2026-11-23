@@ -196,8 +196,10 @@ export function filterConcerts(concerts, { mode, value } = {}) {
       return concerts.filter((c) => String(c.date || "").slice(0, 4) === String(value));
     case "artist":
       return concerts.filter((c) => actuallySeenArtistsOf(c).some((n) => artistKey(n) === artistKey(value)));
-    case "city":
-      return concerts.filter((c) => locationKey(c.city) === locationKey(value));
+    case "city": {
+      const city = locationKey(value);
+      return city ? concerts.filter((c) => locationKey(c.city).includes(city)) : concerts;
+    }
     case "venue":
       return concerts.filter((c) => venueKey(c) === venueKey({ venue: value }));
     default:
