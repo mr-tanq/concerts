@@ -84,4 +84,6 @@ test('artwork refresh monitors Set aside and catalog entries, not just planned s
   assert.match(script,/data\/recommendation-history\.json/);
   assert.match(script,/data\/festivalinfo-cache\.json/);
   assert.match(script,/fromCache/);
+  assert.match(script,/const previous=await read\('data\/festival-images\.json'\)\.catch\(\(\)=>\(\{editions:\{\}\}\)\);/);
+  assert.match(script,/cacheFestivalImages\(all,previous\)/);
 });
