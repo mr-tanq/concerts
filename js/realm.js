@@ -273,6 +273,11 @@ export function renderRealm(root, data, confidentlySeenKeys) {
   }
 }
 
+// "the United Kingdom", "the Netherlands" — but plain "Greece".
+function countryPhrase(name) {
+  return /^(United |Netherlands$|Czech Republic$|Philippines$|Dominican Republic$)/.test(name) ? `the ${name}` : name;
+}
+
 function buildOpening(countries, totalArtists, dominant, farthest, singleArtistCount) {
   const { el, esc } = renderDeps;
   const farApart = farthest.code !== dominant.code;
@@ -280,10 +285,9 @@ function buildOpening(countries, totalArtists, dominant, farthest, singleArtistC
     <div class="opening">
       <p class="whisper">Realm</p>
       <p class="lede">
-        ${withCommas(totalArtists)} artist${totalArtists === 1 ? "" : "s"} crossed borders before they found you, from ${countries.length} ${countries.length === 1 ? "country" : "countries"}.<br>
-        <em>Most came from ${esc(dominant.name)}.${farApart ? ` One came all the way from ${esc(farthest.name)}.` : ""}</em>
+        ${withCommas(totalArtists)} artist${totalArtists === 1 ? "" : "s"}, ${countries.length} ${countries.length === 1 ? "country" : "countries"}.<br>
+        <em>Most from ${esc(countryPhrase(dominant.name))}${farApart ? `, the farthest from ${esc(countryPhrase(farthest.name))}` : ""}.</em>
       </p>
-      ${singleArtistCount ? `<p class="footnote">${titleCase(spellSmall(singleArtistCount))} ${singleArtistCount === 1 ? "country you've" : "countries you've"} only crossed paths with once.</p>` : ""}
     </div>
   `);
 }
@@ -424,15 +428,15 @@ function buildSky(countries, maxCount, mode) {
 
   const wrap = el(`
     <div class="realm-sky-wrap ${isEurope ? "is-europe" : "is-world"}">
-      <label class="realm-country-picker">
-        ${isEurope ? "Explore Europe" : "Explore a country"}
+      ${isEurope ? "" : `<label class="realm-country-picker">
+        <span class="sr-only">Explore a country</span>
         <select class="realm-country-select">
-          <option value="" selected disabled>Choose a country</option>
+          <option value="" selected disabled>Explore a country</option>
           ${[...countries].sort((a, b) => a.name.localeCompare(b.name)).map((country) =>
             `<option value="${country.code}">${esc(country.name)} · ${country.count} ${country.count === 1 ? "artist" : "artists"}</option>`
           ).join("")}
         </select>
-      </label>
+      </label>`}
       <svg class="realm-sky" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <radialGradient id="realm-vignette-${mode}" cx="50%" cy="45%" r="75%">
@@ -479,8 +483,10 @@ function buildSky(countries, maxCount, mode) {
       openStar(starEl);
     });
   });
+  // One picker, on the world map: it already lists every country, so the
+  // Europe close-up doesn't repeat it.
   const picker = wrap.querySelector(".realm-country-select");
-  picker.addEventListener("change", () => {
+  picker?.addEventListener("change", () => {
     const selected = starElements.find((starEl) => starEl.dataset.code === picker.value);
     picker.value = "";
     openStar(selected);
@@ -564,7 +570,8 @@ function enterFocus(wrap, country, starEl) {
   if (wrap.classList.contains("is-focused")) return;
   wrap.classList.add("is-focused");
   starEl.classList.add("is-active");
-  wrap.querySelector(".realm-country-select").disabled = true;
+  const focusPicker = wrap.querySelector(".realm-country-select");
+  if (focusPicker) focusPicker.disabled = true;
   wrap.querySelectorAll(".realm-star").forEach((star) => star.setAttribute("tabindex", "-1"));
 
   // The rest of the sky dims first — a beat where only this country's
@@ -649,7 +656,8 @@ const seenSoFar = new Map();
     panel.remove();
     wrap.classList.remove("is-focused");
     starEl.classList.remove("is-active");
-    wrap.querySelector(".realm-country-select").disabled = false;
+    const picker = wrap.querySelector(".realm-country-select");
+    if (picker) picker.disabled = false;
     wrap.querySelectorAll(".realm-star").forEach((star) => star.setAttribute("tabindex", "0"));
     starEl.focus({ preventScroll: true });
   };

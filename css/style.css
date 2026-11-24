@@ -304,37 +304,36 @@ main { max-width: 720px; margin: 0 auto; }
   background: linear-gradient(to bottom, transparent, var(--hair) 4%, var(--hair) 94%, transparent);
 }
 
-.year-band { position: relative; padding: 44px 0 8px; }
+.year-band { position: relative; padding: 36px 0 8px; }
 
-/* The ghost numeral. Enormous, nearly invisible, and clipped by the band —
-   it registers as atmosphere rather than as a label you have to read. */
-.year-ghost {
-  position: absolute;
-  top: 8px;
-  right: -4px;
-  font-family: var(--serif);
-  font-size: 132px;
-  line-height: 0.78;
-  letter-spacing: -0.04em;
-  color: transparent;
-  -webkit-text-stroke: 1px rgba(242,239,233,0.085);
-  pointer-events: none;
-  user-select: none;
-  z-index: 0;
-}
+/* Each year is a chapter heading that stays pinned under the masthead while
+   you scroll through it, then hands over to the next year. */
 .year-mark {
-  position: relative;
-  z-index: 1;
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  color: var(--bone-faint);
-  margin-bottom: 20px;
+  position: sticky;
+  top: calc(44px + env(safe-area-inset-top));
+  z-index: 5;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 0 0 18px;
+  padding: 10px 0 10px;
+  border-bottom: 1px solid var(--hair);
+  background: var(--black);
 }
 .year-mark b {
-  color: var(--bone);
+  font-family: var(--serif);
+  font-size: 34px;
   font-weight: 400;
-  margin-right: 10px;
+  line-height: 1;
+  color: var(--bone);
+  font-feature-settings: "lnum";
+}
+.year-mark span {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bone-faint);
 }
 
 /* ---- one concert on the spine ---- */

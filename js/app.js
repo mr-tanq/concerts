@@ -1077,8 +1077,7 @@ function renderSpine() {
       const count = list.filter((x) => yearOf(x.date) === y).length;
       band = el(`
         <div class="year-band">
-          <div class="year-ghost">${esc(y)}</div>
-          <div class="year-mark"><b>${esc(y)}</b>${count} night${count === 1 ? "" : "s"}</div>
+          <div class="year-mark"><b>${esc(y)}</b><span>${count} night${count === 1 ? "" : "s"}</span></div>
         </div>
       `);
       spine.appendChild(band);

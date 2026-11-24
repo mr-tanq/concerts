@@ -38,11 +38,20 @@
 .life-rail { position: relative; height: 22px; margin-top: 18px; touch-action: pan-y; }
 .life-rail-cursor { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--ember); opacity: 0; pointer-events: none; }
 .life-rail-year { position: absolute; top: -18px; transform: translateX(-50%); color: var(--ember); font: 11px/1.4 var(--mono); opacity: 0; pointer-events: none; white-space: nowrap; }
-.moment-block { padding: 26px var(--gutter); border-top: 1px solid var(--hair); }
-.moment-block .whisper { color: var(--bone-dim); }
-.moment-name { margin: 8px 0 0; color: var(--bone); font: 34px/1.1 var(--serif); overflow-wrap: anywhere; }
-.moment-line { margin: 10px 0 0; max-width: 48ch; color: var(--bone-dim); font: 15px/1.6 var(--sans); }
+.moment-block { display: block; width: 100%; padding: 26px var(--gutter); border-top: 1px solid var(--hair); text-align: left; transition: background 0.25s var(--ease); }
+.moment-block:active { background: var(--hair-soft); }
+.moment-head { display: flex; align-items: baseline; justify-content: space-between; }
+.moment-block .whisper { margin: 0; color: var(--bone-dim); }
+.moment-arrow { color: var(--bone-faint); font: 14px var(--mono); transition: transform 0.25s var(--ease), color 0.25s var(--ease); }
+.moment-block:hover .moment-arrow, .moment-block:active .moment-arrow { color: var(--ember); transform: translateX(3px); }
+.moment-name { display: block; margin: 8px 0 0; color: var(--bone); font: 34px/1.1 var(--serif); overflow-wrap: anywhere; }
+.moment-line { display: block; margin: 10px 0 0; max-width: 44ch; color: var(--bone-dim); font: italic 18px/1.4 var(--serif); }
+.moment-aside { display: block; margin: 8px 0 0; color: var(--bone-faint); font: 11px/1.6 var(--mono); letter-spacing: 0.04em; }
 .explore-more { display: block; margin-top: 14px; }
 .life-wrap [hidden] { display: none !important; }
 @keyframes lifeRowIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
 @media (max-width: 360px) { .life-row { gap: 10px; } .life-row-label { font-size: 16px; } }
+/* Self's explore + recent lists sit on the same left edge as everything else. */
+#self-explore-root, #self-rightnow-root { padding: 0 var(--gutter); }
+#self-explore-root .section-heading, #self-explore-root .identity-modes,
+#self-rightnow-root .section-heading, #self-rightnow-root .act-row { padding-left: 0; padding-right: 0; }

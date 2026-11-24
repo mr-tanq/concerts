@@ -507,15 +507,22 @@ export function renderEditorialMoments(root, moments, deps, onViewArtist) {
   moments.forEach((m, i) => {
     const copy = momentCopy(m);
     const t = m.trace;
+    // The whole moment is the tap target; the first line carries the story,
+    // anything after it is a quieter aside.
+    const [rawLead, ...rest] = copy.lines;
+    const lead = rawLead ? rawLead[0].toUpperCase() + rawLead.slice(1) : rawLead;
     const block = el(`
-      <div class="moment-block" style="animation-delay:${i * 90}ms">
-        <p class="whisper">${esc(copy.kicker)}</p>
-        <h3 class="moment-name">${esc(t.name)}</h3>
-        ${copy.lines.map((l) => `<p class="moment-line">${esc(l)}</p>`).join("")}
-        <button class="plain-act moment-view">View artist →</button>
-      </div>
+      <button type="button" class="moment-block" style="animation-delay:${i * 90}ms" aria-label="${esc(t.name)}: ${esc(copy.lines.join(" "))}">
+        <span class="moment-head">
+          <span class="whisper">${esc(copy.kicker)}</span>
+          <span class="moment-arrow" aria-hidden="true">→</span>
+        </span>
+        <span class="moment-name">${esc(t.name)}</span>
+        ${lead ? `<span class="moment-line">${esc(lead)}</span>` : ""}
+        ${rest.length ? `<span class="moment-aside">${esc(rest.join(" "))}</span>` : ""}
+      </button>
     `);
-    block.querySelector(".moment-view").addEventListener("click", () => onViewArtist?.(t.name));
+    block.addEventListener("click", () => onViewArtist?.(t.name));
     root.appendChild(block);
   });
 }
