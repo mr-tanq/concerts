@@ -2072,8 +2072,12 @@ function seasonOverview(concerts) {
   const s = seasonSummary(concerts, workDayDetails);
   const largest = Math.max(1, ...s.months.map(m => m.total));
   const node = el(`<section class="season-overview" aria-label="Your concert season">
-    <p class="whisper">The season ahead${goingFilter === "tickets" ? ' · with tickets' : goingFilter === "interested" ? ' · interested, no ticket yet' : ''}</p>
-    <h2>${s.shows} ${s.shows === 1 ? 'show' : 'shows'} in view.<br><em>${s.booked} ${s.booked === 1 ? 'ticket' : 'tickets'} bought.</em></h2>
+    <p class="whisper">The season ahead</p>
+    <h2>${goingFilter === "tickets"
+      ? `${s.shows} ${s.shows === 1 ? 'night' : 'nights'} booked.`
+      : goingFilter === "interested"
+        ? `${s.shows} ${s.shows === 1 ? 'show' : 'shows'} on your radar.<br><em>No tickets yet.</em>`
+        : `${s.shows} ${s.shows === 1 ? 'show' : 'shows'} in view.<br><em>${s.booked} ${s.booked === 1 ? 'ticket' : 'tickets'} bought.</em>`}</h2>
     <p class="season-caption">${s.nights} ${s.nights === 1 ? 'date' : 'different dates'}${s.work ? ` · ${s.work} on a working evening or night${s.arranged ? `, ${s.arranged} with time off arranged` : ''}` : ''}.</p>
     <details class="season-chart"><summary>Explore the season <span aria-hidden="true">⌄</span></summary>
       <div class="season-months">${s.months.map(m => `<div class="season-month">
@@ -2124,27 +2128,8 @@ function renderUpcoming(body) {
   goingBody = body;
   clearScheduleClock();
   body.innerHTML = "";
-  const layout = el(`<div class="going-layout" role="group" aria-label="Going view">
-    <button data-layout="list" class="${goingLayout === "list" ? "on" : ""}" aria-pressed="${goingLayout === "list"}">List</button>
-    <button data-layout="calendar" class="${goingLayout === "calendar" ? "on" : ""}" aria-pressed="${goingLayout === "calendar"}">Calendar</button>
-  </div>`);
-  layout.querySelectorAll("[data-layout]").forEach((button) => button.addEventListener("click", () => {
-    goingLayout = button.dataset.layout;
-    try { localStorage.setItem("lm_going_layout", goingLayout); } catch {}
-    renderUpcoming(body);
-    body.querySelector(`[data-layout="${goingLayout}"]`)?.focus({ preventScroll: true });
-  }));
-  body.appendChild(layout);
-  const add = el(`<button type="button" class="going-add" aria-label="Find a concert to add to Deciding">+ Add</button>`);
-  add.addEventListener("click", () => openConcertSearch({
-    button: add,
-    connect: openSettings,
-    stateFor: c => concertSearchState(c, { recommendations: deckQueue, planned: plannedConcerts, dismissed: dismissedConcerts, archived: archiveConcerts, dismissedIds: legacyDismissedIds }),
-    addConcert: addSearchConcertRemote,
-    showDeciding: () => renderConcertsShell("stage"),
-  }));
-
-  layout.prepend(add);
+  // One control bar: the filter is the main choice; list/calendar and "add"
+  // are small icon tools on the right.
   if (!goingFilter) goingFilter = loadGoingFilter();
   const counts = {
     tickets: ticketedUpcoming().length,
@@ -2152,10 +2137,37 @@ function renderUpcoming(body) {
     all: plannedConcerts.length,
   };
   const labels = { tickets: "Tickets", interested: "Interested", all: "All" };
-  const filter = el(`<div class="going-filter" role="group" aria-label="Which planned concerts">
-    ${GOING_FILTERS.map(f => `<button type="button" data-filter="${f}" class="${goingFilter === f ? "on" : ""}" aria-pressed="${goingFilter === f}">${labels[f]}<i>${counts[f]}</i></button>`).join("")}
+  const toCalendar = goingLayout === "list";
+  const layout = el(`<div class="going-layout going-bar">
+    <div class="going-filter" role="group" aria-label="Which planned concerts">
+      ${GOING_FILTERS.map(f => `<button type="button" data-filter="${f}" class="${goingFilter === f ? "on" : ""}" aria-pressed="${goingFilter === f}">${labels[f]}<i>${counts[f]}</i></button>`).join("")}
+    </div>
+    <div class="going-tools">
+      <button type="button" class="going-tool" data-layout-toggle aria-label="${toCalendar ? "Show as calendar" : "Show as list"}" title="${toCalendar ? "Calendar" : "List"}">
+        ${toCalendar
+          ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14" rx="1.5"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg>'
+          : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h14"/></svg>'}
+      </button>
+      <button type="button" class="going-tool going-add" aria-label="Find a concert to add to Deciding" title="Add a concert">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+    </div>
   </div>`);
-  filter.querySelectorAll("[data-filter]").forEach((button) => button.addEventListener("click", () => {
+  layout.querySelector("[data-layout-toggle]").addEventListener("click", () => {
+    goingLayout = goingLayout === "list" ? "calendar" : "list";
+    try { localStorage.setItem("lm_going_layout", goingLayout); } catch {}
+    renderUpcoming(body);
+    body.querySelector("[data-layout-toggle]")?.focus({ preventScroll: true });
+  });
+  const add = layout.querySelector(".going-add");
+  add.addEventListener("click", () => openConcertSearch({
+    button: add,
+    connect: openSettings,
+    stateFor: c => concertSearchState(c, { recommendations: deckQueue, planned: plannedConcerts, dismissed: dismissedConcerts, archived: archiveConcerts, dismissedIds: legacyDismissedIds }),
+    addConcert: addSearchConcertRemote,
+    showDeciding: () => renderConcertsShell("stage"),
+  }));
+  layout.querySelectorAll("[data-filter]").forEach((button) => button.addEventListener("click", () => {
     if (goingFilter === button.dataset.filter) return;
     goingFilter = button.dataset.filter;
     try { localStorage.setItem("lm_going_filter", goingFilter); } catch {}
@@ -2164,7 +2176,7 @@ function renderUpcoming(body) {
     renderUpcoming(body);
     body.querySelector(`[data-filter="${goingFilter}"]`)?.focus({ preventScroll: true });
   }));
-  body.appendChild(filter);
+  body.appendChild(layout);
   if (goingFilter !== "all" && !counts[goingFilter]) {
     body.appendChild(el(goingFilter === "tickets"
       ? '<p class="void">No upcoming concerts with a ticket yet. Open one and tap “I have a ticket”.</p>'
@@ -2726,27 +2738,39 @@ function askAboutPast(queue) {
 
 function openSettings() {
   const existing = getGithubConfig() || { owner: "", repo: "", token: "" };
+  const connected = !!(existing.owner && existing.repo && existing.token);
   const root = document.getElementById("settings-modal-root");
   root.innerHTML = "";
 
   const veil = el(`
     <div class="veil">
       <div class="panel">
-        <p class="whisper">Connection</p>
+        <p class="whisper">Settings</p>
         <p class="lede">Where this diary lives.</p>
-        <p class="footnote">
-          A fine-grained token from github.com/settings/tokens?type=beta, scoped to
-          this repository only, with Contents: read and write. It is kept in this
-          browser and nowhere else.
-        </p>
         ${storageIsPersistent() ? "" : `<p class="status bad">This browser isn't keeping local storage — private windows clear it on close, which is why the token keeps disappearing.</p>`}
-        <div class="field"><label>Owner</label><input id="in-owner" type="text" placeholder="mr-tanq" value="${esc(existing.owner)}" /></div>
-        <div class="field"><label>Repository</label><input id="in-repo" type="text" placeholder="concerts" value="${esc(existing.repo)}" /></div>
-        <div class="field"><label>Token</label><input id="in-token" type="password" placeholder="github_pat_…" value="${esc(existing.token)}" /></div>
-        <p class="status" id="set-status"></p>
-        <div class="act-row" style="padding-left:0;padding-right:0;gap:28px">
-          <button class="plain-act" id="set-save">Connect</button>
-          <button class="plain-act" id="set-close">Close</button>
+        <div class="settings-section">
+          <p class="whisper">GitHub</p>
+          <div class="settings-summary" ${connected ? "" : "hidden"}>
+            <p class="settings-connected"><span class="settings-ok" aria-hidden="true"></span>Connected to <b>${esc(existing.owner)}/${esc(existing.repo)}</b></p>
+            <div class="act-row" style="padding-left:0;padding-right:0;gap:28px">
+              <button type="button" class="plain-act" id="set-change">Change</button>
+              <button type="button" class="plain-act" id="set-link">Copy setup link</button>
+            </div>
+          </div>
+          <div class="settings-form" ${connected ? "hidden" : ""}>
+            <p class="footnote">
+              A fine-grained token from github.com/settings/tokens?type=beta, scoped to
+              this repository only, with Contents: read and write. It is kept in this
+              browser and nowhere else.
+            </p>
+            <div class="field"><label for="in-owner">Owner</label><input id="in-owner" type="text" placeholder="mr-tanq" value="${esc(existing.owner)}" /></div>
+            <div class="field"><label for="in-repo">Repository</label><input id="in-repo" type="text" placeholder="concerts" value="${esc(existing.repo)}" /></div>
+            <div class="field"><label for="in-token">Token</label><input id="in-token" type="password" placeholder="github_pat_…" value="${esc(existing.token)}" /></div>
+            <div class="act-row" style="padding-left:0;padding-right:0;gap:28px">
+              <button type="button" class="plain-act" id="set-save">Connect</button>
+            </div>
+          </div>
+          <p class="status" id="set-status"></p>
         </div>
         <div class="settings-relay">
           <p class="whisper">Android companion</p>
@@ -2757,6 +2781,9 @@ function openSettings() {
           <div id="relay-box"></div>
           <p class="status" id="relay-status"></p>
         </div>
+        <div class="act-row settings-done" style="padding-left:0;padding-right:0">
+          <button type="button" class="plain-act" id="set-close">Done</button>
+        </div>
       </div>
     </div>
   `);
@@ -2766,6 +2793,19 @@ function openSettings() {
   mountRelaySettings(veil.querySelector("#relay-box"), veil.querySelector("#relay-status"));
   veil.querySelector("#set-close").addEventListener("click", () => { root.innerHTML = ""; });
   veil.addEventListener("click", (e) => { if (e.target === veil) root.innerHTML = ""; });
+  const summary = veil.querySelector(".settings-summary");
+  const form = veil.querySelector(".settings-form");
+  veil.querySelector("#set-change").addEventListener("click", () => {
+    summary.hidden = true; form.hidden = false;
+    veil.querySelector("#in-token").focus();
+  });
+  veil.querySelector("#set-link").addEventListener("click", async (ev) => {
+    const cfg = getGithubConfig();
+    if (!cfg) return;
+    const url = githubSetupUrl(cfg);
+    try { await navigator.clipboard.writeText(url); ev.target.textContent = "Copied — bookmark it"; }
+    catch { prompt("Copy this link:", url); }
+  });
 
   veil.querySelector("#set-save").addEventListener("click", async (e) => {
     const owner = veil.querySelector("#in-owner").value.trim();
@@ -2782,13 +2822,9 @@ function openSettings() {
       await testConnection({ owner, repo, token });
       saveGithubConfig({ owner, repo, token });
       markConnected();
-      status.innerHTML = `Connected. <a href="#" id="lnk">Copy a setup link</a> to restore this instantly later.`;
-      veil.querySelector("#lnk").addEventListener("click", async (ev) => {
-        ev.preventDefault();
-        const url = githubSetupUrl({ owner, repo, token });
-        try { await navigator.clipboard.writeText(url); ev.target.textContent = "Copied — bookmark it"; }
-        catch { prompt("Copy this link:", url); }
-      });
+      summary.querySelector("b").textContent = `${owner}/${repo}`;
+      summary.hidden = false; form.hidden = true;
+      status.textContent = "Connected. Copy the setup link to restore this instantly later.";
     } catch (err) {
       status.textContent = err.message;
       status.className = "status bad";
@@ -2803,9 +2839,11 @@ function openSettings() {
 function mountRelaySettings(box, status) {
   const draw = () => {
     status.textContent = ""; status.className = "status";
+    const explainer = box.closest(".settings-relay")?.querySelector(".footnote");
+    if (explainer) explainer.hidden = !!getReadSecret();
     if (getReadSecret()) {
-      box.innerHTML = `<div class="act-row" style="padding-left:0;padding-right:0;gap:28px;align-items:baseline">
-        <span class="footnote" style="margin:0">Connected.</span>
+      box.innerHTML = `<p class="settings-connected"><span class="settings-ok" aria-hidden="true"></span>Connected</p>
+      <div class="act-row" style="padding-left:0;padding-right:0">
         <button type="button" class="plain-act" id="relay-clear">Disconnect</button>
       </div>`;
       box.querySelector("#relay-clear").addEventListener("click", () => {

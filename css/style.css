@@ -1945,21 +1945,37 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
   vertical-align: middle;
   margin-top: 0;
 }
-.going-layout {
-  gap: 12px;
-  flex-wrap: wrap;
+/* Going control bar: filter on the left, icon tools on the right. */
+.going-layout.going-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 var(--gutter) 22px;
 }
-/* Going filter: what you've committed to vs. what you're eyeing. */
 .going-filter {
   display: flex;
-  gap: 18px;
-  padding: 0 var(--gutter) 22px;
-  margin-top: -8px;
+  gap: 14px;
+  min-width: 0;
 }
+.going-tools { display: flex; gap: 2px; margin-right: -10px; flex: 0 0 auto; }
+.going-layout .going-tool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  min-width: 40px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  color: var(--bone-dim);
+  letter-spacing: 0;
+}
+.going-layout .going-tool:active { color: var(--ember); }
 .going-filter button {
   min-height: 44px;
   font: 11px var(--mono);
-  letter-spacing: 0.14em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--bone-faint);
   padding: 9px 0;
@@ -2463,7 +2479,7 @@ a.plain-act { text-decoration:none; }
 .ambient-control[data-state="pending-off"] .ambient-control-dot { background: #d59a67; opacity: .8; }
 .ambient-control[data-state="error"] .ambient-control-dot { background: #cf665e; opacity: 1; }
 
-.settings-relay { margin-top: 38px; padding-top: 26px; border-top: 1px solid var(--hair); }
+.settings-relay { margin-top: 30px; padding-top: 22px; border-top: 1px solid var(--hair); }
 .settings-relay .whisper { margin-top: 0; }
 
 .plain-act.is-armed { color: var(--ember); border-bottom-color: var(--ember); }
@@ -2479,3 +2495,16 @@ a.plain-act { text-decoration:none; }
 .setlist-songs li.is-folded, .setlist-block.is-folded { display: none; }
 .setlist-actions { display: flex; flex-wrap: wrap; gap: 8px 28px; margin-top: 6px; }
 .setlist-actions:empty { display: none; }
+/* The "Revisit set aside" row inside the caught-up view already sits in the
+   view's gutter; don't add a second one. */
+.caughtup > .act-row { padding-left: 0; padding-right: 0; }
+
+/* Settings: a summary when connected, the form only when changing it. */
+.settings-section { margin-top: 30px; padding-top: 22px; border-top: 1px solid var(--hair); }
+.settings-section .whisper, .settings-relay .whisper { margin-top: 0; }
+.settings-connected { display: flex; align-items: center; gap: 10px; margin: 12px 0 0; color: var(--bone-dim); }
+.settings-connected b { color: var(--bone); font-weight: 500; }
+.settings-ok { width: 7px; height: 7px; border-radius: 50%; background: var(--ember); box-shadow: 0 0 10px rgba(255,122,69,.6); flex: 0 0 auto; }
+.settings-form[hidden], .settings-summary[hidden] { display: none; }
+.settings-done { margin-top: 26px; }
+.panel .status:empty { display: none; }
