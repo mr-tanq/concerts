@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-11-24T16:35:25.286Z",
+    "lastUpdated": "2026-11-24T16:35:47.686Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -3877,6 +3877,133 @@
       "planning": {
         "plannedAt": "2026-11-24T16:35:25.286Z",
         "originalScore": 38
+      },
+      "schedule": {
+        "version": 1,
+        "date": "2026-12-02",
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": "18:30",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://patronaat.nl/event/terror-02-12-26/",
+          "sourceKind": "official",
+          "checkedAt": "2026-11-24T16:35:42.436Z",
+          "evidence": "Deuren open • 18:30",
+          "at": "2026-12-02T17:30:00.000Z"
+        },
+        "start": {
+          "name": "PROGRAMME START",
+          "time": "19:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://patronaat.nl/event/terror-02-12-26/",
+          "sourceKind": "official",
+          "checkedAt": "2026-11-24T16:35:42.436Z",
+          "evidence": "Start: 19:00",
+          "at": "2026-12-02T18:00:00.000Z"
+        },
+        "support": [
+          {
+            "name": "Peace of Mind",
+            "time": "19:00",
+            "dayOffset": 0,
+            "status": "confirmed",
+            "sourceUrl": "https://patronaat.nl/event/terror-02-12-26/",
+            "sourceKind": "official",
+            "checkedAt": "2026-11-24T16:35:42.436Z",
+            "evidence": "19:00 • Peace of Mind",
+            "at": "2026-12-02T18:00:00.000Z"
+          },
+          {
+            "name": "Bane",
+            "time": "20:40",
+            "dayOffset": 0,
+            "status": "confirmed",
+            "sourceUrl": "https://patronaat.nl/event/terror-02-12-26/",
+            "sourceKind": "official",
+            "checkedAt": "2026-11-24T16:35:42.436Z",
+            "evidence": "20:40 • Bane",
+            "at": "2026-12-02T19:40:00.000Z"
+          },
+          {
+            "name": "Start Today",
+            "time": null
+          }
+        ],
+        "main": {
+          "name": "Terror",
+          "time": "21:40",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://patronaat.nl/event/terror-02-12-26/",
+          "sourceKind": "official",
+          "checkedAt": "2026-11-24T16:35:42.436Z",
+          "evidence": "21:40 • Terror",
+          "at": "2026-12-02T20:40:00.000Z"
+        },
+        "end": {
+          "name": "END",
+          "time": "22:40",
+          "dayOffset": 0,
+          "status": "expected",
+          "sourceUrl": "https://patronaat.nl/event/terror-02-12-26/",
+          "sourceKind": "official",
+          "checkedAt": "2026-11-24T16:35:42.436Z",
+          "evidence": "Verwacht einde • 22:40",
+          "at": "2026-12-02T21:40:00.000Z"
+        },
+        "sources": [
+          {
+            "url": "https://www.podiuminfo.nl/concert/486829/Terror-Bane-Start-Today-Peace-of-Mind/Patronaat/",
+            "kind": "secondary",
+            "label": "podiuminfo.nl",
+            "checkedAt": "2026-11-24T16:35:42.436Z"
+          },
+          {
+            "url": "https://patronaat.nl/event/terror-02-12-26/",
+            "kind": "official",
+            "label": "patronaat.nl",
+            "checkedAt": "2026-11-24T16:35:42.436Z"
+          }
+        ],
+        "lastCheckedAt": "2026-11-24T16:35:42.436Z",
+        "lastAttemptAt": "2026-11-24T16:35:42.436Z",
+        "checks": {
+          "initial": "2026-11-24T16:35:42.436Z"
+        },
+        "lastError": null,
+        "noSupport": null,
+        "refreshRequestedAt": null,
+        "lastOfficialCheckedAt": "2026-11-24T16:35:42.436Z",
+        "checkStatus": "official",
+        "discovery": {
+          "version": 2,
+          "attempts": [
+            {
+              "url": "https://www.podiuminfo.nl/concert/486829/Terror-Bane-Start-Today-Peace-of-Mind/Patronaat/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://patronaat.nl/programma/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://patronaat.nl/event/terror-02-12-26/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://patronaat.nl/event/terror-02-12-26/",
+              "status": "verified"
+            }
+          ],
+          "configured": [
+            "patronaat.nl"
+          ],
+          "requests": 3
+        },
+        "availability": "published"
       }
     }
   ]
