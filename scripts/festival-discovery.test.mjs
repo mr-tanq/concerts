@@ -121,3 +121,12 @@ test('untracked watched festival is cached for future lineup updates without pub
     now:Date.now()+86400000,fetcher:async u=>u===url?html(updated):month(festival)});
   assert.deepEqual(newer.events[0].matchedTracked,['MONO']);
 });
+
+test('city search with a country matches the Dutch spelling of a Belgian city without false cities', async () => {
+  const {inSearchLocation}=await import('./sources/manual-concert-search.mjs');
+  const {searchLocation}=await import('../js/concert-countries.js');
+  const scope=searchLocation('Brussels, Belgium');
+  assert.equal(inSearchLocation({city:'Brussel',venue:'Botanique',country:'BE'},scope,'Brussels, Belgium'),true);
+  assert.equal(inSearchLocation({city:'Brussel',venue:'X',country:'NL'},scope,'Brussels, Belgium'),false);
+  assert.equal(inSearchLocation({city:'Antwerpen',venue:'X',country:'BE'},scope,'Brussels, Belgium'),false);
+});
