@@ -29,6 +29,8 @@ import { mountPractical, updatePractical } from "./concert-practical.js?v=night-
 import { mountSchedule, clearScheduleClock, syncScheduleClock, scheduleCountdown, artistLabel } from "./concert-schedule.js?v=013-sets-20261103";
 import { buildArchiveView, filterConcerts, searchArchiveConcerts, artistsOf, actuallySeenArtistsOf, venueKey, venueSearchNames } from "./archive-stats.js?v=archive-search-20261016";
 import { getGithubConfig, saveGithubConfig, getFile, putFile, testConnection, isConflictError } from "./github-api.js";
+import { getReadSecret, saveReadSecret, clearReadSecret } from "./relay-config.js";
+import { fetchRelayState } from "./relay-client.js";
 import { openConcertSearch } from "./concert-search.js?v=festival-browse-20261031";
 import { concertSearchState, sameSearchConcert } from "./concert-search-model.js?v=festival-browse-20261031";
 import { initMirror, renderMirror, stopPolling as stopMirrorPolling } from "./mirror.js?v=lyrica-20261101";
@@ -2677,12 +2679,22 @@ function openSettings() {
           <button class="plain-act" id="set-save">Connect</button>
           <button class="plain-act" id="set-close">Close</button>
         </div>
+        <div class="settings-relay">
+          <p class="whisper">Android companion</p>
+          <p class="footnote">
+            The relay READ secret (starts with <code>lmr_</code>) lets Mirror show what
+            your phone plays and switch ambient recognition. Kept in this browser only.
+          </p>
+          <div id="relay-box"></div>
+          <p class="status" id="relay-status"></p>
+        </div>
       </div>
     </div>
   `);
   root.appendChild(veil);
 
   const status = veil.querySelector("#set-status");
+  mountRelaySettings(veil.querySelector("#relay-box"), veil.querySelector("#relay-status"));
   veil.querySelector("#set-close").addEventListener("click", () => { root.innerHTML = ""; });
   veil.addEventListener("click", (e) => { if (e.target === veil) root.innerHTML = ""; });
 
@@ -2715,6 +2727,54 @@ function openSettings() {
       e.target.disabled = false; e.target.textContent = "Connect";
     }
   });
+}
+
+// The relay read secret used to be enterable only on the hidden
+// mirror-android-debug.html page; Settings is where people look for it.
+function mountRelaySettings(box, status) {
+  const draw = () => {
+    status.textContent = ""; status.className = "status";
+    if (getReadSecret()) {
+      box.innerHTML = `<div class="act-row" style="padding-left:0;padding-right:0;gap:28px;align-items:baseline">
+        <span class="footnote" style="margin:0">Connected.</span>
+        <button type="button" class="plain-act" id="relay-clear">Disconnect</button>
+      </div>`;
+      box.querySelector("#relay-clear").addEventListener("click", () => {
+        try { clearReadSecret(); } catch {}
+        draw();
+        refreshMirrorIfOpen();
+      });
+      return;
+    }
+    box.innerHTML = `<div class="field"><label for="in-relay">Relay read secret</label>
+        <input id="in-relay" type="password" placeholder="lmr_…" autocomplete="off" /></div>
+      <div class="act-row" style="padding-left:0;padding-right:0">
+        <button type="button" class="plain-act" id="relay-save">Save</button>
+      </div>`;
+    const save = box.querySelector("#relay-save");
+    save.addEventListener("click", async () => {
+      const value = box.querySelector("#in-relay").value.trim();
+      if (!value) { status.textContent = "Paste the secret first."; status.className = "status bad"; return; }
+      save.disabled = true; save.textContent = "Checking";
+      try {
+        await fetchRelayState(value); // throws if the relay rejects it
+        saveReadSecret(value);
+        draw();
+        status.textContent = "Connected. Mirror will use your phone now.";
+        refreshMirrorIfOpen();
+      } catch (err) {
+        status.textContent = err?.code === "invalid-secret" ? "The relay didn't accept that secret." : (err?.message || "Couldn't reach the relay.");
+        status.className = "status bad";
+        save.disabled = false; save.textContent = "Save";
+      }
+    });
+  };
+  draw();
+}
+
+function refreshMirrorIfOpen() {
+  const panel = document.getElementById("panel-mirror");
+  if (panel?.classList.contains("active")) renderMirror(panel);
 }
 
 function markConnected() {
