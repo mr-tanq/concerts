@@ -125,7 +125,8 @@ function onVisibility() {
 
 export function mountAmbientControl(stage) {
   stopAmbientControl();
-  if (!getReadSecret()) return;
+  // Always shown, as before: without a relay read secret the status read
+  // fails and the dot turns red with "Relay read secret is not configured."
   button = document.createElement("button");
   button.type = "button";
   button.className = "ambient-control";
