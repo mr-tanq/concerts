@@ -1671,24 +1671,36 @@ function stageCard(c) {
     setTimeout(() => renderConcertsShell("stage"), 240);
   }
 
+  // "Later" and "Tickets" are separate actions: a show with a ticket link
+  // must still be skippable for now without deciding on it.
   const acts = el(`
     <div class="stage-acts">
-      <button class="act act-no">Pass</button>
-      <button class="act act-mid">${c.ticketUrl ? "Tickets" : "Later"}</button>
-      <button class="act act-yes">I'm going</button>
+      <button type="button" class="act act-no">Pass</button>
+      <button type="button" class="act act-mid">Later</button>
+      <button type="button" class="act act-yes">I'm going</button>
     </div>
   `);
   acts.querySelector(".act-no").addEventListener("click", () => commit("dismiss"));
   acts.querySelector(".act-yes").addEventListener("click", () => commit("plan"));
   acts.querySelector(".act-mid").addEventListener("click", () => {
-    if (c.ticketUrl) { window.open(c.ticketUrl, "_blank"); return; }
+    if (deckQueue.length < 2) return;
     deckQueue.push(deckQueue.shift());
     renderConcertsShell("stage");
   });
+  if (deckQueue.length < 2) {
+    const later = acts.querySelector(".act-mid");
+    later.disabled = true;
+    later.title = "Nothing else to decide on yet";
+  }
 
   const wrap = el(`<div></div>`);
   wrap.appendChild(stage);
   wrap.appendChild(acts);
+  if (c.ticketUrl) {
+    const tickets = el(`<div class="stage-tickets"><a target="_blank" rel="noopener">Tickets ↗</a></div>`);
+    tickets.querySelector("a").href = c.ticketUrl;
+    wrap.appendChild(tickets);
+  }
   return wrap;
 }
 
@@ -2214,28 +2226,52 @@ function renderAside(body) {
     list.appendChild(row);
   }
 
+  // Legacy passes are bare ids with nothing to show, so they collapse into
+  // one quiet section instead of hundreds of unreadable rows.
   if (legacyDismissedIds.length) {
-    list.appendChild(el(`
-      <div style="padding:34px var(--gutter) 0">
-        <p class="whisper">Passed on before details were kept</p>
+    const n = legacyDismissedIds.length;
+    const legacy = el(`
+      <details class="aside-legacy">
+        <summary>
+          <span class="whisper">${n} older passes</span>
+          <span class="aside-legacy-hint">Show</span>
+        </summary>
         <p class="footnote">Only ids were stored then, so there's nothing to show. Restoring brings them back on the next discovery run.</p>
-      </div>
-    `));
-    for (const id of legacyDismissedIds) {
-      const pretty = id.replace(/^rec-(podiuminfo-)?/, "").replace(/-/g, " ");
-      const row = el(`
-        <div class="aside-row">
-          <div class="who"><span>${esc(pretty)}</span></div>
-          <button class="plain-act">Back</button>
+        <div class="act-row" style="padding-left:0;padding-right:0">
+          <button type="button" class="plain-act" data-restore-legacy>Bring back all ${n} older</button>
         </div>
-      `);
-      const btn = row.querySelector("button");
-      btn.addEventListener("click", async () => {
-        btn.disabled = true; btn.textContent = "…";
-        await doRestore([], [id]);
-      });
-      list.appendChild(row);
-    }
+        <div class="aside-legacy-list"></div>
+      </details>
+    `);
+    const restoreLegacy = legacy.querySelector("[data-restore-legacy]");
+    restoreLegacy.addEventListener("click", async () => {
+      if (!confirm(`Bring back all ${n} older passes?`)) return;
+      restoreLegacy.disabled = true; restoreLegacy.textContent = "Restoring";
+      await doRestore([], [...legacyDismissedIds]);
+    });
+    const hint = legacy.querySelector(".aside-legacy-hint");
+    const holder = legacy.querySelector(".aside-legacy-list");
+    legacy.addEventListener("toggle", () => {
+      hint.textContent = legacy.open ? "Hide" : "Show";
+      if (!legacy.open || holder.childElementCount) return;
+      // Built lazily: most visits never open this.
+      for (const id of legacyDismissedIds) {
+        const pretty = id.replace(/^rec-(podiuminfo-)?/, "").replace(/-/g, " ");
+        const row = el(`
+          <div class="aside-row">
+            <div class="who"><span>${esc(pretty)}</span></div>
+            <button type="button" class="plain-act">Back</button>
+          </div>
+        `);
+        const btn = row.querySelector("button");
+        btn.addEventListener("click", async () => {
+          btn.disabled = true; btn.textContent = "…";
+          await doRestore([], [id]);
+        });
+        holder.appendChild(row);
+      }
+    });
+    list.appendChild(legacy);
   }
   body.appendChild(list);
 }
@@ -2711,6 +2747,8 @@ function setActiveTab(name) {
   TABS.forEach((t) => {
     document.getElementById(`panel-${t}`).classList.toggle("active", t === name);
     document.getElementById(`nav-${t}`).classList.toggle("active", t === name);
+    if (t === name) document.getElementById(`nav-${t}`).setAttribute("aria-current", "page");
+    else document.getElementById(`nav-${t}`).removeAttribute("aria-current");
   });
   window.scrollTo({ top: 0, behavior: "instant" });
 
@@ -2803,7 +2841,7 @@ async function init() {
         if (result.status === "rejected") console.error(result.reason);
       }
     }
-    if (!concertsReady) showTabLoadError(["concerts"], "Tonight");
+    if (!concertsReady) showTabLoadError(["concerts"], "Live");
 
     if (archiveResult.status === "fulfilled") {
       try {

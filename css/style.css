@@ -25,7 +25,7 @@
   --black-2:    #0e0e11;   /* barely-there lift, used only for scrims */
   --bone:       #f2efe9;
   --bone-dim:   #9b978f;
-  --bone-faint: #5c5a56;
+  --bone-faint: #807c75;   /* ≥4.5:1 on --black so small mono labels stay legible */
   --ember:      #ff7a45;   /* the single accent — a filament, not a brand */
   --ice:        #6fd6ea;   /* cold, electric — reserved for Mirror's "right now" */
   --red:        #ff4d4d;   /* true red for actual errors — distinct from ember's warm emphasis */
@@ -74,7 +74,7 @@ body {
   font-weight: 400;
   line-height: 1.55;
   letter-spacing: -0.005em;
-  padding-bottom: 76px;
+  padding-bottom: calc(88px + env(safe-area-inset-bottom));
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
 }
@@ -92,29 +92,48 @@ button { font-family: inherit; color: inherit; background: none; border: none; c
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px var(--gutter) 14px;
+  padding: calc(16px + env(safe-area-inset-top)) var(--gutter) 14px;
   background: linear-gradient(to bottom, var(--black) 62%, transparent);
 }
 .masthead-name {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 400;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--bone-faint);
 }
-.masthead-settings { padding: 8px; margin: -8px; line-height: 0; }
+.masthead-settings {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin: -12px -12px -12px 0;
+  color: var(--bone-dim);
+  line-height: 0;
+  transition: color 0.3s var(--ease);
+}
+.masthead-settings:hover,
+.masthead-settings:active { color: var(--bone); }
+/* Connection state rides on the icon as a small badge: grey = not
+   connected to GitHub, ember = connected. */
 .settings-dot {
+  position: absolute;
+  top: 10px;
+  right: 9px;
   display: block;
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: var(--bone-faint);
+  box-shadow: 0 0 0 2px var(--black);
   transition: background 0.3s var(--ease), box-shadow 0.3s var(--ease);
 }
 .settings-dot.live {
   background: var(--ember);
-  box-shadow: 0 0 12px rgba(255,122,69,0.7);
+  box-shadow: 0 0 0 2px var(--black), 0 0 10px rgba(255,122,69,0.7);
 }
 
 main { max-width: 720px; margin: 0 auto; }
@@ -132,7 +151,7 @@ main { max-width: 720px; margin: 0 auto; }
    section names, counts, statuses. */
 .whisper {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 400;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -292,7 +311,7 @@ main { max-width: 720px; margin: 0 auto; }
 
 .entry-date {
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 11.5px;
   letter-spacing: 0.13em;
   color: var(--bone-faint);
   text-transform: uppercase;
@@ -358,7 +377,7 @@ main { max-width: 720px; margin: 0 auto; }
 .explore-modes::-webkit-scrollbar { display: none; }
 .explore-mode {
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 11.5px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--bone-faint);
@@ -389,7 +408,7 @@ main { max-width: 720px; margin: 0 auto; }
 .explore-value i {
   font-family: var(--mono);
   font-style: normal;
-  font-size: 10.5px;
+  font-size: 11.5px;
   color: var(--bone-faint);
   margin-left: 6px;
 }
@@ -399,7 +418,7 @@ main { max-width: 720px; margin: 0 auto; }
   padding: 0 var(--gutter);
   margin-top: 24px;
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 11.5px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--bone-faint);
@@ -419,7 +438,7 @@ main { max-width: 720px; margin: 0 auto; }
 }
 .switch button {
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 11.5px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--bone-faint);
@@ -437,8 +456,10 @@ main { max-width: 720px; margin: 0 auto; }
 
 .stage {
   position: relative;
-  height: calc(100vh - 210px);
-  min-height: 440px;
+  /* Sized so Pass / Later / I'm going stay above the bottom rail. */
+  height: calc(100vh - 250px);
+  height: calc(100svh - 246px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  min-height: 400px;
   margin: 0 var(--gutter);
   border-radius: 4px;
   overflow: hidden;
@@ -470,7 +491,7 @@ main { max-width: 720px; margin: 0 auto; }
   top: 18px;
   left: 18px;
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 11.5px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--bone);
@@ -480,7 +501,7 @@ main { max-width: 720px; margin: 0 auto; }
 .festival-artist-photo-credit {
   position:absolute; top:17px;right:16px;z-index:2;
   max-width:52%; text-align:right;
-  color:var(--bone-dim);font:10px/1.4 var(--mono);
+  color:var(--bone-dim);font:11px/1.4 var(--mono);
   letter-spacing:.02em;text-shadow:0 1px 12px rgba(0,0,0,.9);
 }
 
@@ -494,7 +515,7 @@ main { max-width: 720px; margin: 0 auto; }
 .stage-copy { position: absolute; left: 20px; right: 20px; bottom: 20px; }
 .stage-when {
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 11.5px;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--bone-dim);
@@ -546,7 +567,7 @@ main { max-width: 720px; margin: 0 auto; }
   flex: 1;
   padding: 15px 0;
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 11.5px;
   letter-spacing: 0.17em;
   text-transform: uppercase;
   color: var(--bone-faint);
@@ -556,11 +577,24 @@ main { max-width: 720px; margin: 0 auto; }
 .act-mid { text-align: center; color: var(--bone-dim); }
 .act-yes { text-align: right; color: var(--bone); }
 .act:active { color: var(--ember); }
+.act:disabled { opacity: 0.35; cursor: default; }
+.act:disabled:active { color: inherit; }
+.stage-tickets { padding: 2px var(--gutter) 0; text-align: center; }
+.stage-tickets a {
+  display: inline-block;
+  padding: 10px 14px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  color: var(--ember);
+  text-decoration: none;
+}
 
 .remaining {
   text-align: center;
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--bone-faint);
@@ -587,7 +621,7 @@ main { max-width: 720px; margin: 0 auto; }
 }
 .countdown {
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 11.5px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--ember);
@@ -606,7 +640,7 @@ main { max-width: 720px; margin: 0 auto; }
 .upcoming-row .when {
   flex: 0 0 62px;
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 11.5px;
   letter-spacing: 0.1em;
   color: var(--bone-faint);
   text-transform: uppercase;
@@ -627,7 +661,7 @@ main { max-width: 720px; margin: 0 auto; }
    would need a box, and boxes are what this design is refusing. */
 .plain-act {
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 11.5px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--bone-faint);
@@ -639,6 +673,27 @@ main { max-width: 720px; margin: 0 auto; }
 .act-row { padding: 22px var(--gutter) 0; display: flex; gap: 26px; }
 
 /* ---- set aside (dismissed) ---- */
+
+.aside-legacy { margin-top: 34px; padding: 0 var(--gutter); }
+.aside-legacy > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  cursor: pointer;
+  list-style: none;
+  border-top: 1px solid var(--hair);
+}
+.aside-legacy > summary::-webkit-details-marker { display: none; }
+.aside-legacy > summary .whisper { margin: 0; }
+.aside-legacy-hint {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+}
+.aside-legacy .aside-row { padding-left: 0; padding-right: 0; }
 
 .aside-row {
   display: flex;
@@ -684,7 +739,7 @@ main { max-width: 720px; margin: 0 auto; }
   right: 14px;
   z-index: 3;
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 11.5px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--bone);
@@ -740,7 +795,7 @@ main { max-width: 720px; margin: 0 auto; }
 .fact dt {
   flex: 0 0 88px;
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--bone-faint);
@@ -776,7 +831,7 @@ main { max-width: 720px; margin: 0 auto; }
 .lineup-row.is-seen .lineup-name { color: var(--bone); }
 .lineup-state {
   font-family: var(--mono);
-  font-size: 9.5px;
+  font-size: 11px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--bone-faint);
@@ -787,7 +842,7 @@ main { max-width: 720px; margin: 0 auto; }
   display: block;
   margin-top: 16px;
   font-family: var(--mono);
-  font-size: 9.5px;
+  font-size: 11px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--bone-faint);
@@ -848,7 +903,7 @@ main { max-width: 720px; margin: 0 auto; }
 .setlist-block { margin-bottom: 26px; }
 .setlist-name {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--ember);
@@ -867,7 +922,7 @@ main { max-width: 720px; margin: 0 auto; }
 .setlist-songs li::before {
   content: counter(song, decimal-leading-zero);
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 11.5px;
   color: var(--bone-faint);
   padding-top: 4px;
   flex: 0 0 22px;
@@ -906,7 +961,7 @@ main { max-width: 720px; margin: 0 auto; }
 .field label {
   display: block;
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--bone-faint);
@@ -958,21 +1013,30 @@ nav.rail {
   z-index: 40;
   display: flex;
   justify-content: space-between;
-  gap: 4px;
-  padding: 14px var(--gutter) calc(16px + env(safe-area-inset-bottom));
-  background: linear-gradient(to top, var(--black) 68%, transparent);
+  gap: 2px;
+  padding: 10px max(8px, calc(var(--gutter) - 10px)) calc(8px + env(safe-area-inset-bottom));
+  background: linear-gradient(to top, var(--black) 72%, transparent);
 }
 nav.rail button {
   position: relative;
   flex: 1;
+  min-width: 0;
+  min-height: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
   font-family: var(--mono);
-  font-size: 9.5px;
-  letter-spacing: 0.15em;
+  font-size: 11px;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--bone-faint);
-  padding: 6px 0 10px;
+  padding: 4px 0 10px;
   transition: color 0.3s var(--ease);
 }
+nav.rail button svg { display: block; flex: 0 0 auto; }
+nav.rail button span { white-space: nowrap; }
 /* A single dot beneath the active label — the smallest mark that still
    reads as "you are here". */
 nav.rail button::after {
@@ -981,8 +1045,8 @@ nav.rail button::after {
   bottom: 0;
   left: 50%;
   transform: translateX(-50%) scale(0);
-  width: 3px;
-  height: 3px;
+  width: 4px;
+  height: 4px;
   border-radius: 50%;
   background: var(--ember);
   transition: transform 0.3s var(--ease);
@@ -1008,7 +1072,7 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
   transform: translateX(-50%);
   z-index: 50;
   font-family: var(--mono);
-  font-size: 9.5px;
+  font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--bone-faint);
@@ -1171,7 +1235,7 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 .recent-when {
   flex: 0 0 64px;
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 11.5px;
   color: var(--bone-faint);
   text-transform: uppercase;
 }
@@ -1232,7 +1296,7 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 }
 .album-card-count {
   font-family: var(--mono);
-  font-size: 9.5px;
+  font-size: 11px;
   letter-spacing: 0.1em;
   color: var(--bone-faint);
   margin-top: 3px;
@@ -1315,7 +1379,7 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 }
 .realm-transition-label {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--bone-faint);
@@ -1428,7 +1492,7 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 .realm-focus-close {
   display: block;
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--bone-faint);
@@ -1485,7 +1549,7 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 .realm-journey-stop.is-unplaced .realm-journey-dot { background: var(--bone-faint); }
 .realm-journey-city {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--bone-faint);
@@ -1543,7 +1607,7 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 .insight-when {
   margin-top: 12px;
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--ember);
@@ -1620,7 +1684,7 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 
 /* Going calendar */
 .going-layout{display:flex;justify-content:flex-end;gap:16px;padding:8px var(--gutter) 24px}
-.going-layout button{font:10px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--bone-faint);padding:9px 0;border-bottom:1px solid transparent}
+.going-layout button{font:11px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--bone-faint);padding:9px 0;border-bottom:1px solid transparent}
 .going-layout button.on{color:var(--bone);border-color:var(--ember)}
 .going-layout .going-add{margin-right:auto;color:var(--bone);letter-spacing:.12em}
 dialog.concert-search{box-sizing:border-box;width:min(560px,calc(100% - 24px));max-height:calc(100dvh - 40px);padding:24px;background:var(--black);color:var(--bone);border:1px solid var(--hair);overflow:auto;overscroll-behavior:contain;font-family:var(--sans)}
@@ -1654,7 +1718,7 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
 .calendar-head h3{font:28px var(--serif);color:var(--bone);text-align:center}
 .calendar-nav{min-width:42px;min-height:44px;font-size:30px;line-height:1;color:var(--bone-dim)}
 .calendar-weekdays,.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
-.calendar-weekdays{color:var(--bone-faint);font:9px var(--mono);text-align:center;padding-bottom:10px}
+.calendar-weekdays{color:var(--bone-faint);font:10.5px var(--mono);text-align:center;padding-bottom:10px}
 .calendar-weekdays span:last-child{color:var(--ember)}
 .calendar-day{min-width:0;min-height:92px;padding:6px 2px 8px;text-align:left;border-top:1px solid var(--hair);color:var(--bone)}
 .calendar-day.is-outside{opacity:.15}
@@ -1662,8 +1726,8 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
 .calendar-number{display:block;font:11px var(--mono);margin:0 0 7px 2px}
 .calendar-day.is-today .calendar-number{color:var(--ember)}
 .calendar-shift{display:block;width:4px;height:4px;border-radius:50%;margin:0 0 5px 3px;background:var(--day-shift)}
-.calendar-event{display:block;margin-top:3px;padding:3px 2px;border-left:2px solid var(--ember);color:var(--bone);background:rgba(255,255,255,.07);font:9px/1.15 var(--sans);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.calendar-more{display:block;color:var(--bone-faint);font:9px var(--mono);margin-top:4px}
+.calendar-event{display:block;margin-top:3px;padding:3px 2px;border-left:2px solid var(--ember);color:var(--bone);background:rgba(255,255,255,.07);font:10px/1.15 var(--sans);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.calendar-more{display:block;color:var(--bone-faint);font:10px var(--mono);margin-top:4px}
 .calendar-agenda{margin-top:25px}
 .calendar-agenda .whisper{margin-bottom:12px}
 .calendar-agenda-row{display:block;width:100%;text-align:left;border-top:1px solid var(--hair);padding:14px 0}
@@ -1681,7 +1745,7 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
   border-radius: 0;
   background: none;
   color: var(--day-shift);
-  font: 8px/1.3 var(--mono);
+  font: 10px/1.3 var(--mono);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1750,7 +1814,7 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
   min-height: 44px;
   padding: 8px 12px;
   color: var(--bone-dim);
-  font: 10px var(--mono);
+  font: 11px var(--mono);
   letter-spacing: .12em;
   text-transform: uppercase;
 }
@@ -1775,14 +1839,14 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
 .schedule-row--main{padding:10px 0}
 .schedule-row--main dt{color:var(--bone);font:23px/1.1 var(--serif)}
 .schedule-row--main dd{color:var(--bone);font-size:18px;font-weight:600}
-.schedule-row small{display:block;color:var(--bone-dim);font:9px/1.4 var(--mono);letter-spacing:1px}
+.schedule-row small{display:block;color:var(--bone-dim);font:10.5px/1.4 var(--mono);letter-spacing:1px}
 .schedule-row dt small{margin-top:3px}
 .schedule-row .schedule-tba{color:var(--bone-dim);font-size:12px;font-weight:400}
 .schedule-row[aria-current="step"]::before{content:"";position:absolute;left:-10px;top:7px;bottom:7px;width:2px;background:#a4dce8}
 .schedule-row[aria-current="step"] dt,.schedule-row[aria-current="step"] dd{color:#a4dce8}
 .schedule-live{color:#a4dce8;font:500 17px/1.4 var(--mono);margin:0 0 12px;overflow-wrap:anywhere}
 .schedule-live[hidden]{display:none}
-.schedule-check{color:var(--bone-dim);font:10px/1.5 var(--mono);margin:0}
+.schedule-check{color:var(--bone-dim);font:11px/1.5 var(--mono);margin:0}
 .schedule-unchecked{margin-top:12px}
 .schedule-sources{margin-top:8px;color:var(--bone-dim);font:12px/1.5 var(--sans)}
 .schedule-sources summary{cursor:pointer;min-height:44px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px 12px;padding:8px 0;list-style:none}
@@ -1938,18 +2002,18 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
 .season-overview h2 em { color:var(--bone-dim); font-weight:400; }
 .season-caption { color:var(--bone-dim); font-size:13px; line-height:1.7; max-width:42ch; }
 .season-chart { margin-top:20px; border-top:1px solid var(--hair); }
-.season-chart summary { display:flex; justify-content:space-between; align-items:center; min-height:48px; cursor:pointer; list-style:none; font:10px var(--mono); text-transform:uppercase; letter-spacing:.12em; color:var(--bone-dim); }
+.season-chart summary { display:flex; justify-content:space-between; align-items:center; min-height:48px; cursor:pointer; list-style:none; font:11px var(--mono); text-transform:uppercase; letter-spacing:.12em; color:var(--bone-dim); }
 .season-chart summary::-webkit-details-marker { display:none; }
 .season-chart[open] summary span { transform:rotate(180deg); }
 .season-months { display:grid; gap:10px; padding:10px 0 18px; }
-.season-month { display:grid; grid-template-columns:62px 1fr 24px; gap:12px; align-items:center; font:10px var(--mono); text-transform:uppercase; color:var(--bone-dim); }
+.season-month { display:grid; grid-template-columns:62px 1fr 24px; gap:12px; align-items:center; font:11px var(--mono); text-transform:uppercase; color:var(--bone-dim); }
 .season-month b { text-align:right; font-weight:400; }
 .season-track { display:flex; height:13px; gap:0; }
 .season-track i { display:block; min-width:0; }
 .season-booked { background:#9bd6e4; }
 .season-planned { background:var(--bone-dim); }
 .season-work { background:#af98e8; }
-.season-key { display:flex; flex-wrap:wrap; gap:10px 16px; font:9px var(--mono); color:var(--bone-dim); }
+.season-key { display:flex; flex-wrap:wrap; gap:10px 16px; font:10.5px var(--mono); color:var(--bone-dim); }
 .season-key span { display:inline-flex; align-items:center; gap:6px; }
 .season-key i { display:inline-block; width:8px; height:8px; }
 .next-night { margin:0 var(--gutter) 32px; }
@@ -1960,27 +2024,27 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
 .next-night-photo.is-empty { background:radial-gradient(ellipse at 80% 15%,#39302a, #141416 55%, #08080a); }
 .next-night-count { display:flex; align-items:center; gap:16px; padding:22px; }
 .next-night-count > b { font:400 104px/.85 var(--serif); letter-spacing:-.05em; }
-.next-night-count > span { max-width:6ch; font:10px/1.6 var(--mono); text-transform:uppercase; letter-spacing:.14em; }
+.next-night-count > span { max-width:6ch; font:11px/1.6 var(--mono); text-transform:uppercase; letter-spacing:.14em; }
 .next-night-copy { display:flex; flex-direction:column; gap:10px; padding:105px 20px 24px; }
-.next-night-date { font:10px/1.6 var(--mono); text-transform:uppercase; letter-spacing:.1em; }
+.next-night-date { font:11px/1.6 var(--mono); text-transform:uppercase; letter-spacing:.1em; }
 .next-night-copy > strong { font:400 clamp(36px,10vw,54px)/1.02 var(--serif); overflow-wrap:anywhere; }
 .next-night-venue { font:14px/1.5 var(--sans); color:var(--bone-dim); }
 .next-night-meta { display:flex; flex-wrap:wrap; gap:8px 16px; align-items:center; padding:12px 0; }
 .next-night-meta .work-shift { margin:0; }
-.next-night-ticket { font:10px/1.6 var(--mono); color:var(--bone-dim); }
+.next-night-ticket { font:11px/1.6 var(--mono); color:var(--bone-dim); }
 .next-night-live { font:11px/1.6 var(--mono); color:var(--ember); margin:8px 0; }
 .next-night-essentials { display:flex; width:100%; align-items:center; justify-content:space-between; min-height:50px; border-top:1px solid var(--hair); border-bottom:1px solid var(--hair); font:11px var(--mono); text-transform:uppercase; letter-spacing:.1em; text-align:left; }
 .next-night-open:focus-visible, .next-night-essentials:focus-visible, .season-row:focus-visible, .season-chart summary:focus-visible { outline:2px solid var(--ember); outline-offset:4px; }
 .season-list { margin-top:22px; }
 .season-row { width:100%; text-align:left; align-items:flex-start; gap:18px; padding-top:22px; padding-bottom:22px; }
 .season-row .when { width:32px; min-width:32px; display:flex; flex-direction:column; gap:5px; text-align:center; }
-.season-row .when > span { font:9px var(--mono); text-transform:uppercase; letter-spacing:.1em; }
+.season-row .when > span { font:10.5px var(--mono); text-transform:uppercase; letter-spacing:.1em; }
 .season-row .when > b { font:400 30px/1 var(--serif); color:var(--bone); }
 .season-row .who > b { display:block; font-size:26px; line-height:1.15; }
 .season-row .who .event-meta { margin-top:8px; }
-.season-row .who .event-date { font-size:10px; }
+.season-row .who .event-date { font-size:11px; }
 .season-row .who .work-shift { margin-top:10px; }
-.season-row .who .season-booked-label { display:block; margin-top:7px; font:9px var(--mono); color:#9bd6e4; text-transform:uppercase; letter-spacing:.08em; }
+.season-row .who .season-booked-label { display:block; margin-top:7px; font:10.5px var(--mono); color:#9bd6e4; text-transform:uppercase; letter-spacing:.08em; }
 .season-row-arrow { font-size:16px; color:var(--bone-faint); padding-top:5px; }
 .night-warmup { border-top:1px solid var(--hair); padding:24px 0; }
 .night-warmup > .footnote { margin-top:12px; line-height:1.7; }
@@ -2037,7 +2101,7 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
   padding:0;
 }
 .next-night-count > b { font-size:64px; }
-.next-night-count > span { max-width:8ch; font-size:8px; }
+.next-night-count > span { max-width:8ch; font-size:10px; }
 .next-night-copy > .next-night-date,
 .next-night-copy > strong,
 .next-night-copy > .next-night-venue { grid-column:2; }
@@ -2130,7 +2194,7 @@ a.plain-act { text-decoration:none; }
   margin:0;
   padding:10px 0;
   border:0;
-  font:10px/1.5 var(--mono);
+  font:11px/1.5 var(--mono);
   letter-spacing:.1em;
   color:var(--bone-dim);
 }
@@ -2156,7 +2220,7 @@ a.plain-act { text-decoration:none; }
   padding:16px 0;
   border-top:1px solid var(--hair);
   color:var(--bone-dim);
-  font:10.5px/1.5 var(--mono);
+  font:11.5px/1.5 var(--mono);
   text-transform:uppercase;
   letter-spacing:.16em;
   cursor:pointer;
@@ -2211,7 +2275,7 @@ a.plain-act { text-decoration:none; }
 .warmup-setlist > summary {
   display:flex; align-items:center; justify-content:space-between; gap:16px;
   min-height:44px; padding:10px 0; cursor:pointer; list-style:none;
-  font:10px/1.5 var(--mono); letter-spacing:.12em; text-transform:uppercase;
+  font:11px/1.5 var(--mono); letter-spacing:.12em; text-transform:uppercase;
   color:var(--bone-dim);
 }
 .warmup-setlist > summary::-webkit-details-marker { display:none; }
@@ -2253,7 +2317,7 @@ a.plain-act { text-decoration:none; }
 .setlist-evidence li { display:flex; align-items:baseline; justify-content:space-between; gap:14px;
   padding:9px 0; border-bottom:1px solid var(--hair-soft); font-size:13px; line-height:1.5; }
 .setlist-evidence li > span:first-child { min-width:0; flex:1; }
-.setlist-evidence-count { font:10px/1.5 var(--mono); color:var(--bone-dim); white-space:nowrap; }
+.setlist-evidence-count { font:11px/1.5 var(--mono); color:var(--bone-dim); white-space:nowrap; }
 .setlist-evidence-sources { margin:12px 0 16px; font-size:11px; color:var(--bone-dim); }
 .setlist-evidence-sources summary { cursor:pointer; min-height:44px; display:flex; align-items:center; }
 .setlist-evidence-sources ul { padding-left:18px; margin:4px 0 12px; }
@@ -2267,5 +2331,5 @@ a.plain-act { text-decoration:none; }
   background:rgba(8,8,10,.83);color:var(--bone);line-height:1.4;
   text-shadow:0 1px 4px rgba(0,0,0,.7);
 }
-.festival-revisit-notice strong {font:10px/1.5 var(--mono);letter-spacing:.08em;color:var(--ember);}
+.festival-revisit-notice strong {font:11px/1.5 var(--mono);letter-spacing:.08em;color:var(--ember);}
 .festival-revisit-notice span {font:13px/1.45 var(--sans);overflow-wrap:anywhere;}

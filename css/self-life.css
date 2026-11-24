@@ -5,13 +5,13 @@
 .life-controls { display: flex; gap: 24px; border-bottom: 1px solid var(--hair); }
 .life-mode { min-height: 44px; padding: 10px 0; font: 11px/1.4 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--bone-dim); border-bottom: 2px solid transparent; }
 .life-mode[aria-pressed="true"] { color: var(--bone); border-bottom-color: var(--ember); }
-.life-snapshot { margin: 14px 0 6px; color: var(--bone-dim); font: 10px/1.5 var(--mono); }
+.life-snapshot { margin: 14px 0 6px; color: var(--bone-dim); font: 11px/1.5 var(--mono); }
 .life-note { margin: 0 0 20px; max-width: 52ch; color: var(--bone-dim); font: 13px/1.6 var(--sans); }
 .life-browser { margin: 0 0 20px; }
 .life-search-label { display: block; margin-bottom: 6px; font: 11px/1.4 var(--mono); color: var(--bone-dim); }
 .life-search { display: block; width: 100%; min-width: 0; min-height: 44px; padding: 10px 0; border: 0; border-bottom: 1px solid var(--hair); border-radius: 0; background: transparent; color: var(--bone); font: 16px/1.4 var(--sans); }
 .life-search::placeholder { color: var(--bone-dim); }
-.life-axis { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: var(--bone-dim); font: 10px/1.4 var(--mono); }
+.life-axis { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: var(--bone-dim); font: 11px/1.4 var(--mono); }
 .life-axis-line { flex: 1; height: 1px; background: var(--hair); }
 .life-rows { display: flex; flex-direction: column; }
 .life-row { display: grid; grid-template-columns: minmax(100px, 34%) minmax(0, 1fr); gap: 14px; align-items: center; width: 100%; min-width: 0; min-height: 48px; padding: 8px 0; text-align: left; border-bottom: 1px solid var(--hair-soft); animation: lifeRowIn .35s var(--ease) both; }
@@ -24,7 +24,7 @@
 .life-pager { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 4px; }
 .life-page { min-height: 44px; padding: 8px 0; color: var(--bone); font: 11px/1.4 var(--mono); }
 .life-page:disabled { color: var(--bone-dim); opacity: .45; cursor: default; }
-.life-page-label { color: var(--bone-dim); font: 10px/1.4 var(--mono); text-align: center; }
+.life-page-label { color: var(--bone-dim); font: 11px/1.4 var(--mono); text-align: center; }
 .life-panel { margin-top: 18px; padding-top: 20px; border-top: 1px solid var(--hair); }
 .life-panel-name { margin: 0; color: var(--bone); font: 32px/1.1 var(--serif); overflow-wrap: anywhere; }
 .life-panel-stat { margin: 8px 0 0; color: var(--bone-dim); font: 12px/1.6 var(--mono); }
@@ -36,7 +36,7 @@
 .life-method p { margin: 0 0 12px; max-width: 60ch; }
 .life-rail { position: relative; height: 22px; margin-top: 18px; touch-action: pan-y; }
 .life-rail-cursor { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--ember); opacity: 0; pointer-events: none; }
-.life-rail-year { position: absolute; top: -18px; transform: translateX(-50%); color: var(--ember); font: 10px/1.4 var(--mono); opacity: 0; pointer-events: none; white-space: nowrap; }
+.life-rail-year { position: absolute; top: -18px; transform: translateX(-50%); color: var(--ember); font: 11px/1.4 var(--mono); opacity: 0; pointer-events: none; white-space: nowrap; }
 .moment-block { padding: 26px var(--gutter); border-top: 1px solid var(--hair); }
 .moment-block .whisper { color: var(--bone-dim); }
 .moment-name { margin: 8px 0 0; color: var(--bone); font: 34px/1.1 var(--serif); overflow-wrap: anywhere; }
