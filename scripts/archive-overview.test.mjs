@@ -73,8 +73,8 @@ function render(concerts) {
 
 test('overview renders counts and explains legacy lineup assumptions',()=>{
   const html=render([show({lineup:['Main','Support']})]);
-  assert.match(html,/<b>2<\/b> artists/);
-  assert.match(html,/<b>2<\/b> performances/);
+  assert.match(html,/<dt>Artists<\/dt><dd>2<\/dd>/);
+  assert.match(html,/2 performances in all/);
   assert.match(html,/0 of 1 shows/);
   assert.match(html,/Other shows use their listed lineup/);
   assert.match(html,/<details/);

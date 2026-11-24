@@ -248,12 +248,15 @@ function workDayDetails(iso) {
   return { label, category };
 }
 
-function workDayBadge(concert) {
+// quiet: lists only flag nights that clash with work (orange / red and not
+// yet arranged); a plain free day needs no badge on every row.
+function workDayBadge(concert, { quiet = false } = {}) {
   const shift = workDayDetails(concert.date);
   if (!shift) return "";
   const kind = shift.category === "red" ? "freeDay" : shift.category === "orange" ? "lateStart" : null;
   const confirmed = kind && concert.workArrangement?.kind === kind
     && concert.workArrangement?.status === "yes";
+  if (quiet && (shift.category === "green" || confirmed)) return "";
   const color = WORK_COLORS[confirmed ? "green" : shift.category];
   const label = confirmed && kind === "freeDay" ? "Free" : shift.label;
   const sticker = confirmed && kind === "lateStart"
@@ -788,18 +791,21 @@ function openingStatement(view) {
         ${span ? `${titleCase(spell(span))} years.<br>` : ""}
         <em>${journey}</em>
       </p>
-      <p class="opening-figures">
-        <b>${uniqueArtists}</b> artists · <b>${artistAppearances}</b> performances<br>
-        <b>${festivals}</b> festivals ·
-        <b>${venues}</b> rooms ·
-        <b>${cities}</b> cities<br>
-        Most often: <b>${esc(view.signature.topArtist?.name ?? "—")}</b>, ${view.signature.topArtist?.count ?? 0} times<br>
-        Most familiar room: <b>${esc(view.signature.topVenue?.name ?? "—")}</b>, ${view.signature.topVenue?.count ?? 0} visits<br>
-        Busiest year: <b>${esc(view.peakYear?.name ?? "—")}</b>, ${view.peakYear?.count ?? 0} nights
-      </p>
+      <dl class="opening-stats">
+        <div><dt>Artists</dt><dd>${uniqueArtists}</dd></div>
+        <div><dt>Rooms</dt><dd>${venues}</dd></div>
+        <div><dt>Cities</dt><dd>${cities}</dd></div>
+        <div><dt>Festivals</dt><dd>${festivals}</dd></div>
+      </dl>
+      <dl class="opening-signature">
+        ${view.signature.topArtist ? `<div><dt>Most seen</dt><dd><b>${esc(view.signature.topArtist.name)}</b><span>${view.signature.topArtist.count}×</span></dd></div>` : ""}
+        ${view.signature.topVenue ? `<div><dt>Your room</dt><dd><b>${esc(view.signature.topVenue.name)}</b><span>${view.signature.topVenue.count}×</span></dd></div>` : ""}
+      </dl>
       <details class="archive-counts">
         <summary class="whisper">About these counts</summary>
         <p class="opening-figures">
+          ${artistAppearances} performances in all${view.peakYear ? `; the busiest year was ${esc(view.peakYear.name)} with ${view.peakYear.count} nights` : ""}.
+          An ember dot in the timeline marks the first time you saw an artist.
           Each artist counts once per show, including support and festival acts marked as seen.
           You've reviewed who you saw at ${reviewedConcerts} of ${totalConcerts} shows.
           ${reviewedConcerts < totalConcerts ? "Other shows use their listed lineup until you review them." : ""}
@@ -1088,7 +1094,7 @@ function archiveEntry(c) {
   const withLine = support.length
     ? `<div class="entry-with">with ${esc(support.slice(0, 3).join(", "))}${support.length > 3 ? ` +${support.length - 3}` : ""}</div>`
     : "";
-  const firstTimeTag = isFirstTimeSeeing(c) ? `<span class="entry-first">First time</span>` : "";
+  const firstTimeTag = isFirstTimeSeeing(c) ? `<span class="entry-first" title="First time"><span class="sr-only">First time</span></span>` : "";
 
   const node = el(`
     <article class="entry ${c.isFestival ? "is-festival" : ""}">
@@ -1890,6 +1896,16 @@ function syncPlannedHeading(sheet, concert) {
   }
 }
 
+// "Venue · City" without echoing the title (festivals are often their own
+// venue) or repeating the city when the venue is named after it.
+function placeLine(c, title = "") {
+  const same = (a, b) => normalizeKey(a) === normalizeKey(b);
+  const parts = [];
+  if (c.venue && !same(c.venue, title)) parts.push(c.venue);
+  if (c.city && !parts.some((p) => same(p, c.city))) parts.push(c.city);
+  return parts.join(" · ");
+}
+
 function displayPlannedArtist(artist, concert = null) {
   const schedule = concert?.schedule?.date === concert?.date ? concert?.schedule : null;
   const main = schedule?.main?.name;
@@ -2053,7 +2069,7 @@ function nextNight(concert) {
         <span class="next-night-venue">${esc([concert.venue,concert.city].filter(Boolean).join(', '))}</span>
       </span>
     </button>
-    <div class="next-night-meta">${workDayBadge(concert)}<span class="next-night-ticket">${concert.practical?.ticketBought === true ? 'Ticket bought' : 'Ticket not marked as bought'}</span></div>
+    <div class="next-night-meta">${workDayBadge(concert)}${concert.practical?.ticketBought === true ? '<span class="next-night-ticket">Ticket bought</span>' : ''}</div>
     <p class="next-night-live" role="timer" aria-live="off" hidden></p>
     <button type="button" class="next-night-essentials">Times & essentials <span aria-hidden="true">→</span></button>
   </section>`);
@@ -2189,8 +2205,8 @@ function renderUpcoming(body) {
           <span class="when"><span>${weekdayShort(c.date)}</span><b>${esc(String(Number(c.date.slice(8,10))))}</b></span>
           <div class="who">
             <b>${esc(displayPlannedArtist(c.artist, c))}${ticketMark(c)}</b>
-            <span class="event-meta"><span class="event-venue">${esc(c.venue)} · ${esc(c.city)}</span></span>
-            <div>${workDayBadge(c)}</div>
+            <span class="event-meta"><span class="event-venue">${esc(placeLine(c, displayPlannedArtist(c.artist, c)))}</span></span>
+            ${workDayBadge(c, { quiet: true }) ? `<div>${workDayBadge(c, { quiet: true })}</div>` : ""}
           </div>
         </button>
       `);
@@ -2224,9 +2240,9 @@ function renderAside(body) {
       </div>
     </div>
   `);
-  head.querySelector("#restore-all").addEventListener("click", async (e) => {
-    if (!confirm(`Bring back all ${total}?`)) return;
-    e.target.disabled = true; e.target.textContent = "Restoring";
+  const restoreAll = head.querySelector("#restore-all");
+  armConfirm(restoreAll, `Tap again to bring back ${total}`, async () => {
+    restoreAll.disabled = true; restoreAll.textContent = "Restoring";
     await doRestore([...dismissedConcerts], [...legacyDismissedIds]);
   });
   body.appendChild(head);
@@ -2270,8 +2286,7 @@ function renderAside(body) {
       </details>
     `);
     const restoreLegacy = legacy.querySelector("[data-restore-legacy]");
-    restoreLegacy.addEventListener("click", async () => {
-      if (!confirm(`Bring back all ${n} older passes?`)) return;
+    armConfirm(restoreLegacy, `Tap again to bring back ${n}`, async () => {
       restoreLegacy.disabled = true; restoreLegacy.textContent = "Restoring";
       await doRestore([], [...legacyDismissedIds]);
     });
@@ -2300,6 +2315,29 @@ function renderAside(body) {
     list.appendChild(legacy);
   }
   body.appendChild(list);
+}
+
+// In-place "are you sure": the first tap arms the button and changes its
+// label, a second tap within a few seconds runs the action. Replaces the
+// browser's confirm() popup, which broke the look of the app.
+function armConfirm(button, confirmLabel, action, ms = 4000) {
+  const original = button.textContent;
+  let timer = null;
+  button.addEventListener("click", async (event) => {
+    if (button.disabled) return;
+    if (!button.classList.contains("is-armed")) {
+      button.classList.add("is-armed");
+      button.textContent = confirmLabel;
+      timer = setTimeout(() => {
+        button.classList.remove("is-armed");
+        button.textContent = original;
+      }, ms);
+      return;
+    }
+    clearTimeout(timer);
+    button.classList.remove("is-armed");
+    await action(event);
+  });
 }
 
 async function doRestore(recs, legacyIds) {

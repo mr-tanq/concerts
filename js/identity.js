@@ -139,8 +139,6 @@ export function renderHero(root, data) {
 
   const { totalScrobbles, registeredAt } = data.profile;
   const sinceYear = registeredAt ? new Date(registeredAt).getFullYear() : null;
-  const nowYear = new Date().getFullYear();
-  const span = sinceYear ? nowYear - sinceYear : null;
   const lately = data.topArtistsMonth?.[0]?.name || data.topArtistsOverall?.[0]?.name || null;
 
   root.appendChild(el(`
@@ -150,19 +148,12 @@ export function renderHero(root, data) {
         ${withCommas(totalScrobbles)} scrobbles${sinceYear ? ` since ${sinceYear}` : ""}.<br>
         ${lately ? `<em>Lately, you keep returning to ${esc(lately)}.</em>` : ""}
       </p>
-      ${span >= 2 ? `<p class="hero-footnote">${titleCaseSmall(spellSmallLong(span))} years of arrivals, disappearances and returns.</p>` : ""}
-      <p class="hero-footnote">Updated ${esc(timeAgo(data.meta.lastUpdated))} · Last.fm snapshot</p>
+      <p class="hero-footnote">Last.fm · updated ${esc(timeAgo(data.meta.lastUpdated))}</p>
     </div>
   `));
   return true;
 }
 
-const SMALL_WORDS_LONG = ["zero","one","two","three","four","five","six","seven","eight","nine","ten",
-  "eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen","twenty",
-  "twenty-one","twenty-two","twenty-three","twenty-four","twenty-five","twenty-six","twenty-seven",
-  "twenty-eight","twenty-nine","thirty"];
-function spellSmallLong(n) { return SMALL_WORDS_LONG[n] || String(n); }
-function titleCaseSmall(s) { return s ? s[0].toUpperCase() + s.slice(1) : s; }
 
 // ---------- EXPLORE (Artists / Songs / Albums) ----------
 //
@@ -283,9 +274,6 @@ export function renderRightNow(root, data) {
   if (!data.recentTracks?.length) return;
 
   root.appendChild(el(`<div class="section-heading">Recent listening</div>`));
-  if (data.meta?.lastUpdated) {
-    root.appendChild(el(`<p class="footnote">Snapshot updated ${esc(timeAgo(data.meta.lastUpdated))}.</p>`));
-  }
   const list = el(`<div></div>`);
   const count = rightNowExpanded ? 10 : Math.min(5, data.recentTracks.length);
   data.recentTracks.slice(0, count).forEach((t) => {
@@ -406,7 +394,6 @@ export function openArtistSheet(artistName) {
         </div>
         <div class="sheet-head" style="margin-top:22px">
           <p class="lede portrait-statement">${portraitStatement(overallCount, monthCount, liveShows.length)}</p>
-          ${currentData?.meta?.lastUpdated ? `<p class="footnote">Snapshot updated ${esc(timeAgo(currentData.meta.lastUpdated))}.</p>` : ""}
         </div>
 
         ${liveShows.length ? `

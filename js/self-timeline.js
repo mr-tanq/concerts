@@ -326,9 +326,8 @@ export function renderListeningLife(root, life, deps, onViewArtist) {
   controls.appendChild(moreButton);
   wrap.appendChild(controls);
 
-  const snapshot = el('<p class="life-snapshot"></p>');
-  snapshot.textContent = listeningSnapshotLabel(life.lastUpdated);
-  wrap.appendChild(snapshot);
+  // The Self hero already says when Last.fm was last read, so the strand
+  // view carries no second "Updated …" line and no standing instructions.
   const explanation = el('<p class="life-note"></p>');
   wrap.appendChild(explanation);
 
@@ -389,7 +388,7 @@ export function renderListeningLife(root, life, deps, onViewArtist) {
     panel.appendChild(facts);
     if (mode === "stories") {
       const reason = el('<p class="life-panel-reason"></p>');
-      reason.textContent = "Why this story: " + listeningStoryReason(t);
+      reason.textContent = listeningStoryReason(t);
       panel.appendChild(reason);
     }
     if (t.liveCount) {
@@ -407,9 +406,8 @@ export function renderListeningLife(root, life, deps, onViewArtist) {
     browser.hidden = !browse;
     storiesButton.setAttribute("aria-pressed", String(!browse));
     moreButton.setAttribute("aria-pressed", String(browse));
-    explanation.textContent = browse
-      ? "Find your artists beyond the stories. Ordered by recorded weekly-chart plays."
-      : traces.length + " stories for this week. Recent chapters and older discoveries, changing on Mondays. Select a strand to see why it is here.";
+    explanation.textContent = browse ? "Everyone you've played, most played first." : "";
+    explanation.hidden = !browse;
     const filtered = browse ? filterListeningArtists(allTraces, search.value) : traces;
     const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
     page = Math.max(0, Math.min(page, pages - 1));
@@ -435,7 +433,7 @@ export function renderListeningLife(root, life, deps, onViewArtist) {
       results.textContent = (page * PAGE_SIZE + 1) + "–" + Math.min((page + 1) * PAGE_SIZE, filtered.length) +
         " of " + filtered.length.toLocaleString("en-US") + " artists";
     } else {
-      results.textContent = filtered.length + " stories this week";
+      results.textContent = "";
     }
     pager.hidden = !browse || pages <= 1;
     previous.disabled = page === 0;

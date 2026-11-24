@@ -2,7 +2,7 @@
 .hero-footnote { margin-top: 18px; font: 11px/1.6 var(--mono); color: var(--bone-dim); }
 #panel-identity .section-heading { padding: 26px var(--gutter) 0; font: 12px/1.4 var(--mono); letter-spacing: .1em; color: var(--bone-dim); text-transform: uppercase; }
 .life-wrap { padding: 18px var(--gutter) 10px; min-width: 0; }
-.life-controls { display: flex; gap: 24px; border-bottom: 1px solid var(--hair); }
+.life-controls { display: flex; gap: 24px; border-bottom: 1px solid var(--hair); margin-bottom: 22px; }
 .life-mode { min-height: 44px; padding: 10px 0; font: 11px/1.4 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--bone-dim); border-bottom: 2px solid transparent; }
 .life-mode[aria-pressed="true"] { color: var(--bone); border-bottom-color: var(--ember); }
 .life-snapshot { margin: 14px 0 6px; color: var(--bone-dim); font: 11px/1.5 var(--mono); }
@@ -20,6 +20,7 @@
 .life-row.is-active { border-bottom-color: var(--ember); }
 .life-strand { width: 100%; min-width: 0; height: 30px; display: block; }
 .strand-live { fill: var(--bone); opacity: .85; }
+.life-results:empty { display: none; }
 .life-results { margin: 12px 0 0; color: var(--bone-dim); font: 11px/1.5 var(--mono); }
 .life-pager { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 4px; }
 .life-page { min-height: 44px; padding: 8px 0; color: var(--bone); font: 11px/1.4 var(--mono); }
@@ -28,7 +29,7 @@
 .life-panel { margin-top: 18px; padding-top: 20px; border-top: 1px solid var(--hair); }
 .life-panel-name { margin: 0; color: var(--bone); font: 32px/1.1 var(--serif); overflow-wrap: anywhere; }
 .life-panel-stat { margin: 8px 0 0; color: var(--bone-dim); font: 12px/1.6 var(--mono); }
-.life-panel-reason { margin: 8px 0 0; color: var(--bone-dim); font: 13px/1.5 var(--sans); }
+.life-panel-reason { margin: 10px 0 0; max-width: 44ch; color: var(--bone-dim); font: italic 17px/1.4 var(--serif); }
 .life-panel-live { color: var(--bone); }
 .life-panel-view, .moment-view { display: inline-flex; align-items: center; min-height: 44px; margin-top: 10px; padding: 8px 0; color: var(--bone-dim); }
 .life-method { margin-top: 20px; border-top: 1px solid var(--hair); color: var(--bone-dim); font: 12px/1.6 var(--sans); }
