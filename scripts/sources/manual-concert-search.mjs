@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { searchKey, sameSearchConcert, validateSearchRequest } from '../../js/concert-search-model.js';
 import { searchCachedArtist, splitLineup, isTrackedName, normalizeArtistName, detectCountry } from './podiuminfo.mjs';
 import { validDate, localDate } from '../../js/concert-schedule.js';
-import { searchLocation, matchesLocation } from '../../js/concert-countries.js';
+import { searchLocation, matchesLocation, locationKey } from '../../js/concert-countries.js';
 import { searchInternationalConcerts } from './international-concert-search.mjs';
 
 // Only venue-owned sites. Location comes from Event data; registry defaults
@@ -20,7 +20,7 @@ export const SEARCH_VENUES = [
   ['Botanique','Brussels','BE','botanique.be','/en/concerts'], ['Bibelot','Dordrecht','NL','bibelot.net','/agenda/'],
   ['Grenswerk','Venlo','NL','grenswerk.nl','/agenda/'], ['Willemeen','Arnhem','NL','willemeen.nl','/programma/'],
 ];
-const placeKey = value => searchKey(value).replace(/^tivoli vredenburg\b/, 'tivolivredenburg').replace(/^brussel$/, 'brussels');
+const placeKey = value => locationKey(searchKey(value).replace(/^tivoli vredenburg\b/, 'tivolivredenburg').replace(/^brussel$/, 'brussels'));
 export const placeMatches = (c, place) => [c.venue,c.city].some(v => placeKey(v).includes(placeKey(place)));
 export function officialURL(value, domain, base) {
   try { const u = new URL(value, base); return u.protocol === 'https:' && !u.username && !u.password && [domain,`www.${domain}`].includes(u.hostname) ? u.href.split('#')[0] : null; } catch { return null; }
