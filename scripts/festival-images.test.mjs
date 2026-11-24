@@ -1,7 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
-import {readFile} from 'node:fs/promises';
+import {execFile} from 'node:child_process';
+import {cp,mkdtemp,mkdir,readFile,rm,symlink,writeFile} from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import {promisify} from 'node:util';
+import {fileURLToPath} from 'node:url';
 import {parseFestivalEvents} from './sources/festivalinfo.mjs';
 import {cacheFestivalImages} from './cache-festival-images.mjs';
 import {festivalArtworkMatchesEdition} from '../js/festival-artwork.js';
@@ -86,4 +91,32 @@ test('artwork refresh monitors Set aside and catalog entries, not just planned s
   assert.match(script,/fromCache/);
   assert.match(script,/const previous=await read\('data\/festival-images\.json'\)\.catch\(\(\)=>\(\{editions:\{\}\}\)\);/);
   assert.match(script,/cacheFestivalImages\(all,previous\)/);
+});
+test('image refresh CLI loads the previous cache and handles a missing cache',async()=>{
+  const root=await mkdtemp(path.join(os.tmpdir(),'festival-images-'));
+  const project=fileURLToPath(new URL('../',import.meta.url));
+  const write=(name,value)=>writeFile(path.join(root,'data',name),JSON.stringify(value));
+  try {
+    await Promise.all(['scripts','js'].map(dir=>cp(path.join(project,dir),path.join(root,dir),{recursive:true})));
+    await Promise.all([
+      cp(path.join(project,'package.json'),path.join(root,'package.json')),
+      symlink(path.join(project,'node_modules'),path.join(root,'node_modules'),'dir'),
+      mkdir(path.join(root,'data'))
+    ]);
+    await Promise.all([
+      write('recommendations.json',{concerts:[]}),
+      write('planned.json',{concerts:[]}),
+      write('recommendation-history.json',{dismissed:[]})
+    ]);
+    const run=()=>promisify(execFile)(process.execPath,[path.join(root,'scripts/cache-festival-images.mjs')],{timeout:10000});
+    await run();
+    assert.deepEqual(JSON.parse(await readFile(path.join(root,'data/festival-images.json'),'utf8')),{version:1,editions:{}});
+    const previous={version:1,editions:{[url]:{image:'https://cdn.example.com/old.jpg',imageVersion:2,checkedAt:Date.now()}}};
+    await write('recommendations.json',{concerts:[{isFestival:true,sourceUrl:url}]});
+    await write('festival-images.json',previous);
+    await run();
+    assert.deepEqual(JSON.parse(await readFile(path.join(root,'data/festival-images.json'),'utf8')),previous);
+  } finally {
+    await rm(root,{recursive:true,force:true});
+  }
 });
