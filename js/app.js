@@ -1175,10 +1175,8 @@ function openSheet(c) {
           <p class="lede sheet-memory-line">${planned ? countdownWord(c.date) : timesSeenStatement(c)}</p>
         </div>
 
-        ${!planned ? `<dl class="facts">
-          <div class="fact"><dt>Billing</dt><dd>${c.isFestival ? "Festival" : "Own show"}</dd></div>
-          ${room && room !== venueKey({ venue: c.venue }) ? `<div class="fact"><dt>Part of</dt><dd>${esc(room)}</dd></div>` : ""}
-          ${c.country ? `<div class="fact"><dt>Country</dt><dd>${esc(c.country)}</dd></div>` : ""}
+        ${!planned && room && room !== venueKey({ venue: c.venue }) ? `<dl class="facts">
+          <div class="fact"><dt>Part of</dt><dd>${esc(room)}</dd></div>
         </dl>` : ""}
 
         ${planned ? `
@@ -1192,13 +1190,12 @@ function openSheet(c) {
             <div class="sheet-going-ticketswap"></div>
           </div>
         ` : `
-          <div class="sheet-section">
-            <p class="whisper">Who did you actually see?</p>
+          <details class="sheet-section night-disclosure sheet-lineup"${lineup.length > 1 && !Array.isArray(c.seenArtists) ? " open" : ""}>
+            <summary>Who you saw <i class="sheet-lineup-count"></i><span aria-hidden="true">⌄</span></summary>
             <div id="sheet-lineup"></div>
             <p class="status" id="lineup-status"></p>
-          </div>
-          <div class="sheet-section">
-            <p class="whisper">Note to self</p>
+          </details>
+          <div class="sheet-section sheet-note-section">
             <div id="sheet-note"></div>
           </div>
           <div id="sheet-setlist"></div>
@@ -1328,9 +1325,19 @@ function renderLineupPicker(host, status, c, lineup) {
   });
   host.appendChild(list);
 
-  const saveRow = el(`<div class="act-row" style="padding-left:0;padding-right:0"><button class="plain-act" id="lineup-save">Save</button></div>`);
+  const saveRow = el(`<div class="act-row" style="padding-left:0;padding-right:0" hidden><button class="plain-act" id="lineup-save">Save</button></div>`);
   host.appendChild(saveRow);
   const saveBtn = saveRow.querySelector("#lineup-save");
+  // Save appears only once something differs from what's stored, and the
+  // disclosure's summary always says "n of m" so it reads closed.
+  const countEl = host.closest("details")?.querySelector(".sheet-lineup-count");
+  const sync = () => {
+    const dirty = pending.size !== seenNow.size || [...pending].some((k) => !seenNow.has(k));
+    saveRow.hidden = !dirty;
+    if (countEl) countEl.textContent = lineup.length > 1 ? `${lineup.filter((n) => pending.has(normalizeKey(n))).length} of ${lineup.length}` : "";
+  };
+  list.addEventListener("click", sync);
+  sync();
 
   saveBtn.addEventListener("click", async () => {
     if (!getGithubConfig()) { openSettings(); return; }
@@ -1341,6 +1348,7 @@ function renderLineupPicker(host, status, c, lineup) {
       Object.assign(c, savedArchive.concerts.find((x) => x.id === c.id));
       refreshArchiveViews(savedArchive);
       renderSetlist(document.getElementById("sheet-setlist"), c);
+      seenNow.clear(); pending.forEach((k) => seenNow.add(k)); sync();
       status.textContent = "Saved.";
       status.className = "status";
     } catch (err) {
@@ -1402,10 +1410,15 @@ function renderNote(host, c) {
   host.innerHTML = "";
   const has = !!(c.notes && c.notes.trim());
 
-  const view = el(`
+  const view = el(has ? `
     <div>
-      <p class="note-body ${has ? "" : "is-empty"}">${has ? esc(c.notes) : "Nothing written down."}</p>
-      <button class="plain-act">${has ? "Edit" : "Write something"}</button>
+      <p class="whisper">Note to self</p>
+      <p class="note-body">${esc(c.notes)}</p>
+      <button class="plain-act">Edit</button>
+    </div>
+  ` : `
+    <div>
+      <button class="plain-act note-add">+ Add a note</button>
     </div>
   `);
   view.querySelector(".plain-act").addEventListener("click", () => {
@@ -1468,13 +1481,13 @@ function renderSetlist(host, c) {
     const similar = result.matchType === "similar-show";
     const reference = similar || result.matchType === "tour-reference";
     const unverified = result.matchType === "unverified";
-    const title = similar ? `≈ ${result.artist} · similar show`
-      : reference ? `≈ ${result.artist} · tour setlist`
-      : unverified ? `${result.artist} · saved setlist`
+    const many = available.length > 1 ? ` · ${result.artist}` : "";
+    const title = reference ? `≈ Likely setlist${many}`
+      : unverified ? `Saved setlist${many}`
       : `What ${result.artist} played`;
     const wrap = el(`
       <div class="sheet-section">
-        <p class="whisper">${esc(title)} · ${total} songs</p>
+        <p class="whisper setlist-title"><span>${esc(title)}</span><span>${total} songs</span></p>
       </div>
     `);
 
@@ -1482,7 +1495,7 @@ function renderSetlist(host, c) {
       const source = result.sourceEvent || {};
       const place = [source.date, source.venue, source.city]
         .filter(Boolean).join(" · ");
-      wrap.appendChild(el(`<details class="whisper">
+      wrap.appendChild(el(`<details class="whisper setlist-why">
         <summary>${similar ? "≈ Similar show · nearby date" : "≈ Same tour · another show"}</summary>
         <p>${esc(place)}<br>Tour: ${esc(source.tour || "")}</p>
         <p>${similar ? "The tour for your concert is unconfirmed. This is a nearby show by the same artist." : "This is a reference, not the confirmed setlist for your concert."}
@@ -1494,17 +1507,35 @@ function renderSetlist(host, c) {
       ));
     }
 
+    // Long setlists open folded: the first eight songs, then "all n".
+    const FOLD = 8;
+    const fold = total > FOLD + 2;
+    let shown = 0, folded = false;
     for (const set of result.sets) {
-      const block = el(`<div class="setlist-block"></div>`);
+      const hideBlock = fold && shown >= FOLD;
+      const block = el(`<div class="setlist-block${hideBlock ? " is-folded" : ""}"></div>`);
       if (result.sets.length > 1 || /encore/i.test(set.name))
         block.appendChild(el(
           `<div class="setlist-name">${esc(set.name)}</div>`
         ));
       const ol = el(`<ol class="setlist-songs"></ol>`);
-      for (const song of set.songs)
-        ol.appendChild(el(`<li>${esc(song)}</li>`));
+      for (const song of set.songs) {
+        const hide = fold && ++shown > FOLD;
+        if (!fold) shown++;
+        folded = folded || hide;
+        ol.appendChild(el(`<li${hide ? ' class="is-folded"' : ""}>${esc(song)}</li>`));
+      }
       block.appendChild(ol);
       wrap.appendChild(block);
+    }
+    const actions = el(`<div class="setlist-actions"></div>`);
+    if (folded) {
+      const more = el(`<button type="button" class="plain-act setlist-more">All ${total} songs</button>`);
+      more.addEventListener("click", () => {
+        wrap.querySelectorAll(".is-folded").forEach((n) => n.classList.remove("is-folded"));
+        more.remove();
+      });
+      actions.appendChild(more);
     }
 
     let sourceURL = null;
@@ -1518,8 +1549,9 @@ function renderSetlist(host, c) {
       const link = el(`<button class="plain-act">Source: setlist.fm</button>`);
       link.addEventListener("click", () =>
         window.open(sourceURL, "_blank", "noopener,noreferrer"));
-      wrap.appendChild(link);
+      actions.appendChild(link);
     }
+    wrap.appendChild(actions);
     host.appendChild(wrap);
   }
 }

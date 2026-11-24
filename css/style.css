@@ -2467,3 +2467,15 @@ a.plain-act { text-decoration:none; }
 .settings-relay .whisper { margin-top: 0; }
 
 .plain-act.is-armed { color: var(--ember); border-bottom-color: var(--ember); }
+
+/* Concert sheet: quieter archive night */
+.sheet-lineup > summary i { margin-left: auto; margin-right: 14px; font-style: normal; font-family: var(--mono); font-size: 11px; color: var(--bone-faint); letter-spacing: .1em; }
+.sheet-lineup[open] > summary { margin-bottom: 4px; }
+.note-add { color: var(--bone-dim); }
+.setlist-title { display: flex; justify-content: space-between; gap: 16px; }
+.setlist-title span:last-child { color: var(--bone-faint); }
+.setlist-why summary { cursor: pointer; color: var(--bone-dim); list-style: none; margin-bottom: 10px; }
+.setlist-why summary::-webkit-details-marker { display: none; }
+.setlist-songs li.is-folded, .setlist-block.is-folded { display: none; }
+.setlist-actions { display: flex; flex-wrap: wrap; gap: 8px 28px; margin-top: 6px; }
+.setlist-actions:empty { display: none; }

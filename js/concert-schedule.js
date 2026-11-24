@@ -1,4 +1,21 @@
 import { attachScheduleRefresh } from "./schedule-refresh.js?v=20261013";
+
+// A venue writing "Support act: Geen" (Dutch for none) means there is no
+// support act. Older saved schedules turned that into an act called "Geen"
+// holding the programme-start time; read them as the venue meant it: no
+// support, and that time belongs to the main act.
+export function isNoSupportPlaceholder(name) {
+  return /^(geen(?: voorprogramma| support(?: act)?)?|no support(?: act)?|none)$/i.test(String(name || "").trim());
+}
+export function cleanSchedule(s) {
+  if (!s?.support?.some(f => isNoSupportPlaceholder(f?.name))) return s;
+  const placeholder = s.support.find(f => isNoSupportPlaceholder(f?.name));
+  const support = s.support.filter(f => !isNoSupportPlaceholder(f?.name));
+  const main = !support.length && s.main && !s.main.time && placeholder?.time
+    ? { ...placeholder, name: s.main.name, derivedFrom: undefined, sets: s.main.sets }
+    : s.main;
+  return { ...s, support, main, noSupport: support.length ? s.noSupport : true };
+}
 // Shared venue-local clock. No inferred performance times.
 export function localDate(now = Date.now(), zone = "Europe/Amsterdam") {
   const p = new Intl.DateTimeFormat("en-CA", { timeZone: zone, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date(now));
@@ -27,7 +44,7 @@ export function venueInstant(date, time, zone = "Europe/Amsterdam", dayOffset = 
 
 // Recompute all interval boundaries from venue wall time, never cached at values.
 function mainSegments(concert) {
-  const s=concert.schedule,sets=s?.main?.sets;
+  const s=cleanSchedule(concert.schedule),sets=s?.main?.sets;
   if(s?.date!==concert.date || !Array.isArray(sets) || !sets.length || sets.length>24)return [];
   const convert=(field,kind)=>{
     let at,end;
@@ -51,7 +68,7 @@ const waitLabel=(minutes)=>{
 };
 
 export function scheduleCountdown(concert, now = Date.now()) {
-  const s = concert.schedule;
+  const s = cleanSchedule(concert.schedule);
   if (!s || s.date !== concert.date) return "";
   const zone = s.timeZone || "Europe/Amsterdam";
   const startAssigned = [s.main, ...(s.support || [])].some(f =>
@@ -94,7 +111,7 @@ export function artistLabel(name) {
 }
 
 export function scheduleMarkup(concert) {
-  const s = concert.schedule?.date === concert.date ? concert.schedule : null;
+  const s = cleanSchedule(concert.schedule?.date === concert.date ? concert.schedule : null);
   const row = (label, field, role = "", kind = "") => {
     const known = /^([01]\d|2[0-3]):[0-5]\d$/.test(field?.time || "");
     let at = null;
@@ -108,7 +125,7 @@ export function scheduleMarkup(concert) {
   const supportKey = name => String(name || "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
   const support = s?.noSupport ? [] : [...(s?.support || [])];
   for (const name of s?.noSupport ? [] : (concert.supportingArtists || [])) {
-    if (name && !support.some(field => supportKey(field.name) === supportKey(name))) support.push({ name });
+    if (name && !isNoSupportPlaceholder(name) && !support.some(field => supportKey(field.name) === supportKey(name))) support.push({ name });
   }
   const segments=mainSegments(concert),setCount=segments.filter(part=>part.kind==="main").length;
   let setIndex=0;

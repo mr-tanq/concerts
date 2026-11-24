@@ -375,9 +375,13 @@ function updateLyricLine(body, progressMs) {
   // lyrics and source-status messages remain useful without a time anchor.
 
   let text = null;
-  let emptyMessage = currentLyricLines === undefined ? "Finding lyrics…" : "";
+  // Quiet by default: a short word where it helps, nothing where it doesn't.
+  // Unsynced lyrics already have their own "Read lyrics" disclosure below.
+  let emptyMessage = currentLyricLines === undefined ? "…" : "";
   if (currentLyricLines === null) {
-    emptyMessage = currentLyricResult?.status === "instrumental" ? "Instrumental." : currentLyricResult?.status === "plain" ? "Lyrics available below — not synced." : currentLyricResult?.status === "unavailable" ? "Lyrics sources are temporarily unavailable." : "No lyrics found for this one.";
+    emptyMessage = currentLyricResult?.status === "instrumental" ? "Instrumental"
+      : currentLyricResult?.status === "unavailable" ? "Lyrics unavailable right now"
+      : "";
   } else if (Array.isArray(currentLyricLines) && isValidPlaybackNumber(progressMs)) {
     text = currentLine(currentLyricLines, progressMs);
   }
@@ -403,7 +407,7 @@ export function renderLyricsExtras(body,result,retry) {
   host.replaceChildren();
   if(result.plainLyrics) {
     const details=document.createElement('details');details.className='mirror-plain-lyrics';
-    const summary=document.createElement('summary');summary.textContent='Read lyrics · Not synced';
+    const summary=document.createElement('summary');summary.textContent='Read lyrics';
     const source=document.createElement('a');source.className='footnote';source.textContent=result.source;
     source.href=result.source==='LRCLIB'?'https://lrclib.net/':'https://lyrics.ovh/';source.target='_blank';source.rel='noopener noreferrer';
     details.appendChild(summary);
@@ -414,7 +418,8 @@ export function renderLyricsExtras(body,result,retry) {
     });
     host.appendChild(details);
   }
-  if(['not-found','unavailable'].includes(result.status)) {
+  // Only a temporary outage is worth retrying; "not found" stays not found.
+  if(result.status==='unavailable') {
     const button=document.createElement('button');button.type='button';button.className='plain-act';button.textContent='Retry lyrics';
     button.addEventListener('click',async()=>{button.disabled=true;button.textContent='Checking…';try{await retry();}finally{button.disabled=false;button.textContent='Retry lyrics';}});
     host.appendChild(button);

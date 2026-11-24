@@ -82,7 +82,30 @@ test('confirmed no-support and named support retain their existing assignment', 
   assert.equal(support.main.time, null);
 });
 
+test('a bare "Geen" support act means no support, not an act called Geen', () => {
+  const solo = mergeSchedule(c, [
+    parseSchedule(page(c.artist, c.date, 'Geen'), c, url)
+  ], now, 'manual');
+  assert.deepEqual(solo.support, []);
+  assert.equal(solo.main.time, '20:00');
+});
+
 test('wrong concert dates and artists remain rejected', () => {
   assert.equal(parseSchedule(page(c.artist, '2026-11-24'), c, url), null);
   assert.equal(parseSchedule(page('Another Artist'), c, url), null);
+});
+
+test('a saved "Geen" support act reads as no support, its time moving to the main act', async () => {
+  const { cleanSchedule } = await import('../js/concert-schedule.js');
+  const saved = {
+    date: c.date,
+    support: [{ name: 'Geen', time: '20:30', dayOffset: 0, status: 'confirmed', derivedFrom: 'programme-start' }],
+    main: { name: c.artist, time: null },
+  };
+  const clean = cleanSchedule(saved);
+  assert.deepEqual(clean.support, []);
+  assert.equal(clean.noSupport, true);
+  assert.equal(clean.main.time, '20:30');
+  assert.equal(clean.main.name, c.artist);
+  assert.equal(cleanSchedule(clean), clean);
 });

@@ -240,7 +240,7 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
     new URL(url).hostname.replace(/^www\./, "") === "tivolivredenburg.nl";
   const noSupport = tivoli && root.find("dt").toArray().some(n =>
     normalize($(n).text()) === "support act" &&
-    /^(geen voorprogramma|no support(?: act)?)$/.test(
+    /^(geen(?: voorprogramma| support(?: act)?)?|no support(?: act)?|none)$/.test(
       normalize($(n).next("dd").text())));
   const unknownSupport = tivoli && root.find("dt").toArray().some(n =>
     /^(support(?: act)?|voorprogramma)$/.test(normalize($(n).text())) &&
@@ -257,7 +257,7 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
     const names = links.length ? links : [dd.text().trim()];
     for (const name of names) {
       if (/^[\p{L}\p{N} '&+.-]{2,70}$/u.test(name)
-        && !/^(geen voorprogramma|no support(?: act)?|tba|unknown|nog niet bekend)$/i.test(name)
+        && !/^(geen(?: voorprogramma| support(?: act)?)?|no support(?: act)?|none|tba|unknown|nog niet bekend)$/i.test(name)
         && !times(name).length && !matchName(name, concert.artist)) {
         supportNames.push(supportName(name));
       }
