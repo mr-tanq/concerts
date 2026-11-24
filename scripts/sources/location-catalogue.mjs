@@ -1,6 +1,6 @@
 import * as cheerio from 'cheerio';
 import {createHash} from 'node:crypto';
-import {SEARCH_VENUES,fetchHTML,officialURL,parseOfficialEvents,placeMatches} from './manual-concert-search.mjs';
+import {SEARCH_VENUES,fetchHTML,officialURL,parseOfficialEvents,placeMatches,inSearchLocation} from './manual-concert-search.mjs';
 import {normalizeArtistName,splitLineup,isTrackedName,detectCountry,parseConcertPageTitle} from './podiuminfo.mjs';
 import {moreEvents} from './international-concert-search.mjs';
 import {searchKey,sameSearchConcert} from '../../js/concert-search-model.js';
@@ -11,7 +11,7 @@ export async function searchLocationCatalogue(request,{candidates,dayCacheEntrie
   const tracked=new Set(candidates.map(a=>normalizeArtistName(a.name)));
   const matchNames=names=>candidates.filter(a=>names.some(n=>isTrackedName(n,new Set([normalizeArtistName(a.name)]))));
   const enough=()=>now()<deadline-32000;
-  const inPlace=c=>scope.country?matchesLocation(c,scope):(matchesLocation(c,scope) || placeMatches(c,request.place));
+  const inPlace=c=>scope.country?inSearchLocation(c,scope,request.place):(matchesLocation(c,scope) || placeMatches(c,request.place));
   function add(c) {
     if(c.date<startDate || c.date>endDate || !inPlace(c))return;
     const matched=matchNames(c.lineup || [c.artist]);

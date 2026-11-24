@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { searchKey, sameSearchConcert, validateSearchRequest } from '../../js/concert-search-model.js';
 import { searchCachedArtist, splitLineup, isTrackedName, normalizeArtistName, detectCountry } from './podiuminfo.mjs';
 import { validDate, localDate } from '../../js/concert-schedule.js';
-import { searchLocation, matchesLocation, locationKey } from '../../js/concert-countries.js';
+import { searchLocation, matchesLocation, locationKey, countryCode } from '../../js/concert-countries.js';
 import { searchInternationalConcerts } from './international-concert-search.mjs';
 
 // Only venue-owned sites. Location comes from Event data; registry defaults
@@ -22,6 +22,9 @@ export const SEARCH_VENUES = [
 ];
 const placeKey = value => locationKey(searchKey(value).replace(/^tivoli vredenburg\b/, 'tivolivredenburg').replace(/^brussel$/, 'brussels'));
 export const placeMatches = (c, place) => [c.venue,c.city].some(v => placeKey(v).includes(placeKey(place)));
+export const inSearchLocation = (c, scope, place) => scope.country
+  ? matchesLocation(c,scope) || !!scope.place && countryCode(c.country) === scope.country && placeMatches(c,scope.place)
+  : placeMatches(c,place);
 export function officialURL(value, domain, base) {
   try { const u = new URL(value, base); return u.protocol === 'https:' && !u.username && !u.password && [domain,`www.${domain}`].includes(u.hostname) ? u.href.split('#')[0] : null; } catch { return null; }
 }
@@ -168,7 +171,7 @@ export async function searchConcerts(request, { dayCacheEntries, startDate, endD
   if (!artist) throw new Error('Artist required for direct search');
   const scope = searchLocation(place), nationwide = scope.country === 'NL' && !scope.place;
   if (!scope.place && !scope.country || scope.country && scope.country !== 'NL' || !scope.country && !SEARCH_VENUES.some(v=>placeMatches({venue:v[0],city:v[1]},place))) return searchInternationalConcerts({artist,scope,startDate,endDate,deadline,fetcher:internationalFetcher || fetchHTML});
-  const inLocation = c => scope.country ? matchesLocation(c,scope) : placeMatches(c,place);
+  const inLocation = c => inSearchLocation(c,scope,place);
   const catalogue = await searchCachedArtist({ artist,startDate,endDate,dayCacheEntries,deadline, fetcher:podiumFetcher || (async url=>{await new Promise(r=>setTimeout(r,1200));return fetchHTML(url,'podiuminfo.nl');}) });
   const expectedDays = Math.round((Date.parse(endDate)-Date.parse(startDate))/86400000)+1;
   if (catalogue.coveredDays < expectedDays) warnings.push(`The catalogue covers ${catalogue.coveredDays} of ${expectedDays} days in this search range. These results may be incomplete.`);
