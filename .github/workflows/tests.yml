@@ -1,0 +1,42 @@
+name: Tests
+
+# One place for every regression test: syntax-checks all browser and script
+# modules, then runs the whole scripts/*.test.mjs suite. Replaces the
+# separate per-feature test workflows, each of which ran only a slice.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    paths:
+      - "js/**"
+      - "scripts/**"
+      - "sw.js"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/tests.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Syntax-check every module
+        run: |
+          set -e
+          for f in sw.js js/*.js scripts/*.mjs scripts/lib/*.mjs scripts/sources/*.mjs; do
+            node --check "$f"
+          done
+      - name: Run the full test suite
+        run: node --test scripts/*.test.mjs

@@ -1,89 +1,84 @@
 # Listening Mirror
 
-A concert archive + discovery system. 100% GitHub — no Cloudflare, no servers.
-The repo itself is the database (JSON files), GitHub Pages serves the frontend,
-and GitHub Actions does the "backend" work on a schedule.
+A personal music diary: what you're listening to right now, the concerts worth
+going to next, and every night you've been to since 2001.
 
-Discovery is deliberately minimal: **Last.fm** for your listening signal,
-**Podiuminfo** for concert search (NL/BE only, by design — see below).
+It runs entirely on GitHub. The repo is the database (JSON files in `data/`),
+GitHub Pages serves the app, and scheduled GitHub Actions do the "backend"
+work. The only other moving part is a small Supabase relay that carries
+now-playing state from the Android companion to Mirror.
 
-## How it works
+## The app
+
+Five tabs, built for a phone (installable to the home screen as a PWA):
+
+| Tab | What it is |
+|---|---|
+| **Mirror** | What's playing now (Spotify Web, or Spotify / YouTube / YouTube Music / ambient radio via the Android companion), with synced lyrics and the ambient-recognition remote. |
+| **Realm** | Your concerts and listening as a hand-drawn atlas — countries and cities that matter to you glow. |
+| **Live** | *Deciding* — swipe on concerts discovered from your listening (right = going, left = pass, Later = skip for now). *Going* — your plan, filtered by **Tickets / Interested / All**, with list or calendar view, next-night countdown, timetables, warm-up setlists, TicketSwap and work-day badges. *Set aside* — everything you passed on, restorable. |
+| **Self** | Who you are according to what you play: listening landscape over time, editorial moments, top artists. |
+| **Archive** | Every concert since 2001: overview, milestones, on-this-day, search by artist / venue / city / year, and per-night sheets with setlist, who you actually saw, and notes. |
+
+Swipes, tickets, notes and "I went" write straight to the repo from the
+browser through the GitHub Contents API, using a fine-grained token you enter
+once in Settings (kept only in that browser's storage).
+
+## Layout
 
 ```
-data/archive.json   ← permanent history, since 2001 (source of truth)
-data/planned.json   ← concerts discovered by matching your listening to live shows
-data/config.json    ← your location, which sources to use, scoring weights
-
-scripts/discover-concerts.mjs      → run by a scheduled GitHub Action
-scripts/sources/podiuminfo.mjs     → Podiuminfo event-database adapter
-scripts/import-to-archive.mjs      → run manually when you actually go to a show
+index.html, css/, js/          the static app (no build step)
+sw.js, manifest.webmanifest    PWA: home-screen install, always-fresh code, offline shell
+data/archive.json              permanent concert history — the source of truth
+data/planned.json              Going (with tickets, work arrangements, schedules)
+data/recommendations.json      the Deciding deck
+data/recommendation-history.json  what you passed on
+data/identity.json, listening-timeseries.json, artist-*.json  Self / Realm inputs
+data/*-cache.json              source caches kept by the discovery jobs
+scripts/                       everything the workflows run, plus *.test.mjs
+android-companion/             Android app: media relay + ambient recognition → Mirror
+android-app/                   minimal Android WebView wrapper around the site
+supabase/migration.sql         relay schema (private tables + SECURITY DEFINER RPCs)
 ```
 
-Nothing writes to the repo from the browser. The static site (`index.html` +
-`js/app.js`) only *reads* `data/*.json` and computes everything client-side
-(`js/archive-stats.js` — Overview, Signature, Milestones, Timeline, Patterns
-all come from the exact same array, so they can never drift from each other).
+## Data sources
 
-## Setup
+- **Last.fm** — your listening signal (top / recent / similar artists).
+- **Podiuminfo** — NL/BE concert agenda, scanned day by day.
+- **Festivalinfo** and official festival sites — festival line-ups and artwork.
+- **setlist.fm** — setlists for archive nights and warm-up setlists for Going.
+- **TicketSwap** — resale availability for Going concerts.
 
-1. Push this to a repo named `listening-mirror` and turn on **GitHub Pages**
-   (Settings → Pages → deploy from branch, root).
+Discovery is NL-first by design (`data/config.json`: home city, search
+countries, radius, score weights). Adding another source means one adapter in
+`scripts/sources/` returning the same concert shape.
 
-2. Add two secrets under **Settings → Secrets and variables → Actions**:
-   | Secret | Where to get it |
-   |---|---|
-   | `LASTFM_API_KEY` | last.fm/api/account/create |
-   | `LASTFM_USER` | your Last.fm username |
+## Workflows
 
-   That's the whole list. No Spotify OAuth, no Ticketmaster/Bandsintown keys.
-   Podiuminfo needs no key at all — it's a public search
-   (`scripts/sources/podiuminfo.mjs`), not an API with auth.
+| Workflow | When |
+|---|---|
+| Discover concerts | 13:00 & 19:00 UTC — cheap run on cached days |
+| Discover concerts (daily deep refresh) | 07:00 UTC — re-checks every day in the window |
+| Refresh concert schedules | every 30 min — timetables / set times for Going |
+| Fetch identity | twice daily |
+| Fetch listening history, Fetch artist origins | weekly |
+| Fetch setlists, warm-up setlists, TicketSwap, Search a concert | when the app writes a request file |
+| Plan / Dismiss / Import concert | manual fallbacks for what the app does directly |
+| Tests | every push / PR touching code — syntax check + full `scripts/*.test.mjs` |
+| Build Android companion APK | on changes in `android-companion/`, or by hand |
 
-3. The **Discover concerts** workflow runs twice a day (edit the cron in
-   `.github/workflows/discover-concerts.yml`) and commits an updated
-   `data/planned.json`. You can also trigger it manually from the Actions tab.
+### Secrets (Settings → Secrets and variables → Actions)
 
-4. When you actually attend a concert: go to **Actions → Import concert to
-   archive → Run workflow**, paste the concert's `id` from `data/planned.json`,
-   and it moves the record into `data/archive.json` (dedup-checked) and
-   removes it from planned. This is the one deliberately manual step —
-   "I went" is a fact only you can confirm.
+| Secret | Used for |
+|---|---|
+| `LASTFM_API_KEY`, `LASTFM_USER` | discovery, identity, listening history |
+| `SETLISTFM_API_KEY` | setlists |
+| `PARSE_API_KEY` | TicketSwap refresh |
 
-## Why only NL/BE
+## Local development
 
-Podiuminfo's whole database is the Dutch/Belgian club and festival circuit —
-that's exactly why it catches your local shows better than a generic API. The
-trade-off: if you go to a concert outside NL/BE (Greece, for instance — your
-archive shows Athens is actually your #1 city with 50 shows), Podiuminfo
-won't surface it, no matter how well the matching works. You confirmed you're
-NL/BE-only going forward, so this is intentional, not an oversight. If that
-changes later, dropping in another source (Bandsintown, Ticketmaster, a
-country-specific site) is one adapter function with the same output shape as
-`queryPodiuminfo` in `scripts/discover-concerts.mjs`.
-
-## What's implemented vs. what's next
-
-**Done in this pass:**
-- Archive data schema + full stats engine (Overview / Signature / Milestones
-  / Patterns / Timeline / On This Day) — the part you called most important,
-  so it's the most complete.
-- Concerts discovery pipeline: Last.fm weighted artist list → Podiuminfo
-  event-database search → scored, deduped, geo-filtered results →
-  `planned.json`. Podiuminfo search is event-based (not artist-page based),
-  so it naturally handles multi-band lineups, festival appearances, and the
-  same artist on multiple nights/venues (each is its own Podiuminfo concert
-  id, which doubles as the dedup key).
-- Import-to-archive flow with duplicate protection.
-
-**One honest caveat on Podiuminfo parsing:** the adapter was built by reading
-the site through a markdown-rendering fetch, not raw HTML, so date/city
-extraction is a best-effort heuristic. Run
-`node scripts/sources/podiuminfo.mjs "Mono"` locally (after `npm install`) to
-sanity-check it, or add `--dump` to print raw HTML from a real search page —
-if dates or cities come out wrong, send me that dump for a precise fix.
-
-**Still stubbed / next steps:**
-- **Mirror**, **Realm**, **Identity** tabs are placeholders — say the word
-  and we bring those back once Concerts/Archive are solid for you.
-- Tune the scoring/matching once you've got real Last.fm data flowing and
-  can point me at concerts it should (or shouldn't) have found.
+```sh
+npm ci
+node --test scripts/*.test.mjs      # full test suite
+python3 -m http.server              # then open http://localhost:8000
+```

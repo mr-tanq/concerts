@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+      Notification Access is not a runtime permission — it's granted
+      manually by the user in system settings, which is what the
+      BIND_NOTIFICATION_LISTENER_SERVICE declaration below enables.
+      Phase 1B-2 added INTERNET for the relay; Phase 1C adds the
+      foreground-service permissions that keep observation alive in the
+      background. Phase 2A adds explicit, user-started microphone capture for
+      ambient music recognition. It starts from a visible Activity or an explicit user interaction with the ongoing notification.
+    -->
+
+    <!-- Relay transport (Phase 1B-2). No location. Ambient audio is opt-in below. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Keepalive so MediaSession observation and the 20s relay heartbeat
+         are not suspended when the UI is backgrounded or the screen is
+         locked. specialUse rather than dataSync: this is a long-lived
+         listener lifecycle, and Android 15 applies runtime time limits to
+         dataSync foreground services that would break it. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+
+    <!-- Android 13+. NOT required to start a foreground service, but without
+         it the FGS notification never appears in the shade, which is how
+         the keepalive was silently invisible on the Samsung S23. Core relay
+         behaviour must not depend on the user granting this. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Phase 2A ambient recognition. RECORD_AUDIO is requested at runtime
+         only when the user taps START. Android 14+ also requires the matching
+         foreground-service permission/type for while-in-use microphone work. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+
+
+    <application
+        android:label="Listening Mirror Companion"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.AppCompat.DayNight">
+
+        <activity
+            android:name=".android.DebugActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!--
+          Unlocks MediaSessionManager.getActiveSessions() AND hosts the
+          MediaSession observation lifecycle, so observation continues
+          while the debug Activity is backgrounded. Reads no notification
+          content either way.
+
+          exported="false" per AOSP's own documented example for this
+          class; the system binds it via the BIND_NOTIFICATION_LISTENER_SERVICE
+          permission below, which does not require the component to be
+          exported to other apps.
+        -->
+        <activity
+            android:name=".android.RelaySettingsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".android.AmbientSettingsActivity"
+            android:exported="false" />
+
+        <service
+            android:name=".android.PlaybackRelayForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Continuous local MediaSession observation and Listening Mirror relay heartbeat while Notification Access is active." />
+        </service>
+
+        <service
+            android:name=".android.AmbientRecognitionService"
+            android:exported="false"
+            android:foregroundServiceType="microphone" />
+
+        <service
+            android:name=".android.MediaNotificationListenerService"
+            android:exported="false"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+    </application>
+</manifest>
