@@ -1,17 +1,17 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-11-24T16:37:29.601Z",
+    "lastUpdated": "2026-11-24T17:01:52.455Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 548,
-      "daysFresh": 1,
-      "daysCached": 547,
+      "daysFresh": 547,
+      "daysCached": 1,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 7,
       "rejectedByLineup": 0
     },
     "festivals": {
@@ -25,8 +25,8 @@
       "revisited": 0,
       "official": {
         "sources": 2,
-        "verified": 0,
-        "reused": 2,
+        "verified": 2,
+        "reused": 0,
         "failed": 0,
         "published": 2,
         "merge": {
@@ -38,6 +38,154 @@
     }
   },
   "concerts": [
+    {
+      "id": "rec-podiuminfo-504050",
+      "source": "podiuminfo",
+      "sourceId": "504050",
+      "artist": "The Wailers",
+      "lineup": [
+        "The Wailers"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "The Wailers"
+      ],
+      "date": "2027-06-09",
+      "time": null,
+      "venue": "Musis",
+      "city": "Arnhem",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/5764/100_The_Wailers_1.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/504050/The-Wailers/Musis/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: The Wailers",
+        "matchedArtists": [
+          "The Wailers"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-11-24T17:01:52.455Z",
+      "lastSeenAt": "2026-11-24T17:01:52.455Z"
+    },
+    {
+      "id": "rec-podiuminfo-504053",
+      "source": "podiuminfo",
+      "sourceId": "504053",
+      "artist": "The Wailers",
+      "lineup": [
+        "The Wailers"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "The Wailers"
+      ],
+      "date": "2027-06-16",
+      "time": null,
+      "venue": "Muziekgebouw Eindhoven",
+      "city": "Eindhoven",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/5764/100_The_Wailers_1.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/504053/The-Wailers/Muziekgebouw-Eindhoven/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: The Wailers",
+        "matchedArtists": [
+          "The Wailers"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-11-24T17:01:52.455Z",
+      "lastSeenAt": "2026-11-24T17:01:52.455Z"
+    },
+    {
+      "id": "rec-podiuminfo-504007",
+      "source": "podiuminfo",
+      "sourceId": "504007",
+      "artist": "Born From Pain",
+      "lineup": [
+        "Born From Pain"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Born From Pain"
+      ],
+      "date": "2027-02-20",
+      "time": null,
+      "venue": "Patronaat",
+      "city": "Haarlem",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/605/100_Born_From_Pain_1.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/504007/Born-From-Pain/Patronaat/",
+      "match": {
+        "score": 34,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Pro-Pain",
+        "matchedArtists": [
+          "Born From Pain"
+        ],
+        "similarVia": "Pro-Pain"
+      },
+      "discoveredAt": "2026-11-24T17:01:52.455Z",
+      "lastSeenAt": "2026-11-24T17:01:52.455Z"
+    },
+    {
+      "id": "rec-podiuminfo-504010",
+      "source": "podiuminfo",
+      "sourceId": "504010",
+      "artist": "Born From Pain",
+      "lineup": [
+        "Born From Pain"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Born From Pain"
+      ],
+      "date": "2027-02-27",
+      "time": null,
+      "venue": "Muziekgieterij",
+      "city": "Maastricht",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/605/100_Born_From_Pain_1.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/504010/Born-From-Pain/Muziekgieterij/",
+      "match": {
+        "score": 34,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Pro-Pain",
+        "matchedArtists": [
+          "Born From Pain"
+        ],
+        "similarVia": "Pro-Pain"
+      },
+      "discoveredAt": "2026-11-24T17:01:52.455Z",
+      "lastSeenAt": "2026-11-24T17:01:52.455Z"
+    },
     {
       "id": "rec-podiuminfo-503708",
       "source": "podiuminfo",
@@ -76,7 +224,7 @@
         "similarVia": "Psychonaut"
       },
       "discoveredAt": "2026-11-23T17:19:57.031Z",
-      "lastSeenAt": "2026-11-24T03:41:47.591Z"
+      "lastSeenAt": "2026-11-24T17:01:52.455Z"
     }
   ]
 }
