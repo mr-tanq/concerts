@@ -84,7 +84,31 @@ function loadGoingLayout() {
   } catch { return "list"; }
 }
 let goingLayout = loadGoingLayout();
-let goingTicketsOnly = false;
+// Going is split by what you've actually committed to: "tickets" (bought),
+// "interested" (planned, no ticket yet) or "all". Remembered per browser;
+// first visit opens on tickets when there are any.
+const GOING_FILTERS = ["tickets", "interested", "all"];
+let goingFilter = null;
+function loadGoingFilter() {
+  try {
+    const saved = localStorage.getItem("lm_going_filter");
+    if (GOING_FILTERS.includes(saved)) return saved;
+  } catch {}
+  return ticketedUpcoming().length ? "tickets" : "all";
+}
+function interestedUpcoming() {
+  return plannedConcerts.filter(c =>
+    c.practical?.ticketBought !== true &&
+    ((c.endDate || c.date) >= dutchToday() ||
+      (c.schedule?.date === c.date &&
+       Date.parse(c.schedule.end?.at) > Date.now()))
+  ).sort((a,b) => a.date.localeCompare(b.date));
+}
+function goingVisible() {
+  if (goingFilter === "tickets") return ticketedUpcoming();
+  if (goingFilter === "interested") return interestedUpcoming();
+  return plannedConcerts;
+}
 let goingSearchQuery = "";
 let goingBody = null;
 function ticketedUpcoming() {
@@ -1524,7 +1548,7 @@ function renderConcertsShell(view = "stage") {
   const bar = el(`
     <div class="switch">
       <button data-v="stage" class="${view === "stage" ? "on" : ""}">Deciding<i>${deckQueue.length}</i></button>
-      <button data-v="going" class="${view === "going" ? "on" : ""}">Going<i>${plannedConcerts.length}</i></button>
+      <button data-v="going" class="${view === "going" ? "on" : ""}" aria-label="Going: ${ticketedUpcoming().length} with tickets, ${plannedConcerts.length} planned">Going<i>${ticketedUpcoming().length}/${plannedConcerts.length}</i></button>
       <button data-v="aside" class="${view === "aside" ? "on" : ""}">Set aside<i>${aside}</i></button>
     </div>
   `);
@@ -1757,6 +1781,12 @@ async function saveConcertPractical(c,changes) {
           goingBody.querySelector('.going-layout')) {
         renderUpcoming(goingBody);
       }
+      const goingTab = document.querySelector('#panel-concerts .switch [data-v="going"]');
+      if (goingTab) {
+        const booked = ticketedUpcoming().length;
+        goingTab.querySelector("i").textContent = `${booked}/${plannedConcerts.length}`;
+        goingTab.setAttribute("aria-label", `Going: ${booked} with tickets, ${plannedConcerts.length} planned`);
+      }
       return practical;
 
     } finally { pendingWrites--; renderSaving(); }
@@ -1872,8 +1902,7 @@ function displayPlannedArtist(artist, concert = null) {
 
 
 function renderGoingCalendar(body) {
-  const visibleConcerts = goingTicketsOnly
-    ? ticketedUpcoming() : plannedConcerts;
+  const visibleConcerts = goingVisible();
   const today = dutchToday();
   const future = visibleConcerts.filter((c) => c.date && c.date >= today).sort((a, b) => a.date.localeCompare(b.date));
   if (!goingCalendarMonth) goingCalendarMonth = (future[0]?.date || today).slice(0, 7);
@@ -1994,7 +2023,7 @@ function seasonOverview(concerts) {
   const s = seasonSummary(concerts, workDayDetails);
   const largest = Math.max(1, ...s.months.map(m => m.total));
   const node = el(`<section class="season-overview" aria-label="Your concert season">
-    <p class="whisper">The season ahead${goingTicketsOnly ? ' · ticket filter on' : ''}</p>
+    <p class="whisper">The season ahead${goingFilter === "tickets" ? ' · with tickets' : goingFilter === "interested" ? ' · interested, no ticket yet' : ''}</p>
     <h2>${s.shows} ${s.shows === 1 ? 'show' : 'shows'} in view.<br><em>${s.booked} ${s.booked === 1 ? 'ticket' : 'tickets'} bought.</em></h2>
     <p class="season-caption">${s.nights} ${s.nights === 1 ? 'date' : 'different dates'}${s.work ? ` · ${s.work} on a working evening or night${s.arranged ? `, ${s.arranged} with time off arranged` : ''}` : ''}.</p>
     <details class="season-chart"><summary>Explore the season <span aria-hidden="true">⌄</span></summary>
@@ -2067,40 +2096,35 @@ function renderUpcoming(body) {
   }));
 
   layout.prepend(add);
-  const tickets = ticketedUpcoming();
-  const filter = el(`
-    <button type="button"
-      class="going-tickets ${goingTicketsOnly ? 'on' : ''}"
-      aria-pressed="${goingTicketsOnly}"
-      aria-label="Only concerts with tickets: ${tickets.length}"
-      title="Only concerts with tickets">
-      <svg aria-hidden="true" width="18" height="18"
-        viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" stroke-width="1.6">
-        <path d="M3 6h18v4a2 2 0 0 0 0 4v4H3v-4a2 2 0 0 0 0-4Z"/>
-        <path d="m9 12 2 2 4-4"/>
-      </svg>
-      <span>${tickets.length}</span>
-    </button>`);
-  layout.insertBefore(filter, layout.querySelector('[data-layout]'));
-  filter.addEventListener('click', () => {
-    goingTicketsOnly = !goingTicketsOnly;
-    if (goingTicketsOnly) {
-      goingCalendarMonth = (tickets[0]?.date || dutchToday()).slice(0,7);
-      goingCalendarSelectedDate = null;
-    }
+  if (!goingFilter) goingFilter = loadGoingFilter();
+  const counts = {
+    tickets: ticketedUpcoming().length,
+    interested: interestedUpcoming().length,
+    all: plannedConcerts.length,
+  };
+  const labels = { tickets: "Tickets", interested: "Interested", all: "All" };
+  const filter = el(`<div class="going-filter" role="group" aria-label="Which planned concerts">
+    ${GOING_FILTERS.map(f => `<button type="button" data-filter="${f}" class="${goingFilter === f ? "on" : ""}" aria-pressed="${goingFilter === f}">${labels[f]}<i>${counts[f]}</i></button>`).join("")}
+  </div>`);
+  filter.querySelectorAll("[data-filter]").forEach((button) => button.addEventListener("click", () => {
+    if (goingFilter === button.dataset.filter) return;
+    goingFilter = button.dataset.filter;
+    try { localStorage.setItem("lm_going_filter", goingFilter); } catch {}
+    goingCalendarMonth = null; // calendar reopens on the first month with a show in this filter
+    goingCalendarSelectedDate = null;
     renderUpcoming(body);
-    body.querySelector('.going-tickets')?.focus({preventScroll:true});
-  });
-  if (goingTicketsOnly && !tickets.length) {
-    body.appendChild(el(
-      '<p class="void">No upcoming concerts marked as ticket bought. Tap the ticket filter to show all concerts.</p>'
-    ));
+    body.querySelector(`[data-filter="${goingFilter}"]`)?.focus({ preventScroll: true });
+  }));
+  body.appendChild(filter);
+  if (goingFilter !== "all" && !counts[goingFilter]) {
+    body.appendChild(el(goingFilter === "tickets"
+      ? '<p class="void">No upcoming concerts with a ticket yet. Open one and tap “I have a ticket”.</p>'
+      : '<p class="void">Every upcoming concert already has a ticket.</p>'));
     return;
   }
 
   const today = dutchToday();
-  const sorted = [...(goingTicketsOnly ? ticketedUpcoming() : plannedConcerts)].sort((a, b) => String(a.date).localeCompare(String(b.date)));
+  const sorted = [...goingVisible()].sort((a, b) => String(a.date).localeCompare(String(b.date)));
   const stillUpcoming = c => (c.endDate || c.date) >= today || (c.schedule?.date === c.date && Date.parse(c.schedule.end?.at) > Date.now());
   const upcoming = sorted.filter(stillUpcoming);
   const past = sorted.filter(c => !stillUpcoming(c));

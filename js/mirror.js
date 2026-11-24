@@ -30,6 +30,8 @@ import {
 import { getReadSecret } from "./relay-config.js";
 import { identityKeyFor, isValidPlaybackNumber } from "./listening-state.js";
 import { getSyncedLyrics, currentLine } from "./lyrics.js?v=lyrica-20261101";
+import { mountAmbientControl, stopAmbientControl } from "./ambient-control.js";
+import { renderSourceIcon } from "./mirror-source-icon.js";
 
 // How often the lyric line re-checks itself against elapsed time. The
 // active provider is only asked for a fresh state occasionally (5s for
@@ -95,6 +97,8 @@ export function renderMirror(root) {
       </div>
     `));
     startPolling(root.querySelector("#mirror-body"));
+    // After startPolling: it begins with stopPolling(), which also stops this.
+    mountAmbientControl(root.querySelector(".mirror-stage"));
   } catch (err) {
     console.error(err);
     root.appendChild(el(`<p class="status bad">Something broke: ${esc(err.message)}</p>`));
@@ -247,6 +251,7 @@ function stopLyricClock() {
 export function stopPolling() {
   stopListeningProvider();
   stopLyricClock();
+  stopAmbientControl();
 }
 
 // A state reporting "nothing" immediately after a Pause tap is a known
@@ -347,6 +352,8 @@ async function handleListeningState(body, state) {
     };
     loadLyrics();
   }
+
+  renderSourceIcon(body.querySelector(".mirror-track"), state.source);
 
   const fill = body.querySelector("#mirror-progress-fill");
   if (fill && isValidPlaybackNumber(state.durationMs) && state.durationMs > 0 && isValidPlaybackNumber(state.positionMs)) {
