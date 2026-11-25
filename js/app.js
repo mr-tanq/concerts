@@ -3013,7 +3013,25 @@ async function init() {
   adoptConfigFromUrl();
   markConnected();
   // artistPhoto: Mirror's last-resort artwork when a song has no cover.
-  initMirror({ el, esc, artistPhoto: (name) => artistImages.get(normalizeKey(name)) || null });
+  initMirror({
+    el, esc,
+    artistPhoto: (name) => artistImages.get(normalizeKey(name)) || null,
+    // The next night out, for Mirror's idle screen: booked first, else the
+    // next show you're interested in.
+    nextNight: () => {
+      const c = ticketedUpcoming()[0] || interestedUpcoming()[0];
+      if (!c) return null;
+      const title = displayPlannedArtist(c.artist, c);
+      return {
+        title,
+        when: `${weekdayShort(c.date)} ${dayMonth(c.date)}`,
+        place: placeLine(c, title),
+        countdown: countdownWord(c.date),
+        image: imageFor(c),
+        open: () => openSheet(c),
+      };
+    },
+  });
   // Spotify's login redirect lands back on whichever tab happens to be
   // active by default; if that round-trip is in progress, land on Mirror
   // so the person sees the result immediately instead of Concerts.

@@ -2515,3 +2515,35 @@ a.plain-act { text-decoration:none; }
   color: var(--ember); text-decoration: none; padding: 10px 0 10px 12px; margin: -10px 0;
 }
 .stage-score { max-width: calc(100% - 36px); line-height: 1.5; }
+
+/* Mirror idle: the next night out */
+.mirror-idle-next {
+  display: block;
+  width: 100%;
+  margin-top: 34px;
+  padding: 22px 0 0;
+  border-top: 1px solid var(--hair);
+  text-align: left;
+}
+.mirror-idle-next .whisper { display: block; margin: 0 0 14px; }
+.mirror-idle-photo {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border-radius: 4px;
+  background: var(--black-2) center / cover no-repeat;
+  filter: saturate(0.9);
+}
+.mirror-idle-photo.is-empty { display: none; }
+.mirror-idle-count {
+  display: block;
+  margin-top: 16px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ember);
+}
+.mirror-idle-title { display: block; margin-top: 6px; font: 400 34px/1.08 var(--serif); color: var(--bone); }
+.mirror-idle-meta { display: block; margin-top: 6px; font-size: 14px; color: var(--bone-dim); }
+.mirror-idle-next:active .mirror-idle-title { color: var(--ember); }

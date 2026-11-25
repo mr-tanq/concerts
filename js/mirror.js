@@ -280,6 +280,10 @@ async function handleListeningState(body, state) {
     hasReliablePosition = false;
     isPlayingNow = false;
     syncedProgressMs = 0;
+    // Polls keep reporting "nothing" every few seconds; draw the idle screen
+    // once instead of rebuilding it (and re-loading its photo) each time.
+    if (body.dataset.idle === "1") return;
+    body.dataset.idle = "1";
     body.innerHTML = "";
     body.appendChild(el(`<p class="footnote">Nothing playing right now.</p>`));
     // Without the relay secret only Spotify is read, so YouTube & co. on the
@@ -289,6 +293,7 @@ async function handleListeningState(body, state) {
       hint.querySelector("button").addEventListener("click", () => document.dispatchEvent(new CustomEvent("lm:open-settings")));
       body.appendChild(hint);
     }
+    renderIdleNext(body);
     return;
   }
   missingPollStreak = 0;
@@ -313,6 +318,7 @@ async function handleListeningState(body, state) {
   const key = identityKeyFor(state);
   if (key !== currentIdentityKey) {
     currentIdentityKey = key;
+    body.dataset.idle = "";
     currentLyricLines = undefined;
     currentLyricResult = undefined;
     body.innerHTML = "";
@@ -406,6 +412,25 @@ function updateLyricLine(body, progressMs) {
   node.dataset.lyricText = key;
   host.replaceWith(node);
   node.id = "mirror-line";
+}
+
+// With nothing playing, the most relevant thing the app knows is the next
+// night out. One tap opens it.
+function renderIdleNext(body) {
+  const { el, esc } = renderDeps;
+  const next = renderDeps?.nextNight?.();
+  if (!next) return;
+  const card = el(`
+    <button type="button" class="mirror-idle-next" aria-label="Next night: ${esc(next.title)}, ${esc(next.when)}">
+      <span class="whisper">Next night</span>
+      <span class="mirror-idle-photo ${next.image ? "" : "is-empty"}" aria-hidden="true"></span>
+      <span class="mirror-idle-count">${esc(next.countdown)}</span>
+      <span class="mirror-idle-title">${esc(next.title)}</span>
+      <span class="mirror-idle-meta">${esc(next.when)}${next.place ? ` · ${esc(next.place)}` : ""}</span>
+    </button>`);
+  if (next.image) card.querySelector(".mirror-idle-photo").style.backgroundImage = `url("${String(next.image).replace(/"/g, "%22")}")`;
+  card.addEventListener("click", () => next.open());
+  body.appendChild(card);
 }
 
 function setArt(body, url) {
