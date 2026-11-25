@@ -20,6 +20,8 @@ const layouts = {
   'one <p> with <br>': wrap(`<p><strong>Tijdschema (onder voorbehoud)</strong><br>${rows.join('<br>\n')}</p>`),
   'a <p> per line': wrap(`<h3>Tijdschema (onder voorbehoud)</h3>${rows.map(r => `<p>${r}</p>`).join('\n')}`),
   'a list': wrap(`<p><strong>Tijdschema</strong></p><ul>${rows.map(r => `<li>${r}</li>`).join('')}</ul>`),
+  // Verbatim from patronaat.nl (Nov 2026): <br> with attributes, a <span> per line.
+  'Patronaat as published': wrap(`<p><span style="color: #231f20;"><strong style="color: #000000;">Tijdschema (onder voorbehoud)</strong></span> <br style="color: #231f20;" /><span style="color: #231f20;">Deuren open • 18:30</span><br style="color: #231f20;" /><span style="color: #231f20;">19:00 • <strong>Peace of Mind</strong></span><br style="color: #231f20;" /><span style="color: #231f20;">19:50 • <strong>Magnitude</strong></span><br style="color: #231f20;" /><span style="color: #231f20;">20:40 • <strong>Bane</strong></span><br style="color: #231f20;" /><span style="color: #231f20;">21:40 • <strong>Terror</strong></span><br style="color: #231f20;" /><span style="color: #231f20;">Verwacht einde • 22:40</span></p>`),
   'divs with nbsp': wrap(`<div>Tijdschema</div>${rows.map(r => `<div>${r.replace(' • ', '&nbsp;•&nbsp;')}</div>`).join('')}`),
 };
 const page = layouts['one <p> with <br>'];

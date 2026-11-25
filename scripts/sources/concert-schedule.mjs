@@ -290,7 +290,7 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
       const html = $(n).html();
       if (!html || html.length > 40000) return;
       const text = cheerio.load(html
-        .replace(/<br\s*\/?\s*>/gi, "\n")
+        .replace(/<br\b[^>]*>/gi, "\n")
         .replace(/<\/(?:p|li|div|h[1-6]|dd|dt|tr|section|article|ul|ol)>/gi, "\n")).text();
       const lines = text.split("\n").map(l => l.replace(/\s+/g, " ").trim()).filter(Boolean);
       // Longest run of time-led lines; doors/end lines may sit inside it.
@@ -313,7 +313,7 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
   // Explicit labelled fields only. Generic "Start", "Time" and JSON-LD startDate are NOT main-act times.
   root.find("p,li,dt,dd,div,span").each((_, n) => {
     if ($(n).text().replace(/\s+/g," ").trim().length > 300) return;
-    const lines = $(n).html()?.replace(/<br\s*\/?\s*>/gi,"\n"); if (!lines) return;
+    const lines = $(n).html()?.replace(/<br\b[^>]*>/gi,"\n"); if (!lines) return;
     for (const line of cheerio.load(lines).text().split(/\n|,\s*(?=(?:doors?|zaal open|voorprogramma|support|hoofdprogramma|main programme)\s*:)/i)) {
       const clean = line.replace(/\bSons of the Town Hall\b/gi,"Sons of Town Hall").replace(/\s+/g," ").trim();
       if (clean.length > 150) continue;
