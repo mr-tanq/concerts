@@ -129,8 +129,7 @@ export function renderHero(root, data) {
   if (!data?.meta?.lastUpdated) {
     root.appendChild(el(`
       <div class="stage-empty">
-        <p class="whisper">Self</p>
-        <p class="lede">Who you are, according to what you play.</p>
+                <p class="lede">Who you are, according to what you play.</p>
         <p class="footnote">Still gathering — this fills in after the identity job first runs.</p>
       </div>
     `));
@@ -143,12 +142,11 @@ export function renderHero(root, data) {
 
   root.appendChild(el(`
     <div class="opening">
-      <p class="whisper">Self</p>
-      <p class="lede">
+            <p class="lede">
         ${withCommas(totalScrobbles)} scrobbles${sinceYear ? ` since ${sinceYear}` : ""}.<br>
         ${lately ? `<em>Lately, you keep returning to ${esc(lately)}.</em>` : ""}
       </p>
-      <p class="hero-footnote">Last.fm · updated ${esc(timeAgo(data.meta.lastUpdated))}</p>
+      <p class="hero-footnote">${data.profile?.url ? `<a href="${esc(data.profile.url)}" target="_blank" rel="noopener">Last.fm ↗</a>` : "Last.fm"} · updated ${esc(timeAgo(data.meta.lastUpdated))}</p>
     </div>
   `));
   return true;
@@ -168,7 +166,7 @@ let exploreArtistsShowAll = false;
 export function renderExplore(root, data) {
   const { el } = renderDeps;
   root.innerHTML = "";
-  root.appendChild(el(`<div class="section-heading">Explore your listening</div>`));
+  root.appendChild(el(`<div class="section-heading">Most played</div>`));
 
   const tabBar = el(`
     <div class="identity-modes">
@@ -176,11 +174,19 @@ export function renderExplore(root, data) {
         <button class="explore-mode ${exploreTab === "artists" ? "on" : ""}" data-t="artists">Artists</button>
         <button class="explore-mode ${exploreTab === "songs" ? "on" : ""}" data-t="songs">Songs</button>
         <button class="explore-mode ${exploreTab === "albums" ? "on" : ""}" data-t="albums">Albums</button>
+        ${exploreTab === "artists" ? `<button class="explore-mode explore-period" data-period aria-label="Period: ${mode === "month" ? "past month" : "all time"}. Tap to switch.">${mode === "month" ? "Past month" : "All time"} ⇄</button>` : ""}
       </div>
     </div>
   `);
-  tabBar.querySelectorAll("button").forEach((b) => {
+  // One row: what (artists / songs / albums) and, for artists, a single
+  // period switch on the right instead of a second row of tabs.
+  tabBar.querySelectorAll("[data-t]").forEach((b) => {
     b.addEventListener("click", () => { exploreTab = b.dataset.t; renderExplore(root, data); });
+  });
+  tabBar.querySelector("[data-period]")?.addEventListener("click", () => {
+    mode = mode === "month" ? "overall" : "month";
+    exploreArtistsShowAll = false;
+    renderExplore(root, data);
   });
   root.appendChild(tabBar);
 
@@ -196,33 +202,21 @@ function renderExploreArtists(host, data) {
   const { el } = renderDeps;
   host.innerHTML = "";
 
-  const modeBar = el(`
-    <div class="identity-modes">
-      <div class="explore-modes">
-        <button class="explore-mode ${mode === "overall" ? "on" : ""}" data-m="overall">All time</button>
-        <button class="explore-mode ${mode === "month" ? "on" : ""}" data-m="month">Past month</button>
-      </div>
-    </div>
-  `);
-  modeBar.querySelectorAll("button").forEach((b) => {
-    b.addEventListener("click", () => { mode = b.dataset.m; exploreArtistsShowAll = false; renderExploreArtists(host, data); });
-  });
-  host.appendChild(modeBar);
 
   const list = el(`<div></div>`);
   const artists = mode === "month" ? data.topArtistsMonth : data.topArtistsOverall;
   if (!artists?.length) {
     list.appendChild(el(`<p class="void">${mode === "month" ? "Nothing tracked over the past month." : "Nothing tracked yet."}</p>`));
   } else {
-    const shown = exploreArtistsShowAll ? artists : artists.slice(0, 10);
+    const shown = exploreArtistsShowAll ? artists : artists.slice(0, 5);
     shown.forEach((a, i) => {
       const row = rankRow(i + 1, a.name, null, a.playcount, photoFor(a.name));
       row.classList.add("is-tappable");
       row.addEventListener("click", () => openArtistSheet(a.name));
       list.appendChild(row);
     });
-    if (!exploreArtistsShowAll && artists.length > 10) {
-      const more = el(`<button class="plain-act explore-more">Show more ↓</button>`);
+    if (!exploreArtistsShowAll && artists.length > 5) {
+      const more = el(`<button class="plain-act explore-more">Show ${artists.length - 5} more</button>`);
       more.addEventListener("click", () => { exploreArtistsShowAll = true; renderExploreArtists(host, data); });
       list.appendChild(more);
     }
@@ -239,7 +233,7 @@ function renderExploreSongs(host, data) {
   }
   const list = el(`<div></div>`);
   const status = el(`<p class="status" id="top-tracks-status"></p>`);
-  data.topTracks.slice(0, 10).forEach((t, i) => {
+  data.topTracks.slice(0, 5).forEach((t, i) => {
     const row = rankRow(i + 1, t.name, t.artist, t.playcount, false);
     row.classList.add("is-tappable");
     row.addEventListener("click", () => playViaSpotify(t.name, t.artist, status));

@@ -95,13 +95,16 @@ button { font-family: inherit; color: inherit; background: none; border: none; c
   padding: calc(16px + env(safe-area-inset-top)) var(--gutter) 14px;
   background: linear-gradient(to bottom, var(--black) 62%, transparent);
 }
+/* The masthead is the page title: which section you're in, set quietly in
+   the serif. The app's own name lives on the home-screen icon. */
 .masthead-name {
-  font-family: var(--mono);
-  font-size: 11px;
+  font-family: var(--serif);
+  font-size: 23px;
   font-weight: 400;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--bone-faint);
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: var(--bone);
+  margin: 0;
 }
 .masthead-settings {
   position: relative;
@@ -288,7 +291,7 @@ main { max-width: 720px; margin: 0 auto; }
 
 .spine {
   position: relative;
-  margin-top: 46px;
+  margin-top: 14px;
   padding-left: calc(var(--gutter) + 26px);
   padding-right: var(--gutter);
 }
@@ -2099,8 +2102,8 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
 .sheet-going .schedule-row dt small { display:block; }
 
 /* Going: a quiet season index, with one night in the foreground. */
-.season-overview { padding: 4px var(--gutter) 30px; }
-.season-overview h2 { font:400 clamp(36px,9vw,52px)/1.05 var(--serif); letter-spacing:-.025em; margin:18px 0 14px; }
+.season-overview { margin: 36px var(--gutter) 0; padding: 30px 0 30px; border-top: 1px solid var(--hair); }
+.season-overview h2 { font:400 clamp(28px,7vw,36px)/1.08 var(--serif); letter-spacing:-.02em; margin:14px 0 12px; }
 .season-overview h2 em { color:var(--bone-dim); font-weight:400; }
 .season-caption { color:var(--bone-dim); font-size:13px; line-height:1.7; max-width:42ch; }
 .season-chart { margin-top:20px; border-top:1px solid var(--hair); }
@@ -2508,3 +2511,8 @@ a.plain-act { text-decoration:none; }
 .settings-form[hidden], .settings-summary[hidden] { display: none; }
 .settings-done { margin-top: 26px; }
 .panel .status:empty { display: none; }
+
+.explore-modes .explore-period { margin-left: auto; color: var(--bone-dim); border-bottom-color: transparent; }
+
+.hero-footnote a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--hair); }
+#mirror-lyrics-more { text-align: center; }

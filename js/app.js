@@ -34,7 +34,7 @@ import { fetchRelayState } from "./relay-client.js";
 import { openConcertSearch } from "./concert-search.js?v=festival-browse-20261031";
 import { concertSearchState, sameSearchConcert } from "./concert-search-model.js?v=festival-browse-20261031";
 import { initMirror, renderMirror, stopPolling as stopMirrorPolling } from "./mirror.js?v=lyrica-20261101";
-import { initIdentity, renderHero, renderExplore as renderIdentityExplore, renderRightNow, openArtistSheet } from "./identity.js";
+import { initIdentity, renderHero, renderExplore as renderIdentityExplore, openArtistSheet } from "./identity.js";
 import { initRealm, renderRealm } from "./realm.js";
 import { computeListeningLife, selectEditorialMoments, renderListeningLife, renderEditorialMoments } from "./self-timeline.js?v=self-20261004-rotation";
 
@@ -719,25 +719,25 @@ function refreshArchiveViews(archiveData) {
   selfPanel.appendChild(heroRoot);
   const hasIdentity = renderHero(heroRoot, identityData);
 
+  // Stories first (what this week says about you), then the long view, then
+  // the plain rankings. "Recent listening" is left to Mirror, which shows
+  // what's playing live.
   if (hasIdentity) {
-    selfPanel.appendChild(el(`<div class="section-heading">Your listening life</div>`));
-    const lifeRoot = el(`<div id="self-life-root"></div>`);
-    selfPanel.appendChild(lifeRoot);
     const life = computeListeningLife(timeseriesData, archiveConcerts, { maxTraces: 10 });
-    renderListeningLife(lifeRoot, life, { el, esc }, (name) => openArtistSheet(name));
 
     const momentsRoot = el(`<div id="self-moments-root"></div>`);
     selfPanel.appendChild(momentsRoot);
     const moments = selectEditorialMoments(life.traces, { storyWeek: life.storyWeek });
     renderEditorialMoments(momentsRoot, moments, { el, esc }, (name) => openArtistSheet(name));
 
+    selfPanel.appendChild(el(`<div class="section-heading">Your listening life</div>`));
+    const lifeRoot = el(`<div id="self-life-root"></div>`);
+    selfPanel.appendChild(lifeRoot);
+    renderListeningLife(lifeRoot, life, { el, esc }, (name) => openArtistSheet(name));
+
     const exploreRoot = el(`<div id="self-explore-root"></div>`);
     selfPanel.appendChild(exploreRoot);
     renderIdentityExplore(exploreRoot, identityData);
-
-    const rightNowRoot = el(`<div id="self-rightnow-root"></div>`);
-    selfPanel.appendChild(rightNowRoot);
-    renderRightNow(rightNowRoot, identityData);
   }
 
   initRealm({ el, esc }, archiveConcerts);
@@ -785,7 +785,6 @@ function openingStatement(view) {
 
   const node = el(`
     <div class="opening">
-      <p class="whisper">The Archive</p>
       <p class="lede">
         ${totalConcerts} nights.<br>
         ${span ? `${titleCase(spell(span))} years.<br>` : ""}
@@ -1089,7 +1088,10 @@ function renderSpine() {
 }
 
 function archiveEntry(c) {
-  const support = (c.supportingArtists || []).filter(Boolean);
+  // The timeline is for recognising a night at a glance: headliner and room.
+  // Support acts stay in the night's sheet; only festivals list a few names,
+  // because there the name of the festival alone says little.
+  const support = c.isFestival ? (c.supportingArtists || []).filter(Boolean) : [];
   const withLine = support.length
     ? `<div class="entry-with">with ${esc(support.slice(0, 3).join(", "))}${support.length > 3 ? ` +${support.length - 3}` : ""}</div>`
     : "";
@@ -2104,7 +2106,7 @@ function nextNight(concert) {
         <span class="next-night-venue">${esc([concert.venue,concert.city].filter(Boolean).join(', '))}</span>
       </span>
     </button>
-    <div class="next-night-meta">${workDayBadge(concert)}${concert.practical?.ticketBought === true ? '<span class="next-night-ticket">Ticket bought</span>' : ''}</div>
+    <div class="next-night-meta">${workDayBadge(concert)}</div>
     <p class="next-night-live" role="timer" aria-live="off" hidden></p>
     <button type="button" class="next-night-essentials">Times & essentials <span aria-hidden="true">→</span></button>
   </section>`);
@@ -2189,8 +2191,14 @@ function renderUpcoming(body) {
   const stillUpcoming = c => (c.endDate || c.date) >= today || (c.schedule?.date === c.date && Date.parse(c.schedule.end?.at) > Date.now());
   const upcoming = sorted.filter(stillUpcoming);
   const past = sorted.filter(c => !stillUpcoming(c));
-  if (upcoming.length) body.appendChild(seasonOverview(upcoming));
-  if (goingLayout === "calendar") { renderGoingCalendar(body); return; }
+  // Anticipation first, statistics last: the next night and the list come
+  // before the season overview, which closes the page.
+  const season = upcoming.length ? seasonOverview(upcoming) : null;
+  if (goingLayout === "calendar") {
+    renderGoingCalendar(body);
+    if (season) body.appendChild(season);
+    return;
+  }
 
   if (!sorted.length) {
     body.appendChild(el(`<p class="void">Nothing planned. Swipe right on something.</p>`));
@@ -2206,11 +2214,13 @@ function renderUpcoming(body) {
 
   const search = el(`<input type="search" class="archive-filter-search"
     aria-label="Search planned concerts"
-    placeholder="Search Going: artist, room, city or date"
+    placeholder="Search artist, room, city or date"
     value="${esc(goingSearchQuery)}">`);
   const results = el('<div class="going-search-results"></div>');
-  body.appendChild(search);
+  // A short list needs no search box.
+  if (sorted.length > 12 || goingSearchQuery) body.appendChild(search);
   body.appendChild(results);
+  if (season) body.appendChild(season);
 
   function renderResults() {
     results.innerHTML = "";
@@ -2247,7 +2257,7 @@ function renderUpcoming(body) {
         <button type="button" class="upcoming-row season-row">
           <span class="when"><span>${weekdayShort(c.date)}</span><b>${esc(String(Number(c.date.slice(8,10))))}</b></span>
           <div class="who">
-            <b>${esc(displayPlannedArtist(c.artist, c))}${ticketMark(c)}</b>
+            <b>${esc(displayPlannedArtist(c.artist, c))}${goingFilter === "tickets" ? "" : ticketMark(c)}</b>
             <span class="event-meta"><span class="event-venue">${esc(placeLine(c, displayPlannedArtist(c.artist, c)))}</span></span>
             ${workDayBadge(c, { quiet: true }) ? `<div>${workDayBadge(c, { quiet: true })}</div>` : ""}
           </div>
@@ -2934,7 +2944,12 @@ function storageIsPersistent() {
 // BOOT
 // ==========================================================================
 
+// The masthead names where you are; panels no longer repeat it.
+const TAB_TITLES = { mirror: "Mirror", realm: "Realm", concerts: "Live", identity: "Self", archive: "Archive" };
+
 function setActiveTab(name) {
+  const title = document.querySelector(".masthead-name");
+  if (title) title.textContent = TAB_TITLES[name] || "Listening Mirror";
   TABS.forEach((t) => {
     document.getElementById(`panel-${t}`).classList.toggle("active", t === name);
     document.getElementById(`nav-${t}`).classList.toggle("active", t === name);

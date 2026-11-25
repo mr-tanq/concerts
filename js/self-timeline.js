@@ -358,12 +358,6 @@ export function renderListeningLife(root, life, deps, onViewArtist) {
 
   const panel = el('<div class="life-panel" role="region" aria-label="Selected artist"></div>');
   wrap.appendChild(panel);
-  const method = el('<details class="life-method"></details>');
-  method.appendChild(el('<summary>How these artists are chosen</summary>'));
-  method.appendChild(el('<p>Stories rotates weekly through artists heard across many years, returns after gaps, concentrated listening stretches and listening linked to concerts. Recent chapters receive priority; every third week also revisits older chapters. Remaining places rotate among your most played in the recorded charts.</p>'));
-  method.appendChild(el('<p>More artists includes everyone with at least five recorded plays, ordered by recorded plays. This history uses the top 40 artists in each weekly chart, so counts and gaps may omit quieter listening. Each strand shows activity relative to that artist’s own busiest year; dots mark attended concerts.</p>'));
-  method.appendChild(el('<p>Stories changes on Mondays using the week in the Netherlands. The same history gives the same selection within that week. History has its own scheduled Monday update; its snapshot date is shown above.</p>'));
-  wrap.appendChild(method);
 
   const PAGE_SIZE = 20;
   const W = years.length * YEAR_W;

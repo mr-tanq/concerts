@@ -92,7 +92,7 @@ export function renderMirror(root) {
 
     root.appendChild(el(`
       <div class="mirror-stage">
-        <p class="whisper">Mirror</p>
+        <p class="whisper">Now playing</p>
         <div id="mirror-body"><p class="footnote">Checking what's playing…</p></div>
       </div>
     `));
@@ -111,8 +111,7 @@ function setupPrompt(root, stage) {
   if (stage === "clientId") {
     const wrap = el(`
       <div class="stage-empty">
-        <p class="whisper">Mirror</p>
-        <p class="lede">See what's playing, as it plays.</p>
+                <p class="lede">See what's playing, as it plays.</p>
         <p class="footnote">
           Needs a free Spotify app registration — takes about a minute, no
           coding. Go to developer.spotify.com/dashboard, create an app, and
@@ -139,8 +138,7 @@ function setupPrompt(root, stage) {
 
   const wrap = el(`
     <div class="stage-empty">
-      <p class="whisper">Mirror</p>
-      <p class="lede">One more step.</p>
+            <p class="lede">One more step.</p>
       <p class="footnote">Log in with Spotify to see what's playing.</p>
       <div class="act-row" style="padding-left:0;padding-right:0">
         <button class="plain-act" id="mirror-connect">Connect Spotify</button>

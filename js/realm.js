@@ -212,8 +212,7 @@ export function renderRealm(root, data, confidentlySeenKeys) {
   if (nothingAtAll) {
     root.appendChild(el(`
       <div class="stage-empty">
-        <p class="whisper">Realm</p>
-        <p class="lede">A wider map of what you listen to.</p>
+                <p class="lede">A wider map of what you listen to.</p>
         <p class="footnote">Still gathering — this fills in after the origins job first runs.</p>
       </div>
     `));
@@ -232,8 +231,7 @@ export function renderRealm(root, data, confidentlySeenKeys) {
   if (!countries.length) {
     root.appendChild(el(`
       <div class="stage-empty">
-        <p class="whisper">Realm</p>
-        <p class="lede">A wider map of what you listen to.</p>
+                <p class="lede">A wider map of what you listen to.</p>
         <p class="footnote">Still gathering — this fills in after the origins job first runs.</p>
       </div>
     `));
@@ -283,8 +281,7 @@ function buildOpening(countries, totalArtists, dominant, farthest, singleArtistC
   const farApart = farthest.code !== dominant.code;
   return el(`
     <div class="opening">
-      <p class="whisper">Realm</p>
-      <p class="lede">
+            <p class="lede">
         ${withCommas(totalArtists)} artist${totalArtists === 1 ? "" : "s"}, ${countries.length} ${countries.length === 1 ? "country" : "countries"}.<br>
         <em>Most from ${esc(countryPhrase(dominant.name))}${farApart ? `, the farthest from ${esc(countryPhrase(farthest.name))}` : ""}.</em>
       </p>
