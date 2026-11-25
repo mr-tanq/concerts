@@ -1611,12 +1611,14 @@ function renderStage(body) {
   body.innerHTML = "";
   if (deckQueue.length === 0) { body.appendChild(caughtUp()); return; }
   body.appendChild(stageCard(deckQueue[0]));
-  body.appendChild(el(`<p class="remaining">${deckQueue.length} left</p>`));
 }
 
 function stageCard(c) {
   const support = (c.isFestival ? c.matchedArtists || c.match?.matchedArtists || [] : c.supportingArtists || []).filter(Boolean);
   const time = c.time ? ` · ${esc(c.time)}` : "";
+  // On a festival, "your matches" that are just the festival's own name say nothing.
+  const title = displayPlannedArtist(c.artist, c);
+  const stageSupport = support.filter((name) => normalizeKey(name) !== normalizeKey(title));
 
   const added=c.festivalUpdate?.newMatchingArtists||[];
   const newNames=added.slice(0,3).join(", ")+(added.length>3?` +${added.length-3} more`:"");
@@ -1631,21 +1633,25 @@ function stageCard(c) {
       <div class="stage-photo"></div>
       <div class="stage-veil"></div>
       ${fallbackArtist ? `<div class="festival-artist-photo-credit">Artist photo: ${esc(fallbackArtist)}</div>` : ""}
-      <div class="verdict yes">Going</div>
+      <div class="verdict yes">Interested</div>
       <div class="verdict no">Not this one</div>
-      <div class="stage-score">${c.manualSearch ? "Added by you" : `<b>${esc(c.match.score)}</b>${esc(c.match.label)}`}</div>
+      <div class="stage-score">${esc(stageReason(c))}</div>
       <div class="stage-copy">
         <div class="stage-when">${weekdayShort(c.date)} ${dayMonth(c.date)} ${yearOf(c.date)}${c.isFestival && c.endDate && c.endDate !== c.date ? ` → ${fullDate(c.endDate)}` : ""}${time}</div>
         <h2 class="stage-artist">${esc(displayPlannedArtist(c.artist, c))}</h2>
         ${added.length ? `<div class="festival-revisit-notice" role="note"><strong>BACK IN DECIDING · LINEUP UPDATED</strong><span>New since you passed: ${esc(newNames)}</span></div>` : ""}
-        ${support.length ? `<div class="stage-with">${c.isFestival ? "Your matches:" : "with"} ${esc(support.slice(0, 3).join(", "))}${support.length > 3 ? ` +${support.length - 3}` : ""}</div>` : ""}
-        <div class="stage-venue">${esc(c.venue)} <span>· ${esc(c.city)}</span></div>
-        ${c.match.matchedBy === "similar" ? `<div class="stage-why">${esc(c.match.reason)}</div>` : ""}
-        <div>${workDayBadge(c)}</div>
+        ${stageSupport.length ? `<div class="stage-with">${c.isFestival ? "Your matches:" : "with"} ${esc(stageSupport.slice(0, 3).join(", "))}${stageSupport.length > 3 ? ` +${stageSupport.length - 3}` : ""}</div>` : ""}
+        <div class="stage-venue">${esc(placeLine(c, displayPlannedArtist(c.artist, c)))}</div>
+        <div class="stage-foot">${workDayBadge(c)}${c.ticketUrl ? `<a class="stage-tickets-link" target="_blank" rel="noopener">Tickets ↗</a>` : ""}</div>
       </div>
     </div>
   `);
   setPhoto(stage.querySelector(".stage-photo"), imageFor(c), c);
+  const ticketsLink = stage.querySelector(".stage-tickets-link");
+  if (ticketsLink) {
+    ticketsLink.href = c.ticketUrl;
+    ticketsLink.addEventListener("pointerdown", (e) => e.stopPropagation());
+  }
 
   const yes = stage.querySelector(".verdict.yes");
   const no = stage.querySelector(".verdict.no");
@@ -1742,7 +1748,7 @@ function stageCard(c) {
     <div class="stage-acts">
       <button type="button" class="act act-no">Pass</button>
       <button type="button" class="act act-mid">Later</button>
-      <button type="button" class="act act-yes">I'm going</button>
+      <button type="button" class="act act-yes">Interested</button>
     </div>
   `);
   acts.querySelector(".act-no").addEventListener("click", () => commit("dismiss"));
@@ -1761,12 +1767,21 @@ function stageCard(c) {
   const wrap = el(`<div></div>`);
   wrap.appendChild(stage);
   wrap.appendChild(acts);
-  if (c.ticketUrl) {
-    const tickets = el(`<div class="stage-tickets"><a target="_blank" rel="noopener">Tickets ↗</a></div>`);
-    tickets.querySelector("a").href = c.ticketUrl;
-    wrap.appendChild(tickets);
-  }
   return wrap;
+}
+
+// The one line that answers "why is this here?", in plain words. Replaces
+// the algorithm's score ("32 POSSIBLE MATCH"), which helps nobody decide.
+function stageReason(c) {
+  if (c.manualSearch) return "Added by you";
+  const m = c.match || {};
+  const matched = (c.matchedArtists || m.matchedArtists || []).filter(Boolean);
+  if (m.matchedBy === "similar" && m.similarVia) return `Because you play ${m.similarVia}`;
+  if (m.matchedBy === "similar") return m.reason || "Close to what you play";
+  if (c.isFestival && matched.length && normalizeKey(matched[0]) !== normalizeKey(c.festivalName || c.artist)) {
+    return matched.length > 1 ? `${matched[0]} and ${matched.length - 1} more you play` : `${matched[0]} plays here`;
+  }
+  return `You play ${matched[0] || c.artist}`;
 }
 
 // An empty deck is the normal state most days, so it shouldn't read as a
