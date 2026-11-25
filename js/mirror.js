@@ -281,6 +281,13 @@ async function handleListeningState(body, state) {
     syncedProgressMs = 0;
     body.innerHTML = "";
     body.appendChild(el(`<p class="footnote">Nothing playing right now.</p>`));
+    // Without the relay secret only Spotify is read, so YouTube & co. on the
+    // phone can never appear here. Say so, with the way to fix it.
+    if (!getReadSecret()) {
+      const hint = el(`<p class="footnote mirror-connect-hint">Playing on your phone (YouTube, radio)? This device isn't connected to the Android companion yet. <button type="button" class="plain-act">Connect</button></p>`);
+      hint.querySelector("button").addEventListener("click", () => document.dispatchEvent(new CustomEvent("lm:open-settings")));
+      body.appendChild(hint);
+    }
     return;
   }
   missingPollStreak = 0;

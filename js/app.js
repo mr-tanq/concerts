@@ -2977,6 +2977,14 @@ async function init() {
     document.getElementById(`nav-${t}`).addEventListener("click", () => setActiveTab(t));
   });
   document.getElementById("btn-settings").addEventListener("click", () => openSettings());
+  document.addEventListener("lm:open-settings", () => {
+    openSettings();
+    // Land on the Android companion field, which is why we're here.
+    queueMicrotask(() => {
+      document.querySelector(".settings-relay")?.scrollIntoView({ block: "center" });
+      document.querySelector("#in-relay")?.focus({ preventScroll: true });
+    });
+  });
   adoptConfigFromUrl();
   markConnected();
   initMirror({ el, esc });

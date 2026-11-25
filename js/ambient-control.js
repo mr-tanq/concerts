@@ -96,6 +96,11 @@ async function readStatus() {
 
 async function toggle() {
   if (busy) return;
+  // No secret on this device: the useful action is to go and add it.
+  if (!getReadSecret()) {
+    document.dispatchEvent(new CustomEvent("lm:open-settings"));
+    return;
+  }
   busy = true;
   statusVersion++;
   button.classList.add("is-busy");
