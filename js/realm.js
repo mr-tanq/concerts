@@ -22,6 +22,7 @@
 // each stop naming who arrived there — origin → journey → encounter.
 
 import { actuallySeenArtistsOf } from "./archive-stats.js";
+import { overlayOpened } from "./back-nav.js";
 
 let renderDeps = null; // { el, esc } injected from app.js
 let archiveConcertsRef = []; // for the journey composition inside focus mode
@@ -658,9 +659,16 @@ const seenSoFar = new Map();
     wrap.querySelectorAll(".realm-star").forEach((star) => star.setAttribute("tabindex", "0"));
     starEl.focus({ preventScroll: true });
   };
-  panel.querySelector(".realm-focus-close").addEventListener("click", closeFocus);
+  // Back closes the country first; Close / Escape release that Back step.
+  let backReleased = false;
+  const releaseBack = overlayOpened(() => { backReleased = true; closeFocus(); });
+  const closeFromUI = () => {
+    if (!backReleased) { backReleased = true; releaseBack(); }
+    closeFocus();
+  };
+  panel.querySelector(".realm-focus-close").addEventListener("click", closeFromUI);
   panel.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") { event.preventDefault(); closeFocus(); }
+    if (event.key === "Escape") { event.preventDefault(); closeFromUI(); }
   });
 
   wrap.appendChild(panel);

@@ -33,6 +33,7 @@ import { getReadSecret, saveReadSecret, clearReadSecret } from "./relay-config.j
 import { fetchRelayState } from "./relay-client.js";
 import { openConcertSearch } from "./concert-search.js?v=festival-browse-20261031";
 import { concertSearchState, sameSearchConcert } from "./concert-search-model.js?v=festival-browse-20261031";
+import { overlayOpened, pageChanged, startPage, watchSheetRoot } from "./back-nav.js";
 import { initMirror, renderMirror, stopPolling as stopMirrorPolling } from "./mirror.js?v=lyrica-20261101";
 import { initIdentity, renderHero, renderExplore as renderIdentityExplore, openArtistSheet } from "./identity.js";
 import { initRealm, renderRealm } from "./realm.js";
@@ -1579,6 +1580,10 @@ function renderConcerts(recsData, plannedData, historyData) {
   watchForNewArtistPhotos();
 }
 
+function concertsShellReady() {
+  return !!document.querySelector("#panel-concerts .switch");
+}
+
 function renderConcertsShell(view = "stage") {
   clearNextNightClock();
   clearScheduleClock();
@@ -1599,7 +1604,10 @@ function renderConcertsShell(view = "stage") {
   root.appendChild(body);
 
   bar.querySelectorAll("button").forEach((b) =>
-    b.addEventListener("click", () => renderConcertsShell(b.dataset.v))
+    b.addEventListener("click", () => {
+      if (b.dataset.v !== view) pageChanged({ tab: "concerts", view: b.dataset.v });
+      renderConcertsShell(b.dataset.v);
+    })
   );
 
   if (view === "stage") renderStage(body);
@@ -2962,7 +2970,9 @@ function storageIsPersistent() {
 // The masthead names where you are; panels no longer repeat it.
 const TAB_TITLES = { mirror: "Mirror", realm: "Realm", concerts: "Live", identity: "Self", archive: "Archive" };
 
-function setActiveTab(name) {
+function setActiveTab(name, { record = false } = {}) {
+  const current = TABS.find((t) => document.getElementById(`panel-${t}`)?.classList.contains("active"));
+  if (record && current && current !== name) pageChanged({ tab: name });
   const title = document.querySelector(".masthead-name");
   if (title) title.textContent = TAB_TITLES[name] || "Listening Mirror";
   TABS.forEach((t) => {
@@ -2989,7 +2999,7 @@ function setActiveTab(name) {
 
 async function init() {
   TABS.forEach((t) => {
-    document.getElementById(`nav-${t}`).addEventListener("click", () => setActiveTab(t));
+    document.getElementById(`nav-${t}`).addEventListener("click", () => setActiveTab(t, { record: true }));
   });
   document.getElementById("btn-settings").addEventListener("click", () => openSettings());
   document.addEventListener("lm:open-settings", () => {
@@ -3007,7 +3017,17 @@ async function init() {
   // Spotify's login redirect lands back on whichever tab happens to be
   // active by default; if that round-trip is in progress, land on Mirror
   // so the person sees the result immediately instead of Concerts.
-  setActiveTab(new URLSearchParams(location.search).has("code") ? "mirror" : "concerts");
+  const firstTab = new URLSearchParams(location.search).has("code") ? "mirror" : "concerts";
+  setActiveTab(firstTab);
+  // Phone Back: overlays close first, then earlier tabs / Live views.
+  watchSheetRoot(document.getElementById("settings-modal-root"));
+  startPage({ tab: firstTab }, (page) => {
+    setActiveTab(page.tab);
+    const shown = document.querySelector("#panel-concerts .switch .on")?.dataset.v;
+    if (page.tab === "concerts" && concertsShellReady() && shown !== (page.view || "stage")) {
+      renderConcertsShell(page.view || "stage");
+    }
+  });
 
   try {
     const [archiveResult, recsResult, plannedResult, historyResult, cacheResult, imagesResult, setlistsResult, identityResult, originsResult, timeseriesResult, festivalImagesResult] =
