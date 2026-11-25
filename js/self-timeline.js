@@ -510,25 +510,38 @@ export function renderEditorialMoments(root, moments, deps, onViewArtist) {
   root.innerHTML = "";
   if (!moments.length) return;
 
+  // This week's stories as poster cards you swipe through, each with the
+  // artist's photo when the app has one; the whole card opens the artist.
+  root.appendChild(el('<p class="whisper moment-title">This week</p>'));
+  const rail = el('<div class="moment-rail" role="list"></div>');
   moments.forEach((m, i) => {
     const copy = momentCopy(m);
     const t = m.trace;
-    // The whole moment is the tap target; the first line carries the story,
-    // anything after it is a quieter aside.
     const [rawLead, ...rest] = copy.lines;
     const lead = rawLead ? rawLead[0].toUpperCase() + rawLead.slice(1) : rawLead;
-    const block = el(`
-      <button type="button" class="moment-block" style="animation-delay:${i * 90}ms" aria-label="${esc(t.name)}: ${esc(copy.lines.join(" "))}">
-        <span class="moment-head">
-          <span class="whisper">${esc(copy.kicker)}</span>
-          <span class="moment-arrow" aria-hidden="true">→</span>
+    const card = el(`
+      <button type="button" class="moment-card" role="listitem" style="animation-delay:${i * 90}ms" aria-label="${esc(t.name)}: ${esc(copy.lines.join(" "))}">
+        <span class="moment-photo" aria-hidden="true"></span>
+        <span class="moment-veil" aria-hidden="true"></span>
+        <span class="moment-copy">
+          <span class="moment-kicker">${esc(copy.kicker)}</span>
+          <span class="moment-name">${esc(t.name)}</span>
+          ${lead ? `<span class="moment-line">${esc(lead)}</span>` : ""}
+          ${rest.length ? `<span class="moment-aside">${esc(rest.join(" "))}</span>` : ""}
         </span>
-        <span class="moment-name">${esc(t.name)}</span>
-        ${lead ? `<span class="moment-line">${esc(lead)}</span>` : ""}
-        ${rest.length ? `<span class="moment-aside">${esc(rest.join(" "))}</span>` : ""}
       </button>
     `);
-    block.addEventListener("click", () => onViewArtist?.(t.name));
-    root.appendChild(block);
+    const photo = deps.photoFor?.(t.name);
+    if (photo) {
+      const probe = new Image();
+      probe.onload = () => {
+        card.querySelector(".moment-photo").style.backgroundImage = `url("${String(photo).replace(/"/g, "%22")}")`;
+        card.classList.add("has-photo");
+      };
+      probe.src = photo;
+    }
+    card.addEventListener("click", () => onViewArtist?.(t.name));
+    rail.appendChild(card);
   });
+  root.appendChild(rail);
 }

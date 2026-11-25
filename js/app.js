@@ -821,7 +821,9 @@ function refreshArchiveViews(archiveData) {
     const momentsRoot = el(`<div id="self-moments-root"></div>`);
     selfPanel.appendChild(momentsRoot);
     const moments = selectEditorialMoments(life.traces, { storyWeek: life.storyWeek });
-    renderEditorialMoments(momentsRoot, moments, { el, esc }, (name) => openArtistSheet(name));
+    renderEditorialMoments(momentsRoot, moments,
+      { el, esc, photoFor: (name) => usableConcertImage(artistImages.get(normalizeKey(name))) },
+      (name) => openArtistSheet(name));
 
     selfPanel.appendChild(el(`<div class="section-heading">Your listening life</div>`));
     const lifeRoot = el(`<div id="self-life-root"></div>`);

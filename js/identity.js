@@ -121,6 +121,13 @@ function artistTracksFor(name) {
 // statement. Deliberately stops here — no ranked list immediately after;
 // the listening-life visualization needs its own breathing room before
 // any list appears.
+const YEAR_WORDS = ["zero","one","two","three","four","five","six","seven","eight","nine","ten",
+  "eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen","twenty",
+  "twenty-one","twenty-two","twenty-three","twenty-four","twenty-five","twenty-six","twenty-seven",
+  "twenty-eight","twenty-nine","thirty"];
+function yearWord(n) { return YEAR_WORDS[n] || String(n); }
+function titleCaseSmall(s) { return s ? s[0].toUpperCase() + s.slice(1) : s; }
+
 export function renderHero(root, data) {
   const { el, esc } = renderDeps;
   currentData = data;
@@ -136,17 +143,33 @@ export function renderHero(root, data) {
     return false;
   }
 
-  const { totalScrobbles, registeredAt } = data.profile;
+  // Written like the Archive opening: a short sentence, then the figures.
+  // Last.fm counts plays, not time, so "days of music" is an estimate at
+  // about four minutes a song — marked ≈ and said so in the footnote.
+  const { totalScrobbles: songs, registeredAt } = data.profile;
   const sinceYear = registeredAt ? new Date(registeredAt).getFullYear() : null;
-  const lately = data.topArtistsMonth?.[0]?.name || data.topArtistsOverall?.[0]?.name || null;
+  const years = sinceYear ? new Date().getFullYear() - sinceYear : null;
+  const days = Math.round((songs * 4) / 1440);
+  const top = data.topArtistsOverall?.[0] || null;
+  const month = data.topArtistsMonth?.[0] || null;
+  const yearsWord = years >= 2 ? `${titleCaseSmall(yearWord(years))} years.` : "";
 
   root.appendChild(el(`
-    <div class="opening">
-            <p class="lede">
-        ${withCommas(totalScrobbles)} scrobbles${sinceYear ? ` since ${sinceYear}` : ""}.<br>
-        ${lately ? `<em>Lately, you keep returning to ${esc(lately)}.</em>` : ""}
+    <div class="opening self-opening">
+      <p class="lede">
+        ${yearsWord ? `${yearsWord}<br>` : ""}${withCommas(songs)} songs.<br>
+        ${month ? `<em>Lately, ${esc(month.name)}.</em>` : ""}
       </p>
-      <p class="hero-footnote">${data.profile?.url ? `<a href="${esc(data.profile.url)}" target="_blank" rel="noopener">Last.fm ↗</a>` : "Last.fm"} · updated ${esc(timeAgo(data.meta.lastUpdated))}</p>
+      <dl class="opening-stats is-three">
+        <div><dt>Songs</dt><dd>${withCommas(songs)}</dd></div>
+        <div><dt>Days of music</dt><dd title="Estimated at about four minutes a song">≈ ${withCommas(days)}</dd></div>
+        <div><dt>Since</dt><dd>${sinceYear || "—"}</dd></div>
+      </dl>
+      <dl class="opening-signature">
+        ${top ? `<div><dt>Most played</dt><dd><b>${esc(top.name)}</b><span>${withCommas(top.playcount)}×</span></dd></div>` : ""}
+        ${month ? `<div><dt>This month</dt><dd><b>${esc(month.name)}</b><span>${withCommas(month.playcount)}×</span></dd></div>` : ""}
+      </dl>
+      <p class="hero-footnote">${data.profile?.url ? `<a href="${esc(data.profile.url)}" target="_blank" rel="noopener">Last.fm ↗</a>` : "Last.fm"} · updated ${esc(timeAgo(data.meta.lastUpdated))} · days ≈ 4 min a song</p>
     </div>
   `));
   return true;
@@ -166,7 +189,7 @@ let exploreArtistsShowAll = false;
 export function renderExplore(root, data) {
   const { el } = renderDeps;
   root.innerHTML = "";
-  root.appendChild(el(`<div class="section-heading">Most played</div>`));
+  root.appendChild(el(`<div class="section-heading">Rankings</div>`));
 
   const tabBar = el(`
     <div class="identity-modes">
