@@ -358,22 +358,25 @@ function setPhoto(node, url, record=null) {
   if(!node)return false;
   if(record?.artist&&!record.isFestival)
     node.dataset.photoArtist=normalizeKey(record.artist);
+  // No observer (older browser, or this function run on its own in a test):
+  // paint straight away, as before.
+  const observer=typeof lazyPhotos==="undefined"?null:lazyPhotos;
   const safe=usableConcertImage(url);
   if(!safe){
     node.classList.add('is-empty');
     node.style.removeProperty('background-image');
     delete node.dataset.lazyBg;
-    lazyPhotos?.unobserve(node);
+    observer?.unobserve(node);
     return false;
   }
   node.classList.remove('is-empty');
   const css='url("'+safe.replace(/"/g,'%22')+'")';
-  if(!lazyPhotos||node.style.backgroundImage===css){
+  if(!observer||node.style.backgroundImage===css){
     node.style.backgroundImage=css;
     return true;
   }
   node.dataset.lazyBg=css;
-  lazyPhotos.observe(node);
+  observer.observe(node);
   return true;
 }
 
