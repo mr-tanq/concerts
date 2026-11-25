@@ -32,6 +32,7 @@ import { identityKeyFor, isValidPlaybackNumber } from "./listening-state.js";
 import { getSyncedLyrics, currentLine } from "./lyrics.js?v=lyrica-20261101";
 import { mountAmbientControl, stopAmbientControl } from "./ambient-control.js";
 import { renderSourceIcon } from "./mirror-source-icon.js";
+import { findArtwork } from "./artwork-lookup.js";
 
 // How often the lyric line re-checks itself against elapsed time. The
 // active provider is only asked for a fresh state occasionally (5s for
@@ -334,7 +335,8 @@ async function handleListeningState(body, state) {
         <p class="status" id="mirror-control-status"></p>` : ""}
       </div>
     `));
-    if (state.artwork) body.querySelector(".mirror-art").style.backgroundImage = `url("${state.artwork.replace(/"/g, "%22")}")`;
+    if (state.artwork) setArt(body, state.artwork);
+    else fillMissingArtwork(body, state, key);
     if (state.controlsSupported) wireControls(body);
 
     // The existing lyrics lookup has always searched on the primary
@@ -404,6 +406,35 @@ function updateLyricLine(body, progressMs) {
   node.dataset.lyricText = key;
   host.replaceWith(node);
   node.id = "mirror-line";
+}
+
+function setArt(body, url) {
+  const art = body.querySelector(".mirror-art");
+  if (!art || !url) return;
+  art.style.backgroundImage = `url("${String(url).replace(/"/g, "%22")}")`;
+  art.classList.remove("is-empty");
+}
+
+// YouTube (and other sources that only expose a bitmap) arrive without
+// artwork. Look the cover up from artist + title; failing that, use the
+// artist's photo the app already has. Loaded off-screen first so a dead URL
+// never replaces the empty frame with a broken one.
+async function fillMissingArtwork(body, state, requestKey) {
+  const candidates = [];
+  const cover = await findArtwork({ artist: state.primaryArtist || state.artist, track: state.track });
+  if (cover) candidates.push(cover);
+  const photo = renderDeps?.artistPhoto?.(state.primaryArtist || state.artist);
+  if (photo) candidates.push(photo);
+  for (const url of candidates) {
+    if (requestKey !== currentIdentityKey) return;
+    const ok = await new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve(img.naturalWidth > 1);
+      img.onerror = () => resolve(false);
+      img.src = url;
+    });
+    if (ok && requestKey === currentIdentityKey) { setArt(body, url); return; }
+  }
 }
 
 export function renderLyricsExtras(body,result,retry) {

@@ -2987,7 +2987,8 @@ async function init() {
   });
   adoptConfigFromUrl();
   markConnected();
-  initMirror({ el, esc });
+  // artistPhoto: Mirror's last-resort artwork when a song has no cover.
+  initMirror({ el, esc, artistPhoto: (name) => artistImages.get(normalizeKey(name)) || null });
   // Spotify's login redirect lands back on whichever tab happens to be
   // active by default; if that round-trip is in progress, land on Mirror
   // so the person sees the result immediately instead of Concerts.
