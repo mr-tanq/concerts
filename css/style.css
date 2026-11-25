@@ -313,8 +313,12 @@ main { max-width: 720px; margin: 0 auto; }
    you scroll through it, then hands over to the next year. */
 .year-mark {
   position: sticky;
-  top: calc(44px + env(safe-area-inset-top));
+  /* Right under the masthead (now a 23px serif title, ~53px tall). The
+     shadow fills the masthead's fading lower edge, so cards scrolling past
+     never show between the page title and the pinned year. */
+  top: calc(52px + env(safe-area-inset-top));
   z-index: 5;
+  box-shadow: 0 -28px 0 0 var(--black);
   display: flex;
   align-items: baseline;
   justify-content: space-between;
