@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-11-25T01:37:29.821Z",
+    "lastUpdated": "2026-11-25T01:37:34.826Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
@@ -38,6 +38,42 @@
     }
   },
   "concerts": [
+    {
+      "id": "rec-podiuminfo-479038",
+      "source": "podiuminfo",
+      "sourceId": "479038",
+      "artist": "Muse",
+      "lineup": [
+        "Muse"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Muse"
+      ],
+      "date": "2026-11-29",
+      "time": null,
+      "venue": "Ziggo Dome",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/269/100_Muse_5.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/137465/cd/Muse-The-Wow!-Signal-Europa-Tour/Ziggo-Dome/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/479038/Muse-The-Wow!-Signal-Europa-Tour/Ziggo-Dome/",
+      "match": {
+        "score": 55,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Muse",
+        "matchedArtists": [
+          "Muse"
+        ]
+      },
+      "discoveredAt": "2026-11-23T01:32:38.438Z",
+      "lastSeenAt": "2026-11-23T01:32:38.438Z"
+    },
     {
       "id": "rec-podiuminfo-503685",
       "source": "podiuminfo",
