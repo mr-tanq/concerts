@@ -2645,3 +2645,9 @@ a.plain-act { text-decoration:none; }
 .spine .entry-place { color: #d6d2cb; text-shadow: 0 1px 10px rgba(0,0,0,.7); }
 .spine .entry-place .dot { color: rgba(242,239,233,.5); }
 .spine .entry:active { opacity: 0.75; }
+
+/* "Wrong photo?" in an archive night */
+#sheet-photo-fix { padding: 0 var(--gutter); margin-top: 26px; }
+.photo-fix-open { color: var(--bone-dim); }
+.photo-fix { padding-top: 20px; border-top: 1px solid var(--hair); }
+.photo-fix .whisper { margin-top: 0; }

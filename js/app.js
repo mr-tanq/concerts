@@ -689,6 +689,32 @@ async function saveConcertNoteRemote(concert, text) {
   return saved[ARCH];
 }
 
+// A hand-picked photo for a night (and, for a regular show, for the artist):
+// fixes the automatic lookup choosing someone else with the same name.
+// Marked source "manual" so the enrichment job never replaces it. A null url
+// means "no photo" — better a quiet card than the wrong person.
+async function saveConcertPhotoRemote(concert, url) {
+  const ARCH = "data/archive.json", IMAGES = "data/artist-images.json";
+  const forArtist = !concert.isFestival && concert.artist;
+  const paths = forArtist ? [ARCH, IMAGES] : [ARCH];
+  const saved = await mutate(paths, (f) => {
+    const archive = f[ARCH];
+    const row = archive.concerts.find((x) => x.id === concert.id);
+    if (!row) throw new Error("Concert not found in the archive");
+    row.image = url || null;
+    if (archive.meta) archive.meta.lastUpdated = new Date().toISOString();
+    if (forArtist) {
+      const images = f[IMAGES];
+      images.artists ||= {};
+      images.artists[normalizeKey(concert.artist)] = {
+        name: concert.artist, image: url || null, source: "manual",
+        note: "Chosen in the app.", checkedAt: new Date().toISOString(),
+      };
+    }
+  }, `chore: ${url ? "set" : "clear"} photo for ${concert.id} (app)`);
+  return saved[ARCH];
+}
+
 async function saveSeenArtistsRemote(concert, seenNames) {
   const ARCH = "data/archive.json";
   const saved = await mutate([ARCH], (f) => {
@@ -1235,6 +1261,7 @@ function openSheet(c) {
             <div id="sheet-note"></div>
           </div>
           <div id="sheet-setlist"></div>
+          <div id="sheet-photo-fix"></div>
         `}
 
         ${planned ? `
@@ -1311,6 +1338,7 @@ function openSheet(c) {
   });
 
   if (!planned) {
+    mountPhotoFix(sheet.querySelector("#sheet-photo-fix"), sheet.querySelector(".sheet-photo"), c);
     mountArchiveRemoval(sheet.querySelector(".sheet-inner"), c, {
       connected: () => !!getGithubConfig(),
       connect: openSettings,
@@ -1330,6 +1358,80 @@ function openSheet(c) {
     renderSetlist(sheet.querySelector("#sheet-setlist"), c);
     renderLineupPicker(sheet.querySelector("#sheet-lineup"), sheet.querySelector("#lineup-status"), c, lineup);
   }
+}
+
+// "Wrong photo?" — paste a link to the right picture (long-press an image on
+// the band's site → copy image address), or choose no photo at all.
+function mountPhotoFix(host, photoNode, c) {
+  if (!host) return;
+  const who = c.festivalName || displayPlannedArtist(c.artist, c);
+  const closed = () => {
+    host.innerHTML = "";
+    const open = el(`<button type="button" class="plain-act photo-fix-open">Wrong photo?</button>`);
+    open.addEventListener("click", expanded);
+    host.appendChild(open);
+  };
+  const expanded = () => {
+    host.innerHTML = "";
+    const form = el(`
+      <div class="photo-fix">
+        <p class="whisper">Photo</p>
+        <p class="footnote">Paste a link to a photo of ${esc(who)} — on the band's page, long-press the picture and copy its image address.</p>
+        <div class="field"><label for="photo-fix-url">Image link</label>
+          <input id="photo-fix-url" type="url" inputmode="url" placeholder="https://…" autocomplete="off" spellcheck="false" /></div>
+        <p class="status" id="photo-fix-status"></p>
+        <div class="act-row" style="padding-left:0;padding-right:0;gap:24px;flex-wrap:wrap">
+          <button type="button" class="plain-act" data-save>Use this photo</button>
+          <button type="button" class="plain-act" data-none>No photo</button>
+          <button type="button" class="plain-act" data-cancel>Cancel</button>
+        </div>
+      </div>`);
+    host.appendChild(form);
+    const input = form.querySelector("input");
+    const status = form.querySelector("#photo-fix-status");
+    const say = (text, bad = false) => { status.textContent = text; status.className = bad ? "status bad" : "status"; };
+    const buttons = [...form.querySelectorAll("button")];
+    const busy = (on) => buttons.forEach((b) => { b.disabled = on; });
+    const store = async (url) => {
+      if (!getGithubConfig()) { openSettings(); return; }
+      busy(true); say("Saving…");
+      try {
+        const savedArchive = await enqueue(() => saveConcertPhotoRemote(c, url));
+        Object.assign(c, savedArchive.concerts.find((x) => x.id === c.id));
+        if (!c.isFestival && c.artist) {
+          if (url) artistImages.set(normalizeKey(c.artist), url);
+          else artistImages.delete(normalizeKey(c.artist));
+        }
+        refreshArchiveViews(savedArchive);
+        setPhoto(photoNode, url, c);
+        closed();
+      } catch (err) {
+        console.error(err);
+        say(err.message || "Couldn't save the photo.", true);
+        busy(false);
+      }
+    };
+    form.querySelector("[data-cancel]").addEventListener("click", closed);
+    form.querySelector("[data-none]").addEventListener("click", () => store(null));
+    form.querySelector("[data-save]").addEventListener("click", async () => {
+      let url;
+      try { url = new URL(input.value.trim()); } catch { say("That isn't a link.", true); return; }
+      if (url.protocol !== "https:") { say("The link must start with https://", true); return; }
+      busy(true); say("Checking the picture…");
+      const ok = await new Promise((resolve) => {
+        const img = new Image();
+        const timer = setTimeout(() => resolve(false), 10000);
+        img.onload = () => { clearTimeout(timer); resolve(img.naturalWidth > 50); };
+        img.onerror = () => { clearTimeout(timer); resolve(false); };
+        img.src = url.href;
+      });
+      busy(false);
+      if (!ok) { say("That link doesn't open as a picture. Copy the image address, not the page.", true); return; }
+      await store(url.href);
+    });
+    input.focus();
+  };
+  closed();
 }
 
 // Lets the person mark exactly which names on the bill they actually
