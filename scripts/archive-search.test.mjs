@@ -109,46 +109,44 @@ function setup() {
   });
   vm.runInContext(code+'\nrenderExplore();',context);
   const flatten=node=>node.html+node.children.map(flatten).join('');
-  const input=()=>explore.children[0].children.find(
-    node=>node.html.startsWith('<input')
-  );
-  return {context,explore,input,html:()=>flatten(spine)};
+  const run=js=>vm.runInContext(js,context);
+  return {context,explore,run,html:()=>flatten(spine),bar:()=>flatten(explore)};
 }
 
-test('typing filters the timeline and preserves the search input',()=>{
-  const ui=setup(),bar=ui.explore.children[0],input=ui.input();
-  input.value='mono utrecht';
-  input.events.input();
-  assert.equal(ui.explore.children[0],bar);
-  assert.equal(ui.input(),input);
+test('searching filters the timeline (Enter in the palette)',()=>{
+  const ui=setup();
+  ui.run("setArchiveQuery('mono utrecht')");
   assert.match(ui.html(),/1 show found/);
   assert.match(ui.html(),/<article>utrecht/);
   assert.doesNotMatch(ui.html(),/<article>melkweg/);
+  assert.match(ui.bar(),/archive-chip/);
 });
 
-test('clearing the input restores all entries',()=>{
-  const ui=setup(),input=ui.input();
-  input.value='missing';input.events.input();
+test('clearing the search restores all entries',()=>{
+  const ui=setup();
+  ui.run("setArchiveQuery('missing')");
   assert.match(ui.html(),/Nothing here/);
-  input.value='';input.events.input();
+  ui.run("setArchiveQuery('')");
   for(const c of concerts)
     assert.match(ui.html(),new RegExp('<article>'+c.id));
+  assert.doesNotMatch(ui.bar(),/archive-chip/);
 });
 
-test('switching modes clears the text query',()=>{
+test('choosing a palette group value replaces the text query',()=>{
   const ui=setup();
-  ui.input().value='mono';ui.input().events.input();
-  ui.explore.children[0].modes.children[1].events.click();
+  ui.run("setArchiveQuery('mono')");
+  const year=concerts.find(c=>c.id==='festival').date.slice(0,4);
+  ui.run(`setArchiveFilter('year','${year}')`);
   assert.equal(ui.context.archiveExploreQuery,'');
   assert.equal(ui.context.exploreFilter.mode,'year');
-  assert.equal(ui.input().value,'');
   assert.match(ui.html(),/<article>festival/);
+  assert.match(ui.bar(),/Year/);
 });
 
-test('search text is escaped in the result count',()=>{
+test('search text is escaped in the result count and the chip',()=>{
   const ui=setup();
-  ui.input().value='<script>';ui.input().events.input();
+  ui.run("setArchiveQuery('<script>')");
   assert.match(ui.html(),/0 shows found/);
   assert.match(ui.html(),/&lt;script&gt;/);
-  assert.doesNotMatch(ui.html(),/<script>/);
+  assert.doesNotMatch(ui.html()+ui.bar(),/<script>/);
 });

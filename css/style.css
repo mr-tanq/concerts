@@ -2898,3 +2898,90 @@ input:focus-visible, select:focus-visible, textarea:focus-visible,
 .menu-item.is-danger { color: var(--clash); }
 .menu-item + .menu-item { margin-top: 2px; }
 .veil > .panel::before { position: relative; top: 0; margin: -12px auto 18px; }
+
+/* ---- Archive search: one field, a command palette, a removable chip ---- */
+.explore { padding: 0 var(--gutter); display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.archive-search-trigger {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; min-height: 48px; padding: 0 16px;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--hair);
+  color: var(--bone-faint);
+  font: var(--fs-body) var(--sans);
+  text-align: left;
+}
+.archive-search-trigger span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (hover: hover) { .archive-search-trigger:hover { background: var(--surface-2); color: var(--bone-dim); } }
+.archive-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 34px; padding: 0 12px;
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--ember) 14%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ember) 35%, transparent);
+  color: var(--bone);
+  font: var(--fs-meta) var(--sans);
+}
+.archive-chip span { color: var(--bone-dim); font: var(--fs-label) var(--mono); letter-spacing: var(--track-label); text-transform: uppercase; }
+.archive-chip b { font-weight: 500; }
+.archive-chip i { font-style: normal; color: var(--bone-dim); font-size: var(--fs-body); }
+
+.palette-root {
+  position: fixed; inset: 0; z-index: 140;
+  background: rgba(4,4,5,0.6);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  animation: fade 0.2s var(--ease) both;
+}
+.palette {
+  margin: calc(12px + env(safe-area-inset-top)) 10px 0;
+  max-width: 640px;
+  max-height: calc(100% - 24px - env(safe-area-inset-top));
+  display: flex; flex-direction: column;
+  border-radius: 16px;
+  background: rgba(18,18,22,0.96);
+  box-shadow: inset 0 0 0 1px rgba(242,239,233,0.1), 0 24px 70px rgba(0,0,0,0.6);
+  overflow: hidden;
+  animation: menu-in 0.18s var(--ease) both;
+}
+@media (min-width: 700px) { .palette { margin: 12vh auto 0; } }
+.palette-field {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 8px 0 16px; min-height: 56px;
+  border-bottom: 1px solid var(--hair);
+  color: var(--bone-dim);
+}
+.palette-field input {
+  flex: 1; min-width: 0; height: 56px;
+  background: none; border: 0; color: var(--bone);
+  font: var(--fs-lede) var(--sans);
+}
+.palette-field input::placeholder { color: var(--bone-faint); }
+.palette-field input:focus-visible { outline: none !important; }
+.palette-cancel { padding: 0 10px; min-height: 44px; color: var(--bone-dim); font: var(--fs-meta) var(--sans); }
+.palette-results { overflow-y: auto; overscroll-behavior: contain; padding: 6px 6px 10px; }
+.palette-group {
+  margin: 12px 10px 4px;
+  font: var(--fs-label) var(--mono); letter-spacing: var(--track-label); text-transform: uppercase;
+  color: var(--bone-faint);
+}
+.palette-option {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  width: 100%; min-height: 46px; padding: 0 10px;
+  border-radius: 10px; text-align: left;
+}
+.palette-option-name { font: var(--fs-body) var(--sans); color: var(--bone); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.palette-option-meta { flex: 0 0 auto; font: var(--fs-meta) var(--sans); color: var(--bone-faint); }
+.palette-option.is-active, .palette-option:focus-visible { background: var(--surface-2); }
+@media (hover: hover) { .palette-option:hover { background: var(--surface); } }
+.palette-empty { margin: 18px 10px 6px; color: var(--bone-dim); font-size: var(--fs-meta); }
+.palette-all {
+  display: flex; justify-content: space-between; align-items: center;
+  width: calc(100% - 4px); margin: 10px 2px 0; min-height: 46px; padding: 0 10px;
+  border-radius: 10px; border-top: 1px solid var(--hair);
+  color: var(--ember); font: var(--fs-meta) var(--sans); text-align: left;
+}
+/* Filter summaries (year / artist / place) sit on the page gutter. */
+.archive-year-summary .opening-figures,
+.archive-artist-summary .opening-figures,
+.archive-place-summary .opening-figures { padding: 0 var(--gutter); margin-top: 14px; }
+.palette-field input::-webkit-search-cancel-button { -webkit-appearance: none; display: none; }

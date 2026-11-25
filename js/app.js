@@ -930,88 +930,49 @@ function forgottenMemoryLine() {
   return node;
 }
 
+// The Archive is searched from one field. Tapping it opens a command palette
+// (artists, rooms, cities, years and nights, grouped); choosing a group value
+// filters the timeline and leaves a removable chip, choosing a night opens
+// it, and Enter filters by the typed text.
 function renderExplore() {
   const host = document.getElementById("explore-root");
   if (!host || !archiveView) return;
   host.innerHTML = "";
 
-  const MODES = [["all","Everything"],["year","By year"],["artist","By artist"],["city","By city"],["venue","By room"]];
-  const bar = el(`<div class="explore"><div class="explore-modes"></div></div>`);
-  const modes = bar.querySelector(".explore-modes");
+  const bar = el(`<div class="explore"></div>`);
+  const trigger = el(`<button type="button" class="archive-search-trigger" aria-label="Search the archive">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>
+    <span>${archiveExploreQuery ? esc(archiveExploreQuery) : "Search nights, artists, rooms, years"}</span>
+  </button>`);
+  trigger.addEventListener("click", () => openArchivePalette());
+  bar.appendChild(trigger);
 
-  for (const [mode, label] of MODES) {
-    const b = el(`<button class="explore-mode ${exploreFilter.mode === mode ? "on" : ""}">${label}</button>`);
-    b.addEventListener("click", () => {
-      exploreFilter = { mode, value: null };
-      archiveExploreQuery = "";
-      renderExplore();
-    });
-    modes.appendChild(b);
-  }
-
-  if (exploreFilter.mode === "all") {
-    const search = el(`<input class="archive-filter-search" type="search" aria-label="Search the archive" placeholder="Artist, room, city or year" autocomplete="off" spellcheck="false">`);
-    search.value = archiveExploreQuery;
-    search.addEventListener("input", () => {
-      archiveExploreQuery = search.value;
-      renderSpine();
-    });
-    bar.appendChild(search);
-  }
-
-  if (exploreFilter.mode !== "all") {
-    const values = archiveView.explore[exploreFilter.mode] || [];
-    const labels = { year: "years", artist: "artists", city: "cities", venue: "rooms" };
-    const label = `Search ${labels[exploreFilter.mode]}`;
-    const search = el(`<input class="archive-filter-search" type="search" aria-label="${label}" placeholder="${label}" autocomplete="off" spellcheck="false">`);
-    search.value = archiveExploreQuery;
-    const row = el(`<div class="explore-values"></div>`);
-    const status = el(`<p class="archive-filter-status" role="status"></p>`);
-    const buttons = [];
-
-    const renderValues = () => {
-      row.innerHTML = "";
-      buttons.length = 0;
-      const searchKey = text => {
-        const key = normalizeKey(String(text));
-        return exploreFilter.mode === "venue" ? key.replace(/['’‘ʼ]/g, "") : key;
-      };
-      const query = searchKey(archiveExploreQuery);
-      const matches = values.filter(({ name }) => {
-        const names = exploreFilter.mode === "venue" ? venueSearchNames(name) : [name];
-        return names.some(value => searchKey(value).includes(query));
-      });
-      for (const { name, count } of matches) {
-        const selected = exploreFilter.value === name;
-        const v = el(`<button class="explore-value ${selected ? "on" : ""}" aria-pressed="${selected}">${esc(name)}<i>${count}</i></button>`);
-        buttons.push({ node: v, name });
-        v.addEventListener("click", () => {
-          exploreFilter = { mode: exploreFilter.mode, value: exploreFilter.value === name ? null : name };
-          for (const button of buttons) {
-            const active = exploreFilter.value === button.name;
-            button.node.classList.toggle("on", active);
-            button.node.setAttribute("aria-pressed", String(active));
-          }
-          renderSpine();
-        });
-        row.appendChild(v);
-      }
-      status.textContent = query
-        ? matches.length ? `${matches.length} match${matches.length === 1 ? "" : "es"}` : "No matches"
-        : `${values.length} ${labels[exploreFilter.mode]}`;
-    };
-    search.addEventListener("input", () => {
-      archiveExploreQuery = search.value;
-      renderValues();
-    });
-    bar.appendChild(search);
-    bar.appendChild(row);
-    bar.appendChild(status);
-    renderValues();
+  const active = exploreFilter.mode !== "all" && exploreFilter.value
+    ? { label: ARCHIVE_FILTER_LABELS[exploreFilter.mode] || "Filter", value: exploreFilter.value }
+    : archiveExploreQuery ? { label: "Search", value: archiveExploreQuery } : null;
+  if (active) {
+    const chip = el(`<button type="button" class="archive-chip" aria-label="Clear ${esc(active.label)} ${esc(active.value)}">
+      <span>${esc(active.label)}</span><b>${esc(active.value)}</b><i aria-hidden="true">×</i></button>`);
+    chip.addEventListener("click", () => setArchiveQuery(""));
+    bar.appendChild(chip);
   }
 
   host.appendChild(bar);
   renderSpine();
+}
+
+const ARCHIVE_FILTER_LABELS = { year: "Year", artist: "Artist", city: "City", venue: "Room" };
+
+function setArchiveFilter(mode, value) {
+  exploreFilter = { mode, value };
+  archiveExploreQuery = "";
+  renderExplore();
+}
+
+function setArchiveQuery(text) {
+  exploreFilter = { mode: "all", value: null };
+  archiveExploreQuery = text;
+  renderExplore();
 }
 
 function archiveYearSummary(concerts, year) {
@@ -1172,6 +1133,112 @@ function archiveEntry(c) {
   setPhoto(node.querySelector(".entry-photo"), imageFor(c), c);
   node.addEventListener("click", () => openSheet(c));
   return node;
+}
+
+// Command palette for the Archive.
+function openArchivePalette() {
+  document.querySelector(".palette-root")?.remove();
+  const root = el(`
+    <div class="palette-root">
+      <div class="palette" role="dialog" aria-modal="true" aria-label="Search the archive">
+        <div class="palette-field">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>
+          <input type="search" placeholder="Artist, room, city, year…" autocomplete="off" spellcheck="false" aria-label="Search the archive" role="combobox" aria-expanded="true" aria-controls="palette-results">
+          <button type="button" class="palette-cancel">Cancel</button>
+        </div>
+        <div class="palette-results" id="palette-results" role="listbox"></div>
+      </div>
+    </div>`);
+  document.body.appendChild(root);
+  const input = root.querySelector("input");
+  const results = root.querySelector(".palette-results");
+  input.value = archiveExploreQuery || "";
+  let options = [], cursor = -1;
+
+  let releaseBack = null;
+  const close = (fromBack = false) => {
+    root.remove();
+    if (!fromBack) releaseBack?.();
+  };
+  releaseBack = overlayOpened(() => close(true));
+
+  const key = (t) => normalizeKey(String(t)).replace(/['’‘ʼ]/g, "");
+  const groups = (q) => {
+    const k = key(q);
+    const pick = (mode, limit) => (archiveView.explore[mode] || [])
+      .filter(({ name }) => !k || (mode === "venue" ? venueSearchNames(name) : [String(name)]).some((n) => key(n).includes(k)))
+      .slice(0, limit)
+      .map(({ name, count }) => ({ kind: mode, name: String(name), count }));
+    if (!k) {
+      return [
+        ["Most seen", pick("artist", 5)],
+        ["Years", [...(archiveView.explore.year || [])].sort((a, b) => String(b.name).localeCompare(String(a.name))).slice(0, 6).map(({ name, count }) => ({ kind: "year", name: String(name), count }))],
+      ];
+    }
+    const nights = searchArchiveConcerts(archiveConcerts, q).slice(0, 6)
+      .map((c) => ({ kind: "night", name: c.festivalName || displayPlannedArtist(c.artist, c), meta: `${fullDate(c.date)} · ${venueKey({ venue: c.venue })}`, concert: c }));
+    return [["Artists", pick("artist", 5)], ["Rooms", pick("venue", 4)], ["Cities", pick("city", 4)], ["Years", pick("year", 4)], ["Nights", nights]];
+  };
+
+  const choose = (option) => {
+    close();
+    if (option.kind === "night") { openSheet(option.concert); return; }
+    setArchiveFilter(option.kind, option.name);
+    document.getElementById("explore-root")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const draw = () => {
+    results.innerHTML = "";
+    options = [];
+    cursor = -1;
+    const q = input.value.trim();
+    for (const [title, items] of groups(q)) {
+      if (!items.length) continue;
+      results.appendChild(el(`<p class="palette-group">${esc(title)}</p>`));
+      for (const item of items) {
+        const i = options.length;
+        const row = el(`<button type="button" class="palette-option" role="option" id="palette-opt-${i}">
+          <span class="palette-option-name">${esc(item.name)}</span>
+          <span class="palette-option-meta">${item.kind === "night" ? esc(item.meta) : `${ARCHIVE_FILTER_LABELS[item.kind]} · ${item.count} ${item.count === 1 ? "night" : "nights"}`}</span>
+        </button>`);
+        row.addEventListener("click", () => choose(item));
+        results.appendChild(row);
+        options.push({ item, row });
+      }
+    }
+    if (q && !options.length) results.appendChild(el(`<p class="palette-empty">Nothing in the archive matches “${esc(q)}”.</p>`));
+    if (q) {
+      const all = el(`<button type="button" class="palette-all">Show every night matching “${esc(q)}” <span aria-hidden="true">↵</span></button>`);
+      all.addEventListener("click", () => { close(); setArchiveQuery(q); });
+      results.appendChild(all);
+    }
+  };
+  const move = (delta) => {
+    if (!options.length) return;
+    options[cursor]?.row.classList.remove("is-active");
+    cursor = (cursor + delta + options.length) % options.length;
+    options[cursor].row.classList.add("is-active");
+    options[cursor].row.scrollIntoView({ block: "nearest" });
+    input.setAttribute("aria-activedescendant", options[cursor].row.id);
+  };
+
+  input.addEventListener("input", draw);
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowDown") { event.preventDefault(); move(1); }
+    else if (event.key === "ArrowUp") { event.preventDefault(); move(-1); }
+    else if (event.key === "Escape") { event.preventDefault(); close(); }
+    else if (event.key === "Enter") {
+      event.preventDefault();
+      if (cursor >= 0) choose(options[cursor].item);
+      else { close(); setArchiveQuery(input.value.trim()); }
+    }
+  });
+  root.querySelector(".palette-cancel").addEventListener("click", () => close());
+  root.addEventListener("click", (event) => { if (event.target === root) close(); });
+  draw();
+  // The previous search is pre-filled but selected: typing replaces it.
+  input.focus();
+  input.select();
 }
 
 // ==========================================================================
