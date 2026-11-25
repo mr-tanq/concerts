@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-11-25T01:34:05.370Z",
+    "lastUpdated": "2026-11-25T01:34:11.049Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
@@ -62,6 +62,43 @@
         "podiuminfo"
       ],
       "sourceUrl": "https://www.podiuminfo.nl/concert/504053/The-Wailers/Muziekgebouw-Eindhoven/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: The Wailers",
+        "matchedArtists": [
+          "The Wailers"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-11-24T17:01:52.455Z",
+      "lastSeenAt": "2026-11-24T17:01:52.455Z"
+    },
+    {
+      "id": "rec-podiuminfo-504050",
+      "source": "podiuminfo",
+      "sourceId": "504050",
+      "artist": "The Wailers",
+      "lineup": [
+        "The Wailers"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "The Wailers"
+      ],
+      "date": "2027-06-09",
+      "time": null,
+      "venue": "Musis",
+      "city": "Arnhem",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/5764/100_The_Wailers_1.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/504050/The-Wailers/Musis/",
       "match": {
         "score": 45,
         "label": "Strong match",
