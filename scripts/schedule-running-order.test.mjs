@@ -10,9 +10,29 @@ const c = {
   supportingArtists: ['Bane', 'Start Today', 'Peace of Mind'],
 };
 const url = 'https://patronaat.nl/event/terror-02-12-26/';
-const page = `<main><h1>Terror + Bane + Start Today + Peace Of Mind</h1><time datetime="${c.date}"></time>
-<p><strong>Tijdschema (onder voorbehoud)</strong><br>Deuren open • 18:30<br>19:00 • <strong>Peace of Mind</strong><br>
-19:50 • <strong>Magnitude</strong><br>20:40 • <strong>Bane</strong><br>21:40 • <strong>Terror</strong><br>Verwacht einde • 22:40</p></main>`;
+const rows = ['Deuren open • 18:30', '19:00 • <strong>Peace of Mind</strong>', '19:50 • <strong>Magnitude</strong>',
+  '20:40 • <strong>Bane</strong>', '21:40 • <strong>Terror</strong>', 'Verwacht einde • 22:40'];
+const intro = '<p>Van old school tot de nieuwe generatie: vier bands die hardcore spelen zoals het bedoeld is.</p>';
+const wrap = body => `<main><h1>Terror + Bane + Start Today + Peace Of Mind</h1><time datetime="${c.date}"></time>
+<div class="event__content">${intro}${body}</div></main>`;
+// Venues write the same running order in several ways; all must read the same.
+const layouts = {
+  'one <p> with <br>': wrap(`<p><strong>Tijdschema (onder voorbehoud)</strong><br>${rows.join('<br>\n')}</p>`),
+  'a <p> per line': wrap(`<h3>Tijdschema (onder voorbehoud)</h3>${rows.map(r => `<p>${r}</p>`).join('\n')}`),
+  'a list': wrap(`<p><strong>Tijdschema</strong></p><ul>${rows.map(r => `<li>${r}</li>`).join('')}</ul>`),
+  'divs with nbsp': wrap(`<div>Tijdschema</div>${rows.map(r => `<div>${r.replace(' • ', '&nbsp;•&nbsp;')}</div>`).join('')}`),
+};
+const page = layouts['one <p> with <br>'];
+
+for (const [name, html] of Object.entries(layouts)) {
+  test(`running order is read from ${name}`, () => {
+    const s = mergeSchedule(c, [parseSchedule(html, c, url, 'official', now)], now, 'manual');
+    assert.deepEqual(s.support.map(a => [a.name, a.time]),
+      [['Peace of Mind', '19:00'], ['Magnitude', '19:50'], ['Bane', '20:40']]);
+    assert.equal(s.main.time, '21:40');
+    assert.equal(s.fullTimetable, true);
+  });
+}
 
 test('an official running order adds acts discovery never knew', () => {
   const s = mergeSchedule(c, [parseSchedule(page, c, url, 'official', now)], now, 'manual');

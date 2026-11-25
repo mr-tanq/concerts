@@ -153,7 +153,7 @@ async function main() {
   for(const c of future) {
     const phase=schedulePhase(c,future[0]?.id,now,process.argv.includes("--force"));if(!phase) continue;
     const schedule=await enrichOne(c,stamp,phase);updates.push({id:c.id,date:c.date,artist:c.artist,venue:c.venue,schedule});
-    console.log(`${c.artist} ${c.date}: ${phase}, ${schedule.lastError || `${schedule.sources.length} sources`}`);
+    console.log(`${c.artist} ${c.date}: ${phase}, ${schedule.lastError || `${schedule.sources.length} sources`}${schedule.fullTimetable ? ", full running order" : ""}; acts: ${(schedule.support || []).map(a => `${a.name} ${a.time || "TBA"}`).join(", ") || "none"}`);
   }
   if(process.argv.includes("--publish")) {
     const token=process.env.GITHUB_TOKEN, repo=process.env.GITHUB_REPOSITORY;

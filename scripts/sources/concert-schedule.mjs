@@ -277,22 +277,43 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
       dd.text(), `${label} ${dd.text()}`
     );
   });
+  // An official page that lists three or more consecutive "19:50 • Name"
+  // lines is a running order: every act in it counts, even one discovery
+  // never knew (a late addition or replacement), and it is taken as the full
+  // bill. Lines are rebuilt from <br> AND block boundaries, so it works
+  // whether the venue writes one <p> with <br>s, a <p> per line, or a list.
+  if (kind === "official") {
+    const ledByTime = /^((?:[01]?\d|2[0-3])[:.][0-5]\d)\s*(?:uur\s*)?[•·|–—:-]\s*([\p{L}\p{N}][\p{L}\p{N} '&+.()\/-]{1,69})$/u;
+    const keyword = /^(?:deur(?:en)?(?: open)?|doors?(?: open)?|zaal open|(?:verwacht(?:e)? )?einde?(?:tijd)?|end|expected end|curfew)\b/i;
+    const seen = new Set();
+    root.find("main,article,section,div,ul,ol,p").each((_, n) => {
+      const html = $(n).html();
+      if (!html || html.length > 40000) return;
+      const text = cheerio.load(html
+        .replace(/<br\s*\/?\s*>/gi, "\n")
+        .replace(/<\/(?:p|li|div|h[1-6]|dd|dt|tr|section|article|ul|ol)>/gi, "\n")).text();
+      const lines = text.split("\n").map(l => l.replace(/\s+/g, " ").trim()).filter(Boolean);
+      // Longest run of time-led lines; doors/end lines may sit inside it.
+      let run = [], best = [];
+      for (const l of lines) {
+        if (ledByTime.test(l)) run.push(l);
+        else if (!keyword.test(l)) { if (run.length > best.length) best = run; run = []; }
+      }
+      if (run.length > best.length) best = run;
+      if (best.length < 3) return;
+      fullTimetable = true;
+      for (const l of best) {
+        if (seen.has(l)) continue;
+        seen.add(l);
+        const m = l.match(ledByTime);
+        consume(m[2].trim(), m[1], l, true);
+      }
+    });
+  }
   // Explicit labelled fields only. Generic "Start", "Time" and JSON-LD startDate are NOT main-act times.
-  // An official page whose block lists three or more "19:50 • Name" lines is a
-  // running order: every act in it counts, even one discovery never knew
-  // (a late addition or replacement), and it is taken as the full bill.
-  const ledByTime = /^((?:[01]?\d|2[0-3])[:.][0-5]\d)\s*[•·|–-]\s*([\p{L}\p{N}][\p{L}\p{N} '&+.()-]{1,69})$/u;
   root.find("p,li,dt,dd,div,span").each((_, n) => {
     if ($(n).text().replace(/\s+/g," ").trim().length > 300) return;
     const lines = $(n).html()?.replace(/<br\s*\/?\s*>/gi,"\n"); if (!lines) return;
-    const blockLines = cheerio.load(lines).text().split(/\n/).map(l => l.replace(/\s+/g, " ").trim()).filter(Boolean);
-    if (kind === "official" && blockLines.filter(l => ledByTime.test(l)).length >= 3) {
-      fullTimetable = true;
-      for (const l of blockLines) {
-        const m = l.match(ledByTime);
-        if (m) consume(m[2].trim(), m[1], l, true);
-      }
-    }
     for (const line of cheerio.load(lines).text().split(/\n|,\s*(?=(?:doors?|zaal open|voorprogramma|support|hoofdprogramma|main programme)\s*:)/i)) {
       const clean = line.replace(/\bSons of the Town Hall\b/gi,"Sons of Town Hall").replace(/\s+/g," ").trim();
       if (clean.length > 150) continue;
