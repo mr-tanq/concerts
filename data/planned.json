@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-11-25T01:59:28.751Z",
+    "lastUpdated": "2026-11-25T02:32:02.918Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -27,6 +27,135 @@
       },
       "practical": {
         "ticketBought": true
+      },
+      "schedule": {
+        "version": 1,
+        "date": "2027-02-17",
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": "19:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.tivolivredenburg.nl/agenda/38718465/mono-17-02-2027",
+          "sourceKind": "official",
+          "checkedAt": "2026-11-25T02:31:55.301Z",
+          "evidence": "Deuren open 19:00",
+          "at": "2027-02-17T18:00:00.000Z"
+        },
+        "start": {
+          "name": "PROGRAMME START",
+          "time": null
+        },
+        "support": [],
+        "main": {
+          "name": "MONO",
+          "time": "20:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.tivolivredenburg.nl/agenda/38718465/mono-17-02-2027",
+          "sourceKind": "official",
+          "checkedAt": "2026-11-25T02:31:55.301Z",
+          "evidence": "Aanvang 20:00",
+          "at": "2027-02-17T19:00:00.000Z"
+        },
+        "end": {
+          "name": "END",
+          "time": "22:29",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.tivolivredenburg.nl/agenda/38718465/mono-17-02-2027",
+          "sourceKind": "official",
+          "checkedAt": "2026-11-25T02:31:55.301Z",
+          "evidence": "endDate: 2027-02-17T22:29",
+          "at": "2027-02-17T21:29:00.000Z"
+        },
+        "sources": [
+          {
+            "url": "https://www.tivolivredenburg.nl/agenda/38718465/mono-17-02-2027",
+            "kind": "official",
+            "label": "tivolivredenburg.nl",
+            "checkedAt": "2026-11-25T02:31:55.301Z"
+          }
+        ],
+        "lastCheckedAt": "2026-11-25T02:31:55.301Z",
+        "lastAttemptAt": "2026-11-25T02:31:55.301Z",
+        "checks": {
+          "manual": "2026-11-25T02:31:55.301Z"
+        },
+        "lastError": null,
+        "noSupport": {
+          "url": "https://www.tivolivredenburg.nl/agenda/38718465/mono-17-02-2027",
+          "kind": "official",
+          "label": "tivolivredenburg.nl",
+          "checkedAt": "2026-11-25T02:31:55.301Z"
+        },
+        "refreshRequestedAt": "2026-11-25T02:31:38.169Z",
+        "lastOfficialCheckedAt": "2026-11-25T02:31:55.301Z",
+        "checkStatus": "official",
+        "discovery": {
+          "version": 2,
+          "attempts": [
+            {
+              "url": "https://tivolivredenburg.nl/agenda/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.tivolivredenburg.nl/agenda/page/2/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/page/2/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/page/3/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/page/4/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/page/5/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/page/6/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/agenda/page/7/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/sitemap.xml",
+              "status": "fetch-failed",
+              "reason": "HTTP 404"
+            },
+            {
+              "url": "https://tivolivredenburg.nl/sitemap_index.xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.tivolivredenburg.nl/seo-feed/sf-production-sitemap-xml",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.tivolivredenburg.nl/agenda/38718465/mono-17-02-2027",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.tivolivredenburg.nl/agenda/38718465/mono-17-02-2027",
+              "status": "verified"
+            }
+          ],
+          "configured": [
+            "tivolivredenburg.nl"
+          ],
+          "requests": 12
+        },
+        "availability": "published"
       }
     },
     {
