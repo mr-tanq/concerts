@@ -2590,7 +2590,7 @@ function renderUpcoming(body) {
           <div class="who">
             <b>${esc(displayPlannedArtist(c.artist, c))}${goingFilter === "tickets" ? "" : ticketMark(c)}</b>
             <span class="event-meta"><span class="event-venue">${esc(placeLine(c, displayPlannedArtist(c.artist, c)))}</span></span>
-            ${workDayBadge(c, { quiet: true }) ? `<div>${workDayBadge(c, { quiet: true })}</div>` : ""}
+            ${workDayBadge(c) ? `<div>${workDayBadge(c)}</div>` : ""}
           </div>
         </button>
       `);
