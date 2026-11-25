@@ -1261,7 +1261,10 @@ function openSheet(c) {
             <div id="sheet-note"></div>
           </div>
           <div id="sheet-setlist"></div>
-          <div id="sheet-photo-fix"></div>
+          <details class="sheet-section night-disclosure sheet-edit-night">
+            <summary>Edit this night <span aria-hidden="true">⌄</span></summary>
+            <div id="sheet-photo-fix"></div>
+          </details>
         `}
 
         ${planned ? `
@@ -1338,8 +1341,9 @@ function openSheet(c) {
   });
 
   if (!planned) {
+    // Rare actions live together behind one "Edit this night".
     mountPhotoFix(sheet.querySelector("#sheet-photo-fix"), sheet.querySelector(".sheet-photo"), c);
-    mountArchiveRemoval(sheet.querySelector(".sheet-inner"), c, {
+    mountArchiveRemoval(sheet.querySelector(".sheet-edit-night"), c, {
       connected: () => !!getGithubConfig(),
       connect: openSettings,
       remove: () => enqueue(async () => {
