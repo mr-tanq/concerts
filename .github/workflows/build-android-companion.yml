@@ -13,7 +13,7 @@ on:
       - ".github/workflows/build-android-companion.yml"
 
 permissions:
-  contents: read
+  contents: write   # to publish the APK to the "companion-latest" release
 
 jobs:
   build:
@@ -60,3 +60,21 @@ jobs:
           path: android-companion/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
+
+      # A phone can't easily use the zipped, login-only artifact above, so
+      # every build on main also replaces the APK on one fixed release:
+      # https://github.com/mr-tanq/concerts/releases/download/companion-latest/listening-mirror-companion.apk
+      - name: Publish as the latest Companion download
+        if: github.ref == 'refs/heads/main'
+        working-directory: ${{ github.workspace }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cp android-companion/app/build/outputs/apk/debug/app-debug.apk listening-mirror-companion.apk
+          VERSION="$(grep -oP 'versionName = "\K[^"]+' android-companion/app/build.gradle.kts)"
+          NOTES="Listening Mirror Companion ${VERSION}, built from ${GITHUB_SHA::7}. Open the .apk on the phone to install or update."
+          if ! gh release view companion-latest >/dev/null 2>&1; then
+            gh release create companion-latest --title "Listening Mirror Companion (latest)" --notes "$NOTES" --latest=false
+          fi
+          gh release upload companion-latest listening-mirror-companion.apk --clobber
+          gh release edit companion-latest --notes "$NOTES"

@@ -2813,6 +2813,7 @@ function openSettings() {
           </p>
           <div id="relay-box"></div>
           <p class="status" id="relay-status"></p>
+          <a class="plain-act settings-apk" href="https://github.com/mr-tanq/concerts/releases/download/companion-latest/listening-mirror-companion.apk" target="_blank" rel="noopener">Download the Companion app ↗</a>
         </div>
         <div class="act-row settings-done" style="padding-left:0;padding-right:0">
           <button type="button" class="plain-act" id="set-close">Done</button>
