@@ -99,6 +99,7 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
   if (!matching.length && !(matchName(heading, concert.artist) && (dateMatches(dateLabels + " " + dates, concert.date) || hallDate))) return null;
   const source = { url, kind, label: new URL(url).hostname.replace(/^www\./,""), checkedAt };
   const values = new Map(), conflicts = new Set();
+  let fullTimetable = false;
   const supportNames = [...new Set((concert.supportingArtists || []).filter(Boolean).map(supportName))];
   // dB's publishes its billing in og:title rather than an h1.
   if (dbstudio && matchName(dbTitle.split(/\s+\+\s+/)[0], concert.artist)) {
@@ -277,9 +278,21 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
     );
   });
   // Explicit labelled fields only. Generic "Start", "Time" and JSON-LD startDate are NOT main-act times.
+  // An official page whose block lists three or more "19:50 • Name" lines is a
+  // running order: every act in it counts, even one discovery never knew
+  // (a late addition or replacement), and it is taken as the full bill.
+  const ledByTime = /^((?:[01]?\d|2[0-3])[:.][0-5]\d)\s*[•·|–-]\s*([\p{L}\p{N}][\p{L}\p{N} '&+.()-]{1,69})$/u;
   root.find("p,li,dt,dd,div,span").each((_, n) => {
     if ($(n).text().replace(/\s+/g," ").trim().length > 300) return;
     const lines = $(n).html()?.replace(/<br\s*\/?\s*>/gi,"\n"); if (!lines) return;
+    const blockLines = cheerio.load(lines).text().split(/\n/).map(l => l.replace(/\s+/g, " ").trim()).filter(Boolean);
+    if (kind === "official" && blockLines.filter(l => ledByTime.test(l)).length >= 3) {
+      fullTimetable = true;
+      for (const l of blockLines) {
+        const m = l.match(ledByTime);
+        if (m) consume(m[2].trim(), m[1], l, true);
+      }
+    }
     for (const line of cheerio.load(lines).text().split(/\n|,\s*(?=(?:doors?|zaal open|voorprogramma|support|hoofdprogramma|main programme)\s*:)/i)) {
       const clean = line.replace(/\bSons of the Town Hall\b/gi,"Sons of Town Hall").replace(/\s+/g," ").trim();
       if (clean.length > 150) continue;
@@ -368,7 +381,7 @@ export function parseSchedule(html, concert, url, kind = "official", checkedAt =
   if (dbstudio && values.has("start")) values.get("start").unassigned = true;
   // An unknown support does not identify when the headliner starts.
   if (unknownSupport && values.has("start")) values.get("start").unassigned = true;
-  return { source, noSupport, mainName, values: Object.fromEntries(values), supportNames: [...new Set(supportNames)], conflicts: [...conflicts] };
+  return { source, noSupport, fullTimetable, mainName, values: Object.fromEntries(values), supportNames: [...new Set(supportNames)], conflicts: [...conflicts] };
 }
 
 export function mergeSchedule(concert, results, now, phase) {
@@ -397,12 +410,16 @@ export function mergeSchedule(concert, results, now, phase) {
     const at = venueInstant(concert.date, f.time, zone, f.dayOffset || 0);
     return at ? {...f, name, at} : {name, time:null};
   };
-  const names = [...new Map([
+  let names = [...new Map([
     ...(concert.supportingArtists || []),
     ...(old.support || []).map(f=>f.name),
     ...results.flatMap(r=>r.supportNames),
     ...[...selected].filter(([k])=>k.startsWith("support:")).map(([,f])=>f.name)
   ].map(name => [normalize(name), supportName(name)])).values()];
+  // A venue's own full running order outranks an older aggregator lineup:
+  // acts it doesn't list (cancelled, replaced) are not shown as "TBA".
+  const fullTimetable = results.some(r => r.source.kind === "official" && r.fullTimetable);
+  if (fullTimetable) names = names.filter(name => selected.get(`support:${normalize(name)}`)?.time);
   const mainNames = [...new Map(results
     .filter(r => r.source.kind === "official" && r.mainName)
     .map(r => [normalize(r.mainName), r.mainName])).values()];
@@ -416,6 +433,7 @@ export function mergeSchedule(concert, results, now, phase) {
   const absent = official.find(r => r.noSupport === true);
   const contradicts = official.some(r => r.noSupport !== true &&
     Object.keys(r.values).some(k => k.startsWith("support:")));
+  if (fullTimetable) s.fullTimetable = true;
   s.noSupport = absent && !contradicts ? {...absent.source} :
     (!official.length && old.noSupport ? old.noSupport : null);
   if (s.noSupport) s.support = [];

@@ -124,7 +124,9 @@ export function scheduleMarkup(concert) {
   };
   const supportKey = name => String(name || "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
   const support = s?.noSupport ? [] : [...(s?.support || [])];
-  for (const name of s?.noSupport ? [] : (concert.supportingArtists || [])) {
+  // When the venue published its full running order, the aggregator's
+  // lineup must not re-add acts it dropped.
+  for (const name of s?.noSupport || s?.fullTimetable ? [] : (concert.supportingArtists || [])) {
     if (name && !isNoSupportPlaceholder(name) && !support.some(field => supportKey(field.name) === supportKey(name))) support.push({ name });
   }
   const segments=mainSegments(concert),setCount=segments.filter(part=>part.kind==="main").length;
