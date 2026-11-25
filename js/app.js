@@ -51,20 +51,27 @@ let fatalErrors = [];
 function showFatalError(text) {
   fatalErrors.push(text);
   document.getElementById("fatal-error-bar")?.remove();
+  // In the app's own style: a calm card with the details folded away (still
+  // there to copy on a phone, where there is no console).
   const bar = document.createElement("div");
   bar.id = "fatal-error-bar";
-  bar.style.cssText =
-    "position:fixed;top:0;left:0;right:0;z-index:9999;background:#2a0a0a;color:#ffb4b0;" +
-    "font-family:monospace;font-size:11px;line-height:1.5;padding:12px;white-space:pre-wrap;" +
-    "word-break:break-word;max-height:45vh;overflow:auto;border-bottom:2px solid #ff5a4d";
-  bar.textContent = fatalErrors.map((e, i) => `[${i + 1}] ${e}`).join("\n\n");
+  bar.className = "error-card";
+  bar.setAttribute("role", "alert");
+  const title = document.createElement("p");
+  title.className = "error-card-title";
+  title.textContent = fatalErrors.length > 1 ? `Something went wrong (${fatalErrors.length})` : "Something went wrong";
+  const details = document.createElement("details");
+  const summary = document.createElement("summary");
+  summary.textContent = "Details";
+  const pre = document.createElement("pre");
+  pre.textContent = fatalErrors.map((e, i) => `[${i + 1}] ${e}`).join("\n\n");
+  details.append(summary, pre);
   const dismiss = document.createElement("button");
+  dismiss.type = "button";
+  dismiss.className = "error-card-dismiss";
   dismiss.textContent = "Dismiss";
-  dismiss.style.cssText =
-    "display:block;margin-top:10px;background:#ff5a4d;color:#1a0505;border:none;" +
-    "padding:8px 14px;border-radius:4px;font-weight:700;font-family:sans-serif;font-size:12px";
   dismiss.addEventListener("click", () => { fatalErrors = []; bar.remove(); });
-  bar.appendChild(dismiss);
+  bar.append(title, details, dismiss);
   document.body.appendChild(bar);
 }
 window.addEventListener("error", (e) => {
@@ -754,14 +761,39 @@ async function addLineupArtistRemote(concert, name) {
 
 // ---------- saving indicator ----------
 
+// Saving feedback as a small toast above the rail: "Saving…" while writes
+// are in flight, a brief "Saved" when they finish, the error when one fails.
+let savingWasShown = false;
+let savedTimer = null;
 function renderSaving() {
+  const show = (kind, text) => {
+    let node = document.getElementById("saving");
+    if (!node) {
+      node = el(`<div class="saving" id="saving" role="status" aria-live="polite"></div>`);
+      document.body.appendChild(node);
+    }
+    node.className = `saving is-${kind}`;
+    node.textContent = text;
+  };
+  clearTimeout(savedTimer);
+  if (syncError) {
+    show("bad", syncError);
+    savingWasShown = false;
+    setTimeout(() => { syncError = null; renderSaving(); }, 6000);
+    return;
+  }
+  if (pendingWrites > 0) {
+    show("busy", "Saving…");
+    savingWasShown = true;
+    return;
+  }
+  if (savingWasShown) {
+    savingWasShown = false;
+    show("done", "Saved");
+    savedTimer = setTimeout(() => document.getElementById("saving")?.remove(), 1600);
+    return;
+  }
   document.getElementById("saving")?.remove();
-  if (pendingWrites === 0 && !syncError) return;
-  const node = syncError
-    ? el(`<div class="saving bad" id="saving">${esc(syncError)}</div>`)
-    : el(`<div class="saving" id="saving">Saving</div>`);
-  document.body.appendChild(node);
-  if (syncError) setTimeout(() => { syncError = null; renderSaving(); }, 6000);
 }
 
 // ==========================================================================
@@ -3322,6 +3354,15 @@ async function init() {
       renderConcertsShell(page.view || "stage");
     }
   });
+
+  // A skeleton holds Live's shape while its data arrives.
+  const livePanel = document.getElementById("panel-concerts");
+  if (livePanel && !livePanel.childElementCount) {
+    livePanel.appendChild(el(`<div class="live-skeleton" aria-busy="true" aria-label="Loading">
+      <div class="sk sk-tabs"></div><div class="sk sk-line"></div><div class="sk sk-card"></div>
+      <div class="sk-row"><div class="sk sk-pill"></div><div class="sk sk-pill"></div><div class="sk sk-pill"></div></div>
+    </div>`));
+  }
 
   // Two phases, so the first screen doesn't wait for everything:
   //   1. what Live needs (its lists + the photos it shows) — render Live;

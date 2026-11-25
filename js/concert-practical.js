@@ -39,7 +39,7 @@ export function mountPractical(host,concert,save) {
   let busy=false;
   async function persist(changes) {
     if(busy)return;
-    busy=true;ticket.disabled=true;form.querySelector('button').disabled=true;status.textContent='Saving…';
+    busy=true;ticket.disabled=true;form.querySelector('button').disabled=true;status.textContent='';
     try {
       const practical=await save(changes);
       concert.practical=practical;
@@ -49,7 +49,7 @@ export function mountPractical(host,concert,save) {
       const buy=host.querySelector('[data-buy-ticket]');
       if(buy) buy.hidden=practical.ticketBought===true;
       host.querySelector('summary').textContent=practical.note?'Concert note':'Add a note';
-      status.textContent='Saved.';
+      status.textContent=''; // the app-wide toast says Saving… / Saved
     } catch(e){if(host.isConnected) status.textContent='Could not save. '+e.message;}
     finally{busy=false;ticket.disabled=false;form.querySelector('button').disabled=false;}
   }
