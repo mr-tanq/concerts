@@ -1197,13 +1197,15 @@ function concertsForSubject(c) {
 // completely differently from a visit counter, even though it's the exact
 // same number underneath.
 function timesSeenStatement(c) {
+  // A name is never split across lines ("PRO-" / "PAIN").
   const subject = c.festivalName || c.artist;
+  const name = `<span class="nobreak">${esc(subject)}</span>`;
   const all = concertsForSubject(c);
   const total = all.length;
-  if (total <= 1) return `The only time you've seen ${esc(subject)} — so far.`;
+  if (total <= 1) return `The only time you've seen ${name} — so far.`;
   const index = all.findIndex((x) => x.id === c.id) + 1;
   const ord = ORDINALS[index - 1] || `${index}th`;
-  return `The ${ord} of ${spell(total)} times you've seen ${esc(subject)}.`;
+  return `The ${ord} of ${spell(total)} times you've seen ${name}.`;
 }
 
 // Marks the earliest night with this subject as a discovery, not just

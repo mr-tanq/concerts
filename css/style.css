@@ -52,6 +52,39 @@
   --accent-blue: var(--bone);
   --accent-green: var(--ember);
   --accent-red: var(--red);
+
+  /* ---- Design system tokens --------------------------------------
+     Type: a strict 8-step scale. Labels are small mono capitals with one
+     tracking value; facts (numbers) use tabular figures. */
+  --fs-label:   11px;
+  --fs-meta:    13px;
+  --fs-body:    15px;
+  --fs-lede:    19px;
+  --fs-heading: 23px;
+  --fs-title:   30px;
+  --fs-display: 40px;
+  --fs-hero:    64px;
+  --track-label: 0.14em;
+
+  /* Shape: three radii only. */
+  --r-sm:   6px;
+  --r-md:   10px;
+  --r-pill: 999px;
+
+  /* Hairlines and quiet surfaces */
+  --hair-strong: rgba(242,239,233,0.18);
+  --surface:     rgba(242,239,233,0.04);
+  --surface-2:   rgba(242,239,233,0.07);
+
+  /* Meaning colours (were hard-coded across the file) */
+  --bone-soft: #d4d0c9;
+  --ticket:    #9bd6e4;
+  --ok:        #63c786;
+  --warn:      #e9a64c;
+  --clash:     #e86b69;
+
+  /* Motion */
+  --dur: 0.2s;
 }
 
 * { box-sizing: border-box; }
@@ -70,7 +103,7 @@ body {
   background: var(--black);
   color: var(--bone);
   font-family: var(--sans);
-  font-size: 15px;
+  font-size: var(--fs-body);
   font-weight: 400;
   line-height: 1.55;
   letter-spacing: -0.005em;
@@ -99,7 +132,7 @@ button { font-family: inherit; color: inherit; background: none; border: none; c
    the serif. The app's own name lives on the home-screen icon. */
 .masthead-name {
   font-family: var(--serif);
-  font-size: 23px;
+  font-size: var(--fs-heading);
   font-weight: 400;
   line-height: 1;
   letter-spacing: -0.01em;
@@ -154,9 +187,9 @@ main { max-width: 720px; margin: 0 auto; }
    section names, counts, statuses. */
 .whisper {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: var(--fs-label);
   font-weight: 400;
-  letter-spacing: 0.2em;
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: var(--bone-faint);
   margin: 0;
@@ -165,7 +198,7 @@ main { max-width: 720px; margin: 0 auto; }
 /* The editorial voice. Used for statements the app makes about your life. */
 .lede {
   font-family: var(--serif);
-  font-size: 30px;
+  font-size: var(--fs-title);
   font-weight: 400;
   line-height: 1.18;
   letter-spacing: -0.01em;
@@ -175,7 +208,7 @@ main { max-width: 720px; margin: 0 auto; }
 .lede em { font-style: italic; color: var(--ember); }
 
 .footnote {
-  font-size: 13px;
+  font-size: var(--fs-meta);
   color: var(--bone-faint);
   margin: 14px 0 0;
 }
@@ -192,20 +225,20 @@ main { max-width: 720px; margin: 0 auto; }
 
 .opening { padding: 26px var(--gutter) 0; }
 
-.opening .lede { font-size: 34px; margin-top: 16px; }
+.opening .lede { font-size: var(--fs-title); margin-top: 16px; }
 
 /* The stats, written as a sentence instead of stacked in four boxes.
    Numbers are set in mono so they read as facts inside prose. */
 .opening-figures {
   margin: 26px 0 0;
-  font-size: 14.5px;
+  font-size: var(--fs-body);
   line-height: 2.05;
   color: var(--bone-dim);
   max-width: 30em;
 }
 .opening-figures b {
   font-family: var(--mono);
-  font-size: 15px;
+  font-size: var(--fs-body);
   font-weight: 500;
   color: var(--bone);
   font-feature-settings: "tnum";
@@ -224,15 +257,15 @@ main { max-width: 720px; margin: 0 auto; }
 .opening-stats dt,
 .opening-signature dt {
   font-family: var(--mono);
-  font-size: 10.5px;
-  letter-spacing: 0.16em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: var(--bone-faint);
 }
 .opening-stats dd {
   margin: 6px 0 0;
   font-family: var(--serif);
-  font-size: 32px;
+  font-size: var(--fs-title);
   line-height: 1;
   color: var(--bone);
   font-feature-settings: "lnum", "tnum";
@@ -255,7 +288,7 @@ main { max-width: 720px; margin: 0 auto; }
 }
 .opening-signature dd b {
   font-family: var(--serif);
-  font-size: 21px;
+  font-size: var(--fs-lede);
   font-weight: 400;
   color: var(--bone);
   white-space: nowrap;
@@ -264,7 +297,7 @@ main { max-width: 720px; margin: 0 auto; }
 }
 .opening-signature dd span {
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: var(--fs-label);
   color: var(--bone-dim);
   font-feature-settings: "tnum";
 }
@@ -280,7 +313,7 @@ main { max-width: 720px; margin: 0 auto; }
 .anniversary .whisper { color: var(--ember); }
 .anniversary-line {
   font-family: var(--serif);
-  font-size: 25px;
+  font-size: var(--fs-heading);
   line-height: 1.25;
   margin-top: 10px;
   color: var(--bone);
@@ -329,7 +362,7 @@ main { max-width: 720px; margin: 0 auto; }
 }
 .year-mark b {
   font-family: var(--serif);
-  font-size: 34px;
+  font-size: var(--fs-title);
   font-weight: 400;
   line-height: 1;
   color: var(--bone);
@@ -337,8 +370,8 @@ main { max-width: 720px; margin: 0 auto; }
 }
 .year-mark span {
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.16em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: var(--bone-faint);
 }
@@ -375,8 +408,8 @@ main { max-width: 720px; margin: 0 auto; }
 
 .entry-date {
   font-family: var(--mono);
-  font-size: 11.5px;
-  letter-spacing: 0.13em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
   color: var(--bone-faint);
   text-transform: uppercase;
   font-feature-settings: "tnum";
@@ -404,7 +437,7 @@ main { max-width: 720px; margin: 0 auto; }
 }
 .entry-artist {
   font-family: var(--serif);
-  font-size: 27px;
+  font-size: var(--fs-title);
   line-height: 1.12;
   letter-spacing: -0.012em;
   color: var(--bone);
@@ -414,12 +447,12 @@ main { max-width: 720px; margin: 0 auto; }
 .entry-with {
   font-family: var(--serif);
   font-style: italic;
-  font-size: 16px;
+  font-size: var(--fs-body);
   color: var(--bone-faint);
   line-height: 1.3;
   margin-bottom: 4px;
 }
-.entry-place { font-size: 13px; color: var(--bone-dim); }
+.entry-place { color: var(--bone-dim); }
 .entry-place .dot { color: var(--bone-faint); margin: 0 6px; }
 
 /* The photograph: small, square, quiet. It gives the column rhythm without
@@ -429,7 +462,7 @@ main { max-width: 720px; margin: 0 auto; }
   flex: 0 0 58px;
   width: 58px;
   height: 58px;
-  border-radius: 3px;
+  border-radius: var(--r-sm);
   background-size: cover;
   background-position: center;
   background-color: #131316;
@@ -456,8 +489,8 @@ main { max-width: 720px; margin: 0 auto; }
 .explore-modes::-webkit-scrollbar { display: none; }
 .explore-mode {
   font-family: var(--mono);
-  font-size: 11.5px;
-  letter-spacing: 0.16em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: var(--bone-faint);
   padding: 4px 0;
@@ -478,7 +511,7 @@ main { max-width: 720px; margin: 0 auto; }
 .explore-values::-webkit-scrollbar { display: none; }
 .explore-value {
   white-space: nowrap;
-  font-size: 14px;
+  font-size: var(--fs-meta);
   color: var(--bone-dim);
   padding: 2px 0;
   transition: color 0.2s var(--ease);
@@ -487,7 +520,7 @@ main { max-width: 720px; margin: 0 auto; }
 .explore-value i {
   font-family: var(--mono);
   font-style: normal;
-  font-size: 11.5px;
+  font-size: var(--fs-label);
   color: var(--bone-faint);
   margin-left: 6px;
 }
@@ -497,8 +530,8 @@ main { max-width: 720px; margin: 0 auto; }
   padding: 0 var(--gutter);
   margin-top: 24px;
   font-family: var(--mono);
-  font-size: 11.5px;
-  letter-spacing: 0.16em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: var(--bone-faint);
 }
@@ -517,8 +550,8 @@ main { max-width: 720px; margin: 0 auto; }
 }
 .switch button {
   font-family: var(--mono);
-  font-size: 11.5px;
-  letter-spacing: 0.16em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: var(--bone-faint);
   padding: 4px 0;
@@ -536,11 +569,10 @@ main { max-width: 720px; margin: 0 auto; }
 .stage {
   position: relative;
   /* Sized so Pass / Later / I'm going stay above the bottom rail. */
-  height: calc(100vh - 250px);
   height: calc(100svh - 246px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
   min-height: 400px;
   margin: 0 var(--gutter);
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   overflow: hidden;
   touch-action: pan-y;
   user-select: none;
@@ -553,7 +585,7 @@ main { max-width: 720px; margin: 0 auto; }
   inset: 0;
   background-size: cover;
   background-position: center;
-  background-color: #101013;
+  background-color: var(--black-2);
   transform: scale(1.03);
 }
 /* Two scrims: one from the bottom for the type, one overall to sink the
@@ -570,8 +602,8 @@ main { max-width: 720px; margin: 0 auto; }
   top: 18px;
   left: 18px;
   font-family: var(--mono);
-  font-size: 11.5px;
-  letter-spacing: 0.16em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: var(--bone);
   text-shadow: 0 1px 12px rgba(0,0,0,0.8);
@@ -580,7 +612,7 @@ main { max-width: 720px; margin: 0 auto; }
 .festival-artist-photo-credit {
   position:absolute; top:17px;right:16px;z-index:2;
   max-width:52%; text-align:right;
-  color:var(--bone-dim);font:11px/1.4 var(--mono);
+  color:var(--bone-dim);font:var(--fs-label)/1.4 var(--mono);
   letter-spacing:.02em;text-shadow:0 1px 12px rgba(0,0,0,.9);
 }
 
@@ -594,10 +626,7 @@ main { max-width: 720px; margin: 0 auto; }
 .stage-copy { position: absolute; left: 20px; right: 20px; bottom: 20px; }
 .stage-when {
   font-family: var(--mono);
-  font-size: 11.5px;
-  letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--bone-dim);
   margin-bottom: 10px;
 }
 .stage-artist {
@@ -612,12 +641,12 @@ main { max-width: 720px; margin: 0 auto; }
 .stage-with {
   font-family: var(--serif);
   font-style: italic;
-  font-size: 18px;
+  font-size: var(--fs-lede);
   color: var(--bone-dim);
   margin-bottom: 12px;
   line-height: 1.25;
 }
-.stage-why { font-size: 13px; color: var(--bone-dim); line-height: 1.45; }
+.stage-why { font-size: var(--fs-meta); color: var(--bone-dim); line-height: 1.45; }
 
 /* Swipe verdicts. Set in the serif so they feel handwritten onto the poster
    rather than stamped by an interface. */
@@ -625,7 +654,7 @@ main { max-width: 720px; margin: 0 auto; }
   position: absolute;
   top: 46%;
   font-family: var(--serif);
-  font-size: 46px;
+  font-size: var(--fs-display);
   line-height: 1;
   letter-spacing: -0.02em;
   opacity: 0;
@@ -646,8 +675,8 @@ main { max-width: 720px; margin: 0 auto; }
   flex: 1;
   padding: 15px 0;
   font-family: var(--mono);
-  font-size: 11.5px;
-  letter-spacing: 0.17em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: var(--bone-faint);
   transition: color 0.2s var(--ease);
@@ -663,8 +692,8 @@ main { max-width: 720px; margin: 0 auto; }
 .remaining {
   text-align: center;
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.18em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: var(--bone-faint);
   padding: 4px 0 0;
@@ -682,20 +711,20 @@ main { max-width: 720px; margin: 0 auto; }
   width: 100%;
   aspect-ratio: 4 / 5;
   max-height: 46vh;
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   background-size: cover;
   background-position: center;
-  background-color: #101013;
+  background-color: var(--black-2);
   margin-bottom: 20px;
 }
 .countdown {
   font-family: var(--mono);
-  font-size: 11.5px;
-  letter-spacing: 0.2em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: var(--ember);
 }
-.upcoming-hero .entry-artist { font-size: 40px; margin: 12px 0 6px; }
+.upcoming-hero .entry-artist { font-size: var(--fs-display); margin: 12px 0 6px; }
 
 .upcoming-list { margin-top: 44px; }
 .upcoming-row {
@@ -709,8 +738,8 @@ main { max-width: 720px; margin: 0 auto; }
 .upcoming-row .when {
   flex: 0 0 62px;
   font-family: var(--mono);
-  font-size: 11.5px;
-  letter-spacing: 0.1em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
   color: var(--bone-faint);
   text-transform: uppercase;
   font-feature-settings: "tnum";
@@ -719,19 +748,19 @@ main { max-width: 720px; margin: 0 auto; }
 .upcoming-row .who b {
   display: block;
   font-family: var(--serif);
-  font-size: 21px;
+  font-size: var(--fs-lede);
   font-weight: 400;
   line-height: 1.15;
   color: var(--bone);
 }
-.upcoming-row .who span { font-size: 12.5px; color: var(--bone-faint); }
+.upcoming-row .who span { font-size: var(--fs-meta); color: var(--bone-faint); }
 
 /* Destructive and secondary actions are plain underlined type. A button
    would need a box, and boxes are what this design is refusing. */
 .plain-act {
   font-family: var(--mono);
-  font-size: 11.5px;
-  letter-spacing: 0.16em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: var(--bone-faint);
   padding: 10px 0;
@@ -757,8 +786,8 @@ main { max-width: 720px; margin: 0 auto; }
 .aside-legacy > summary .whisper { margin: 0; }
 .aside-legacy-hint {
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: var(--bone-dim);
 }
@@ -775,13 +804,13 @@ main { max-width: 720px; margin: 0 auto; }
 .aside-row .who b {
   display: block;
   font-family: var(--serif);
-  font-size: 20px;
+  font-size: var(--fs-lede);
   font-weight: 400;
   line-height: 1.15;
   color: var(--bone);
   overflow-wrap: anywhere;
 }
-.aside-row .who span { font-size: 12.5px; color: var(--bone-faint); }
+.aside-row .who span { font-size: var(--fs-meta); color: var(--bone-faint); }
 .aside-row .entry-photo { margin-top: 0; flex-basis: 44px; width: 44px; height: 44px; filter: grayscale(1); opacity: 0.4; }
 
 /* ==========================================================================
@@ -804,16 +833,13 @@ main { max-width: 720px; margin: 0 auto; }
 
 .sheet-close {
   position: fixed;
-  top: 14px;
   right: 14px;
   z-index: 3;
   font-family: var(--mono);
-  font-size: 11.5px;
-  letter-spacing: 0.16em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: var(--bone);
-  padding: 10px 12px;
-  text-shadow: 0 1px 10px rgba(0,0,0,0.9);
 }
 
 .sheet-photo {
@@ -823,7 +849,7 @@ main { max-width: 720px; margin: 0 auto; }
   max-height: 62vh;
   background-size: cover;
   background-position: center;
-  background-color: #101013;
+  background-color: var(--black-2);
 }
 .sheet-photo::after {
   content: "";
@@ -844,14 +870,14 @@ main { max-width: 720px; margin: 0 auto; }
 }
 .sheet-when {
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.15em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: var(--bone-dim);
   margin-top: 14px;
   line-height: 1.9;
 }
-.sheet-memory-line { font-size: 22px; margin-top: 18px; }
+.sheet-memory-line { font-size: var(--fs-heading); margin-top: 18px; }
 
 /* Facts as a definition list, not a grid of tiles. */
 .facts { margin: 40px 0 0; padding: 0 var(--gutter); }
@@ -864,18 +890,18 @@ main { max-width: 720px; margin: 0 auto; }
 .fact dt {
   flex: 0 0 88px;
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.16em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: var(--bone-faint);
   padding-top: 3px;
 }
-.fact dd { margin: 0; flex: 1; font-size: 15px; color: var(--bone); }
+.fact dd { margin: 0; flex: 1; font-size: var(--fs-body); color: var(--bone); }
 
 .sheet-section { padding: 0 var(--gutter); margin-top: 44px; }
 .sheet-section > .whisper { margin-bottom: 16px; }
 
-.names { font-family: var(--serif); font-size: 20px; line-height: 1.5; color: var(--bone-dim); }
+.names { font-family: var(--serif); font-size: var(--fs-lede); line-height: 1.5; color: var(--bone-dim); }
 .names b { color: var(--bone); font-weight: 400; }
 
 /* Who-did-you-actually-see picker: tap a row to flip it. Seen names read
@@ -893,15 +919,15 @@ main { max-width: 720px; margin: 0 auto; }
 .lineup-row:first-child { border-top: none; }
 .lineup-name {
   font-family: var(--serif);
-  font-size: 18px;
+  font-size: var(--fs-lede);
   color: var(--bone-faint);
   transition: color 0.2s var(--ease);
 }
 .lineup-row.is-seen .lineup-name { color: var(--bone); }
 .lineup-state {
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: var(--bone-faint);
   flex: 0 0 auto;
@@ -911,8 +937,8 @@ main { max-width: 720px; margin: 0 auto; }
   display: block;
   margin-top: 16px;
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.1em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: var(--bone-faint);
   padding: 4px 0;
@@ -935,7 +961,7 @@ main { max-width: 720px; margin: 0 auto; }
   color: var(--bone);
   font-family: var(--serif);
   font-style: italic;
-  font-size: 16px;
+  font-size: var(--fs-body);
   outline: none;
 }
 .lineup-add-input:focus { border-bottom-color: var(--ember); }
@@ -944,7 +970,7 @@ main { max-width: 720px; margin: 0 auto; }
 .note-body {
   font-family: var(--serif);
   font-style: italic;
-  font-size: 20px;
+  font-size: var(--fs-lede);
   line-height: 1.45;
   color: var(--bone);
   margin: 0 0 18px;
@@ -960,7 +986,7 @@ main { max-width: 720px; margin: 0 auto; }
   color: var(--bone);
   font-family: var(--serif);
   font-style: italic;
-  font-size: 20px;
+  font-size: var(--fs-lede);
   line-height: 1.45;
   resize: vertical;
   outline: none;
@@ -972,8 +998,8 @@ main { max-width: 720px; margin: 0 auto; }
 .setlist-block { margin-bottom: 26px; }
 .setlist-name {
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.16em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: var(--ember);
   margin-bottom: 12px;
@@ -985,13 +1011,13 @@ main { max-width: 720px; margin: 0 auto; }
   gap: 14px;
   padding: 9px 0;
   border-top: 1px solid var(--hair-soft);
-  font-size: 15.5px;
+  font-size: var(--fs-body);
   color: var(--bone);
 }
 .setlist-songs li::before {
   content: counter(song, decimal-leading-zero);
   font-family: var(--mono);
-  font-size: 11.5px;
+  font-size: var(--fs-label);
   color: var(--bone-faint);
   padding-top: 4px;
   flex: 0 0 22px;
@@ -1023,15 +1049,15 @@ main { max-width: 720px; margin: 0 auto; }
   padding: 30px var(--gutter) calc(34px + env(safe-area-inset-bottom));
   animation: sheet 0.4s var(--ease) both;
 }
-.panel .lede { font-size: 27px; margin: 12px 0 0; }
+.panel .lede { font-size: var(--fs-title); margin: 12px 0 0; }
 .panel .footnote { margin-top: 16px; line-height: 1.6; }
 
 .field { margin-top: 26px; }
 .field label {
   display: block;
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.18em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: var(--bone-faint);
   margin-bottom: 9px;
@@ -1044,12 +1070,12 @@ main { max-width: 720px; margin: 0 auto; }
   padding: 0 0 10px;
   color: var(--bone);
   font-family: var(--mono);
-  font-size: 14px;
+  font-size: var(--fs-meta);
   outline: none;
 }
 .field input:focus { border-bottom-color: var(--ember); }
 
-.status { font-size: 13px; margin-top: 20px; min-height: 20px; color: var(--bone-dim); }
+.status { font-size: var(--fs-meta); margin-top: 20px; min-height: 20px; color: var(--bone-dim); }
 .status.bad { color: var(--red); }
 .status a { color: var(--ember); }
 
@@ -1057,16 +1083,16 @@ main { max-width: 720px; margin: 0 auto; }
 .prompt-photo {
   width: 100%;
   aspect-ratio: 3 / 2;
-  border-radius: 3px;
+  border-radius: var(--r-sm);
   background-size: cover;
   background-position: center;
-  background-color: #101013;
+  background-color: var(--black-2);
   margin-top: 22px;
 }
 .prompt-lineup {
   font-family: var(--serif);
   font-style: italic;
-  font-size: 16px;
+  font-size: var(--fs-body);
   color: var(--bone-faint);
   line-height: 1.4;
   margin-top: 14px;
@@ -1097,8 +1123,8 @@ nav.rail button {
   justify-content: center;
   gap: 5px;
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.1em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: var(--bone-faint);
   padding: 4px 0 10px;
@@ -1130,7 +1156,7 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
   text-align: center;
   font-family: var(--serif);
   font-style: italic;
-  font-size: 19px;
+  font-size: var(--fs-lede);
   color: var(--bone-faint);
 }
 
@@ -1141,8 +1167,8 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
   transform: translateX(-50%);
   z-index: 50;
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.18em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: var(--bone-faint);
   padding: 8px 14px;
@@ -1152,7 +1178,7 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 
 @media (min-width: 700px) {
   :root { --gutter: 40px; }
-  .entry-artist { font-size: 30px; }
+  .entry-artist { font-size: var(--fs-title); }
 }
 
 /* ==========================================================================
@@ -1166,7 +1192,7 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
   width: 100%;
   max-width: 280px;
   aspect-ratio: 1 / 1;
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   margin: 22px auto 0;
   background-color: var(--black-2);
   overflow: hidden;
@@ -1206,7 +1232,7 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
   font-style: normal;
   color: var(--bone-faint);
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: var(--fs-meta);
 }
 .mirror-lyric.is-empty::before, .mirror-lyric.is-empty::after { content: ""; }
 
@@ -1214,7 +1240,7 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
   text-align: center;
   margin-top: 22px;
   font-family: var(--mono);
-  font-size: 12.5px;
+  font-size: var(--fs-meta);
   color: var(--bone-dim);
 }
 .mirror-track-name { color: var(--bone); }
@@ -1258,7 +1284,7 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 .rank-num {
   flex: 0 0 20px;
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: var(--fs-label);
   color: var(--bone-faint);
   font-feature-settings: "tnum";
 }
@@ -1276,15 +1302,15 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 .rank-body { flex: 1; min-width: 0; }
 .rank-name {
   font-family: var(--serif);
-  font-size: 18.5px;
+  font-size: var(--fs-lede);
   color: var(--bone);
   overflow-wrap: anywhere;
 }
-.rank-sub { font-size: 12.5px; color: var(--bone-faint); margin-top: 1px; }
+.rank-sub { font-size: var(--fs-meta); color: var(--bone-faint); margin-top: 1px; }
 .rank-count {
   flex: 0 0 auto;
   font-family: var(--mono);
-  font-size: 11.5px;
+  font-size: var(--fs-label);
   color: var(--bone-dim);
   font-feature-settings: "tnum";
   white-space: nowrap;
@@ -1304,12 +1330,12 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 .recent-when {
   flex: 0 0 64px;
   font-family: var(--mono);
-  font-size: 11.5px;
+  font-size: var(--fs-label);
   color: var(--bone-faint);
   text-transform: uppercase;
 }
-.recent-body { flex: 1; min-width: 0; font-size: 14px; }
-.recent-body b { color: var(--bone); font-weight: 400; font-family: var(--serif); font-size: 16px; }
+.recent-body { flex: 1; min-width: 0; font-size: var(--fs-meta); }
+.recent-body b { color: var(--bone); font-weight: 400; font-family: var(--serif); font-size: var(--fs-body); }
 .recent-body span { color: var(--bone-faint); }
 
 /* ---- album gallery ----
@@ -1331,7 +1357,7 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
   flex: 0 0 148px;
   width: 148px;
   aspect-ratio: 1 / 1;
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   overflow: hidden;
   background-size: cover;
   background-position: center;
@@ -1354,7 +1380,7 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 }
 .album-card-name {
   font-family: var(--serif);
-  font-size: 15px;
+  font-size: var(--fs-body);
   line-height: 1.15;
   color: var(--bone);
   overflow: hidden;
@@ -1365,8 +1391,8 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 }
 .album-card-count {
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.1em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
   color: var(--bone-faint);
   margin-top: 3px;
 }
@@ -1385,7 +1411,7 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
   max-height: 68vh;
   background-size: cover;
   background-position: center;
-  background-color: #101013;
+  background-color: var(--black-2);
   overflow: hidden;
 }
 .portrait-photo::before {
@@ -1429,7 +1455,7 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 }
 
 .portrait-statement {
-  font-size: 25px;
+  font-size: var(--fs-heading);
   line-height: 1.32;
 }
 .portrait-statement em { font-style: italic; color: var(--ember); }
@@ -1448,8 +1474,8 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 }
 .realm-transition-label {
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.18em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: var(--bone-faint);
 }
@@ -1561,10 +1587,9 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 .realm-focus-close {
   display: block;
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.16em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
-  color: var(--bone-faint);
   padding: 4px 0 26px;
 }
 .realm-focus-close:active { color: var(--ember); }
@@ -1578,7 +1603,7 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
   margin-top: 6px;
   overflow-wrap: anywhere;
 }
-.realm-focus-statement { margin-top: 14px; font-size: 20px; }
+.realm-focus-statement { margin-top: 14px; font-size: var(--fs-lede); }
 
 .realm-journey {
   position: relative;
@@ -1618,8 +1643,8 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 .realm-journey-stop.is-unplaced .realm-journey-dot { background: var(--bone-faint); }
 .realm-journey-city {
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.1em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: var(--bone-faint);
   margin-bottom: 4px;
@@ -1631,14 +1656,14 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 }
 .realm-journey-artists {
   font-family: var(--serif);
-  font-size: 20px;
+  font-size: var(--fs-lede);
   color: var(--bone);
   overflow-wrap: anywhere;
 }
 .realm-journey-artist { display: inline; }
 .realm-journey-repeat {
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: var(--fs-label);
   color: var(--ember);
   opacity: 0.8;
   margin-left: 3px;
@@ -1669,15 +1694,15 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 
 .insight-sentence {
   margin-top: 8px;
-  font-size: 22px;
+  font-size: var(--fs-heading);
   line-height: 1.35;
 }
 
 .insight-when {
   margin-top: 12px;
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.12em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: var(--ember);
   opacity: 0.75;
@@ -1693,7 +1718,7 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
   margin-top: 9px;
   color: var(--shift-color);
   font-family: var(--sans);
-  font-size: 11.5px;
+  font-size: var(--fs-label);
   font-weight: 500;
   line-height: 1.4;
 }
@@ -1707,18 +1732,18 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 }
 .stage-when {
   color: var(--bone);
-  font-size: 11.5px;
-  letter-spacing: 0.1em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
   text-shadow: 0 1px 10px #000;
 }
 .stage-venue {
   color: var(--bone);
-  font-size: 15px;
+  font-size: var(--fs-body);
   font-weight: 500;
   line-height: 1.4;
   text-shadow: 0 1px 10px #000;
 }
-.stage-venue span { color: #d2cec8; }
+.stage-venue span { color: var(--bone-soft); }
 .stage-why { margin-top: 5px; }
 .stage .work-shift { text-shadow: 0 1px 8px #000; }
 
@@ -1727,14 +1752,14 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
   flex-wrap: wrap;
   column-gap: 12px;
   row-gap: 2px;
-  font-size: 14px;
+  font-size: var(--fs-meta);
 }
 .entry-place .event-venue { color: var(--bone-dim); }
 .entry-place .event-date,
 .upcoming-row .who .event-date {
   color: var(--bone);
   font-family: var(--mono);
-  font-size: 11.5px;
+  font-size: var(--fs-label);
   font-weight: 400;
   letter-spacing: 0.02em;
 }
@@ -1748,23 +1773,23 @@ nav.rail button.active::after { transform: translateX(-50%) scale(1); }
 }
 .upcoming-row .who .event-venue {
   color: var(--bone-dim);
-  font-size: 13px;
+  font-size: var(--fs-meta);
 }
 
 /* Going calendar */
 .going-layout{display:flex;justify-content:flex-end;gap:16px;padding:8px var(--gutter) 24px}
-.going-layout button{font:11px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--bone-faint);padding:9px 0;border-bottom:1px solid transparent}
+.going-layout button{font:var(--fs-label) var(--mono);letter-spacing:var(--track-label);text-transform:uppercase;color:var(--bone-faint);padding:9px 0;border-bottom:1px solid transparent}
 .going-layout button.on{color:var(--bone);border-color:var(--ember)}
-.going-layout .going-add{margin-right:auto;color:var(--bone);letter-spacing:.12em}
+.going-layout .going-add{margin-right:auto;color:var(--bone);letter-spacing:var(--track-label)}
 dialog.concert-search{box-sizing:border-box;width:min(560px,calc(100% - 24px));max-height:calc(100dvh - 40px);padding:24px;background:var(--black);color:var(--bone);border:1px solid var(--hair);overflow:auto;overscroll-behavior:contain;font-family:var(--sans)}
 dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
 .concert-search-head{display:flex;align-items:center;justify-content:space-between;gap:16px}
 .concert-search-head .whisper{margin:0}
-.concert-search-close{min-width:44px;min-height:44px;font:28px var(--sans);color:var(--bone-dim)}
-.concert-search h2{font:38px/1.1 var(--serif);margin:12px 0 16px}
+.concert-search-close{min-width:44px;min-height:44px;font:var(--fs-title) var(--sans);color:var(--bone-dim)}
+.concert-search h2{font:var(--fs-display)/1.1 var(--serif);margin:12px 0 16px}
 .concert-search-form{margin-top:24px}
 .concert-search .field label{color:var(--bone-dim);letter-spacing:.07em}
-.concert-search .field input{box-sizing:border-box;width:100%;min-height:48px;font:16px var(--sans)}
+.concert-search .field input{box-sizing:border-box;width:100%;min-height:48px;font:var(--fs-body) var(--sans)}
 .concert-search .plain-act{min-height:44px;color:var(--bone);text-align:left}
 .concert-search .plain-act:disabled{color:var(--bone-dim);cursor:default}
 .concert-search-status{min-height:24px;margin:20px 0 8px}
@@ -1773,35 +1798,34 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
 .concert-search-coverage summary{cursor:pointer;min-height:44px;padding:10px 0;box-sizing:border-box}
 .concert-search-coverage summary:focus-visible{outline:2px solid var(--ember);outline-offset:4px}
 .concert-search-result{border-top:1px solid var(--hair);padding:20px 0;display:grid;gap:8px}
-.concert-search-result h3{margin:0;font:29px/1.15 var(--serif);overflow-wrap:anywhere}
+.concert-search-result h3{margin:0;font:var(--fs-title)/1.15 var(--serif);overflow-wrap:anywhere}
 .concert-search-result p{margin:0}
-.concert-search-date{font:12px/1.5 var(--mono);color:var(--bone)}
-.concert-search-source{font:12px/1.5 var(--sans);color:var(--bone-dim);min-height:32px;display:flex;align-items:center;width:fit-content}
+.concert-search-date{font:var(--fs-label)/1.5 var(--mono);color:var(--bone)}
+.concert-search-source{font:var(--fs-label)/1.5 var(--sans);color:var(--bone-dim);min-height:32px;display:flex;align-items:center;width:fit-content}
 .concert-search-result .plain-act{justify-self:start}
 .concert-search-deciding{margin-top:8px}
 .concert-search [hidden]{display:none!important}
 .concert-search button:focus-visible,.concert-search a:focus-visible,.going-add:focus-visible{outline:2px solid var(--ember);outline-offset:4px}
-@media(max-width:380px){dialog.concert-search{padding:20px}.concert-search h2{font-size:32px}}
+@media(max-width:380px){dialog.concert-search{padding:20px}.concert-search h2{font-size:var(--fs-title)}}
 .going-calendar{padding:0 var(--gutter) 110px}
 .calendar-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
-.calendar-head h3{font:28px var(--serif);color:var(--bone);text-align:center}
-.calendar-nav{min-width:42px;min-height:44px;font-size:30px;line-height:1;color:var(--bone-dim)}
+.calendar-head h3{font:var(--fs-title) var(--serif);color:var(--bone);text-align:center}
+.calendar-nav{min-height:44px;font-size:var(--fs-title);line-height:1;color:var(--bone-dim)}
 .calendar-weekdays,.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
-.calendar-weekdays{color:var(--bone-faint);font:10.5px var(--mono);text-align:center;padding-bottom:10px}
+.calendar-weekdays{color:var(--bone-faint);font:var(--fs-label) var(--mono);text-align:center;padding-bottom:10px}
 .calendar-weekdays span:last-child{color:var(--ember)}
 .calendar-day{min-width:0;min-height:92px;padding:6px 2px 8px;text-align:left;border-top:1px solid var(--hair);color:var(--bone)}
 .calendar-day.is-outside{opacity:.15}
 .calendar-day.is-selected{background:rgba(255,255,255,.06)}
-.calendar-number{display:block;font:11px var(--mono);margin:0 0 7px 2px}
+.calendar-number{display:block;font:var(--fs-label) var(--mono);margin:0 0 7px 2px}
 .calendar-day.is-today .calendar-number{color:var(--ember)}
-.calendar-shift{display:block;width:4px;height:4px;border-radius:50%;margin:0 0 5px 3px;background:var(--day-shift)}
-.calendar-event{display:block;margin-top:3px;padding:3px 2px;border-left:2px solid var(--ember);color:var(--bone);background:rgba(255,255,255,.07);font:10px/1.15 var(--sans);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.calendar-more{display:block;color:var(--bone-faint);font:10px var(--mono);margin-top:4px}
+.calendar-event{display:block;margin-top:3px;padding:3px 2px;border-left:2px solid var(--ember);font:var(--fs-label)/1.15 var(--sans);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.calendar-more{display:block;color:var(--bone-faint);font:var(--fs-label) var(--mono);margin-top:4px}
 .calendar-agenda{margin-top:25px}
 .calendar-agenda .whisper{margin-bottom:12px}
 .calendar-agenda-row{display:block;width:100%;text-align:left;border-top:1px solid var(--hair);padding:14px 0}
-.calendar-agenda-row strong{display:block;color:var(--bone);font:23px var(--serif)}
-.calendar-agenda-row span,.calendar-empty{display:block;color:var(--bone-dim);font:13px/1.5 var(--sans);margin-top:4px}
+.calendar-agenda-row strong{display:block;color:var(--bone);font:var(--fs-heading) var(--serif)}
+.calendar-agenda-row span,.calendar-empty{display:block;color:var(--bone-dim);font:var(--fs-meta)/1.5 var(--sans);margin-top:4px}
 
 /* Calendar: shift colours stay distinct from concert entries. */
 .calendar-shift {
@@ -1814,7 +1838,7 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
   border-radius: 0;
   background: none;
   color: var(--day-shift);
-  font: 10px/1.3 var(--mono);
+  font: var(--fs-label)/1.3 var(--mono);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1830,7 +1854,7 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
   display: block;
   margin-bottom: 18px;
   color: var(--bone-dim);
-  font: 11px/1.5 var(--mono);
+  font: var(--fs-label)/1.5 var(--mono);
 }
 .realm-country-select {
   display: block;
@@ -1844,7 +1868,7 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
   background: var(--black);
   color: var(--bone);
   color-scheme: dark;
-  font: 14px/1.5 var(--sans);
+  font: var(--fs-meta)/1.5 var(--sans);
 }
 .realm-star:focus-visible { outline: none; }
 .realm-star:focus-visible .realm-star-dot {
@@ -1865,11 +1889,11 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
   border-bottom: 1px solid var(--hair);
   background: transparent;
   color: var(--bone);
-  font: 16px var(--sans);
+  font: var(--fs-body) var(--sans);
 }
 .archive-filter-search::placeholder { color: var(--bone-dim); }
 .archive-filter-search:focus-visible { outline: 2px solid var(--bone); outline-offset: 3px; }
-.archive-filter-status { margin: 6px 0 0; color: var(--bone-dim); font: 12px/1.5 var(--sans); }
+.archive-filter-status { margin: 6px 0 0; color: var(--bone-dim); font: var(--fs-label)/1.5 var(--sans); }
 .explore .explore-values { padding: 3px 2px; }
 .explore .explore-value { min-height: 44px; }
 .explore .explore-value:focus-visible { outline: 2px solid var(--bone); outline-offset: 1px; }
@@ -1883,8 +1907,8 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
   min-height: 44px;
   padding: 8px 12px;
   color: var(--bone-dim);
-  font: 11px var(--mono);
-  letter-spacing: .12em;
+  font: var(--fs-label) var(--mono);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
 }
 .calendar-nav { min-width: 44px; }
@@ -1900,24 +1924,24 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
 .concert-schedule .whisper{margin-bottom:10px;color:var(--bone-dim)}
 .concert-schedule dl{margin:0}
 .schedule-row{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:16px;padding:7px 0}
-.schedule-row dt,.schedule-row dd{margin:0;color:var(--bone-dim);font:12px/1.4 var(--mono)}
+.schedule-row dt,.schedule-row dd{margin:0;color:var(--bone-dim);font:var(--fs-label)/1.4 var(--mono)}
 .schedule-row dt{overflow-wrap:anywhere}
-.schedule-row dd{text-align:right;font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap}
-.schedule-row--support dt{color:var(--bone);font:14px/1.35 var(--sans)}
+.schedule-row dd{text-align:right;font-size:var(--fs-meta);font-variant-numeric:tabular-nums;white-space:nowrap}
+.schedule-row--support dt{color:var(--bone);font:var(--fs-meta)/1.35 var(--sans)}
 .schedule-row--support dd{color:var(--bone)}
 .schedule-row--main{padding:10px 0}
-.schedule-row--main dt{color:var(--bone);font:23px/1.1 var(--serif)}
-.schedule-row--main dd{color:var(--bone);font-size:18px;font-weight:600}
-.schedule-row small{display:block;color:var(--bone-dim);font:10.5px/1.4 var(--mono);letter-spacing:1px}
+.schedule-row--main dt{color:var(--bone);font:var(--fs-heading)/1.1 var(--serif)}
+.schedule-row--main dd{color:var(--bone);font-size:var(--fs-lede);font-weight:600}
+.schedule-row small{display:block;color:var(--bone-dim);font:var(--fs-label)/1.4 var(--mono);letter-spacing:1px}
 .schedule-row dt small{margin-top:3px}
-.schedule-row .schedule-tba{color:var(--bone-dim);font-size:12px;font-weight:400}
-.schedule-row[aria-current="step"]::before{content:"";position:absolute;left:-10px;top:7px;bottom:7px;width:2px;background:#a4dce8}
-.schedule-row[aria-current="step"] dt,.schedule-row[aria-current="step"] dd{color:#a4dce8}
-.schedule-live{color:#a4dce8;font:500 17px/1.4 var(--mono);margin:0 0 12px;overflow-wrap:anywhere}
+.schedule-row .schedule-tba{color:var(--bone-dim);font-size:var(--fs-label);font-weight:400}
+.schedule-row[aria-current="step"]::before{content:"";position:absolute;left:-10px;top:7px;bottom:7px;width:2px;background:var(--ticket)}
+.schedule-row[aria-current="step"] dt,.schedule-row[aria-current="step"] dd{color:var(--ticket)}
+.schedule-live{color:var(--ticket);font:500 var(--fs-lede)/1.4 var(--mono);margin:0 0 12px;overflow-wrap:anywhere}
 .schedule-live[hidden]{display:none}
-.schedule-check{color:var(--bone-dim);font:11px/1.5 var(--mono);margin:0}
+.schedule-check{color:var(--bone-dim);font:var(--fs-label)/1.5 var(--mono);margin:0}
 .schedule-unchecked{margin-top:12px}
-.schedule-sources{margin-top:8px;color:var(--bone-dim);font:12px/1.5 var(--sans)}
+.schedule-sources{margin-top:8px;color:var(--bone-dim);font:var(--fs-label)/1.5 var(--sans)}
 .schedule-sources summary{cursor:pointer;min-height:44px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px 12px;padding:8px 0;list-style:none}
 .schedule-sources summary::-webkit-details-marker{display:none}
 .schedule-source-toggle{display:flex;align-items:center;gap:7px;color:var(--bone-dim)}
@@ -1928,7 +1952,7 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
 .schedule-sources a{display:block;color:var(--bone);min-height:44px;padding:12px 0;overflow-wrap:anywhere}
 .schedule-sources summary:focus-visible,.schedule-sources a:focus-visible,.has-schedule .plain-act:focus-visible{outline:2px solid var(--bone);outline-offset:4px}
 .has-schedule .upcoming-actions{padding-top:14px;gap:22px;flex-wrap:wrap}
-.has-schedule .plain-act{min-height:44px;letter-spacing:.12em}
+.has-schedule .plain-act{min-height:44px;letter-spacing:var(--track-label)}
 .has-schedule .plain-act[data-a="tickets"]{color:var(--bone);border-bottom-color:var(--bone-dim)}
 .has-schedule .plain-act[data-a="unplan"]{color:var(--bone-dim)}
 
@@ -1971,8 +1995,8 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
 .going-layout .going-tool:active { color: var(--ember); }
 .going-filter button {
   min-height: 44px;
-  font: 11px var(--mono);
-  letter-spacing: 0.1em;
+  font: var(--fs-label) var(--mono);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: var(--bone-faint);
   padding: 9px 0;
@@ -1986,7 +2010,7 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
   font-feature-settings: "tnum";
 }
 .going-filter button.on { color: var(--bone); border-bottom-color: var(--ember); }
-.going-filter button[data-filter="tickets"].on { color: #9bd6e4; border-bottom-color: #9bd6e4; }
+.going-filter button[data-filter="tickets"].on { color: var(--ticket); border-bottom-color: var(--ticket); }
 
 /* Concert sharing */
 .concert-share .plain-act { min-height: 44px; color: var(--bone); }
@@ -2000,10 +2024,10 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
 .support-discovery { margin: 0; }
 .support-discovery .discovery-status {
   margin: 0 var(--gutter) 30px;
-  font: italic 19px/1.35 var(--serif);
+  font: italic var(--fs-lede)/1.35 var(--serif);
   color: var(--bone-dim);
 }
-.discovery-quiet { margin: 0 var(--gutter); font: 400 40px/1.05 var(--serif); }
+.discovery-quiet { margin: 0 var(--gutter); font: 400 var(--fs-display)/1.05 var(--serif); }
 .support-discovery > .footnote { margin: 12px var(--gutter) 0; }
 .discovery-head {
   display: flex; align-items: baseline; justify-content: space-between;
@@ -2011,7 +2035,7 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
 }
 .discovery-head .whisper { margin: 0; }
 .discovery-count {
-  margin: 0; font: 11px var(--mono); letter-spacing: .14em; color: var(--bone-faint);
+  margin: 0; font: var(--fs-label) var(--mono); letter-spacing: var(--track-label); color: var(--bone-faint);
   font-feature-settings: "tnum";
 }
 .discovery-rail {
@@ -2026,7 +2050,7 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
 .discovery-card {
   position: relative; flex: 0 0 86%;
   aspect-ratio: 4 / 5; max-height: 62vh;
-  border-radius: 6px; overflow: hidden;
+  border-radius: var(--r-md); overflow: hidden;
   scroll-snap-align: start;
   background:
     radial-gradient(120% 80% at 80% 0%, rgba(255,122,69,.22), transparent 60%),
@@ -2047,21 +2071,21 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
 .discovery-card:not(.has-photo) .discovery-veil { background: none; }
 .discovery-copy { position: absolute; left: 20px; right: 20px; bottom: 18px; }
 .discovery-when {
-  margin: 0 0 10px; font: 11px var(--mono); letter-spacing: .16em; text-transform: uppercase;
+  margin: 0 0 10px; font: var(--fs-label) var(--mono); letter-spacing: var(--track-label); text-transform: uppercase;
   color: var(--bone); text-shadow: 0 1px 12px rgba(0,0,0,.8);
 }
 .discovery-name {
   margin: 0; font: 400 clamp(40px, 11vw, 56px)/1 var(--serif); letter-spacing: -.02em;
   color: var(--bone); text-shadow: 0 2px 24px rgba(0,0,0,.6); overflow-wrap: anywhere;
 }
-.discovery-for { margin: 10px 0 0; font: italic 19px/1.3 var(--serif); color: #d6d2cb; }
+.discovery-for { margin: 10px 0 0; font: italic var(--fs-lede)/1.3 var(--serif); color: var(--bone-soft); }
 .discovery-for b { font-weight: 400; color: var(--bone); }
-.discovery-place { margin: 4px 0 0; font-size: 14px; color: var(--bone-dim); }
+.discovery-place { margin: 4px 0 0; font-size: var(--fs-meta); color: var(--bone-dim); }
 .discovery-actions { display: flex; gap: 10px; margin-top: 18px; }
 .discovery-actions a, .discovery-actions button {
   display: inline-flex; align-items: center; justify-content: center;
-  min-height: 44px; padding: 0 18px; border-radius: 999px;
-  font: 11px var(--mono); letter-spacing: .14em; text-transform: uppercase; text-decoration: none;
+  min-height: 44px; padding: 0 18px; border-radius: var(--r-pill);
+  font: var(--fs-label) var(--mono); letter-spacing: var(--track-label); text-transform: uppercase; text-decoration: none;
 }
 .discovery-listen { background: var(--bone); color: var(--black); }
 .discovery-night { border: 1px solid rgba(242,239,233,.35); color: var(--bone); background: rgba(8,8,10,.25); }
@@ -2072,7 +2096,7 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
 .sheet-going .sheet-section { margin-top:24px; }
 .sheet-going .sheet-when {
   font-family:var(--sans, sans-serif);
-  font-size:14px;
+  font-size:var(--fs-meta);
   letter-spacing:0;
   text-transform:none;
 }
@@ -2083,58 +2107,58 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
 .season-overview { margin: 36px var(--gutter) 0; padding: 30px 0 30px; border-top: 1px solid var(--hair); }
 .season-overview h2 { font:400 clamp(28px,7vw,36px)/1.08 var(--serif); letter-spacing:-.02em; margin:14px 0 12px; }
 .season-overview h2 em { color:var(--bone-dim); font-weight:400; }
-.season-caption { color:var(--bone-dim); font-size:13px; line-height:1.7; max-width:42ch; }
+.season-caption { color:var(--bone-dim); font-size:var(--fs-meta); line-height:1.7; max-width:42ch; }
 .season-chart { margin-top:20px; border-top:1px solid var(--hair); }
-.season-chart summary { display:flex; justify-content:space-between; align-items:center; min-height:48px; cursor:pointer; list-style:none; font:11px var(--mono); text-transform:uppercase; letter-spacing:.12em; color:var(--bone-dim); }
+.season-chart summary { display:flex; justify-content:space-between; align-items:center; min-height:48px; cursor:pointer; list-style:none; font:var(--fs-label) var(--mono); text-transform:uppercase; letter-spacing:var(--track-label); color:var(--bone-dim); }
 .season-chart summary::-webkit-details-marker { display:none; }
 .season-chart[open] summary span { transform:rotate(180deg); }
 .season-months { display:grid; gap:10px; padding:10px 0 18px; }
-.season-month { display:grid; grid-template-columns:62px 1fr 24px; gap:12px; align-items:center; font:11px var(--mono); text-transform:uppercase; color:var(--bone-dim); }
+.season-month { display:grid; grid-template-columns:62px 1fr 24px; gap:12px; align-items:center; font:var(--fs-label) var(--mono); text-transform:uppercase; color:var(--bone-dim); }
 .season-month b { text-align:right; font-weight:400; }
 .season-track { display:flex; height:13px; gap:0; }
 .season-track i { display:block; min-width:0; }
-.season-booked { background:#9bd6e4; }
+.season-booked { background:var(--ticket); }
 .season-planned { background:var(--bone-dim); }
 .season-work { background:#af98e8; }
-.season-key { display:flex; flex-wrap:wrap; gap:10px 16px; font:10.5px var(--mono); color:var(--bone-dim); }
+.season-key { display:flex; flex-wrap:wrap; gap:10px 16px; font:var(--fs-label) var(--mono); color:var(--bone-dim); }
 .season-key span { display:inline-flex; align-items:center; gap:6px; }
 .season-key i { display:inline-block; width:8px; height:8px; }
 .next-night { margin:0 var(--gutter) 32px; }
 .next-night > .whisper { margin-bottom:16px; }
-.next-night-open { display:block; position:relative; width:100%; min-height:380px; padding:0; text-align:left; isolation:isolate; overflow:hidden; background:var(--black-2); }
-.next-night-photo { position:absolute; inset:0; background-size:cover; background-position:center; z-index:-2; }
-.next-night-photo::after { content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(8,8,10,.28),rgba(8,8,10,.04) 30%,rgba(8,8,10,.94) 100%); }
+.next-night-open { position:relative; width:100%; padding:0; text-align:left; isolation:isolate; }
+.next-night-photo { background-size:cover; background-position:center; }
+.next-night-photo::after { content:""; position:absolute; inset:0; }
 .next-night-photo.is-empty { background:radial-gradient(ellipse at 80% 15%,#39302a, #141416 55%, #08080a); }
-.next-night-count { display:flex; align-items:center; gap:16px; padding:22px; }
+.next-night-count { display:flex; }
 .next-night-count > b { font:400 104px/.85 var(--serif); letter-spacing:-.05em; }
-.next-night-count > span { max-width:6ch; font:11px/1.6 var(--mono); text-transform:uppercase; letter-spacing:.14em; }
-.next-night-copy { display:flex; flex-direction:column; gap:10px; padding:105px 20px 24px; }
-.next-night-date { font:11px/1.6 var(--mono); text-transform:uppercase; letter-spacing:.1em; }
+.next-night-count > span { font:var(--fs-label)/1.6 var(--mono); text-transform:uppercase; letter-spacing:var(--track-label); }
+.next-night-copy { flex-direction:column; }
+.next-night-date { font:var(--fs-label)/1.6 var(--mono); text-transform:uppercase; letter-spacing:var(--track-label); }
 .next-night-copy > strong { font:400 clamp(36px,10vw,54px)/1.02 var(--serif); overflow-wrap:anywhere; }
-.next-night-venue { font:14px/1.5 var(--sans); color:var(--bone-dim); }
+.next-night-venue { font:var(--fs-meta)/1.5 var(--sans); color:var(--bone-dim); }
 .next-night-meta { display:flex; flex-wrap:wrap; gap:8px 16px; align-items:center; padding:12px 0; }
 .next-night-meta .work-shift { margin:0; }
-.next-night-ticket { font:11px/1.6 var(--mono); color:var(--bone-dim); }
-.next-night-live { font:11px/1.6 var(--mono); color:var(--ember); margin:8px 0; }
-.next-night-essentials { display:flex; width:100%; align-items:center; justify-content:space-between; min-height:50px; border-top:1px solid var(--hair); border-bottom:1px solid var(--hair); font:11px var(--mono); text-transform:uppercase; letter-spacing:.1em; text-align:left; }
+.next-night-ticket { font:var(--fs-label)/1.6 var(--mono); color:var(--bone-dim); }
+.next-night-live { font:var(--fs-label)/1.6 var(--mono); color:var(--ember); margin:8px 0; }
+.next-night-essentials { display:flex; width:100%; align-items:center; justify-content:space-between; min-height:50px; border-top:1px solid var(--hair); border-bottom:1px solid var(--hair); font:var(--fs-label) var(--mono); text-transform:uppercase; letter-spacing:var(--track-label); text-align:left; }
 .next-night-open:focus-visible, .next-night-essentials:focus-visible, .season-row:focus-visible, .season-chart summary:focus-visible { outline:2px solid var(--ember); outline-offset:4px; }
 .season-list { margin-top:22px; }
 .season-row { width:100%; text-align:left; align-items:flex-start; gap:18px; padding-top:22px; padding-bottom:22px; }
 .season-row .when { width:32px; min-width:32px; display:flex; flex-direction:column; gap:5px; text-align:center; }
-.season-row .when > span { font:10.5px var(--mono); text-transform:uppercase; letter-spacing:.1em; }
-.season-row .when > b { font:400 30px/1 var(--serif); color:var(--bone); }
-.season-row .who > b { display:block; font-size:26px; line-height:1.15; }
+.season-row .when > span { font:var(--fs-label) var(--mono); text-transform:uppercase; letter-spacing:var(--track-label); }
+.season-row .when > b { font:400 var(--fs-title)/1 var(--serif); color:var(--bone); }
+.season-row .who > b { display:block; font-size:var(--fs-title); line-height:1.15; }
 .season-row .who .event-meta { margin-top:8px; }
-.season-row .who .event-date { font-size:11px; }
+.season-row .who .event-date { font-size:var(--fs-label); }
 .season-row .who .work-shift { margin-top:10px; }
-.season-row .who .season-booked-label { display:block; margin-top:7px; font:10.5px var(--mono); color:#9bd6e4; text-transform:uppercase; letter-spacing:.08em; }
-.season-row-arrow { font-size:16px; color:var(--bone-faint); padding-top:5px; }
+.season-row .who .season-booked-label { display:block; margin-top:7px; font:var(--fs-label) var(--mono); color:var(--ticket); text-transform:uppercase; letter-spacing:.08em; }
+.season-row-arrow { font-size:var(--fs-body); color:var(--bone-faint); padding-top:5px; }
 .night-warmup { border-top:1px solid var(--hair); padding:24px 0; }
 .night-warmup > .footnote { margin-top:12px; line-height:1.7; }
 .warmup-artist { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:16px 0; border-bottom:1px solid var(--hair-soft); }
 .warmup-artist > div { min-width:0; }
-.warmup-artist strong { display:block; font:400 25px/1.2 var(--serif); overflow-wrap:anywhere; }
-.warmup-artist span { display:block; font-size:12px; color:var(--bone-dim); margin-top:6px; line-height:1.5; }
+.warmup-artist strong { display:block; font:400 var(--fs-heading)/1.2 var(--serif); overflow-wrap:anywhere; }
+.warmup-artist span { display:block; font-size:var(--fs-label); color:var(--bone-dim); margin-top:6px; line-height:1.5; }
 .warmup-artist a { flex-shrink:0; display:flex; align-items:center; min-height:44px; }
 @media (max-width:360px) {
   .going-layout { gap:10px; }
@@ -2183,13 +2207,13 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
   gap:6px;
   padding:0;
 }
-.next-night-count > b { font-size:64px; }
-.next-night-count > span { max-width:8ch; font-size:10px; }
+.next-night-count > b { font-size:var(--fs-hero); }
+.next-night-count > span { max-width:8ch; font-size:var(--fs-label); }
 .next-night-copy > .next-night-date,
 .next-night-copy > strong,
 .next-night-copy > .next-night-venue { grid-column:2; }
 .next-night-copy > strong { font-size:clamp(30px,8vw,42px); }
-.next-night-copy > .next-night-venue { font-size:13px; }
+.next-night-copy > .next-night-venue { font-size:var(--fs-meta); }
 .season-overview .season-work {
   background:repeating-linear-gradient(135deg,var(--bone-dim) 0 2px,var(--black) 2px 4px);
 }
@@ -2199,8 +2223,8 @@ dialog.concert-search::backdrop{background:rgba(0,0,0,.78)}
   min-height:44px;
   padding:10px 0;
   color:var(--bone-dim);
-  font:400 10.5px/1.5 var(--mono);
-  letter-spacing:.16em;
+  font:400 var(--fs-label)/1.5 var(--mono);
+  letter-spacing:var(--track-label);
   text-transform:uppercase;
   text-align:left;
   cursor:pointer;
@@ -2260,7 +2284,7 @@ a.plain-act { text-decoration:none; }
 /* Concert details: hours first, essentials next, optional sections folded. */
 .sheet-going .sheet-photo { aspect-ratio:16/9; max-height:240px; }
 .sheet-going .sheet-head { margin-top:-28px; }
-.sheet-going .sheet-memory-line { font-size:24px; color:var(--bone-dim); }
+.sheet-going .sheet-memory-line { font-size:var(--fs-heading); color:var(--bone-dim); }
 .sheet-going .sheet-going-schedule .concert-schedule {
   margin-top:0;
   padding-top:0;
@@ -2277,8 +2301,8 @@ a.plain-act { text-decoration:none; }
   margin:0;
   padding:10px 0;
   border:0;
-  font:11px/1.5 var(--mono);
-  letter-spacing:.1em;
+  font:var(--fs-label)/1.5 var(--mono);
+  letter-spacing:var(--track-label);
   color:var(--bone-dim);
 }
 .schedule-meta .text-btn:disabled { opacity:.45; }
@@ -2303,9 +2327,9 @@ a.plain-act { text-decoration:none; }
   padding:16px 0;
   border-top:1px solid var(--hair);
   color:var(--bone-dim);
-  font:11.5px/1.5 var(--mono);
+  font:var(--fs-label)/1.5 var(--mono);
   text-transform:uppercase;
-  letter-spacing:.16em;
+  letter-spacing:var(--track-label);
   cursor:pointer;
   list-style:none;
 }
@@ -2340,11 +2364,6 @@ a.plain-act { text-decoration:none; }
   background-size:contain;
   background-position:center;
   background-repeat:no-repeat;
-  background-color:var(--black);
-}
-.next-night-photo::after,
-.sheet-photo::after {
-  background:linear-gradient(180deg,transparent 88%,var(--black));
 }
 .sheet-head,
 .sheet-going .sheet-head {
@@ -2358,7 +2377,7 @@ a.plain-act { text-decoration:none; }
 .warmup-setlist > summary {
   display:flex; align-items:center; justify-content:space-between; gap:16px;
   min-height:44px; padding:10px 0; cursor:pointer; list-style:none;
-  font:11px/1.5 var(--mono); letter-spacing:.12em; text-transform:uppercase;
+  font:var(--fs-label)/1.5 var(--mono); letter-spacing:var(--track-label); text-transform:uppercase;
   color:var(--bone-dim);
 }
 .warmup-setlist > summary::-webkit-details-marker { display:none; }
@@ -2385,23 +2404,23 @@ a.plain-act { text-decoration:none; }
 
 /* Lyrics fallback: explicit, optional reading without invented timing. */
 .mirror-plain-lyrics { border-top: 1px solid var(--hair); margin-top: 20px; text-align: left; }
-.mirror-plain-lyrics summary { cursor: pointer; font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; min-height: 44px; display: flex; align-items: center; justify-content: space-between; list-style: none; }
+.mirror-plain-lyrics summary { cursor: pointer; font-family: var(--mono); font-size: var(--fs-label); letter-spacing: var(--track-label); text-transform: uppercase; min-height: 44px; display: flex; align-items: center; justify-content: space-between; list-style: none; }
 .mirror-plain-lyrics summary::-webkit-details-marker { display: none; }
 .mirror-plain-lyrics summary::after { content: '+'; }
 .mirror-plain-lyrics[open] summary::after { content: '−'; }
-.mirror-plain-text { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 17px; line-height: 1.7; margin: 12px 0; }
+.mirror-plain-text { white-space: pre-wrap; overflow-wrap: anywhere; font-size: var(--fs-lede); line-height: 1.7; margin: 12px 0; }
 
 /* Published timetable ranges: keep multiple sets readable on small screens. */
-.schedule-row--main .schedule-time-range { font-size:14px; font-weight:500; }
+.schedule-row--main .schedule-time-range { font-size:var(--fs-meta); font-weight:500; }
 
 
 /* Multi-show setlist evidence: readable on phone, without fake running order. */
 .setlist-evidence { list-style:none; margin:10px 0 18px; padding:0; }
 .setlist-evidence li { display:flex; align-items:baseline; justify-content:space-between; gap:14px;
-  padding:9px 0; border-bottom:1px solid var(--hair-soft); font-size:13px; line-height:1.5; }
+  padding:9px 0; border-bottom:1px solid var(--hair-soft); font-size:var(--fs-meta); line-height:1.5; }
 .setlist-evidence li > span:first-child { min-width:0; flex:1; }
-.setlist-evidence-count { font:11px/1.5 var(--mono); color:var(--bone-dim); white-space:nowrap; }
-.setlist-evidence-sources { margin:12px 0 16px; font-size:11px; color:var(--bone-dim); }
+.setlist-evidence-count { font:var(--fs-label)/1.5 var(--mono); color:var(--bone-dim); white-space:nowrap; }
+.setlist-evidence-sources { margin:12px 0 16px; font-size:var(--fs-label); color:var(--bone-dim); }
 .setlist-evidence-sources summary { cursor:pointer; min-height:44px; display:flex; align-items:center; }
 .setlist-evidence-sources ul { padding-left:18px; margin:4px 0 12px; }
 .setlist-evidence-sources li { margin:7px 0; line-height:1.6; }
@@ -2409,13 +2428,13 @@ a.plain-act { text-decoration:none; }
 /* Festival Discovery 2.0: explain why a previously passed festival returned. */
 .festival-revisit-notice {
   display:flex;flex-direction:column;gap:4px;max-width:100%;
-  margin:8px 0 12px;padding:10px 12px;border-radius:4px;
+  margin:8px 0 12px;padding:10px 12px;border-radius:var(--r-sm);
   border-left:2px solid var(--ember);
   background:rgba(8,8,10,.83);color:var(--bone);line-height:1.4;
   text-shadow:0 1px 4px rgba(0,0,0,.7);
 }
-.festival-revisit-notice strong {font:11px/1.5 var(--mono);letter-spacing:.08em;color:var(--ember);}
-.festival-revisit-notice span {font:13px/1.45 var(--sans);overflow-wrap:anywhere;}
+.festival-revisit-notice strong {font:var(--fs-label)/1.5 var(--mono);letter-spacing:.08em;color:var(--ember);}
+.festival-revisit-notice span {font:var(--fs-meta)/1.45 var(--sans);overflow-wrap:anywhere;}
 
 /* ---------------------------------------------------------------- mirror extras */
 
@@ -2466,7 +2485,7 @@ a.plain-act { text-decoration:none; }
 .plain-act.is-armed { color: var(--ember); border-bottom-color: var(--ember); }
 
 /* Concert sheet: quieter archive night */
-.sheet-lineup > summary i { margin-left: auto; margin-right: 14px; font-style: normal; font-family: var(--mono); font-size: 11px; color: var(--bone-faint); letter-spacing: .1em; }
+.sheet-lineup > summary i { margin-left: auto; margin-right: 14px; font-style: normal; font-family: var(--mono); font-size: var(--fs-label); color: var(--bone-faint); letter-spacing: var(--track-label); }
 .sheet-lineup[open] > summary { margin-bottom: 4px; }
 .note-add { color: var(--bone-dim); }
 .setlist-title { display: flex; justify-content: space-between; gap: 16px; }
@@ -2499,7 +2518,7 @@ a.plain-act { text-decoration:none; }
 /* Deciding card: reason as kicker, tickets beside the work badge */
 .stage-foot { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 22px; }
 .stage-tickets-link {
-  font-family: var(--mono); font-size: 11.5px; letter-spacing: .16em; text-transform: uppercase;
+  font-family: var(--mono); font-size: var(--fs-label); letter-spacing: var(--track-label); text-transform: uppercase;
   color: var(--ember); text-decoration: none; padding: 10px 0 10px 12px; margin: -10px 0;
 }
 .stage-score { max-width: calc(100% - 36px); line-height: 1.5; }
@@ -2518,7 +2537,7 @@ a.plain-act { text-decoration:none; }
   display: block;
   width: 100%;
   aspect-ratio: 16 / 10;
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   background: var(--black-2) center / cover no-repeat;
   filter: saturate(0.9);
 }
@@ -2527,13 +2546,13 @@ a.plain-act { text-decoration:none; }
   display: block;
   margin-top: 16px;
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.16em;
+  font-size: var(--fs-label);
+  letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: var(--ember);
 }
-.mirror-idle-title { display: block; margin-top: 6px; font: 400 34px/1.08 var(--serif); color: var(--bone); }
-.mirror-idle-meta { display: block; margin-top: 6px; font-size: 14px; color: var(--bone-dim); }
+.mirror-idle-title { display: block; margin-top: 6px; font: 400 var(--fs-title)/1.08 var(--serif); color: var(--bone); }
+.mirror-idle-meta { display: block; margin-top: 6px; font-size: var(--fs-meta); color: var(--bone-dim); }
 .mirror-idle-next:active .mirror-idle-title { color: var(--ember); }
 .settings-apk { display: inline-block; margin-top: 18px; text-decoration: none; }
 
@@ -2578,12 +2597,12 @@ a.plain-act { text-decoration:none; }
     var(--photo, none) center / contain no-repeat;
 }
 .next-night-photo.is-empty::before, .sheet-photo.is-empty::before { display: none; }
-.next-night-open { border-radius: 6px; overflow: hidden; }
+.next-night-open { border-radius: var(--r-md); overflow: hidden; }
 
 /* The sheet's Close sits on photos: give it a quiet glass pill. */
 .sheet-close {
   top: calc(12px + env(safe-area-inset-top));
-  border-radius: 999px;
+  border-radius: var(--r-pill);
   padding: 9px 14px;
   background: rgba(8,8,10,.45);
   -webkit-backdrop-filter: blur(12px);
@@ -2594,8 +2613,8 @@ a.plain-act { text-decoration:none; }
 /* Live tabs: only "something new to decide" earns a number. */
 .switch .switch-new {
   display: inline-block; min-width: 18px; padding: 1px 5px; margin-left: 7px;
-  border-radius: 999px; background: var(--ember); color: var(--black);
-  font-style: normal; font-size: 10px; letter-spacing: 0; text-align: center; opacity: 1;
+  border-radius: var(--r-pill); background: var(--ember); color: var(--black);
+  font-style: normal; font-size: var(--fs-label); letter-spacing: 0; text-align: center; opacity: 1;
 }
 
 /* Archive: every night is a photo card — the picture fills the frame and the
@@ -2618,7 +2637,7 @@ a.plain-act { text-decoration:none; }
   height: auto;
   margin: 0;
   flex: none;
-  border-radius: 6px;
+  border-radius: var(--r-md);
   background-color: #121215;
   background-size: cover;
   background-position: 65% 25%;
@@ -2640,9 +2659,9 @@ a.plain-act { text-decoration:none; }
 }
 .spine .entry-photo.is-empty::after { display: none; }
 .spine .entry-date { color: rgba(242,239,233,.78); text-shadow: 0 1px 10px rgba(0,0,0,.7); }
-.spine .entry-artist { font-size: 30px; text-shadow: 0 2px 18px rgba(0,0,0,.6); }
-.spine .entry-with { color: #cfcac2; }
-.spine .entry-place { color: #d6d2cb; text-shadow: 0 1px 10px rgba(0,0,0,.7); }
+.spine .entry-artist { font-size: var(--fs-title); text-shadow: 0 2px 18px rgba(0,0,0,.6); }
+.spine .entry-with { color: var(--bone-soft); }
+.spine .entry-place { color: var(--bone-soft); text-shadow: 0 1px 10px rgba(0,0,0,.7); }
 .spine .entry-place .dot { color: rgba(242,239,233,.5); }
 .spine .entry:active { opacity: 0.75; }
 
@@ -2654,3 +2673,53 @@ a.plain-act { text-decoration:none; }
 .photo-fix-open { color: var(--bone-dim); }
 .photo-fix { padding-top: 20px; border-top: 1px solid var(--hair); }
 .photo-fix .whisper { margin-top: 0; }
+
+/* ---- Interaction system -------------------------------------------------
+   One behaviour everywhere: smooth colour/opacity/transform changes, a
+   brighter label on hover (pointer devices only), a gentle press, and the
+   same focus ring for keyboard users. Swipe cards (.stage) keep their own
+   transforms. */
+button, a, summary, input, select, textarea,
+.entry, .season-row, .upcoming-row, .moment-block, .rank-row.is-tappable,
+.discovery-card, .next-night-open, .life-row, .aside-row {
+  transition:
+    color var(--dur) var(--ease),
+    background-color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease),
+    opacity var(--dur) var(--ease),
+    transform var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
+}
+@media (hover: hover) {
+  .plain-act:hover, .act:hover, .switch button:hover, .going-filter button:hover,
+  .explore-mode:hover, .going-tool:hover, nav.rail button:hover, .masthead-settings:hover,
+  .sheet-close:hover, summary:hover, .life-mode:hover { color: var(--bone); }
+  .entry:hover, .season-row:hover, .upcoming-row:hover, .moment-block:hover,
+  .rank-row.is-tappable:hover, .aside-row:hover { background-color: var(--surface); }
+  .next-night-open:hover, .discovery-card.is-current:hover { transform: translateY(-1px); }
+}
+button:not(:disabled):active, a:active, summary:active,
+.season-row:active, .upcoming-row:active, .moment-block:active,
+.rank-row.is-tappable:active, .next-night-open:active, .discovery-card:active {
+  transform: scale(0.98);
+}
+.spine .entry:active { transform: scale(0.985); opacity: 1; }
+.stage-acts .act:active { transform: scale(0.96); }
+button:disabled { cursor: default; opacity: 0.4; }
+
+/* One focus ring. */
+:focus { outline: none; }
+:focus-visible,
+button:focus-visible, a:focus-visible, summary:focus-visible,
+input:focus-visible, select:focus-visible, textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--ember) !important;
+  outline-offset: 3px !important;
+  border-radius: var(--r-sm);
+}
+
+/* Numbers are facts: tabular figures wherever counts and times appear. */
+.opening-stats dd, .next-night-count b, .discovery-count, .schedule-row dd,
+.when b, .year-mark b, .rank-row, .season-overview h2 { font-variant-numeric: tabular-nums lining-nums; }
+.nobreak { white-space: nowrap; }
+.sheet-memory-line { text-wrap: balance; }
