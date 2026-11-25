@@ -862,7 +862,9 @@ function openingStatement(view) {
         ${view.signature.topVenue ? `<div><dt>Your room</dt><dd><b>${esc(view.signature.topVenue.name)}</b><span>${view.signature.topVenue.count}×</span></dd></div>` : ""}
       </dl>
       <details class="archive-counts">
-        <summary class="whisper">About these counts</summary>
+        <summary class="archive-counts-toggle" aria-label="About these counts" title="About these counts">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><circle cx="12" cy="8" r=".6" fill="currentColor"/></svg>
+        </summary>
         <p class="opening-figures">
           ${artistAppearances} performances in all${view.peakYear ? `; the busiest year was ${esc(view.peakYear.name)} with ${view.peakYear.count} nights` : ""}.
           An ember dot in the timeline marks the first time you saw an artist.
@@ -2370,15 +2372,15 @@ function mountWarmup(host, concert) {
 function seasonOverview(concerts) {
   const s = seasonSummary(concerts, workDayDetails);
   const largest = Math.max(1, ...s.months.map(m => m.total));
-  const node = el(`<section class="season-overview" aria-label="Your concert season">
-    <p class="whisper">The season ahead</p>
+  const node = el(`<details class="season-overview night-disclosure" aria-label="Your concert season">
+    <summary>The season ahead <span aria-hidden="true">⌄</span></summary>
     <h2>${goingFilter === "tickets"
       ? `${s.shows} ${s.shows === 1 ? 'night' : 'nights'} booked.`
       : goingFilter === "interested"
         ? `${s.shows} ${s.shows === 1 ? 'show' : 'shows'} on your radar.<br><em>No tickets yet.</em>`
         : `${s.shows} ${s.shows === 1 ? 'show' : 'shows'} in view.<br><em>${s.booked} ${s.booked === 1 ? 'ticket' : 'tickets'} bought.</em>`}</h2>
     <p class="season-caption">${s.nights} ${s.nights === 1 ? 'date' : 'different dates'}${s.work ? ` · ${s.work} on a working evening or night${s.arranged ? `, ${s.arranged} with time off arranged` : ''}` : ''}.</p>
-    <details class="season-chart"><summary>Explore the season <span aria-hidden="true">⌄</span></summary>
+    <div class="season-chart">
       <div class="season-months">${s.months.map(m => `<div class="season-month">
         <span>${MONTHS[Number(m.month.slice(5,7)) - 1].toUpperCase()} ${esc(m.month.slice(2,4))}</span>
         <span class="season-track" role="img" aria-label="${m.total} shows: ${m.booked} ticket bought, ${m.planned} planned, ${m.work} without tickets on a working evening or night">
@@ -2386,14 +2388,13 @@ function seasonOverview(concerts) {
         </span><b>${m.total}</b></div>`).join('')}</div>
       <p class="season-key"><span><i class="season-booked"></i>Ticket bought</span><span><i class="season-planned"></i>Planned</span><span><i class="season-work"></i>Work · no ticket</span></p>
       <p class="footnote">Buying a ticket does not mean time off is arranged.</p>
-    </details>
-  </section>`);
+    </div>
+  </details>`);
   return node;
 }
 
 function nextNight(concert) {
   const node = el(`<section class="next-night" aria-label="Next night">
-    <p class="whisper">The next night</p>
     <button type="button" class="next-night-open" aria-label="Open ${esc(displayPlannedArtist(concert.artist, concert))}: times and essentials">
       <span class="next-night-photo" aria-hidden="true"></span>
       <span class="next-night-copy">
@@ -2405,7 +2406,6 @@ function nextNight(concert) {
     </button>
     <div class="next-night-meta">${workDayBadge(concert)}</div>
     <p class="next-night-live" role="timer" aria-live="off" hidden></p>
-    <button type="button" class="next-night-essentials">Times & essentials <span aria-hidden="true">→</span></button>
   </section>`);
   setPhoto(node.querySelector('.next-night-photo'), imageFor(concert), concert);
   node.querySelectorAll('button').forEach(button => button.addEventListener('click', () => openSheet(concert)));

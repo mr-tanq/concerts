@@ -324,6 +324,9 @@ export function renderListeningLife(root, life, deps, onViewArtist) {
   const moreButton = el('<button type="button" class="life-mode" aria-pressed="false">More artists</button>');
   controls.appendChild(storiesButton);
   controls.appendChild(moreButton);
+  // The two-tab switch is gone from view: Stories is the page; browsing every
+  // artist is one quiet link below it (and back).
+  controls.hidden = true;
   wrap.appendChild(controls);
 
   // The Self hero already says when Last.fm was last read, so the strand
@@ -399,6 +402,7 @@ export function renderListeningLife(root, life, deps, onViewArtist) {
     const browse = mode === "more";
     browser.hidden = !browse;
     storiesButton.setAttribute("aria-pressed", String(!browse));
+    if (typeof browseToggle !== "undefined") browseToggle.textContent = browse ? "← Back to stories" : "Browse all artists →";
     moreButton.setAttribute("aria-pressed", String(browse));
     explanation.textContent = browse ? "Everyone you've played, most played first." : "";
     explanation.hidden = !browse;
@@ -438,6 +442,14 @@ export function renderListeningLife(root, life, deps, onViewArtist) {
       selectTrace(visible.some((t) => t.key === remembered) ? remembered : visible[0].key);
     }
   }
+  const browseToggle = el('<button type="button" class="plain-act life-browse-toggle"></button>');
+  wrap.appendChild(browseToggle);
+  browseToggle.addEventListener("click", () => {
+    mode = mode === "more" ? "stories" : "more";
+    page = 0;
+    draw();
+    wrap.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
   storiesButton.addEventListener("click", () => { mode = "stories"; page = 0; draw(); });
   moreButton.addEventListener("click", () => { mode = "more"; page = 0; draw(); });
   search.addEventListener("input", () => { page = 0; draw(); });

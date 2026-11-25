@@ -2985,3 +2985,35 @@ input:focus-visible, select:focus-visible, textarea:focus-visible,
 .archive-artist-summary .opening-figures,
 .archive-place-summary .opening-figures { padding: 0 var(--gutter); margin-top: 14px; }
 .palette-field input::-webkit-search-cancel-button { -webkit-appearance: none; display: none; }
+
+/* ---- Step 5: decluttering ------------------------------------------------ */
+/* Going: the season summary is a closed row at the end of the list. */
+details.season-overview { margin: 36px var(--gutter) 0; padding: 0; border-top: 1px solid var(--hair); }
+details.season-overview > summary {
+  display: flex; align-items: center; justify-content: space-between;
+  min-height: 56px; cursor: pointer; list-style: none;
+  font: var(--fs-label) var(--mono); letter-spacing: var(--track-label); text-transform: uppercase; color: var(--bone-dim);
+}
+details.season-overview > summary::-webkit-details-marker { display: none; }
+details.season-overview[open] > summary span { transform: rotate(180deg); }
+details.season-overview h2 { margin-top: 4px; }
+details.season-overview .season-chart { border-top: 0; margin-top: 10px; padding-bottom: 20px; }
+
+/* Concert sheet: Refresh lives in the "…" menu. */
+.sheet-going [data-refresh-schedule] { display: none; }
+
+/* Archive: "About these counts" is a small ⓘ. */
+.archive-counts > summary.archive-counts-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; margin: 6px 0 0 -9px;
+  list-style: none; cursor: pointer; color: var(--bone-faint); border-radius: var(--r-pill);
+}
+.archive-counts > summary::-webkit-details-marker { display: none; }
+.archive-counts[open] > summary { color: var(--bone); }
+
+/* Self: one quiet link to browse every artist. */
+.life-browse-toggle { margin-top: 10px; }
+
+/* Settings dot: shown only when something needs attention (not connected). */
+.settings-dot { background: var(--ember); box-shadow: 0 0 0 2px var(--black), 0 0 10px rgba(255,122,69,.6); }
+.settings-dot.live { display: none; }
