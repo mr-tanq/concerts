@@ -105,6 +105,9 @@ const store = existing.artists || {};
 const todo = [];
 for (const [key, display] of names) {
   const prev = store[key];
+  // A hand-checked entry (a corrected photo, or "no photo rather than the
+  // wrong person" for an ambiguous name) is never replaced by a lookup.
+  if (prev?.source === "manual") continue;
   if (usableArtistPhoto(prev?.image)) continue;
   if (!prev?.image && prev && Date.now() - new Date(prev.checkedAt).getTime() < REFRESH_AFTER_MS) continue;
   todo.push([key, display]);
