@@ -88,6 +88,28 @@ class DebugActivity : AppCompatActivity() {
             setOnClickListener { startActivity(Intent(this@DebugActivity, AmbientSettingsActivity::class.java)) }
         })
 
+        column.addView(heading("CONCERT DAY"))
+        column.addView(body(
+            "On the day of a concert you have a ticket for, a reminder comes at 09:00 " +
+                "with doors, set times and the room. Runs while playback detection is active."
+        ))
+        val reminderStatus = body("")
+        column.addView(Button(this).apply {
+            text = "Send a test reminder"
+            setOnClickListener {
+                isEnabled = false
+                reminderStatus.text = "Reading your concerts…"
+                Thread {
+                    val message = ConcertReminders.postTest(applicationContext)
+                    runOnUiThread {
+                        reminderStatus.text = message
+                        isEnabled = true
+                    }
+                }.start()
+            }
+        })
+        column.addView(reminderStatus)
+
         column.addView(heading("SELECTED SESSION"))
         selectedContainer = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         column.addView(selectedContainer)

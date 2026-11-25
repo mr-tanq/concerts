@@ -26,6 +26,8 @@ class PlaybackRelayForegroundService : Service() {
     override fun onCreate() {
         super.onCreate()
         createChannel()
+        // Concert-day reminders ride on this always-on service.
+        ConcertReminders.start(this)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -50,6 +52,7 @@ class PlaybackRelayForegroundService : Service() {
         // the debug UI from retaining a stale ACTIVE flag.
         removeForegroundNotification()
         KeepaliveStatus.markForegroundStopped()
+        ConcertReminders.stop()
         super.onDestroy()
     }
 

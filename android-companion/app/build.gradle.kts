@@ -14,8 +14,8 @@ android {
         // 26 is a comfortable modern floor with no feature cost here.
         minSdk = 26
         targetSdk = 35
-        versionCode = 11
-        versionName = "1.2-phase3-free-shazam"
+        versionCode = 12
+        versionName = "1.3-concert-day-reminders"
     }
 
     buildTypes {
