@@ -338,6 +338,22 @@ function imageFor(rec) {
 
 // Photos are applied from JS rather than inlined into the markup so a URL
 // containing quotes can never break out of a style attribute.
+// Photos load when they come near the screen, not all at once: opening the
+// Archive used to request ~100 photos for a screen that shows five.
+const lazyPhotos = typeof IntersectionObserver === "function"
+  ? new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const node = entry.target;
+        lazyPhotos.unobserve(node);
+        if (node.dataset.lazyBg) {
+          node.style.backgroundImage = node.dataset.lazyBg;
+          delete node.dataset.lazyBg;
+        }
+      }
+    }, { rootMargin: "700px 0px" })
+  : null;
+
 function setPhoto(node, url, record=null) {
   if(!node)return false;
   if(record?.artist&&!record.isFestival)
@@ -346,10 +362,18 @@ function setPhoto(node, url, record=null) {
   if(!safe){
     node.classList.add('is-empty');
     node.style.removeProperty('background-image');
+    delete node.dataset.lazyBg;
+    lazyPhotos?.unobserve(node);
     return false;
   }
   node.classList.remove('is-empty');
-  node.style.backgroundImage='url("'+safe.replace(/"/g,'%22')+'")';
+  const css='url("'+safe.replace(/"/g,'%22')+'")';
+  if(!lazyPhotos||node.style.backgroundImage===css){
+    node.style.backgroundImage=css;
+    return true;
+  }
+  node.dataset.lazyBg=css;
+  lazyPhotos.observe(node);
   return true;
 }
 
