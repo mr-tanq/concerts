@@ -2593,3 +2593,51 @@ a.plain-act { text-decoration:none; }
   border-radius: 999px; background: var(--ember); color: var(--black);
   font-style: normal; font-size: 10px; letter-spacing: 0; text-align: center; opacity: 1;
 }
+
+/* Archive: every night is a photo card — the picture fills the frame and the
+   words sit on it, over a darkening from the left so they always read. Faces
+   are kept in frame by anchoring the crop high. Nights without a photo get a
+   quiet dark card. The spine and its nodes stay. */
+.spine .entry {
+  isolation: isolate;
+  align-items: flex-end;
+  min-height: 138px;
+  margin: 12px 0;
+  padding: 18px 18px 16px;
+}
+.spine .entry::before { top: 50%; margin-top: -3px; }
+.spine .entry-photo {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: auto;
+  height: auto;
+  margin: 0;
+  flex: none;
+  border-radius: 6px;
+  background-color: #121215;
+  background-size: cover;
+  background-position: 65% 25%;
+  filter: saturate(0.92);
+  overflow: hidden;
+}
+.spine .entry-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(90deg, rgba(8,8,10,.9) 0%, rgba(8,8,10,.72) 38%, rgba(8,8,10,.18) 78%, rgba(8,8,10,.05) 100%),
+    linear-gradient(0deg, rgba(8,8,10,.55) 0%, transparent 55%);
+}
+.spine .entry-photo.is-empty {
+  opacity: 1;
+  background-image: radial-gradient(120% 90% at 100% 0%, rgba(255,122,69,.10), transparent 55%), linear-gradient(135deg, #151518, #0d0d0f);
+}
+.spine .entry-photo.is-empty::after { display: none; }
+.spine .entry-date { color: rgba(242,239,233,.78); text-shadow: 0 1px 10px rgba(0,0,0,.7); }
+.spine .entry-artist { font-size: 30px; text-shadow: 0 2px 18px rgba(0,0,0,.6); }
+.spine .entry-with { color: #cfcac2; }
+.spine .entry-place { color: #d6d2cb; text-shadow: 0 1px 10px rgba(0,0,0,.7); }
+.spine .entry-place .dot { color: rgba(242,239,233,.5); }
+.spine .entry:active { opacity: 0.75; }
