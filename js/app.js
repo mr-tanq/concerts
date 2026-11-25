@@ -1387,7 +1387,7 @@ function mountPhotoFix(host, photoNode, c) {
           <input id="photo-fix-url" type="url" inputmode="url" placeholder="https://…" autocomplete="off" spellcheck="false" /></div>
         <p class="status" id="photo-fix-status"></p>
         <div class="act-row" style="padding-left:0;padding-right:0;gap:24px;flex-wrap:wrap">
-          <button type="button" class="plain-act" data-save>Use this photo</button>
+          <button type="button" class="plain-act is-primary" data-save>Use this photo</button>
           <button type="button" class="plain-act" data-none>No photo</button>
           <button type="button" class="plain-act" data-cancel>Cancel</button>
         </div>
@@ -1469,7 +1469,7 @@ function renderLineupPicker(host, status, c, lineup) {
   });
   host.appendChild(list);
 
-  const saveRow = el(`<div class="act-row" style="padding-left:0;padding-right:0" hidden><button class="plain-act" id="lineup-save">Save</button></div>`);
+  const saveRow = el(`<div class="act-row" style="padding-left:0;padding-right:0" hidden><button class="plain-act is-primary" id="lineup-save">Save</button></div>`);
   host.appendChild(saveRow);
   const saveBtn = saveRow.querySelector("#lineup-save");
   // Save appears only once something differs from what's stored, and the
@@ -1514,7 +1514,7 @@ function renderLineupPicker(host, status, c, lineup) {
     const addRow = el(`
       <div class="lineup-add">
         <input type="text" class="lineup-add-input" placeholder="Who else played?" />
-        <button class="plain-act" id="lineup-add-btn">Add</button>
+        <button class="plain-act is-secondary" id="lineup-add-btn">Add</button>
       </div>
     `);
     addTrigger.replaceWith(addRow);
@@ -1571,7 +1571,7 @@ function renderNote(host, c) {
         <textarea class="note-field" rows="3" placeholder="What do you remember?">${esc(c.notes || "")}</textarea>
         <p class="status" id="note-status"></p>
         <div style="display:flex;gap:26px;margin-top:6px">
-          <button class="plain-act" id="note-save">Save</button>
+          <button class="plain-act is-primary" id="note-save">Save</button>
           <button class="plain-act" id="note-cancel">Cancel</button>
         </div>
       </div>
@@ -2942,7 +2942,7 @@ function openSettings() {
             <div class="field"><label for="in-repo">Repository</label><input id="in-repo" type="text" placeholder="concerts" value="${esc(existing.repo)}" /></div>
             <div class="field"><label for="in-token">Token</label><input id="in-token" type="password" placeholder="github_pat_…" value="${esc(existing.token)}" /></div>
             <div class="act-row" style="padding-left:0;padding-right:0;gap:28px">
-              <button type="button" class="plain-act" id="set-save">Connect</button>
+              <button type="button" class="plain-act is-primary" id="set-save">Connect</button>
             </div>
           </div>
           <p class="status" id="set-status"></p>
@@ -2958,7 +2958,7 @@ function openSettings() {
           <a class="plain-act settings-apk" href="https://github.com/mr-tanq/concerts/releases/download/companion-latest/listening-mirror-companion.apk" target="_blank" rel="noopener">Download the Companion app ↗</a>
         </div>
         <div class="act-row settings-done" style="padding-left:0;padding-right:0">
-          <button type="button" class="plain-act" id="set-close">Done</button>
+          <button type="button" class="plain-act is-secondary" id="set-close">Done</button>
         </div>
       </div>
     </div>
@@ -3032,7 +3032,7 @@ function mountRelaySettings(box, status) {
     box.innerHTML = `<div class="field"><label for="in-relay">Relay read secret</label>
         <input id="in-relay" type="password" placeholder="lmr_…" autocomplete="off" /></div>
       <div class="act-row" style="padding-left:0;padding-right:0">
-        <button type="button" class="plain-act" id="relay-save">Save</button>
+        <button type="button" class="plain-act is-primary" id="relay-save">Save</button>
       </div>`;
     const save = box.querySelector("#relay-save");
     save.addEventListener("click", async () => {

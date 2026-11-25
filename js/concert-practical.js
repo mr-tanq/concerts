@@ -23,7 +23,7 @@ export function mountPractical(host,concert,save) {
     <p class="whisper">Essentials</p>
     <div class="act-row essentials-actions">
       <button type="button" class="plain-act" data-ticket aria-pressed="${p.ticketBought===true}">${p.ticketBought===true?'Ticket bought ✓':'I have a ticket'}</button>
-      ${ticketURL?`<a class="plain-act" data-buy-ticket href="${escapeHTML(ticketURL)}" target="_blank" rel="noopener noreferrer" ${p.ticketBought===true?'hidden':''}>Get tickets ↗</a>`:''}
+      ${ticketURL?`<a class="plain-act is-secondary" data-buy-ticket href="${escapeHTML(ticketURL)}" target="_blank" rel="noopener noreferrer" ${p.ticketBought===true?'hidden':''}>Get tickets ↗</a>`:''}
       ${destination?`<a class="plain-act" href="https://www.google.com/maps/dir/?api=1&amp;destination=${escapeHTML(encodeURIComponent(destination))}" target="_blank" rel="noopener noreferrer">Directions ↗</a>`:''}
     </div>
     <details class="essentials-note"><summary>${p.note?'Concert note':'Add a note'}</summary>
@@ -31,7 +31,7 @@ export function mountPractical(host,concert,save) {
         <textarea class="note-field" rows="3" maxlength="1000" placeholder="A reminder for this show">${escapeHTML(p.note || '')}</textarea>
       </label>
       <p class="footnote">Saved in your public GitHub repository. Do not include ticket codes or private details.</p>
-      <button class="plain-act" type="submit">Save note</button></form>
+      <button class="plain-act is-primary" type="submit">Save note</button></form>
     </details>
     <p class="status" role="status" aria-live="polite"></p>
   </section>`;
