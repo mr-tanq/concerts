@@ -183,7 +183,10 @@ function showTabLoadError(tabs, label) {
 }
 
 async function loadJSON(path) {
-  const res = await fetch(path, { cache: "no-store" });
+  // "no-cache" = ask the server whether the file changed (ETag) and reuse
+  // the stored copy when it didn't: same freshness as "no-store", but an
+  // unchanged 1 MB file costs a few hundred bytes instead of 1 MB.
+  const res = await fetch(path, { cache: "no-cache" });
   if (!res.ok) throw new Error(`Failed to load ${path}: ${res.status}`);
   return res.json();
 }
@@ -3048,31 +3051,32 @@ async function init() {
     }
   });
 
+  // Two phases, so the first screen doesn't wait for everything:
+  //   1. what Live needs (its lists + the photos it shows) — render Live;
+  //   2. then, without competing for bandwidth, Archive / Self / Realm data.
+  // Other tabs show a quiet placeholder until phase 2 lands.
+  for (const tab of ["archive", "identity", "realm"]) {
+    const panel = document.getElementById(`panel-${tab}`);
+    if (panel && !panel.childElementCount) panel.appendChild(el(`<div class="panel-loading" role="status" aria-label="Loading"><span></span></div>`));
+  }
+
+  let concertsReady = false;
+  let historyData = null;
   try {
-    const [archiveResult, recsResult, plannedResult, historyResult, cacheResult, imagesResult, setlistsResult, identityResult, originsResult, timeseriesResult, festivalImagesResult] =
+    const [recsResult, plannedResult, historyResult, cacheResult, imagesResult, festivalImagesResult] =
       await Promise.allSettled([
-        loadRequiredJSON("data/archive.json", "concerts"),
         loadRequiredJSON("data/recommendations.json", "concerts"),
         loadRequiredJSON("data/planned.json", "concerts"),
         loadRequiredJSON("data/recommendation-history.json", "dismissedIds"),
         loadJSON("data/podiuminfo-cache.json").catch(() => ({ entries: {} })),
         loadJSON("data/artist-images.json").catch(() => ({ artists: {} })),
-        loadJSON("data/setlists.json").catch(() => ({ setlists: {} })),
-        loadJSON("data/identity.json").catch(() => ({ meta: {} })),
-        loadJSON("data/artist-origins.json").catch(() => ({ artists: {} })),
-        loadJSON("data/listening-timeseries.json").catch(() => ({ meta: { weekStarts: [] }, artists: {} })),
         loadJSON("data/festival-images.json").catch(() => ({ editions: {} })),
       ]);
 
     const concertCache = cacheResult.value || { entries: {} };
     const artistImageData = imagesResult.value || { artists: {} };
-    const setlistData = setlistsResult.value || { setlists: {} };
-    const identityData = identityResult.value || { meta: {} };
-    const originsData = originsResult.value || { artists: {} };
-    const timeseriesData = timeseriesResult.value || { meta: { weekStarts: [] }, artists: {} };
 
     festivalImages = new Map(Object.entries(festivalImagesResult.value?.editions || {}).filter(([,v])=>v?.image).map(([url,v])=>[url,v.image]));
-    setlists = new Map(Object.entries(setlistData.setlists || {}));
 
     artistImages = new Map(
       Object.entries(artistImageData.artists || {})
@@ -3096,13 +3100,11 @@ async function init() {
       }
     }
 
-    archiveViewData = { identityData, originsData, timeseriesData };
-    let concertsReady = false;
-    let archiveReady = false;
     const concertResults = [recsResult, plannedResult, historyResult];
     if (concertResults.every((result) => result.status === "fulfilled")) {
       try {
-        renderConcerts(recsResult.value, plannedResult.value, historyResult.value);
+        historyData = historyResult.value;
+        renderConcerts(recsResult.value, plannedResult.value, historyData);
         concertsReady = true;
       } catch (err) { console.error(err); }
     } else {
@@ -3111,7 +3113,44 @@ async function init() {
       }
     }
     if (!concertsReady) showTabLoadError(["concerts"], "Live");
+  } catch (err) {
+    console.error(err);
+    showTabLoadError(["concerts"], "Live");
+  }
 
+  document.addEventListener("visibilitychange", () => {
+    syncScheduleClock();
+    if (!document.hidden && concertsReady) askWorkArrangements();
+    if(!document.hidden&&concertsReady&&hasPendingPlannedPhoto()){
+      watchForNewArtistPhotos();
+      void refreshArtistImages();
+    }
+    if (!document.hidden) {
+      const host = document.querySelector("#panel-concerts.active .schedule-host");
+      const next = plannedConcerts.find(c => c.id === host?.dataset.concertId);
+      if (host && next) refreshGoingSchedule(next, host);
+    }
+  });
+
+  // Phase 2.
+  try {
+    const [archiveResult, setlistsResult, identityResult, originsResult, timeseriesResult] =
+      await Promise.allSettled([
+        loadRequiredJSON("data/archive.json", "concerts"),
+        loadJSON("data/setlists.json").catch(() => ({ setlists: {} })),
+        loadJSON("data/identity.json").catch(() => ({ meta: {} })),
+        loadJSON("data/artist-origins.json").catch(() => ({ artists: {} })),
+        loadJSON("data/listening-timeseries.json").catch(() => ({ meta: { weekStarts: [] }, artists: {} })),
+      ]);
+
+    setlists = new Map(Object.entries((setlistsResult.value || { setlists: {} }).setlists || {}));
+    archiveViewData = {
+      identityData: identityResult.value || { meta: {} },
+      originsData: originsResult.value || { artists: {} },
+      timeseriesData: timeseriesResult.value || { meta: { weekStarts: [] }, artists: {} },
+    };
+
+    let archiveReady = false;
     if (archiveResult.status === "fulfilled") {
       try {
         refreshArchiveViews(archiveResult.value);
@@ -3120,25 +3159,20 @@ async function init() {
     } else { console.error(archiveResult.reason); }
     if (!archiveReady) showTabLoadError(["archive", "identity", "realm"], "your concert archive");
 
-    if (concertsReady && archiveReady && getGithubConfig()) {
-      askAboutPast(pastPlannedConcerts(historyResult.value));
+    // The empty-deck view suggests support acts using your listening counts,
+    // which only arrive now: redraw it if it's what's on screen.
+    const view = document.querySelector("#panel-concerts .switch .on")?.dataset.v;
+    if (concertsReady && view === "stage" && !deckQueue.length
+        && !document.getElementById("settings-modal-root").childElementCount) {
+      renderConcertsShell("stage");
     }
-    document.addEventListener("visibilitychange", () => {
-      syncScheduleClock();
-      if (!document.hidden && concertsReady) askWorkArrangements();
-      if(!document.hidden&&concertsReady&&hasPendingPlannedPhoto()){
-        watchForNewArtistPhotos();
-        void refreshArtistImages();
-      }
-      if (!document.hidden) {
-        const host = document.querySelector("#panel-concerts.active .schedule-host");
-        const next = plannedConcerts.find(c => c.id === host?.dataset.concertId);
-        if (host && next) refreshGoingSchedule(next, host);
-      }
-    });
+
+    if (concertsReady && archiveReady && getGithubConfig()) {
+      askAboutPast(pastPlannedConcerts(historyData));
+    }
   } catch (err) {
     console.error(err);
-    showTabLoadError(["concerts", "archive", "identity", "realm"], "app data");
+    showTabLoadError(["archive", "identity", "realm"], "your concert archive");
   }
 }
 

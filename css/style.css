@@ -2548,3 +2548,11 @@ a.plain-act { text-decoration:none; }
 .mirror-idle-meta { display: block; margin-top: 6px; font-size: 14px; color: var(--bone-dim); }
 .mirror-idle-next:active .mirror-idle-title { color: var(--ember); }
 .settings-apk { display: inline-block; margin-top: 18px; text-decoration: none; }
+
+/* Placeholder while a tab's data is still on its way */
+.panel-loading { display: flex; justify-content: center; padding: 22vh 0; }
+.panel-loading span {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--ember);
+  animation: panel-loading-pulse 1.1s ease-in-out infinite;
+}
+@keyframes panel-loading-pulse { 0%, 100% { opacity: .25; transform: scale(.8); } 50% { opacity: 1; transform: scale(1.2); } }
