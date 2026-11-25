@@ -1,17 +1,17 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-11-25T16:05:56.481Z",
+    "lastUpdated": "2026-11-25T17:57:15.673Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 548,
-      "daysFresh": 1,
-      "daysCached": 547,
+      "daysFresh": 548,
+      "daysCached": 0,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 8,
       "rejectedByLineup": 0
     },
     "festivals": {
@@ -25,8 +25,8 @@
       "revisited": 0,
       "official": {
         "sources": 2,
-        "verified": 0,
-        "reused": 2,
+        "verified": 2,
+        "reused": 0,
         "failed": 0,
         "published": 2,
         "merge": {
@@ -37,5 +37,172 @@
       }
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-504420",
+      "source": "podiuminfo",
+      "sourceId": "504420",
+      "artist": "Paradise Lost",
+      "lineup": [
+        "Paradise Lost"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Paradise Lost"
+      ],
+      "date": "2027-11-22",
+      "time": null,
+      "venue": "013",
+      "city": "Tilburg",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/464/100_Paradise_Lost_3.jpg",
+      "ticketUrl": null,
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/504420/Paradise-Lost/013/",
+      "match": {
+        "score": 50,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Paradise Lost",
+        "matchedArtists": [
+          "Paradise Lost"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-11-25T17:57:15.673Z",
+      "lastSeenAt": "2026-11-25T17:57:15.673Z"
+    },
+    {
+      "id": "rec-podiuminfo-504393",
+      "source": "podiuminfo",
+      "sourceId": "504393",
+      "artist": "Anthrax",
+      "lineup": [
+        "Anthrax"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Anthrax"
+      ],
+      "date": "2027-03-16",
+      "time": null,
+      "venue": "AFAS Live",
+      "city": "Amsterdam",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/3909/100_Anthrax_1.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/145681/cd/Anthrax-Cursum-Perficio/AFAS-Live/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/504393/Anthrax/AFAS-Live/",
+      "match": {
+        "score": 45,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: Anthrax",
+        "matchedArtists": [
+          "Anthrax"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-11-25T17:57:15.673Z",
+      "lastSeenAt": "2026-11-25T17:57:15.673Z"
+    },
+    {
+      "id": "rec-festivalinfo-36262",
+      "source": "festivalinfo",
+      "sourceId": "36262",
+      "artist": "Paaspop Schijndel",
+      "festivalName": "Paaspop Schijndel",
+      "endDate": "2027-03-28",
+      "lineup": [
+        "De Staat",
+        "Bløf",
+        "Mastodon",
+        "The Opposites",
+        "Rowwen Heze",
+        "Skindred",
+        "Clouseau",
+        "Tröckener Kecks",
+        "Rag'n'Bone Man",
+        "Sub Focus",
+        "Pokey Lafarge",
+        "Bad Nerves",
+        "Monolord",
+        "The Rumjacks",
+        "Fat Dog",
+        "Elmer",
+        "Bertus Staigerpaip",
+        "Jason Derulo",
+        "Daði Freyr",
+        "Bizzey",
+        "Joy Division Undercover",
+        "Joey Valence & Brae",
+        "Toby Lee",
+        "Isabèl Usher",
+        "Famke Louise",
+        "Mula",
+        "Buiten Westen",
+        "DYEN",
+        "Yade Lauren",
+        "Ronnie Flex & The Fam",
+        "KingFisher",
+        "Turfy Gang",
+        "Justen de Wildt",
+        "Eddie 9V",
+        "Politie Warnsveld",
+        "milolaathetlukken",
+        "Lisa Korver",
+        "Koen Vael",
+        "John Tana Et Crapuul",
+        "Jari Hellegers",
+        "Morgan Wallen Tribute",
+        "The Bausa",
+        "Wrecking Crüe",
+        "Toxic Frogs",
+        "Pink Floyd In Symphony",
+        "Golden State Riot",
+        "Coldplace Xl",
+        "Boaz",
+        "Donnies Party comite",
+        "Lil Kleine",
+        "Job Jobse",
+        "Rutger van Barneveld",
+        "Völkerball",
+        "Dopebwoy"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Mastodon"
+      ],
+      "date": "2027-03-26",
+      "time": null,
+      "venue": "Paaspop Schijndel",
+      "city": "Schijndel",
+      "country": "NL",
+      "isFestival": true,
+      "image": "https://www.festivalinfo.nl/img/upload/b/4//Paaspop_Schijndel.png",
+      "ticketUrl": "https://www.festivalinfo.nl/ticket/144066/df/Paaspop-Schijndel-2027/",
+      "sourceApis": [
+        "festivalinfo"
+      ],
+      "sourceUrl": "https://www.festivalinfo.nl/festival/36262/Paaspop-Schijndel/2027/",
+      "match": {
+        "score": 35,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to The Ocean",
+        "matchedArtists": [
+          "Mastodon"
+        ],
+        "similarVia": "The Ocean"
+      },
+      "discoveredAt": "2026-11-25T17:57:15.673Z",
+      "lastSeenAt": "2026-11-25T17:57:15.673Z"
+    }
+  ]
 }
