@@ -379,7 +379,7 @@ export function openArtistSheet(artistName) {
   root.innerHTML = "";
   const sheet = el(`
     <div class="sheet-root">
-      <button class="sheet-close">Close</button>
+      <div class="sheet-toolbar"><button class="sheet-close" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
       <div class="sheet-inner">
         <div class="portrait-photo ${photo ? "" : "is-empty"}">
           <div class="portrait-photo-name">

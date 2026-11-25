@@ -2791,3 +2791,110 @@ input:focus-visible, select:focus-visible, textarea:focus-visible,
   color: var(--ticket) !important;
 }
 [data-ticket-id] svg { width: 14px; height: 14px; }
+
+/* ---- Bottom sheets --------------------------------------------------------
+   Concert / artist sheets rise from the bottom over a dimmed, blurred page:
+   rounded top, a drag handle, swipe down (or tap outside, Back, ×) to close.
+   Settings uses the same shape. */
+.sheet-root {
+  overflow: hidden;
+  background: rgba(4,4,5,0.55);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  animation: fade 0.25s var(--ease) both;
+}
+.sheet-inner {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  margin: 0 auto;
+  max-height: calc(100% - 26px - env(safe-area-inset-top));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--black);
+  border-radius: 18px 18px 0 0;
+  box-shadow: 0 -1px 0 var(--hair), 0 -24px 60px rgba(0,0,0,.45);
+  animation: sheet-up 0.42s var(--ease) both;
+  transition: transform 0.25s var(--ease);
+}
+.sheet-inner::before,
+.veil > .panel::before {
+  content: "";
+  position: sticky;
+  top: 8px;
+  z-index: 4;
+  display: block;
+  width: 38px;
+  height: 4px;
+  margin: 8px auto -12px;
+  border-radius: var(--r-pill);
+  background: rgba(242,239,233,0.32);
+}
+@keyframes sheet-up { from { transform: translateY(48px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.sheet-toolbar {
+  position: fixed;
+  top: calc(40px + env(safe-area-inset-top));
+  right: 14px;
+  z-index: 6;
+  display: flex;
+  gap: 8px;
+}
+.sheet-toolbar .sheet-close,
+.sheet-toolbar .sheet-more {
+  position: static;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: var(--r-pill);
+  color: var(--bone);
+  background: rgba(8,8,10,0.5);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: inset 0 0 0 1px rgba(242,239,233,0.12);
+}
+.sheet-toolbar .sheet-more[hidden] { display: none; }
+
+.veil { background: rgba(4,4,5,0.55); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.veil > .panel {
+  border-top: 0;
+  border-radius: 18px 18px 0 0;
+  padding-top: 22px;
+  box-shadow: 0 -1px 0 var(--hair), 0 -24px 60px rgba(0,0,0,.45);
+  transition: transform 0.25s var(--ease);
+  animation: sheet-up 0.42s var(--ease) both;
+}
+
+/* "…" menu */
+.menu-pop {
+  position: fixed;
+  z-index: 130;
+  min-width: 210px;
+  padding: 6px;
+  border-radius: 14px;
+  background: rgba(22,22,26,0.92);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  box-shadow: inset 0 0 0 1px rgba(242,239,233,0.1), 0 18px 50px rgba(0,0,0,0.55);
+  animation: menu-in 0.16s var(--ease) both;
+  transform-origin: top right;
+}
+@keyframes menu-in { from { opacity: 0; transform: scale(0.96) translateY(-4px); } to { opacity: 1; transform: none; } }
+.menu-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 9px;
+  font-family: var(--sans);
+  font-size: var(--fs-body);
+  color: var(--bone);
+  text-align: left;
+}
+.menu-item:hover, .menu-item:focus-visible { background: var(--surface-2); }
+.menu-item.is-danger { color: var(--clash); }
+.menu-item + .menu-item { margin-top: 2px; }
+.veil > .panel::before { position: relative; top: 0; margin: -12px auto 18px; }

@@ -34,6 +34,7 @@ import { fetchRelayState } from "./relay-client.js";
 import { openConcertSearch } from "./concert-search.js?v=festival-browse-20261031";
 import { concertSearchState, sameSearchConcert } from "./concert-search-model.js?v=festival-browse-20261031";
 import { overlayOpened, pageChanged, startPage, watchSheetRoot } from "./back-nav.js";
+import { initSheetGestures } from "./sheet-gestures.js";
 import { initMirror, renderMirror, stopPolling as stopMirrorPolling } from "./mirror.js?v=lyrica-20261101";
 import { initIdentity, renderHero, renderExplore as renderIdentityExplore, openArtistSheet } from "./identity.js";
 import { initRealm, renderRealm } from "./realm.js";
@@ -1226,7 +1227,10 @@ function openSheet(c) {
   root.innerHTML = "";
   const sheet = el(`
     <div class="sheet-root${planned ? " sheet-going" : ""}">
-      <button class="sheet-close">Close</button>
+      <div class="sheet-toolbar">
+        <button type="button" class="sheet-more" aria-label="More actions" aria-haspopup="menu" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg></button>
+        <button type="button" class="sheet-close" aria-label="Close"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      </div>
       <div class="sheet-inner">
         <div class="sheet-photo ${photo ? "" : "is-empty"}"></div>
         <div class="sheet-head">
@@ -1263,14 +1267,14 @@ function openSheet(c) {
             <div id="sheet-note"></div>
           </div>
           <div id="sheet-setlist"></div>
-          <details class="sheet-section night-disclosure sheet-edit-night">
+          <details class="sheet-section night-disclosure sheet-edit-night" hidden>
             <summary>Edit this night <span aria-hidden="true">⌄</span></summary>
             <div id="sheet-photo-fix"></div>
           </details>
         `}
 
         ${planned ? `
-          <details class="sheet-section night-disclosure sheet-change-plan">
+          <details class="sheet-section night-disclosure sheet-change-plan" hidden>
             <summary>Change of plan <span aria-hidden="true">⌄</span></summary>
             <div class="act-row" style="padding-left:0;padding-right:0">
               <button class="plain-act" id="sheet-unplan">Not going after all</button>
@@ -1304,6 +1308,16 @@ function openSheet(c) {
     if (planned.date >= dutchToday()) {
       mountConcertShare(sheet.querySelector(".sheet-artist"), planned);
     }
+    const changePlan = sheet.querySelector(".sheet-change-plan");
+    mountSheetMenu(sheet, [
+      { label: "Refresh times", run: () => sheet.querySelector("[data-refresh-schedule]")?.click(),
+        available: () => !!sheet.querySelector("[data-refresh-schedule]") },
+      { label: "Not going after all", danger: true, run: () => {
+          changePlan.hidden = false;
+          changePlan.open = true;
+          requestAnimationFrame(() => changePlan.scrollIntoView({ behavior: "smooth", block: "center" }));
+        } },
+    ]);
     const un = sheet.querySelector("#sheet-unplan");
     un.addEventListener("click", async () => {
       if (!getGithubConfig()) { openSettings(); return; }
@@ -1343,8 +1357,19 @@ function openSheet(c) {
   });
 
   if (!planned) {
-    // Rare actions live together behind one "Edit this night".
+    // Rare actions live behind the "…" menu; picking one reveals its panel.
     mountPhotoFix(sheet.querySelector("#sheet-photo-fix"), sheet.querySelector(".sheet-photo"), c);
+    const editNight = sheet.querySelector(".sheet-edit-night");
+    const reveal = (selector) => {
+      editNight.hidden = false;
+      editNight.open = true;
+      editNight.querySelector(selector)?.click();
+      requestAnimationFrame(() => editNight.scrollIntoView({ behavior: "smooth", block: "center" }));
+    };
+    mountSheetMenu(sheet, [
+      { label: "Change photo", run: () => reveal(".photo-fix-open") },
+      { label: "Remove from archive", danger: true, run: () => reveal(".archive-removal [data-start]") },
+    ]);
     mountArchiveRemoval(sheet.querySelector(".sheet-edit-night"), c, {
       connected: () => !!getGithubConfig(),
       connect: openSettings,
@@ -1364,6 +1389,46 @@ function openSheet(c) {
     renderSetlist(sheet.querySelector("#sheet-setlist"), c);
     renderLineupPicker(sheet.querySelector("#sheet-lineup"), sheet.querySelector("#lineup-status"), c, lineup);
   }
+}
+
+// The sheet's "…" menu: a small popover of rare actions, closed by a tap
+// outside, Escape, or the phone's Back button.
+function mountSheetMenu(sheet, items) {
+  const button = sheet.querySelector(".sheet-more");
+  if (!button || !items.length) return;
+  button.hidden = false;
+  button.addEventListener("click", () => openMenu(button, items.filter((i) => !i.available || i.available())));
+}
+
+function openMenu(anchor, items) {
+  document.querySelector(".menu-pop")?.remove();
+  if (!items.length) return;
+  const pop = el(`<div class="menu-pop" role="menu"></div>`);
+  let releaseBack = null;
+  const cleanup = () => {
+    document.removeEventListener("pointerdown", outside, true);
+    document.removeEventListener("keydown", onKey);
+    anchor.setAttribute("aria-expanded", "false");
+  };
+  const close = () => { pop.remove(); cleanup(); releaseBack?.(); };
+  const outside = (event) => { if (!pop.contains(event.target) && !anchor.contains(event.target)) close(); };
+  const onKey = (event) => { if (event.key === "Escape") { close(); anchor.focus(); } };
+  for (const item of items) {
+    const b = el(`<button type="button" role="menuitem" class="menu-item${item.danger ? " is-danger" : ""}">${esc(item.label)}</button>`);
+    b.addEventListener("click", () => { close(); item.run(); });
+    pop.appendChild(b);
+  }
+  document.body.appendChild(pop);
+  const r = anchor.getBoundingClientRect();
+  pop.style.top = `${Math.round(r.bottom + 8)}px`;
+  pop.style.right = `${Math.round(window.innerWidth - r.right)}px`;
+  anchor.setAttribute("aria-expanded", "true");
+  releaseBack = overlayOpened(() => { pop.remove(); cleanup(); });
+  setTimeout(() => {
+    document.addEventListener("pointerdown", outside, true);
+    document.addEventListener("keydown", onKey);
+  });
+  pop.querySelector("button")?.focus({ preventScroll: true });
 }
 
 // "Wrong photo?" — paste a link to the right picture (long-press an image on
@@ -3182,6 +3247,7 @@ async function init() {
   setActiveTab(firstTab);
   // Phone Back: overlays close first, then earlier tabs / Live views.
   watchSheetRoot(document.getElementById("settings-modal-root"));
+  initSheetGestures();
   startPage({ tab: firstTab }, (page) => {
     setActiveTab(page.tab);
     const shown = document.querySelector("#panel-concerts .switch .on")?.dataset.v;
