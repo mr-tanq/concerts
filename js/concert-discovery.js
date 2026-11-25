@@ -94,88 +94,110 @@ export function shareConcertButton(c, dateLabel, label = 'Share concert') {
   return wrap;
 }
 
+// "Before the headliner": the opening acts of your next nights, as a row of
+// poster cards you swipe through — photo full-bleed, the name large, why it
+// matters ("Opening for Terror") and two actions: listen, or open the night.
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+function whenLabel(date, today) {
+  const d = new Date(`${date}T12:00:00Z`), t = new Date(`${today}T12:00:00Z`);
+  const days = Math.round((d - t) / 86400000);
+  const rel = days <= 0 ? 'Tonight' : days === 1 ? 'Tomorrow' : days < 14 ? `In ${days} days` : `In ${Math.round(days / 7)} weeks`;
+  return `${DAYS[d.getUTCDay()]} ${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} · ${rel}`;
+}
+
 export function mountSupportDiscovery(host, {
-  concerts, today, counts, imageFor, formatDate, openConcert
+  concerts, today, counts, imageFor, openConcert
 }) {
   const choices = supportChoices(concerts, today, counts);
-  let index = 0;
-  const text = (tag, value, className) => {
+  const el = (tag, className, textValue) => {
     const n = document.createElement(tag);
-    n.textContent = value;
     if (className) n.className = className;
+    if (textValue != null) n.textContent = textValue;
     return n;
   };
-
-  function render() {
-    host.replaceChildren();
-    host.className = 'support-discovery';
-    host.parentElement?.classList.add('caughtup-discovery');
-    host.append(text('p','All caught up. Something to explore while you wait.','discovery-status'));
-
-    if (!choices.length) {
-      host.append(
-        text('h2','Quiet for now.','entry-artist'),
-        text('p',
-          'No new concerts to decide on. Your plans are waiting in Going.',
-          'lede')
-      );
-      return;
-    }
-
-    const {concert:c, name} = choices[index];
-    host.append(text('p','BEFORE THE HEADLINER','whisper'));
-
-    const verifiedPhotos = {
-      barrens: new URL("../assets/artists/barrens.jpg", import.meta.url).href
-    };
+  const verifiedPhotos = {
+    barrens: new URL("../assets/artists/barrens.jpg", import.meta.url).href
+  };
+  const photoFor = name => {
     const url = verifiedPhotos[key(name)] || safeURL(imageFor({artist:name}));
-    if (url &&
-        !/e23066163f21176a822b54001ee648a2|placeholder|default[-_]artist|no[-_]image/i.test(url)) {
-      const img = document.createElement('img');
-      img.src = url;
-      img.alt = name;
-      img.style.cssText =
-        'width:100%;max-height:240px;object-fit:cover;margin:16px 0;border-radius:3px';
-      img.addEventListener('error', () => img.remove(), {once:true});
-      host.append(img);
-    }
+    return url && !/e23066163f21176a822b54001ee648a2|placeholder|default[-_]artist|no[-_]image/i.test(url) ? url : null;
+  };
 
+  host.replaceChildren();
+  host.className = 'support-discovery';
+  host.parentElement?.classList.add('caughtup-discovery');
+  host.append(el('p', 'discovery-status', 'All caught up. Nothing new to decide.'));
+
+  if (!choices.length) {
     host.append(
-      text('h2',name,'entry-artist'),
-      text('p',`Opening for ${c.artist}`,'discovery-headliner'),
-      text('p',`${formatDate(c.date)} · ${c.venue} · ${c.city}`,'footnote')
+      el('h2', 'discovery-quiet', 'Quiet for now.'),
+      el('p', 'footnote', 'Your plans are waiting in Going.')
     );
+    return;
+  }
 
-    const actions = document.createElement('div');
-    actions.className = 'act-row';
-    actions.style.paddingLeft = '0';
+  const head = el('div', 'discovery-head');
+  const counter = el('p', 'discovery-count', choices.length > 1 ? `1 / ${choices.length}` : '');
+  head.append(el('p', 'whisper', 'Before the headliner'), counter);
+  host.append(head);
 
-    const listen = document.createElement('a');
-    listen.className = 'plain-act discovery-listen';
-    listen.textContent = 'Listen ↗';
+  const rail = el('div', 'discovery-rail');
+  rail.setAttribute('role', 'list');
+  choices.forEach(({concert:c, name}, i) => {
+    const card = el('article', 'discovery-card');
+    card.setAttribute('role', 'listitem');
+    card.setAttribute('aria-label', `${name}, opening for ${c.artist}`);
+    const photo = el('div', 'discovery-photo');
+    const url = photoFor(name);
+    if (url) {
+      // Load quietly; a dead link leaves the typographic card, never a broken image.
+      const probe = new Image();
+      probe.onload = () => { photo.style.backgroundImage = `url("${url.replace(/"/g, '%22')}")`; card.classList.add('has-photo'); };
+      probe.src = url;
+    }
+    const copy = el('div', 'discovery-copy');
+    copy.append(
+      el('p', 'discovery-when', whenLabel(c.date, today)),
+      el('h2', 'discovery-name', name),
+    );
+    const forLine = el('p', 'discovery-for', 'Opening for ');
+    forLine.append(el('b', '', c.artist));
+    copy.append(forLine, el('p', 'discovery-place', [c.venue, c.city].filter(Boolean).join(', ')));
+
+    const actions = el('div', 'discovery-actions');
+    const listen = el('a', 'discovery-listen', 'Listen ↗');
     listen.href = 'https://open.spotify.com/search/' + encodeURIComponent(name);
     listen.target = '_blank';
     listen.rel = 'noopener noreferrer';
+    const night = el('button', 'discovery-night', 'The night →');
+    night.type = 'button';
+    night.addEventListener('click', () => openConcert(c));
+    actions.append(listen, night);
+    copy.append(actions);
 
-    const details = text('button','View concert','plain-act');
-    details.type = 'button';
-    details.addEventListener('click', () => openConcert(c));
-    actions.append(listen, details);
-    host.append(actions);
+    card.append(photo, el('div', 'discovery-veil'), copy);
+    rail.append(card);
+    if (i === 0) card.classList.add('is-current');
+  });
+  host.append(rail);
 
-
-    if (choices.length > 1) {
-      const next = text('button','Another opening act →','plain-act');
-      next.type = 'button';
-      next.addEventListener('click', () => {
-        index = (index + 1) % choices.length;
-        render();
-        const heading = host.querySelector('h2');
-        heading.tabIndex = -1;
-        heading.focus({preventScroll:true});
+  // Keep "2 / 5" in step with the swipe.
+  if (choices.length > 1) {
+    let raf = 0;
+    rail.addEventListener('scroll', () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const cards = [...rail.children];
+        const mid = rail.scrollLeft + rail.clientWidth / 2;
+        let current = 0, best = Infinity;
+        cards.forEach((card, i) => {
+          const d = Math.abs(card.offsetLeft + card.offsetWidth / 2 - mid);
+          if (d < best) { best = d; current = i; }
+        });
+        counter.textContent = `${current + 1} / ${cards.length}`;
+        cards.forEach((card, i) => card.classList.toggle('is-current', i === current));
       });
-      host.append(next);
-    }
+    }, { passive: true });
   }
-  render();
 }

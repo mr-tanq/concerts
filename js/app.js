@@ -348,6 +348,7 @@ const lazyPhotos = typeof IntersectionObserver === "function"
         lazyPhotos.unobserve(node);
         if (node.dataset.lazyBg) {
           node.style.backgroundImage = node.dataset.lazyBg;
+          node.style.setProperty("--photo", node.dataset.lazyBg);
           delete node.dataset.lazyBg;
         }
       }
@@ -365,6 +366,7 @@ function setPhoto(node, url, record=null) {
   if(!safe){
     node.classList.add('is-empty');
     node.style.removeProperty('background-image');
+    node.style.removeProperty('--photo');
     delete node.dataset.lazyBg;
     observer?.unobserve(node);
     return false;
@@ -373,6 +375,7 @@ function setPhoto(node, url, record=null) {
   const css='url("'+safe.replace(/"/g,'%22')+'")';
   if(!observer||node.style.backgroundImage===css){
     node.style.backgroundImage=css;
+    node.style.setProperty?.('--photo',css);
     return true;
   }
   node.dataset.lazyBg=css;
@@ -1623,9 +1626,9 @@ function renderConcertsShell(view = "stage") {
   const aside = dismissedConcerts.length + legacyDismissedIds.length;
   const bar = el(`
     <div class="switch">
-      <button data-v="stage" class="${view === "stage" ? "on" : ""}">Deciding<i>${deckQueue.length}</i></button>
-      <button data-v="going" class="${view === "going" ? "on" : ""}" aria-label="Going: ${ticketedUpcoming().length} with tickets, ${plannedConcerts.length} planned">Going<i>${ticketedUpcoming().length}/${plannedConcerts.length}</i></button>
-      <button data-v="aside" class="${view === "aside" ? "on" : ""}">Set aside<i>${aside}</i></button>
+      <button data-v="stage" class="${view === "stage" ? "on" : ""}">Deciding${deckQueue.length ? `<i class="switch-new">${deckQueue.length}</i>` : ""}</button>
+      <button data-v="going" class="${view === "going" ? "on" : ""}" aria-label="Going: ${ticketedUpcoming().length} with tickets, ${plannedConcerts.length} planned">Going</button>
+      <button data-v="aside" class="${view === "aside" ? "on" : ""}" aria-label="Set aside: ${aside}">Set aside</button>
     </div>
   `);
   root.appendChild(bar);
@@ -1878,7 +1881,8 @@ async function saveConcertPractical(c,changes) {
       const goingTab = document.querySelector('#panel-concerts .switch [data-v="going"]');
       if (goingTab) {
         const booked = ticketedUpcoming().length;
-        goingTab.querySelector("i").textContent = `${booked}/${plannedConcerts.length}`;
+        const count = goingTab.querySelector("i");
+        if (count) count.textContent = `${booked}/${plannedConcerts.length}`;
         goingTab.setAttribute("aria-label", `Going: ${booked} with tickets, ${plannedConcerts.length} planned`);
       }
       return practical;
