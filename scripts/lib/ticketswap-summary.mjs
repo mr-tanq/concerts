@@ -53,6 +53,7 @@ export function summarizeListings(data) {
   let availableTickets = 0;
   let activeListings = 0;
   let cheapest = null;
+  let missingWatchLots = false;
 
   for (const listing of data.listings) {
     if (typeof listing?.id !== 'string' || !listing.id.trim()) throw new Error('Missing listing ID');
@@ -71,7 +72,7 @@ export function summarizeListings(data) {
     const id = typeof type?.id === 'string' && type.id.trim() ? type.id : null;
     const title = typeof type?.title === 'string' && type.title.trim()
       ? type.title.trim().slice(0, 160) : null;
-    const category = categories.get(id) ?? { id, title: null, availableTickets: 0, activeListings: 0, prices: [] };
+    const category = categories.get(id) ?? { id, title: null, availableTickets: 0, activeListings: 0, prices: [], watchLots: new Map() };
     if (id) category.title ??= title;
     category.availableTickets += count;
     category.activeListings++;
@@ -79,6 +80,14 @@ export function summarizeListings(data) {
 
     const converted = listing.converted_price?.total_price != null;
     const price = eurCents(converted ? listing.converted_price.total_price : listing.price?.total_price);
+    if (listing.number_of_tickets_in_listing === count) {
+      const lot = category.watchLots.get(count) ?? { quantity: count, buyerCents: null, missingPrice: false };
+      if (price === null) lot.missingPrice = true;
+      else lot.buyerCents = lot.buyerCents === null ? price : Math.min(lot.buyerCents, price);
+      category.watchLots.set(count, lot);
+    } else {
+      missingWatchLots = true;
+    }
     if (price === null) continue;
 
     prices.push(price);
@@ -101,10 +110,12 @@ export function summarizeListings(data) {
     missingPrices: buyerPrices.listingsCounted < activeListings,
     market: {
       activeListings,
+      watchLotsKnown: true,
+      missingWatchLots,
       buyerPrices,
       cheapest,
-      categories: [...categories.values()].map(({ prices, ...category }) => ({
-        ...category, buyerPrices: priceStats(prices)
+      categories: [...categories.values()].map(({ prices, watchLots, ...category }) => ({
+        ...category, buyerPrices: priceStats(prices), watchLots: [...watchLots.values()]
       }))
     }
   };

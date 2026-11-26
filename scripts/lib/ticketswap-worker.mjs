@@ -7,12 +7,14 @@ import { createBudgetedRequest, emptyLedger } from './ticketswap-budget.mjs';
 const git = promisify(execFile);
 const path = 'data/ticketswap-credits.json';
 
-export async function createWorkerRequest() {
-  if (!process.env.PARSE_API_KEY) throw new Error('Missing PARSE_API_KEY');
-  if (process.env.GITHUB_ACTIONS !== 'true' || process.env.GITHUB_REF !== 'refs/heads/main') {
-    throw new Error('Use the serialized main-branch workflow for live TicketSwap requests');
-  }
+export const creditPolicy = () => ({
+  initial: Number(process.env.TICKETSWAP_INITIAL_CREDITS || 194),
+  daily: Number(process.env.TICKETSWAP_DAILY_LIMIT || 8),
+  monthly: Number(process.env.TICKETSWAP_MONTHLY_LIMIT || 40),
+  reserve: Number(process.env.TICKETSWAP_CREDIT_RESERVE || 20)
+});
 
+export async function readCreditLedger() {
   let ledger;
   try {
     ledger = JSON.parse(await readFile(path, 'utf8'));
@@ -21,16 +23,24 @@ export async function createWorkerRequest() {
     ledger = emptyLedger();
   }
 
+  return ledger;
+}
+
+export async function createWorkerRequest({ watch = false } = {}) {
+  if (!process.env.PARSE_API_KEY) throw new Error('Missing PARSE_API_KEY');
+  if (process.env.GITHUB_ACTIONS !== 'true' || process.env.GITHUB_REF !== 'refs/heads/main') {
+    throw new Error('Use the serialized main-branch workflow for live TicketSwap requests');
+  }
+  if (watch && !(process.env.TICKETSWAP_WATCH_ENABLED === 'true'
+    && process.env.TICKETSWAP_WATCH_CONTRACTS_VERIFIED === 'true')) {
+    throw new Error('Live Smart Ticket Watch is disabled');
+  }
   return createBudgetedRequest({
-    ledger,
-    policy: {
-      initial: Number(process.env.TICKETSWAP_INITIAL_CREDITS || 194),
-      daily: Number(process.env.TICKETSWAP_DAILY_LIMIT || 8),
-      monthly: Number(process.env.TICKETSWAP_MONTHLY_LIMIT || 40),
-      reserve: Number(process.env.TICKETSWAP_CREDIT_RESERVE || 20)
-    },
+    ledger: await readCreditLedger(),
+    policy: creditPolicy(),
+    watch,
     trustHeaders: process.env.TICKETSWAP_TRUST_CREDIT_HEADERS === 'true',
-    transport: ticketSwapRequest,
+    transport: (endpoint, params, feedback) => ticketSwapRequest(endpoint, params, feedback, { watch }),
     persist: async value => {
       await writeFile(path + '.tmp', JSON.stringify(value, null, 2) + '\n');
       await rename(path + '.tmp', path);

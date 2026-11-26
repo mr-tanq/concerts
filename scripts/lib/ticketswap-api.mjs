@@ -10,24 +10,32 @@ function creditHeader(headers, name) {
   return Number.isSafeInteger(number) ? number : null;
 }
 
-export async function ticketSwapRequest(endpoint, params, onResponse = () => {}) {
+export async function ticketSwapRequest(endpoint, params, onResponse = () => {}, { watch = false } = {}) {
   if (!Object.hasOwn(endpointCosts, endpoint)) {
     throw new Error("Unsupported TicketSwap endpoint");
   }
 
+  const legacy = ['search_events', 'get_event_listings'].includes(endpoint);
+  if (!legacy && !watch) throw new Error('TicketSwap watch endpoints are disabled');
   const key = process.env.PARSE_API_KEY;
   if (!key) throw new Error("Missing PARSE_API_KEY");
 
+  const url = new URL(`${BASE}/${endpoint}`);
+  if (!legacy) {
+    for (const [name, value] of Object.entries(params)) {
+      url.searchParams.set(name, typeof value === 'object' ? JSON.stringify(value) : String(value));
+    }
+  }
   let response;
   try {
-    response = await fetch(`${BASE}/${endpoint}`, {
-      method: "POST",
+    response = await fetch(url.href, {
+      method: legacy ? "POST" : "GET",
       redirect: "error",
       headers: {
         "X-API-Key": key,
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(params),
+      ...(legacy ? { body: JSON.stringify(params) } : {}),
       signal: AbortSignal.timeout(60000)
     });
   } catch (error) {

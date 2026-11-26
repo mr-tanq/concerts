@@ -1,3 +1,4 @@
+import { renderTicketWatchList } from './ticket-watch-panel.js';
 import { warmupArtists } from "./warmup-setlist-model.js?v=festival-discovery-20261031";
 import {canShowFestivalRevisit} from "./festival-revisit-model.js?v=festival-revisit-20261111";
 import {festivalArtworkMatchesEdition} from "./festival-artwork.js?v=festival-images-20261111";
@@ -2510,6 +2511,7 @@ function renderUpcoming(body) {
     body.querySelector(`[data-filter="${goingFilter}"]`)?.focus({ preventScroll: true });
   }));
   body.appendChild(layout);
+  body.appendChild(renderTicketWatchList(plannedConcerts));
   if (goingFilter !== "all" && !counts[goingFilter]) {
     body.appendChild(el(goingFilter === "tickets"
       ? '<p class="void">No upcoming concerts with a ticket yet. Open one and tap “I have a ticket”.</p>'

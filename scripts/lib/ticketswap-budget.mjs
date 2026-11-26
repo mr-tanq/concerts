@@ -1,6 +1,9 @@
 export const endpointCosts = Object.freeze({
   search_events: 1,
-  get_event_listings: 1
+  get_event_listings: 1,
+  get_market_batch: 1,
+  get_event_demand: 1,
+  get_events_sold_sample: 1
 });
 
 export function emptyLedger() {
@@ -11,8 +14,19 @@ function validCredits(value) {
   return Number.isSafeInteger(value) && value >= 0;
 }
 
+export function spendableCredits(ledger, policy, timestamp = Date.now()) {
+  if (timestamp < ledger.blockedUntil) return 0;
+  const date = new Date(timestamp).toISOString().slice(0, 10);
+  const month = date.slice(0, 7);
+  const monthUsed = Object.entries(ledger.days)
+    .filter(([day]) => day.startsWith(month))
+    .reduce((total, [, spend]) => total + spend, 0);
+  return Math.max(0, Math.min(policy.daily - (ledger.days[date] ?? 0),
+    policy.monthly - monthUsed, (ledger.remaining ?? policy.initial) - policy.reserve));
+}
+
 export function createBudgetedRequest({
-  ledger, policy, persist, transport, now = Date.now, trustHeaders = false
+  ledger, policy, persist, transport, now = Date.now, trustHeaders = false, watch = false
 }) {
   if (ledger.version !== 1 || !ledger.days || !ledger.endpoints
     || !Object.entries(ledger.days).every(([day, amount]) =>
@@ -48,13 +62,8 @@ export function createBudgetedRequest({
     if (timestamp < ledger.blockedUntil) throw new Error('TicketSwap checks temporarily paused');
 
     const date = new Date(timestamp).toISOString().slice(0, 10);
-    const month = date.slice(0, 7);
-    const monthUsed = Object.entries(ledger.days)
-      .filter(([day]) => day.startsWith(month))
-      .reduce((total, [, spend]) => total + spend, 0);
     const remaining = ledger.remaining ?? policy.initial;
-    if ((ledger.days[date] ?? 0) + cost > policy.daily
-      || monthUsed + cost > policy.monthly || remaining - cost < policy.reserve) {
+    if (spendableCredits(ledger, policy, timestamp) < cost) {
       throw new Error('TicketSwap credit budget exhausted');
     }
 
@@ -106,7 +115,7 @@ export function createBudgetedRequest({
   }
 
   return function request(endpoint, params) {
-    if (!Object.hasOwn(endpointCosts, endpoint)) {
+    if (!Object.hasOwn(endpointCosts, endpoint) || (!watch && !['search_events', 'get_event_listings'].includes(endpoint))) {
       return Promise.reject(new Error('Unsupported TicketSwap endpoint'));
     }
     const key = JSON.stringify([endpoint, Object.entries(params).sort(([a], [b]) => a.localeCompare(b))]);
