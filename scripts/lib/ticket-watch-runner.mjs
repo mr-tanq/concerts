@@ -224,7 +224,17 @@ export async function runTicketWatches({
           const demand = await adapters.eventDemand(ids[0]);
           for (const item of known.filter(item => entries[item.concertId].observation.event.id === ids[0])) {
             const { hasDemand, title, intro, recentlySold } = demand;
-            entries[item.concertId].demand = { eventId: ids[0], hasDemand, title, intro, recentlySold, checkedAt: new Date(now).toISOString() };
+            const money = value => value?.currency === 'EUR' && Number.isSafeInteger(value.amount) && value.amount >= 0
+              ? { currency: 'EUR', amount: value.amount } : null;
+            const types = demand.types.filter(type => type.id).map(type => ({
+              id: type.id, title: type.title,
+              priceLevels: type.priceLevels.slice(0, 20).map(level => ({
+                text: level.text, price: money(level.price), convertedPrice: money(level.convertedPrice)
+              }))
+            }));
+            entries[item.concertId].demand = {
+              eventId: ids[0], hasDemand, title, intro, recentlySold, types, checkedAt: new Date(now).toISOString()
+            };
           }
         } catch {}
       }
