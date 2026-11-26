@@ -18,19 +18,23 @@ function priceStats(prices) {
   };
 }
 
+function listingURL(value) {
+  const safe = ticketSwapURL(value);
+  const url = safe ? new URL(safe) : null;
+  return url?.pathname.startsWith('/listing/') ? url.origin + url.pathname : null;
+}
+
 function offerDetails(listing, converted, buyerTotalCents) {
   const price = converted ? listing.converted_price : listing.price;
   const sellerCents = eurCents(price?.seller_price);
   const originalCents = eurCents(price?.original_price);
-  const safe = ticketSwapURL(listing.url);
-  const url = safe ? new URL(safe) : null;
   return {
     buyerTotalCents,
     sellerCents,
     originalCents,
     feeDifferenceCents: sellerCents !== null && sellerCents <= buyerTotalCents
       ? buyerTotalCents - sellerCents : null,
-    url: url?.pathname.startsWith('/listing/') ? url.origin + url.pathname : null
+    url: listingURL(listing.url)
   };
 }
 
@@ -79,6 +83,10 @@ export function summarizeListings(data) {
 
     prices.push(price);
     category.prices.push(price);
+    if (count === 1 && listing.number_of_tickets_in_listing === 1
+      && (!category.singleTicketOffer || price < category.singleTicketOffer.buyerTotalCents)) {
+      category.singleTicketOffer = { buyerTotalCents: price, url: listingURL(listing.url) };
+    }
     if (!cheapest || price < cheapest.buyerTotalCents) {
       cheapest = offerDetails(listing, converted, price);
     }

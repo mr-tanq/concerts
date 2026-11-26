@@ -1,3 +1,4 @@
+import { renderOfficialPanel } from './ticketswap-official-panel.js';
 import { attachTicketSwapCheck } from './ticketswap-check.js?v=universal-ticket-match-20261015';
 import { canConfirmTicketSwap, identity, ticketSwapURL } from './ticketswap-matching.js';
 import { renderTicketSwapMarket } from './ticketswap-market.js';
@@ -9,16 +10,29 @@ const snapshot = createSnapshotCache(async () => {
   return response.json();
 });
 
+const officialOffers = createSnapshotCache(async () => {
+  const response = await fetch('data/official-ticket-offers.json', {
+    cache: 'no-store',
+    signal: AbortSignal.timeout?.(5000)
+  });
+  if (!response.ok) throw new Error('Official offers unavailable');
+  return response.json();
+});
+
 async function renderTicketSwap(host, concert) {
   if (!host) return;
 
-  try {
-    const { data, stale: snapshotStale } = await snapshot.load();
-    if (!host.isConnected) return;
+  const [saved, official] = await Promise.allSettled([snapshot.load(), officialOffers.load()]);
+  if (!host.isConnected) return;
+  const evidence = official.status === 'fulfilled' ? official.value : null;
 
+  try {
+    if (saved.status === 'rejected') throw saved.reason;
+    const { data, stale: snapshotStale } = saved.value;
     const entry = data.entries?.[concert.id];
     if (!entry || entry.identity !== identity(concert)) {
-      host.textContent = 'This concert has not been checked yet.';
+      host.replaceChildren(document.createTextNode('This concert has not been checked yet.'),
+        renderOfficialPanel(concert, null, evidence));
       return;
     }
 
@@ -138,7 +152,7 @@ async function renderTicketSwap(host, concert) {
     if (url) {
       const link = document.createElement('a');
       link.className = 'plain-act';
-      link.textContent = 'View on TicketSwap ↗';
+      link.textContent = 'TicketSwap ↗';
       link.href = url;
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
@@ -147,9 +161,11 @@ async function renderTicketSwap(host, concert) {
 
     const market = renderTicketSwapMarket(entry);
     if (market) section.append(market);
+    section.append(renderOfficialPanel(concert, snapshotStale ? null : entry, evidence));
     host.replaceChildren(section);
   } catch {
-    host.textContent = 'Could not load TicketSwap results. Close and try again.';
+    host.replaceChildren(document.createTextNode('Could not load TicketSwap results. Close and try again.'),
+      renderOfficialPanel(concert, null, evidence));
   }
 }
 
