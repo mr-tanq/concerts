@@ -14,12 +14,12 @@ async function readOrEmpty(config, path, empty) {
   }
 }
 
-async function requestCheck(config, concert, selectedEventId = null) {
+async function requestCheck(config, concert, { queuePath, resultsPath, getAttempt, label, selectedEventId }) {
   for (let attempt = 0; attempt < 3; attempt++) {
     const now = Date.now();
     const [queue, result] = await Promise.all([
-      readOrEmpty(config, QUEUE, { version: 1, requests: {} }),
-      readOrEmpty(config, RESULTS, { version: 1, entries: {} })
+      readOrEmpty(config, queuePath, { version: 1, requests: {} }),
+      readOrEmpty(config, resultsPath, { version: 1, entries: {} })
     ]);
 
     if (queue.json.version !== 1 || !queue.json.requests
@@ -28,11 +28,12 @@ async function requestCheck(config, concert, selectedEventId = null) {
     }
 
     const old = result.json.entries?.[concert.id];
+    const lastAttempt = getAttempt(old, concert);
     const pending = queue.json.requests[concert.id];
     const age = now - Date.parse(pending?.requestedAt);
 
     if (pending?.identity === identity(concert)
-      && pending.requestId !== old?.requestId
+      && pending.requestId !== lastAttempt?.requestId
       && age >= 0 && age < 10 * 60000) {
       if ((pending.selectedEventId || null) !== selectedEventId) {
         throw new Error('Another check is running. Wait for it to finish.');
@@ -40,8 +41,8 @@ async function requestCheck(config, concert, selectedEventId = null) {
       return pending;
     }
 
-    if (!selectedEventId && old?.identity === identity(concert)
-      && now - Date.parse(old?.lastAttemptAt) < 5 * 60000) {
+    if (!selectedEventId && lastAttempt?.identity === identity(concert)
+      && now - Date.parse(lastAttempt?.lastAttemptAt) < 5 * 60000) {
       throw new Error('Please wait five minutes between checks.');
     }
 
@@ -56,8 +57,8 @@ async function requestCheck(config, concert, selectedEventId = null) {
 
     try {
       await putFile(
-        config, QUEUE, queue.json, queue.sha,
-        'Request TicketSwap check'
+        config, queuePath, queue.json, queue.sha,
+        'Request: ' + label
       );
       return request;
     } catch (e) {
@@ -67,10 +68,14 @@ async function requestCheck(config, concert, selectedEventId = null) {
 }
 
 export function attachTicketSwapCheck(host, concert, onUpdate, options = {}) {
+  const {
+    queuePath = QUEUE, resultsPath = RESULTS, getAttempt = entry => entry,
+    label = 'Check TicketSwap', selectedEventId = null
+  } = options;
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'plain-act';
-  button.textContent = options.label || 'Check TicketSwap';
+  button.textContent = label;
 
   const status = document.createElement('p');
   status.className = 'footnote';
@@ -94,7 +99,7 @@ export function attachTicketSwapCheck(host, concert, onUpdate, options = {}) {
     status.textContent = 'Requesting a check…';
 
     try {
-      const request = await requestCheck(config, concert, options.selectedEventId || null);
+      const request = await requestCheck(config, concert, { queuePath, resultsPath, getAttempt, label, selectedEventId });
       if (!host.isConnected) return;
 
       status.textContent = 'Check requested. Waiting for the result…';
@@ -102,10 +107,10 @@ export function attachTicketSwapCheck(host, concert, onUpdate, options = {}) {
 
       while (host.isConnected && Date.now() < until) {
         try {
-          const { json } = await getFile(config, RESULTS);
+          const { json } = await getFile(config, resultsPath);
           if (!host.isConnected) return;
 
-          const entry = json.entries?.[concert.id];
+          const entry = getAttempt(json.entries?.[concert.id], concert);
           if (entry?.requestId === request.requestId) {
             await onUpdate(json);
             status.textContent = entry.status === 'error'
@@ -124,7 +129,7 @@ export function attachTicketSwapCheck(host, concert, onUpdate, options = {}) {
 
       if (host.isConnected) {
         status.textContent =
-          'Still waiting. Reopen this card and press Check TicketSwap to check progress.';
+          `Still waiting. Reopen this card and press ${label} to check progress.`;
       }
     } catch (e) {
       if (host.isConnected) {

@@ -1,6 +1,9 @@
 name: Refresh official ticket offers
 
 on:
+  push:
+    branches: [main]
+    paths: [data/official-ticket-requests.json]
   workflow_dispatch:
     inputs:
       concert_id:
@@ -23,7 +26,7 @@ jobs:
   refresh:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
     permissions:
       contents: write
     steps:
@@ -37,17 +40,20 @@ jobs:
       - run: git pull --ff-only origin main
       - run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Preview supported sources
-        if: ${{ !inputs.live }}
+        if: ${{ github.event_name == 'workflow_dispatch' && !inputs.live }}
         env:
           CONCERT_ID: ${{ inputs.concert_id }}
         run: node scripts/refresh-official-tickets.mjs "$CONCERT_ID"
       - name: Verify public official ticket data
-        if: inputs.live
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.live }}
         env:
           CONCERT_ID: ${{ inputs.concert_id }}
         run: node scripts/refresh-official-tickets.mjs "$CONCERT_ID" --live
+      - name: Process requested official checks
+        if: github.event_name == 'push'
+        run: node scripts/refresh-official-tickets.mjs --requests
       - name: Save official ticket snapshot
-        if: inputs.live
+        if: ${{ github.event_name == 'push' || inputs.live }}
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'

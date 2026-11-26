@@ -43,7 +43,7 @@ function eventDate(value, country) {
   }
   return value.slice(0,10);
 }
-function namedDate(value) {
+export function namedDate(value) {
   const months = ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
   const short = ['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
   const m = searchKey(value).match(/\b(\d{1,2}) (\w+) (\d{4})\b/);
