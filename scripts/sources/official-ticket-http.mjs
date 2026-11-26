@@ -87,7 +87,9 @@ export function createOfficialPageReader({ fetcher = fetch, now = Date.now } = {
       if (!MANUAL_REDIRECTS.includes(page.status) || !page.location) break;
       const next = new URL(page.location, url);
       next.hash = '';
-      next.search = '';
+      for (const key of [...next.searchParams.keys()]) {
+        if (/^utm_/i.test(key)) next.searchParams.delete(key);
+      }
       url = next.href;
     }
     throw new Error('Official publisher page unavailable');
