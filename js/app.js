@@ -9,7 +9,7 @@ import { removeArchiveRecord, mountArchiveRemoval } from "./archive-remove.js?v=
 import { mutateJSONFiles } from "./github-transaction.js?v=atomic-concerts-20261016";
 import { mountSupportDiscovery } from "./concert-discovery.js?v=image-share-20261015";
 import { shareConcertImage } from "./concert-share.js?v=share-photos-20261028";
-import { mountTicketSwap } from "./concert-ticketswap.js?v=universal-ticket-match-20261015";
+import { mountTicketSwap } from "./concert-ticketswap.js?v=premium-ticket-intelligence";
 import { seasonSummary, listeningWindow } from "./going-season.js?v=season-20261021";
 
 function mountConcertShare(heading, concert) {
@@ -1402,12 +1402,12 @@ function openSheet(c) {
     mountSchedule(scheduleHost, { ...planned, artist: displayPlannedArtist(planned.artist, planned) });
     refreshGoingSchedule(planned, scheduleHost);
     const swapHost = sheet.querySelector(".sheet-going-ticketswap");
-    mountTicketSwap(swapHost, planned);
+    mountTicketSwap(swapHost, planned, imageFor(planned));
     mountPractical(sheet.querySelector(".sheet-practical"), planned, async changes => {
       const practical = await saveConcertPractical(planned, changes);
       planned.practical = practical;
       swapHost.replaceChildren();
-      mountTicketSwap(swapHost, planned);
+      mountTicketSwap(swapHost, planned, imageFor(planned));
       return practical;
     });
     if (planned.date >= dutchToday()) {
@@ -2188,7 +2188,7 @@ function upcomingHero(c, withSchedule = false) {
   `);
   setPhoto(node.querySelector(".upcoming-photo"), imageFor(c), c);
   mountConcertShare(node.querySelector(".entry-artist"), c);
-  mountTicketSwap(node.querySelector(".ticketswap-host"), c);
+  mountTicketSwap(node.querySelector(".ticketswap-host"), c, imageFor(c));
   if (withSchedule) mountSchedule(node.querySelector(".schedule-host"), { ...c, artist: displayPlannedArtist(c.artist, c) });
 
   if (withSchedule) mountPractical(node.querySelector(".practical-host"),c,changes=>saveConcertPractical(c,changes));

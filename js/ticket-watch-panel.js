@@ -53,9 +53,13 @@ export function watchCategoryOptions(concert, market, privateState, remembered =
   ].filter(type => type.id && type.title).map(type => [type.id, type.title]))];
 }
 
-export function renderTicketWatch(concert, entry, knownTypes = [], initialWatch, open = false) {
-  const details = disclosure('Ticket Watch');
-  details.open = open;
+export function renderTicketWatch(concert, entry, knownTypes = [], initialWatch, open = false, embedded = false) {
+  const details = embedded ? node('div') : disclosure('Ticket Watch');
+  if (embedded) {
+    details.className = 'ticket-watch ti-watch-embedded';
+    details.tabIndex = -1;
+  }
+  else details.open = open;
   const content = node('div');
   const feedback = node('p');
   feedback.setAttribute('role', 'status');
@@ -64,6 +68,7 @@ export function renderTicketWatch(concert, entry, knownTypes = [], initialWatch,
   let stored = initialWatch;
   let latestMarket = entry;
   let privateState;
+  let estimate;
   let generation = 0;
   let busy = false;
 
@@ -76,7 +81,7 @@ export function renderTicketWatch(concert, entry, knownTypes = [], initialWatch,
       stored = await changeWatch(concert.id, change);
       render();
       feedback.textContent = message;
-      (content.querySelector('button') || details.querySelector('summary')).focus();
+      (content.querySelector('button') || details.querySelector('summary') || details).focus();
     } catch (error) {
       feedback.textContent = error.message;
     } finally {
@@ -85,11 +90,35 @@ export function renderTicketWatch(concert, entry, knownTypes = [], initialWatch,
     }
   }
 
+  function fillCategories(select, selected) {
+    select.replaceChildren(new Option('Any category', ''));
+    const categories = new Map(watchCategoryOptions(concert, latestMarket, privateState, knownTypes));
+    if (selected && !categories.has(selected)) categories.set(selected, 'Saved category');
+    for (const [id, title] of categories) select.append(new Option(title, id));
+    select.value = selected;
+  }
+
+  if (embedded) details.addEventListener('ticket-watch-evidence', event => {
+    if (event.detail?.identity !== concertIdentity) return;
+    latestMarket = event.detail;
+    const picker = details.querySelector('select');
+    if (picker) fillCategories(picker, picker.value);
+  });
+
   function render() {
     const watch = stored?.identity === concertIdentity ? stored : null;
     const stop = watchStopReason(concert);
     content.replaceChildren(node('p', stop || (watch?.paused ? 'Watch paused.' : watch
-      ? 'Saved to your Watchlist.' : 'Save a ticket watch for this concert.')));
+      ? 'Watching' : 'Save a ticket watch for this concert.')));
+    if (embedded) {
+      const latest = privateState?.watchId === watch?.watchId ? privateState?.monitor?.notifications?.at(-1) : null;
+      content.append(node('p', latest
+        ? `Latest alert · ${WATCH_ALERTS[latest.kind]} · ${formatDate.format(Date.parse(latest.checkedAt))}`
+        : 'No saved alerts for this watch.'));
+      content.append(node('p', estimate && Number.isSafeInteger(estimate.credits)
+        ? `Monitoring is off. Last preview: ${estimate.credits} credits across ${estimate.due} due watches.`
+        : 'Monitoring is off. An individual check can use up to 2 credits before reuse or batching.'));
+    }
     if (!stop) {
       const form = node('form');
       const field = (label, control) => {
@@ -105,11 +134,7 @@ export function renderTicketWatch(concert, entry, knownTypes = [], initialWatch,
       const quantity = field('Ticket quantity', node('input'));
       Object.assign(quantity, { type: 'number', min: '1', max: '10', required: true, value: watch?.quantity ?? 1 });
       const category = field('Ticket category', node('select'));
-      category.append(new Option('Any category', ''));
-      const categories = new Map(watchCategoryOptions(concert, latestMarket, privateState, knownTypes));
-      if (watch?.categoryId && !categories.has(watch.categoryId)) categories.set(watch.categoryId, 'Saved category');
-      for (const [id, title] of categories) category.append(new Option(title, id));
-      category.value = watch?.categoryId ?? '';
+      fillCategories(category, watch?.categoryId ?? '');
       const alerts = node('fieldset');
       alerts.append(node('legend', 'Alert me when'));
       for (const [value, label] of Object.entries(WATCH_ALERTS)) {
@@ -155,8 +180,8 @@ export function renderTicketWatch(concert, entry, knownTypes = [], initialWatch,
     }
   }
 
-  details.addEventListener('toggle', async () => {
-    if (!details.open || busy) return;
+  async function load() {
+    if ((!embedded && !details.open) || busy) return;
     const load = ++generation;
     content.replaceChildren();
     if (!readWatchConnection()) {
@@ -170,9 +195,10 @@ export function renderTicketWatch(concert, entry, knownTypes = [], initialWatch,
         readWatchState().catch(() => null),
         readWatchData('data/ticketswap.json').catch(() => null)
       ]);
-      if (load !== generation || !details.isConnected || !details.open) return;
+      if (load !== generation || !details.isConnected || (!embedded && !details.open)) return;
       stored = saved.entries[concert.id] ?? null;
       privateState = state?.entries[concert.id];
+      estimate = state?.estimate;
       const newer = currentMarket?.entries[concert.id];
       if (newer?.identity === concertIdentity && (!latestMarket
         || (Date.parse(newer.checkedAt) || 0) >= (Date.parse(latestMarket.checkedAt) || 0))) latestMarket = newer;
@@ -181,7 +207,9 @@ export function renderTicketWatch(concert, entry, knownTypes = [], initialWatch,
     } catch (error) {
       feedback.textContent = error.message;
     }
-  });
+  }
+  if (embedded) queueMicrotask(load);
+  else details.addEventListener('toggle', load);
   return details;
 }
 
