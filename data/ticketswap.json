@@ -383,7 +383,85 @@
       "lastAttemptAt": "2026-11-26T18:01:52.283Z",
       "lastError": null,
       "requestId": "5e8bd023-9c13-4c8e-b445-5a39c5ffc040"
+    },
+    "planned-podiuminfo-457138": {
+      "identity": "[\"DeWolff\",\"2026-12-12\",\"TivoliVredenburg\",\"Utrecht\",\"NL\"]",
+      "event": {
+        "id": "RXZlbnQ6MDE5ZDFmNDItYmEwOS03ZWI0LThlNDYtMzQ5NWI4OTNjOGRm",
+        "url": "https://www.ticketswap.com/concert-tickets/dewolff-utrecht-tivolivredenburg-2026-12-12-CZMhaWR2ov5BYffJw4uW6",
+        "name": "DeWolff",
+        "date": "2026-12-12"
+      },
+      "status": "ok",
+      "availableTickets": 12,
+      "lowestPriceCents": 3968,
+      "currency": "EUR",
+      "complete": true,
+      "missingPrices": false,
+      "market": {
+        "activeListings": 7,
+        "watchLotsKnown": true,
+        "missingWatchLots": false,
+        "buyerPrices": {
+          "low": 3968,
+          "high": 5800,
+          "median": 5511,
+          "listingsCounted": 7
+        },
+        "cheapest": {
+          "buyerTotalCents": 3968,
+          "sellerCents": 3600,
+          "originalCents": 3500,
+          "feeDifferenceCents": 368,
+          "url": "https://www.ticketswap.com/listing/dewolff/22847343/5997679e55"
+        },
+        "categories": [
+          {
+            "id": "RXZlbnRUeXBlOjU5MTAwOTI=",
+            "title": "Seats",
+            "availableTickets": 12,
+            "activeListings": 7,
+            "singleTicketOffer": {
+              "buyerTotalCents": 4629,
+              "url": "https://www.ticketswap.com/listing/dewolff/21969950/a15951a850"
+            },
+            "buyerPrices": {
+              "low": 3968,
+              "high": 5800,
+              "median": 5511,
+              "listingsCounted": 7
+            },
+            "watchLots": [
+              {
+                "quantity": 2,
+                "buyerCents": 3968,
+                "missingPrice": false
+              },
+              {
+                "quantity": 1,
+                "buyerCents": 4629,
+                "missingPrice": false
+              }
+            ]
+          }
+        ]
+      },
+      "checkedAt": "2026-11-26T22:26:30.488Z",
+      "lastAttemptAt": "2026-11-26T22:26:30.488Z",
+      "lastError": null,
+      "marketHistory": [
+        {
+          "checkedAt": "2026-11-26T22:26:30.488Z",
+          "availableTickets": 12,
+          "lowestPriceCents": 3968,
+          "medianPriceCents": 5511,
+          "originalPriceCents": 3500,
+          "complete": true,
+          "missingPrices": false
+        }
+      ],
+      "requestId": "347c7ea9-c1c7-450b-bb5a-e33cdbc210c0"
     }
   },
-  "updatedAt": "2026-11-26T22:23:16.976Z"
+  "updatedAt": "2026-11-26T22:26:40.861Z"
 }
