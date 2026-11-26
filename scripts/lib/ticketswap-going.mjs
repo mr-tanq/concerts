@@ -1,7 +1,7 @@
 import {
   resolveTicketSwap, reviewCandidates, ticketSwapURL, identity, canConfirmTicketSwap
 } from './ticketswap-matching.mjs';
-import { summarizeListings } from './ticketswap-summary.mjs';
+import { summarizeListings, recordMarketHistory } from './ticketswap-summary.mjs';
 
 export { identity };
 
@@ -120,7 +120,7 @@ export async function checkConcert(c, old, request, now = new Date(), selectedEv
 
     if (data.event_id !== event.id) throw new Error('Wrong event');
 
-    return {
+    const entry = {
       identity: identity(c),
       event,
       status: 'ok',
@@ -129,6 +129,7 @@ export async function checkConcert(c, old, request, now = new Date(), selectedEv
       lastAttemptAt: stamp,
       lastError: null
     };
+    return { ...entry, marketHistory: recordMarketHistory(old, entry) };
   } catch (error) {
     return {
       ...(same ? old : {}),
