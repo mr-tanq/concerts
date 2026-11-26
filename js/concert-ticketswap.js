@@ -1,5 +1,6 @@
 import { attachTicketSwapCheck } from './ticketswap-check.js?v=universal-ticket-match-20261015';
 import { canConfirmTicketSwap, identity, ticketSwapURL } from './ticketswap-matching.js';
+import { renderTicketSwapMarket } from './ticketswap-market.js';
 import { createSnapshotCache } from './ticketswap-snapshot.js';
 
 const snapshot = createSnapshotCache(async () => {
@@ -144,6 +145,8 @@ async function renderTicketSwap(host, concert) {
       section.append(link);
     }
 
+    const market = renderTicketSwapMarket(entry);
+    if (market) section.append(market);
     host.replaceChildren(section);
   } catch {
     host.textContent = 'Could not load TicketSwap results. Close and try again.';

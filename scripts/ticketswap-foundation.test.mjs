@@ -103,7 +103,9 @@ test('listing summaries preserve sampled coverage and invalid prices never becom
     listings: [row('a', 'EUR', 2350), row('a', 'EUR', 2350),
       row('b', 'USD', 10), row('c', 'EUR', -1), row('d', 'EUR', null)]
   };
-  assert.deepEqual(summarizeListings(body), {
+  const { market, ...summary } = summarizeListings(body);
+  assert.equal(market.activeListings, 4);
+  assert.deepEqual(summary, {
     availableTickets: 8, lowestPriceCents: 2350, currency: 'EUR',
     complete: false, missingPrices: true
   });
