@@ -119,6 +119,7 @@ test('untracked watched festival is cached for future lineup updates without pub
   const updated={...festival,performer:[{name:'Neurosis'},{name:'MONO'}]};
   const newer=await discoverFestivals({...options,trackedArtistNames:['MONO'],watchedUrls:[url],cache,
     now:Date.now()+86400000,fetcher:async u=>u===url?html(updated):month(festival)});
+  assert.deepEqual(newer.events[0].lineup,['Neurosis','MONO']);
   assert.deepEqual(newer.events[0].matchedTracked,['MONO']);
 });
 
