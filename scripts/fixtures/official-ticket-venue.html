@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="nl"><meta charset="utf-8"><title>Concert fixture</title>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "MusicEvent",
+  "name": "Example Band",
+  "startDate": "2027-02-20T20:00:00+01:00",
+  "eventStatus": "https://schema.org/EventScheduled",
+  "location": {
+    "@type": "Place",
+    "name": "TivoliVredenburg",
+    "address": {"addressLocality": "Utrecht", "addressCountry": "NL"}
+  },
+  "offers": [
+    {
+      "@type": "Offer",
+      "sku": "standing-1",
+      "name": "Staanplaats",
+      "url": "/agenda/example/",
+      "seller": {"name": "TivoliVredenburg"},
+      "price": "24.50",
+      "priceCurrency": "EUR",
+      "availability": "https://schema.org/InStock",
+      "eligibleQuantity": {"@type": "QuantitativeValue", "value": 1},
+      "priceSpecification": [
+        {"@type": "UnitPriceSpecification", "name": "Ticketprijs exclusief servicekosten", "price": "24.50", "priceCurrency": "EUR"},
+        {"@type": "UnitPriceSpecification", "name": "Boekingskosten", "price": "2.25", "priceCurrency": "EUR"},
+        {"@type": "UnitPriceSpecification", "name": "Totaalprijs inclusief alle kosten", "price": "26.75", "priceCurrency": "EUR"}
+      ]
+    },
+    {
+      "@type": "Offer",
+      "name": "Balkon",
+      "price": "34.50",
+      "priceCurrency": "EUR",
+      "availability": "https://schema.org/SoldOut"
+    }
+  ]
+}
+</script></html>

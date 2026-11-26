@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { recordOfficialOffer } from './record-official-offer.mjs';
-import { getOfficialComparison, knownOfficialLink, OFFER_MAX_AGE_MS } from '../js/ticket-official.js';
+import { getOfficialComparison, knownOfficialLink, offerWasSuperseded, OFFER_MAX_AGE_MS } from '../js/ticket-official.js';
 import { identity } from '../js/ticketswap-matching.js';
 import { summarizeListings } from './lib/ticketswap-summary.mjs';
 
@@ -72,4 +72,12 @@ test('official link fallback reuses venue provenance or an exact Ticketmaster ev
   assert.equal(knownOfficialLink({ officialUrl: 'https://www.013.nl/programma/example' }), 'https://www.013.nl/programma/example');
   assert.equal(knownOfficialLink({ ticketUrl: 'https://www.podiuminfo.nl/ticket/example' }), null);
   assert.equal(knownOfficialLink({ ticketUrl: 'https://www.ticketmaster.nl.example.org/event/x' }), null);
+});
+
+test('newer stock evidence supersedes older observations for the same official channel and category', () => {
+  const manual = { ...input };
+  const automated = { ...input, availability: 'sold-out', verifiedAt: new Date(now).toISOString() };
+  assert.equal(offerWasSuperseded(manual, [automated]), true);
+  assert.equal(offerWasSuperseded(manual, [{ ...automated, sourceFailed: true }]), false);
+  assert.equal(offerWasSuperseded(manual, [{ ...automated, category: 'Balcony' }]), false);
 });
