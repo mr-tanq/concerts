@@ -9,7 +9,7 @@
 // Cross-origin calls (GitHub API, Supabase relay, Spotify, Last.fm, fonts)
 // are never touched: they pass straight through to the browser.
 
-const CACHE = "lm-shell-v1";
+const CACHE = "lm-shell-v2";
 
 self.addEventListener("install", () => self.skipWaiting());
 
@@ -27,6 +27,11 @@ self.addEventListener("fetch", (event) => {
   if (req.method !== "GET") return;
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
+  // Never serve the former public Watch documents from older offline caches.
+  if (/\/data\/ticket-(?:watches|watch-state)\.json$/.test(url.pathname)) {
+    event.respondWith(new Response(null, { status: 404 }));
+    return;
+  }
 
   const isPage = req.mode === "navigate";
   // One offline copy of the page, keyed without its query string (the

@@ -66,6 +66,8 @@ jobs:
         if: ${{ github.event_name == 'push' || inputs.live }}
         continue-on-error: true
         env:
+          TICKET_WATCH_PRIVATE_REPOSITORY: ${{ vars.TICKET_WATCH_PRIVATE_REPOSITORY }}
+          TICKET_WATCH_PRIVATE_TOKEN: ${{ secrets.TICKET_WATCH_PRIVATE_TOKEN }}
           TICKETSWAP_WATCH_ENABLED: ${{ vars.TICKETSWAP_WATCH_ENABLED }}
           TICKETSWAP_WATCH_CONTRACTS_VERIFIED: ${{ vars.TICKETSWAP_WATCH_CONTRACTS_VERIFIED }}
           TICKETSWAP_INITIAL_CREDITS: ${{ vars.TICKETSWAP_INITIAL_CREDITS }}
@@ -79,7 +81,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add data/ticketswap.json data/ticket-watch-state.json
+          git add data/ticketswap.json
           if git diff --cached --quiet; then exit 0; fi
           git commit -m 'Refresh TicketSwap availability'
           for attempt in 1 2 3; do

@@ -43,11 +43,13 @@ export function watchPreferences({ maxPrice, quantity, categoryId, alerts }) {
 export function updateWatch(previous, concert, preferences) {
   const same = previous?.identity === identity(concert);
   const saved = same ? previous : {};
-  const criteriaChanged = ['quantity', 'categoryId', 'maxCents'].some(key => saved[key] !== preferences[key]);
+  const lotChanged = ['quantity', 'categoryId'].some(key => saved[key] !== preferences[key]);
+  const capChanged = saved.maxCents !== preferences.maxCents;
   return {
     ...saved, ...preferences, identity: identity(concert),
-    paused: saved.paused ?? false,
-    ...(criteriaChanged ? { signals: {}, previousPrice: null } : {})
+    paused: preferences.paused ?? saved.paused ?? false,
+    ...(lotChanged ? { signals: {}, previousPrice: null } : {}),
+    ...(lotChanged || capChanged ? { lastCheckedAt: null } : {})
   };
 }
 
@@ -81,16 +83,22 @@ export function evaluateTicketWatch(watch, concert, entry, now = Date.now()) {
   const previousPrice = sameEvent ? watch.previousPrice : null;
   const comparablePrice = knownPrice ? buyerCents : null;
   const notifications = [...(watch.notifications ?? [])];
+  function notify(kind, extra = {}) {
+    const id = JSON.stringify([entry.event.id, kind, entry.checkedAt, watch.quantity, watch.categoryId]);
+    if (!notifications.some(item => item.id === id)) {
+      notifications.push({ id, kind, checkedAt: entry.checkedAt, buyerCents, ...extra });
+    }
+  }
   const conditions = { available, threshold, lastMinute };
   for (const [kind, active] of Object.entries(conditions)) {
     if (active === true && signals[kind] !== true && watch.alerts.includes(kind)) {
-      notifications.push({ kind, checkedAt: entry.checkedAt, buyerCents });
+      notify(kind);
     }
     if (active !== null) signals[kind] = active;
   }
   if (comparablePrice !== null && Number.isSafeInteger(previousPrice)
     && comparablePrice < previousPrice && watch.alerts.includes('drop')) {
-    notifications.push({ kind: 'drop', checkedAt: entry.checkedAt, buyerCents, previousPrice });
+    notify('drop', { previousPrice });
   }
   return {
     ...watch, eventId: entry.event.id, lastCheckedAt: entry.checkedAt,
@@ -101,7 +109,7 @@ export function evaluateTicketWatch(watch, concert, entry, now = Date.now()) {
 export function planTicketWatchChecks(items, { now = Date.now(), spendableCredits = 0, batchSize = 0 } = {}) {
   if (!Number.isSafeInteger(spendableCredits) || spendableCredits <= 0) return [];
   const due = [];
-  for (const { concert, watch, entry } of items) {
+  for (const { concert, watch, entry, retryAt } of items) {
     if (!watch || watch.paused || watch.identity !== identity(concert) || watchStopReason(concert, now)) continue;
     const current = entry?.identity === watch.identity ? entry : null;
     const days = concertDaysAway(concert, now);
@@ -110,7 +118,8 @@ export function planTicketWatchChecks(items, { now = Date.now(), spendableCredit
     const interestFactor = watch.maxCents !== null || watch.categoryId ? 1 : 2;
     const intervalHours = cadence * budgetFactor * interestFactor;
     const latest = Math.max(Date.parse(current?.checkedAt) || 0, Date.parse(current?.lastAttemptAt) || 0);
-    if (now - latest < intervalHours * hour) continue;
+    const retry = Date.parse(retryAt);
+    if (Number.isFinite(retry) ? now < retry : now - latest < intervalHours * hour) continue;
     const remembered = current?.event?.id && ticketSwapURL(current.event.url)
       && current.event.date === concert.date
       && (!current.event.confirmedByUser || canConfirmTicketSwap(concert, current.event));

@@ -81,7 +81,7 @@ function rememberTypes(row) {
 
 export async function runTicketWatches({
   concerts, watches, state, snapshot, official, spendableCredits,
-  request, now = Date.now(), mode = 'AVAILABLE_ONLY', enrich = false
+  request, refreshWatches, now = Date.now(), mode = 'AVAILABLE_ONLY', enrich = false
 }) {
   const cap = mode === 'FULL_MARKET' ? 5 : 10;
   const concertById = new Map(concerts.map(concert => [concert.id, concert]));
@@ -92,10 +92,14 @@ export async function runTicketWatches({
     const stop = matching ? watchStopReason(concert, now) : 'Concert no longer in Going';
     const sameSettings = previous.revision === watch.revision;
     const monitor = sameSettings ? { ...previous.monitor, ...watch }
-      : updateWatch({ identity: watch.identity, notifications: previous.monitor?.notifications,
-        lastCheckedAt: previous.monitor?.lastCheckedAt, paused: watch.paused }, concert ?? {}, watch);
+      : updateWatch(previous.monitor, concert ?? {}, watch);
     const observation = matching ? latest(appropriate(previous.observation, watch), appropriate(snapshot.entries[id], watch)) : null;
-    return [id, { ...previous, concert, watch, monitor, observation, stop, revision: watch.revision, watchId: watch.watchId }];
+    const recovered = observation?.status === 'ok'
+      && Date.parse(observation.checkedAt) > Date.parse(previous.lastAttemptAt);
+    return [id, {
+      ...previous, concert, watch, monitor, observation, stop, revision: watch.revision, watchId: watch.watchId,
+      ...(!sameSettings || recovered ? { failureCount: 0, retryAt: null, lastError: null } : {})
+    }];
   }));
 
   if (!['AVAILABLE_ONLY', 'FULL_MARKET'].includes(mode)) throw new Error('Invalid watch monitoring mode');
@@ -108,7 +112,7 @@ export async function runTicketWatches({
       const categories = entry.market?.categories ?? [];
       entry = { ...entry, market: { ...entry.market, categories: [...categories, { id: row.watch.categoryId }] } };
     }
-    return { concert: row.concert, watch: row.watch, entry:
+    return { concert: row.concert, watch: row.watch, retryAt: row.retryAt, entry:
       row.lastAttemptAt && entry?.identity === row.watch.identity
         ? { ...entry, lastAttemptAt: [row.lastAttemptAt, entry.lastAttemptAt].filter(Boolean).sort().at(-1) }
         : row.lastAttemptAt ? { identity: row.watch.identity, lastAttemptAt: row.lastAttemptAt } : entry };
@@ -128,19 +132,52 @@ export async function runTicketWatches({
       row.availabilityState = result.complete && !result.market?.missingWatchLots && !result.missingPrices
         ? 'checked' : 'incomplete';
       row.lastError = null;
+      row.failureCount = 0;
+      row.retryAt = null;
     } else {
       if (result?.event?.id && !row.observation) row.observation = result;
       row.availabilityState = result?.status === 'error' ? 'unavailable' : 'unknown';
       row.lastError = result?.status === 'error' ? 'Latest watch check failed.' : null;
+      row.failureCount = row.lastError ? Math.min((row.failureCount ?? 0) + 1, 6) : 0;
+      row.retryAt = row.failureCount
+        ? new Date(now + Math.min(6 * 3600000, 900000 * 2 ** (row.failureCount - 1))).toISOString()
+        : null;
     }
   }
 
+  let stillAuthorized;
   if (request) {
+    const deferred = message => [
+      'Watch permissions changed.', 'TicketSwap credit budget exhausted',
+      'TicketSwap checks temporarily paused', 'TicketSwap credit storage unavailable',
+      'Could not save TicketSwap credit usage'
+    ].includes(message);
+    async function authorized(items) {
+      if (!refreshWatches) return items;
+      try {
+        const current = (await refreshWatches()).entries;
+        return items.filter(item => {
+          const latest = current[item.concertId];
+          const saved = item.watch;
+          return latest && !latest.paused && latest.watchId === saved.watchId
+            && latest.revision === saved.revision && latest.identity === saved.identity;
+        });
+      } catch {
+        return [];
+      }
+    }
     const adapters = createTicketWatchAdapters(request);
     for (const types of groups) {
+      const allowed = await authorized(batchItems.filter(candidate => types.includes(candidate.typeId)));
+      if (!allowed.length) continue;
       let reply;
-      try { reply = await adapters.marketBatch(types, { mode, ...(mode === 'FULL_MARKET' ? { soldFirst: 25 } : {}) }); } catch {}
-      for (const item of batchItems.filter(candidate => types.includes(candidate.typeId))) {
+      try {
+        reply = await adapters.marketBatch([...new Set(allowed.map(item => item.typeId))],
+          { mode, ...(mode === 'FULL_MARKET' ? { soldFirst: 25 } : {}) });
+      } catch (error) {
+        if (deferred(error.message)) continue;
+      }
+      for (const item of allowed) {
         const results = reply?.results.filter(result => result.typeId === item.typeId) ?? [];
         try {
           if (results.length !== 1) throw new Error('Missing or ambiguous category response');
@@ -152,11 +189,15 @@ export async function runTicketWatches({
     }
     for (const item of direct) {
       const previous = latest(item.source, appropriate(snapshot.entries[item.concertId], item.watch));
-      const result = await checkConcert(item.concert, previous, request, new Date(now));
-      recordAttempt(entries[item.concertId], result);
+      const guardedRequest = async (endpoint, params) => {
+        if (!(await authorized([item])).length) throw new Error('Watch permissions changed.');
+        return request(endpoint, params);
+      };
+      const result = await checkConcert(item.concert, previous, guardedRequest, new Date(now));
+      if (!deferred(result.lastError)) recordAttempt(entries[item.concertId], result);
     }
 
-    const known = due.filter(item => entries[item.concertId].observation?.event?.id).slice(0, 10);
+    const known = await authorized(due.filter(item => entries[item.concertId].observation?.event?.id).slice(0, 10));
     if (enrichmentEstimate && known.length) {
       const ids = [...new Set(known.map(item => entries[item.concertId].observation.event.id))];
       try {
@@ -177,7 +218,8 @@ export async function runTicketWatches({
           row.knownTypes = [...types.values()].slice(0, 100);
         }
       } catch {}
-      if (enrichmentEstimate >= 2) {
+      if (enrichmentEstimate >= 2
+        && (await authorized(known.filter(item => entries[item.concertId].observation.event.id === ids[0]))).length) {
         try {
           const demand = await adapters.eventDemand(ids[0]);
           for (const item of known.filter(item => entries[item.concertId].observation.event.id === ids[0])) {
@@ -187,10 +229,14 @@ export async function runTicketWatches({
         } catch {}
       }
     }
+    if (refreshWatches) {
+      const current = await authorized(Object.entries(entries).map(([concertId, row]) => ({ concertId, watch: row.watch })));
+      stillAuthorized = new Set(current.map(item => item.concertId));
+    }
   }
 
   for (const row of Object.values(entries)) {
-    if (!row.stop) {
+    if (!row.stop && (!stillAuthorized || stillAuthorized.has(row.concert.id))) {
       const entry = row.observation;
       row.monitor = evaluateTicketWatch(row.monitor, row.concert, entry, now);
       row.officialComparison = row.watch.quantity === 1

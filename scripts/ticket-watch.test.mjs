@@ -165,9 +165,80 @@ test('new provider transport remains gated and encodes the proposed GET contract
     assert.equal(options.method, 'GET');
     assert.equal(options.body, undefined);
     assert.deepEqual(JSON.parse(url.searchParams.get('event_types')), ['type-a']);
-    return Response.json({ status: 'success', data: { results: [] } });
+    return Response.json({ status: 'success', data: { results: [] } }, {
+      headers: { 'X-Credits-Charged': '1', 'X-Credits-Remaining': 'unknown', 'Retry-After': '7' }
+    });
   };
   await assert.rejects(ticketSwapRequest('get_market_batch', {}), /disabled/);
-  const result = await ticketSwapRequest('get_market_batch', { event_types: ['type-a'] }, undefined, { watch: true });
+  let headers;
+  const result = await ticketSwapRequest('get_market_batch', { event_types: ['type-a'] },
+    value => { headers = value; }, { watch: true });
+  assert.deepEqual(headers, { status: 200, charged: 1, remaining: null, retryAfterMs: 7000 });
   assert.deepEqual(result, { results: [] });
+});
+
+test('paused or stale observations produce no alerts and raising the cap only unlocks the new threshold', async () => {
+  const { updateWatch } = await import('../js/ticket-watch.js');
+  const recent = observation(now, [row(2700)]);
+  const first = evaluateTicketWatch(watch, concert, recent, now);
+  assert.deepEqual(first.notifications.map(item => item.kind), ['available']);
+  const changed = updateWatch(first, concert, { ...watch, maxCents: 2800 });
+  const result = evaluateTicketWatch(changed, concert, recent, now);
+  assert.deepEqual(result.notifications.map(item => item.kind), ['available', 'threshold', 'lastMinute']);
+  const unchanged = updateWatch(result, concert, { ...watch, maxCents: 3000 });
+  assert.equal(evaluateTicketWatch(unchanged, concert, recent, now).notifications.length, 3);
+  const paused = { ...changed, paused: true };
+  assert.equal(evaluateTicketWatch(paused, concert, recent, now), paused);
+  assert.equal(evaluateTicketWatch(changed, concert, recent, now + 7 * 3600000), changed);
+});
+
+test('preference changes between planning and execution prevent paid calls', async () => {
+  const prior = observation(now - 24 * 3600000, [row(3000)]);
+  const options = { concerts: [concert], watches: mockStore({ example: watch }), state: mockStore(),
+    snapshot: mockStore({ example: prior }), official: mockStore(), now, spendableCredits: 4,
+    request: async () => assert.fail('Paid call for changed or paused watch') };
+  for (const changed of [{ ...watch, paused: true }, { ...watch, revision: 'new-revision', quantity: 2 }]) {
+    const result = await runTicketWatches({ ...options, refreshWatches: async () => mockStore({ example: changed }) });
+    assert.equal(result.entries.example.observation.checkedAt, prior.checkedAt);
+    assert.equal(result.entries.example.lastAttemptAt, undefined);
+  }
+});
+
+test('provider failures preserve the observation, retry after backoff, and never flag a budget deferral as a failure', async () => {
+  const prior = observation(now - 24 * 3600000, [row(3000)]);
+  const options = { concerts: [concert], watches: mockStore({ example: watch }), state: mockStore(),
+    snapshot: mockStore({ example: prior }), official: mockStore(), now, spendableCredits: 4 };
+  const failed = await runTicketWatches({ ...options, request: async () => { throw new Error('Upstream failure'); } });
+  assert.equal(failed.entries.example.observation.checkedAt, prior.checkedAt);
+  assert.equal(failed.entries.example.retryAt, new Date(now + 15 * 60000).toISOString());
+  const early = await runTicketWatches({ ...options, state: failed, now: now + 1000,
+    request: async () => assert.fail('Backoff did not hold') });
+  assert.equal(early.estimate.due, 0);
+  const deferred = await runTicketWatches({ ...options, state: failed, now: now + 15 * 60000,
+    request: async () => { throw new Error('TicketSwap credit budget exhausted'); } });
+  assert.equal(deferred.estimate.due, 1);
+  assert.equal(deferred.entries.example.failureCount, 1);
+  assert.equal(deferred.entries.example.lastAttemptAt, failed.entries.example.lastAttemptAt);
+});
+
+test('newly discovered categories combine only for the latest event identity', async () => {
+  const { watchCategoryOptions } = await import('../js/ticket-watch-panel.js');
+  const manual = observation(now, [row(2400)]);
+  const cached = { observation: observation(now + 10, [row(2300)]),
+    knownTypes: [{ eventId: event.id, id: 'balcony', title: 'Balcony' },
+      { eventId: 'another-event', id: 'wrong', title: 'Wrong' }] };
+  assert.deepEqual(watchCategoryOptions(concert, manual, cached), [['balcony', 'Balcony'], ['ga', 'GA']]);
+  const newEvent = { ...manual, checkedAt: new Date(now + 20).toISOString(), event: { id: 'new-event' } };
+  assert.deepEqual(watchCategoryOptions(concert, newEvent, cached), [['ga', 'GA']]);
+  assert.deepEqual(watchCategoryOptions({ ...concert, date: '2027-05-01' }, manual, cached), []);
+});
+
+test('validation plan is offline and has a deterministic five-credit ceiling without retries', async () => {
+  const { ticketWatchValidationPlan } = await import('./plan-ticket-watch-validation.mjs');
+  const plan = ticketWatchValidationPlan();
+  assert.equal(plan.maximumDocumentedCredits, 5);
+  assert.equal(plan.maximumCalls, 5);
+  assert.equal(plan.retries, 0);
+  assert.equal(plan.requiresSeparateOwnerApproval, true);
+  assert.equal(plan.steps.at(-1).onlyWithReturnedCursor, true);
 });

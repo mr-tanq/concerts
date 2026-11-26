@@ -27,6 +27,7 @@ jobs:
   watch:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    environment: ${{ inputs.live && 'ticket-watch-live' || 'ticket-watch-preview' }}
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -43,6 +44,8 @@ jobs:
       - name: Plan or run the requested monitoring pass
         env:
           LIVE: ${{ inputs.live }}
+          TICKET_WATCH_PRIVATE_REPOSITORY: ${{ vars.TICKET_WATCH_PRIVATE_REPOSITORY }}
+          TICKET_WATCH_PRIVATE_TOKEN: ${{ secrets.TICKET_WATCH_PRIVATE_TOKEN }}
           FULL_MARKET: ${{ inputs.full_market }}
           ENRICH: ${{ inputs.enrich }}
           PARSE_API_KEY: ${{ inputs.live && secrets.PARSE_API_KEY || '' }}
@@ -59,10 +62,3 @@ jobs:
           if [[ "$FULL_MARKET" == 'true' ]]; then args+=(--full-market); fi
           if [[ "$ENRICH" == 'true' ]]; then args+=(--enrich); fi
           node scripts/run-ticket-watches.mjs "${args[@]}"
-      - name: Save watch observations and estimates
-        run: |
-          git add data/ticket-watch-state.json
-          if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'Update Smart Ticket Watch'
-          git pull --rebase origin main
-          git push origin HEAD:main
