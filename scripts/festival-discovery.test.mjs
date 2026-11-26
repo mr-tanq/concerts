@@ -5,6 +5,7 @@ import {readFile} from 'node:fs/promises';
 import {parseFestivalEvents,festivalMonthKeys,festivalURL,discoverFestivals,watchedFestivalUrls} from './sources/festivalinfo.mjs';
 import {normalizeArtistName} from './sources/podiuminfo.mjs';
 import {warmupArtists} from '../js/warmup-setlist-model.js';
+import {locationKey,matchesLocation,searchLocation} from '../js/concert-countries.js';
 const url='https://www.festivalinfo.nl/festival/36695/Roadburn/2027/';
 const festival={ '@type':'Festival',url,name:'Roadburn',startDate:'2027-04-15',endDate:'2027-04-18',location:{name:'Roadburn',address:{addressLocality:'Tilburg',addressCountry:'NL'}},performer:[{name:'Neurosis'},{name:'Emma Ruth Rundle'},{name:'Neurosis'}]};
 const html=(e=festival)=>`<script type="application/ld+json">${JSON.stringify(e)}</script>`;
@@ -62,6 +63,13 @@ test('overlapping editions remain discoverable until the last day; country rules
   assert.equal((await run({startDate:'2027-04-17'})).events.length,1);
   assert.equal((await run({startDate:'2027-04-19'})).events.length,0);
   assert.equal((await run({countries:['BE']})).events.length,0);
+});
+test('city filtering uses normalized keys and never leaks a neighbouring city',()=>{
+  const athens={artist:'Roadburn',city:'Αθήνα',venue:'Ολυμπιακό Στάδιο',country:'GR'};
+  assert.equal(locationKey('Athens'),locationKey('Αθήνα'));
+  assert.equal(matchesLocation(athens,searchLocation('Athens, Greece')),true);
+  assert.equal(matchesLocation(athens,searchLocation('Piraeus, Greece')),false);
+  assert.equal(matchesLocation({...athens,city:'Piraeus'},searchLocation('Athens, Greece')),false);
 });
 test('festivals use billed bands in Warm-up and not the festival title',()=>{
   assert.deepEqual(warmupArtists({isFestival:true,artist:'Roadburn',lineup:['Neurosis','Neurosis','Emma Ruth Rundle']}),['Neurosis','Emma Ruth Rundle']);
