@@ -64,7 +64,8 @@ if (!live) {
     if (requestedMode) {
       snapshot.entries[c.id].requestId = requests[c.id].requestId;
     }
-    console.log(c.artist, snapshot.entries[c.id].status);
+    console.log(c.artist, snapshot.entries[c.id].status,
+      snapshot.entries[c.id].lastError || '');
   }
 
   snapshot.updatedAt = now.toISOString();

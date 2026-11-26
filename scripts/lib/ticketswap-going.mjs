@@ -145,14 +145,14 @@ export async function checkConcert(c, old, request, now = new Date(), selectedEv
       lastAttemptAt: stamp,
       lastError: null
     };
-  } catch {
+  } catch (error) {
     return {
       ...(same ? old : {}),
       identity: identity(c),
       ...(event ? { event } : {}),
       status: 'error',
       lastAttemptAt: stamp,
-      lastError: 'TicketSwap check failed'
+      lastError: error instanceof Error ? error.message : 'TicketSwap check failed'
     };
   }
 }
