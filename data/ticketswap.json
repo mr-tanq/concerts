@@ -296,15 +296,74 @@
         "date": "2026-12-03"
       },
       "status": "ok",
-      "availableTickets": 10,
+      "availableTickets": 9,
       "lowestPriceCents": 5180,
       "currency": "EUR",
       "complete": true,
       "missingPrices": false,
-      "checkedAt": "2026-11-26T18:07:20.169Z",
-      "lastAttemptAt": "2026-11-26T18:07:20.169Z",
+      "market": {
+        "activeListings": 5,
+        "watchLotsKnown": true,
+        "missingWatchLots": true,
+        "buyerPrices": {
+          "low": 5180,
+          "high": 5916,
+          "median": 5841,
+          "listingsCounted": 5
+        },
+        "cheapest": {
+          "buyerTotalCents": 5180,
+          "sellerCents": 4700,
+          "originalCents": 5100,
+          "feeDifferenceCents": 480,
+          "url": "https://www.ticketswap.com/listing/syml-metropole-orkest/22900860/31e0277cd4"
+        },
+        "categories": [
+          {
+            "id": "RXZlbnRUeXBlOjU4MzM0Nzc=",
+            "title": "Regular",
+            "availableTickets": 9,
+            "activeListings": 5,
+            "buyerPrices": {
+              "low": 5180,
+              "high": 5916,
+              "median": 5841,
+              "listingsCounted": 5
+            },
+            "watchLots": [
+              {
+                "quantity": 2,
+                "buyerCents": 5180,
+                "missingPrice": false
+              }
+            ]
+          }
+        ]
+      },
+      "checkedAt": "2026-11-26T22:23:12.430Z",
+      "lastAttemptAt": "2026-11-26T22:23:12.430Z",
       "lastError": null,
-      "requestId": "727590c6-51a2-4dc8-8430-2cfd25febe0a"
+      "marketHistory": [
+        {
+          "checkedAt": "2026-11-26T18:07:20.169Z",
+          "availableTickets": 10,
+          "lowestPriceCents": 5180,
+          "medianPriceCents": null,
+          "originalPriceCents": null,
+          "complete": true,
+          "missingPrices": false
+        },
+        {
+          "checkedAt": "2026-11-26T22:23:12.430Z",
+          "availableTickets": 9,
+          "lowestPriceCents": 5180,
+          "medianPriceCents": 5841,
+          "originalPriceCents": 5100,
+          "complete": true,
+          "missingPrices": false
+        }
+      ],
+      "requestId": "b579a07e-bf52-4d1f-b08f-15ab6344ef33"
     },
     "planned-podiuminfo-486829": {
       "identity": "[\"Terror\",\"2026-12-02\",\"Patronaat\",\"Haarlem\",\"NL\"]",
@@ -326,5 +385,5 @@
       "requestId": "5e8bd023-9c13-4c8e-b445-5a39c5ffc040"
     }
   },
-  "updatedAt": "2026-11-26T18:07:20.169Z"
+  "updatedAt": "2026-11-26T22:23:16.976Z"
 }
