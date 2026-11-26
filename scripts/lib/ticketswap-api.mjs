@@ -10,24 +10,51 @@ export async function ticketSwapRequest(endpoint, params) {
   const key = process.env.PARSE_API_KEY;
   if (!key) throw new Error("Missing PARSE_API_KEY");
 
-  const response = await fetch(`${BASE}/${endpoint}`, {
-    method: "POST",
-    headers: {
-      "X-API-Key": key,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(params),
-    signal: AbortSignal.timeout(60000)
-  });
+  let response;
+  try {
+    response = await fetch(`${BASE}/${endpoint}`, {
+      method: "POST",
+      headers: {
+        "X-API-Key": key,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(params),
+      signal: AbortSignal.timeout(60000)
+    });
+  } catch (error) {
+    throw new Error(`TicketSwap ${endpoint}: ${error?.name === "TimeoutError" ? "request timed out" : "network request failed"}`);
+  }
 
   if (!response.ok) {
-    throw new Error(`TicketSwap request failed: HTTP ${response.status}`);
+    let details = "";
+    try {
+      const body = await response.json();
+      const error = body?.error;
+      if (typeof error?.kind === "string" && /^[a-z0-9_]{1,60}$/i.test(error.kind)) {
+        details += `, ${error.kind}`;
+      }
+      if (Number.isInteger(error?.upstream_status_code)) {
+        details += `, upstream HTTP ${error.upstream_status_code}`;
+      }
+    } catch {}
+    throw new Error(`TicketSwap ${endpoint}: HTTP ${response.status}${details}`);
   }
 
-  const result = await response.json();
-  if (result.status !== "success" || result.data == null) {
-    throw new Error("TicketSwap returned an unsuccessful response");
+  let result;
+  try {
+    result = await response.json();
+  } catch {
+    throw new Error(`TicketSwap ${endpoint}: invalid JSON response`);
   }
-
-  return result.data;
+  if (!result || typeof result !== "object" || Array.isArray(result)) {
+    throw new Error(`TicketSwap ${endpoint}: invalid response`);
+  }
+  if ("status" in result || "data" in result) {
+    if (result.status !== "success" || result.data == null) {
+      throw new Error(`TicketSwap ${endpoint}: unsuccessful response`);
+    }
+    return result.data;
+  }
+  if ("error" in result) throw new Error(`TicketSwap ${endpoint}: unsuccessful response`);
+  return result;
 }

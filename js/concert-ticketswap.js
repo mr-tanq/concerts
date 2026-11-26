@@ -141,7 +141,9 @@ async function renderTicketSwap(host, concert) {
     if (entry.status === 'error') {
       const error = document.createElement('p');
       error.className = 'footnote';
-      error.textContent = 'Latest check failed.';
+      error.textContent = entry.lastError
+        ? `Latest check failed: ${entry.lastError}`
+        : 'Latest check failed.';
       section.append(error);
     }
 
