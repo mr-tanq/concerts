@@ -1,17 +1,17 @@
 {
   "$schema": "Listening Mirror Recommendations Schema v2",
   "meta": {
-    "lastUpdated": "2026-11-25T22:02:09.709Z",
+    "lastUpdated": "2026-11-26T17:41:00.069Z",
     "generatedBy": "discover-concerts.mjs",
     "runStatus": "SUCCESS",
     "crawl": {
       "daysTotal": 548,
-      "daysFresh": 0,
-      "daysCached": 548,
+      "daysFresh": 548,
+      "daysCached": 0,
       "daysStale": 0,
       "daysMissing": 0,
       "concertsFailed": 0,
-      "concertsOpened": 0,
+      "concertsOpened": 2,
       "rejectedByLineup": 0
     },
     "festivals": {
@@ -21,12 +21,12 @@
       "editionsFailed": 0,
       "editionsStale": 0,
       "watchedUrls": 16,
-      "watchedRecovered": 3,
+      "watchedRecovered": 4,
       "revisited": 0,
       "official": {
         "sources": 2,
-        "verified": 0,
-        "reused": 2,
+        "verified": 2,
+        "reused": 0,
         "failed": 0,
         "published": 2,
         "merge": {
@@ -37,5 +37,184 @@
       }
     }
   },
-  "concerts": []
+  "concerts": [
+    {
+      "id": "rec-podiuminfo-504554",
+      "source": "podiuminfo",
+      "sourceId": "504554",
+      "artist": "CAKE",
+      "lineup": [
+        "CAKE"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "CAKE"
+      ],
+      "date": "2027-06-08",
+      "time": null,
+      "venue": "Doornroosje",
+      "city": "Nijmegen",
+      "country": "NL",
+      "isFestival": false,
+      "image": "https://www.festivalinfo.nl/img/artist/15086/100_Editors_2.jpg",
+      "ticketUrl": "https://www.podiuminfo.nl/ticket/145813/cd/CAKE/Doornroosje/",
+      "sourceApis": [
+        "podiuminfo"
+      ],
+      "sourceUrl": "https://www.podiuminfo.nl/concert/504554/CAKE/Doornroosje/",
+      "match": {
+        "score": 49,
+        "label": "Strong match",
+        "matchedBy": "direct",
+        "reason": "Known artist: CAKE",
+        "matchedArtists": [
+          "CAKE"
+        ],
+        "similarVia": null
+      },
+      "discoveredAt": "2026-11-26T17:41:00.069Z",
+      "lastSeenAt": "2026-11-26T17:41:00.069Z"
+    },
+    {
+      "id": "rec-festivalinfo-37617",
+      "source": "festivalinfo",
+      "sourceId": "37617",
+      "artist": "CuliNESSE",
+      "festivalName": "CuliNESSE",
+      "endDate": "2027-08-28",
+      "lineup": [
+        "Clouseau",
+        "Danny Vera",
+        "Son Mieux",
+        "Suzan & Freek",
+        "Roxy Dekker",
+        "Frenna"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Son Mieux"
+      ],
+      "date": "2027-08-26",
+      "time": null,
+      "venue": "CuliNESSE",
+      "city": "Rotterdam",
+      "country": "NL",
+      "isFestival": true,
+      "image": null,
+      "ticketUrl": "https://www.festivalinfo.nl/ticket/145729/df/CuliNESSE-2027/",
+      "sourceApis": [
+        "festivalinfo"
+      ],
+      "sourceUrl": "https://www.festivalinfo.nl/festival/37617/CuliNESSE/2027/",
+      "match": {
+        "score": 35,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Haevn",
+        "matchedArtists": [
+          "Son Mieux"
+        ],
+        "similarVia": "Haevn"
+      },
+      "discoveredAt": "2026-11-26T17:41:00.069Z",
+      "lastSeenAt": "2026-11-26T17:41:00.069Z"
+    },
+    {
+      "id": "rec-festivalinfo-36314",
+      "source": "festivalinfo",
+      "sourceId": "36314",
+      "artist": "Rewire Festival",
+      "festivalName": "Rewire Festival",
+      "endDate": "2027-11-08",
+      "lineup": [
+        "Ryley Walker",
+        "Gilla Band",
+        "Marina Herlop",
+        "Diamanda Galas",
+        "Atlas Sound",
+        "Rosa Pistola",
+        "Big|Brave",
+        "William Basinski",
+        "Helen",
+        "Fatima Al Qadiri",
+        "Robert Henke",
+        "Mark William Lewis",
+        "Vanishing Twin",
+        "Bendik Giske",
+        "Eartheater",
+        "Lorenzo Senni",
+        "Dewa Alit & Gamelan Salukat",
+        "Blackhaine",
+        "Tara Clerkin Trio",
+        "Barker",
+        "L'Rain",
+        "Tim Hecker & Vincent de Belleval",
+        "Dawuna",
+        "Gyrofield",
+        "Hayden Pedigo",
+        "KAVARI",
+        "EarthBall",
+        "Diles Que No Me Maten",
+        "Superfan",
+        "Curbside Lambsear",
+        "Nu Jazz",
+        "yuniya edi kwon",
+        "Setting",
+        "Richie Culver",
+        "Precious Renee Tucker",
+        "Neffa-T",
+        "ML Buch Ensemble",
+        "Mali Obomsawin",
+        "Jay Mitta",
+        "Jad Atoui",
+        "I’A’V",
+        "heavensouls",
+        "Charlie Osborne",
+        "B0YG1RL",
+        "Sideshow",
+        "Whitney Johnson, Lia Kohl & Macie Stewart",
+        "Space Afrika & Ensemble",
+        "Saint Abdullah, Eomac & Rebecca Salvadori",
+        "Panda Bear & Sonic Boom",
+        "Mabe Fratti & Bill Orcutt",
+        "Hanne Lippard & Renato Grieco",
+        "Colin Stetson, Greg Fox & Trevor Dunn",
+        "Carmen Villain & Ensemble",
+        "Brìghde Chaimbeul & Colin Stetson",
+        "Basma & Temir Alcy",
+        "Anna Butterss, John Raymond & Ben Lumsdaine",
+        "Klara Lewis",
+        "Sarah Davachi",
+        "Christina Kubisch"
+      ],
+      "supportingArtists": [],
+      "matchedArtists": [
+        "Eartheater"
+      ],
+      "date": "2027-11-08",
+      "time": null,
+      "venue": "Rewire Festival",
+      "city": "Den Haag",
+      "country": "NL",
+      "isFestival": true,
+      "image": null,
+      "ticketUrl": null,
+      "sourceApis": [
+        "festivalinfo"
+      ],
+      "sourceUrl": "https://www.festivalinfo.nl/festival/36314/Rewire-Festival/2027/",
+      "match": {
+        "score": 35,
+        "label": "Possible match",
+        "matchedBy": "similar",
+        "reason": "Similar to Björk",
+        "matchedArtists": [
+          "Eartheater"
+        ],
+        "similarVia": "Björk"
+      },
+      "discoveredAt": "2026-11-26T17:41:00.069Z",
+      "lastSeenAt": "2026-11-26T17:41:00.069Z"
+    }
+  ]
 }
