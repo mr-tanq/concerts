@@ -3178,3 +3178,35 @@ details.season-overview .season-chart { border-top: 0; margin-top: 10px; padding
 .ticketswap-history-bar.is-sampled { background: var(--bone-dim); }
 
 .official-ticket-check button { min-height: 44px; }
+.ticket-watch form,
+.ticket-watch fieldset {
+  display: grid;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.ticket-watch label { display: block; }
+
+.ticket-watch input:not([type="checkbox"]),
+.ticket-watch select {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  padding: 8px;
+  color: var(--bone);
+  background: var(--black-2);
+  border: 1px solid var(--hair-strong);
+  border-radius: var(--r-sm);
+}
+
+.ticket-watch fieldset {
+  min-width: 0;
+  border: 1px solid var(--hair);
+}
+
+.ticket-watch input[type="checkbox"] { margin-right: 8px; }
+.ticket-watch button + button { margin-left: 10px; }
+
+.ticket-watch button { min-height: 44px; }
+.ticket-watch-list { margin-bottom: 18px; }
+.ticket-watch-list article { padding: 10px 0 12px; border-top: 1px solid var(--hair); }

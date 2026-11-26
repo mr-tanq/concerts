@@ -61,3 +61,16 @@ export function offerWasSuperseded(offer, offers) {
     && (other.seller === offer.seller || other.purchaseUrl === offer.purchaseUrl)
     && Date.parse(other.verifiedAt) > Date.parse(offer.verifiedAt));
 }
+
+export function watchOfficialComparison(record, resale, categoryId, now = Date.now()) {
+  if (!resale || record?.identity !== resale.identity) return null;
+  const offers = [...(record.offers ?? []), ...Object.values(record.providerChecks ?? {})
+    .filter(check => check.status === 'verified').flatMap(check => check.offers)];
+  for (const offer of offers) {
+    if ((categoryId && offer.resaleTypeId !== categoryId) || offerWasSuperseded(offer, offers)) continue;
+    const result = getOfficialComparison(offer, resale, now);
+    if (result) return { ...result, category: offer.category, seller: offer.seller,
+      purchaseUrl: offer.purchaseUrl, verifiedAt: offer.verifiedAt };
+  }
+  return null;
+}

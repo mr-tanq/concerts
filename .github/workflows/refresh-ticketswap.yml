@@ -62,12 +62,24 @@ jobs:
           TICKETSWAP_REQUESTS: ${{ github.event_name == 'push' }}
         run: node scripts/refresh-ticketswap.mjs --live
 
+      - name: Evaluate watches from saved observations
+        if: ${{ github.event_name == 'push' || inputs.live }}
+        continue-on-error: true
+        env:
+          TICKETSWAP_WATCH_ENABLED: ${{ vars.TICKETSWAP_WATCH_ENABLED }}
+          TICKETSWAP_WATCH_CONTRACTS_VERIFIED: ${{ vars.TICKETSWAP_WATCH_CONTRACTS_VERIFIED }}
+          TICKETSWAP_INITIAL_CREDITS: ${{ vars.TICKETSWAP_INITIAL_CREDITS }}
+          TICKETSWAP_DAILY_LIMIT: ${{ vars.TICKETSWAP_DAILY_LIMIT }}
+          TICKETSWAP_MONTHLY_LIMIT: ${{ vars.TICKETSWAP_MONTHLY_LIMIT }}
+          TICKETSWAP_CREDIT_RESERVE: ${{ vars.TICKETSWAP_CREDIT_RESERVE }}
+        run: node scripts/run-ticket-watches.mjs --publish-preview
+
       - name: Save availability
         if: ${{ github.event_name == 'push' || inputs.live }}
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add data/ticketswap.json
+          git add data/ticketswap.json data/ticket-watch-state.json
           if git diff --cached --quiet; then exit 0; fi
           git commit -m 'Refresh TicketSwap availability'
           for attempt in 1 2 3; do

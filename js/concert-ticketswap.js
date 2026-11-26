@@ -1,3 +1,4 @@
+import { renderTicketWatch } from './ticket-watch-panel.js';
 import { renderOfficialPanel } from './ticketswap-official-panel.js';
 import { attachTicketSwapCheck } from './ticketswap-check.js?v=universal-ticket-match-20261015';
 import { canConfirmTicketSwap, identity, ticketSwapURL } from './ticketswap-matching.js';
@@ -37,7 +38,7 @@ async function renderTicketSwap(host, concert, officialOpen = false) {
     const entry = data.entries?.[concert.id];
     if (!entry || entry.identity !== identity(concert)) {
       host.replaceChildren(document.createTextNode('This concert has not been checked yet.'),
-        officialPanel(null));
+        officialPanel(null), renderTicketWatch(concert, null));
       return;
     }
 
@@ -166,11 +167,11 @@ async function renderTicketSwap(host, concert, officialOpen = false) {
 
     const market = renderTicketSwapMarket(entry);
     if (market) section.append(market);
-    section.append(officialPanel(snapshotStale ? null : entry));
+    section.append(officialPanel(snapshotStale ? null : entry), renderTicketWatch(concert, entry));
     host.replaceChildren(section);
   } catch {
     host.replaceChildren(document.createTextNode('Could not load TicketSwap results. Close and try again.'),
-      officialPanel(null));
+      officialPanel(null), renderTicketWatch(concert, null));
   }
 }
 

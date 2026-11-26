@@ -1,0 +1,68 @@
+name: Smart Ticket Watch
+
+on:
+  workflow_dispatch:
+    inputs:
+      live:
+        type: boolean
+        description: Use credits for this run (requires explicit repository opt-in)
+        default: false
+      full_market:
+        type: boolean
+        description: Include sampled SOLD listings in category batches
+        default: false
+      enrich:
+        type: boolean
+        description: Allow up to two additional calls for demand and SOLD event sampling
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ticketswap-going
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Load latest watch preferences and credit ledger
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --ff-only origin main
+      - name: Plan or run the requested monitoring pass
+        env:
+          LIVE: ${{ inputs.live }}
+          FULL_MARKET: ${{ inputs.full_market }}
+          ENRICH: ${{ inputs.enrich }}
+          PARSE_API_KEY: ${{ inputs.live && secrets.PARSE_API_KEY || '' }}
+          TICKETSWAP_WATCH_ENABLED: ${{ vars.TICKETSWAP_WATCH_ENABLED }}
+          TICKETSWAP_WATCH_CONTRACTS_VERIFIED: ${{ vars.TICKETSWAP_WATCH_CONTRACTS_VERIFIED }}
+          TICKETSWAP_INITIAL_CREDITS: ${{ vars.TICKETSWAP_INITIAL_CREDITS }}
+          TICKETSWAP_DAILY_LIMIT: ${{ vars.TICKETSWAP_DAILY_LIMIT }}
+          TICKETSWAP_MONTHLY_LIMIT: ${{ vars.TICKETSWAP_MONTHLY_LIMIT }}
+          TICKETSWAP_CREDIT_RESERVE: ${{ vars.TICKETSWAP_CREDIT_RESERVE }}
+          TICKETSWAP_TRUST_CREDIT_HEADERS: ${{ vars.TICKETSWAP_TRUST_CREDIT_HEADERS }}
+        run: |
+          args=(--publish-preview)
+          if [[ "$LIVE" == 'true' ]]; then args+=(--live); fi
+          if [[ "$FULL_MARKET" == 'true' ]]; then args+=(--full-market); fi
+          if [[ "$ENRICH" == 'true' ]]; then args+=(--enrich); fi
+          node scripts/run-ticket-watches.mjs "${args[@]}"
+      - name: Save watch observations and estimates
+        run: |
+          git add data/ticket-watch-state.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Update Smart Ticket Watch'
+          git pull --rebase origin main
+          git push origin HEAD:main
