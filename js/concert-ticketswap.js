@@ -1,37 +1,18 @@
 import { attachTicketSwapCheck } from './ticketswap-check.js?v=universal-ticket-match-20261015';
-let snapshotPromise;
+import { canConfirmTicketSwap, identity, ticketSwapURL } from './ticketswap-matching.js';
+import { createSnapshotCache } from './ticketswap-snapshot.js';
 
-const identity = c => JSON.stringify([
-  c.artist, c.date, c.venue, c.city, c.country
-]);
-
-function safeURL(value) {
-  try {
-    const u = new URL(value);
-    return u.protocol === 'https:'
-      && ['ticketswap.com', 'www.ticketswap.com'].includes(u.hostname)
-      && !u.username && !u.password
-      ? u.href : null;
-  } catch {
-    return null;
-  }
-}
+const snapshot = createSnapshotCache(async () => {
+  const response = await fetch('data/ticketswap.json', { cache: 'no-store' });
+  if (!response.ok) throw new Error('Snapshot unavailable');
+  return response.json();
+});
 
 async function renderTicketSwap(host, concert) {
   if (!host) return;
 
   try {
-    snapshotPromise ||= fetch('data/ticketswap.json', { cache: 'no-store' })
-      .then(r => {
-        if (!r.ok) throw new Error('Snapshot unavailable');
-        return r.json();
-      })
-      .catch(e => {
-        snapshotPromise = null;
-        throw e;
-      });
-
-    const data = await snapshotPromise;
+    const { data, stale: snapshotStale } = await snapshot.load();
     if (!host.isConnected) return;
 
     const entry = data.entries?.[concert.id];
@@ -77,18 +58,17 @@ async function renderTicketSwap(host, concert) {
     section.style.cssText =
       'border-top:1px solid var(--hair);padding:18px 0';
 
-    const label = document.createElement('p');
-    label.className = 'whisper';
-    label.textContent = 'TicketSwap';
-
     const summary = document.createElement('p');
     summary.className = 'footnote';
     summary.textContent = text;
     section.append(summary);
 
-    if (entry.status === 'needs-review') {
-      for (const candidate of entry.matchCandidates || []) {
-        const candidateURL = safeURL(candidate.url);
+    if (entry.status === 'needs-review' || (entry.status === 'error' && !entry.event)) {
+      const candidates = (entry.matchCandidates || []).filter(candidate =>
+        canConfirmTicketSwap(concert, candidate));
+      if (!candidates.length && entry.status === 'needs-review') summary.textContent = 'No event could be safely confirmed.';
+      for (const candidate of candidates) {
+        const candidateURL = ticketSwapURL(candidate.url);
         if (!candidateURL) continue;
 
         const link = document.createElement('a');
@@ -106,7 +86,7 @@ async function renderTicketSwap(host, concert) {
           const choice = document.createElement('div');
 
           attachTicketSwapCheck(choice, concert, async updated => {
-            snapshotPromise = Promise.resolve(updated);
+            snapshot.publish(updated);
             await renderTicketSwap(host, concert);
           }, {
             selectedEventId: candidate.id,
@@ -118,9 +98,9 @@ async function renderTicketSwap(host, concert) {
       }
     }
 
-    const checkedAt = Date.parse(entry.checkedAt);
+    const checkedAt = Number.isSafeInteger(entry.availableTickets) ? Date.parse(entry.checkedAt) : NaN;
     if (Number.isFinite(checkedAt)) {
-      const stale = entry.status === 'error'
+      const stale = snapshotStale || entry.status === 'error'
         || Date.now() - checkedAt > 6 * 3600000;
 
       const checked = document.createElement('p');
@@ -138,6 +118,12 @@ async function renderTicketSwap(host, concert) {
       section.append(checked);
     }
 
+    if (snapshotStale) {
+      const notice = document.createElement('p');
+      notice.textContent = 'Could not refresh saved results.';
+      section.append(notice);
+    }
+
     if (entry.status === 'error') {
       const error = document.createElement('p');
       error.className = 'footnote';
@@ -147,7 +133,7 @@ async function renderTicketSwap(host, concert) {
       section.append(error);
     }
 
-    const url = safeURL(entry.event?.url);
+    const url = ticketSwapURL(entry.event?.url);
     if (url) {
       const link = document.createElement('a');
       link.className = 'plain-act';
@@ -185,8 +171,7 @@ export function mountTicketSwap(host, concert) {
   panel.append(results, controls);
 
   attachTicketSwapCheck(controls, concert, async data => {
-    snapshotPromise = Promise.resolve(data);
-    results.replaceChildren();
+    snapshot.publish(data);
     await renderTicketSwap(results, concert);
   });
 
@@ -197,10 +182,10 @@ export function mountTicketSwap(host, concert) {
     panel.hidden = !panel.hidden;
     button.setAttribute('aria-expanded', String(!panel.hidden));
 
-    if (panel.hidden || loading || results.childNodes.length) return;
+    if (panel.hidden || loading) return;
 
     loading = true;
-    results.textContent = 'Loading saved results…';
+    if (!results.childNodes.length) results.textContent = 'Loading saved results…';
     await renderTicketSwap(results, concert);
     loading = false;
   });

@@ -4,18 +4,35 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
+
+concurrency:
+  group: ticketswap-going
+  cancel-in-progress: false
 
 jobs:
   test:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Load latest main for the serialized worker
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --ff-only origin main
       - name: Check TicketSwap event and available listings
         env:
           PARSE_API_KEY: ${{ secrets.PARSE_API_KEY }}
+          TICKETSWAP_INITIAL_CREDITS: ${{ vars.TICKETSWAP_INITIAL_CREDITS }}
+          TICKETSWAP_DAILY_LIMIT: ${{ vars.TICKETSWAP_DAILY_LIMIT }}
+          TICKETSWAP_MONTHLY_LIMIT: ${{ vars.TICKETSWAP_MONTHLY_LIMIT }}
+          TICKETSWAP_CREDIT_RESERVE: ${{ vars.TICKETSWAP_CREDIT_RESERVE }}
+          TICKETSWAP_TRUST_CREDIT_HEADERS: ${{ vars.TICKETSWAP_TRUST_CREDIT_HEADERS }}
         run: node scripts/test-ticketswap.mjs

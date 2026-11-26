@@ -1,13 +1,10 @@
+import { identity } from './ticketswap-matching.js';
 import {
   getGithubConfig, getFile, putFile, isConflictError
 } from './github-api.js';
 
 const QUEUE = 'data/ticketswap-requests.json';
 const RESULTS = 'data/ticketswap.json';
-const identity = c => JSON.stringify([
-  c.artist, c.date, c.venue, c.city, c.country
-]);
-
 async function readOrEmpty(config, path, empty) {
   try {
     return await getFile(config, path);

@@ -14,7 +14,7 @@ const event = change => ({
   uri: { url: 'https://www.ticketswap.com/event/example' },
   ...change
 });
-const result = (items, page = {}) =>
+const result = (items, page = { hasNextPage: false }) =>
   resolveTicketSwap(concert, items, page).status;
 
 test('venue prefixes, casing and accents', () => {

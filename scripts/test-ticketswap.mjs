@@ -1,4 +1,7 @@
-import { ticketSwapRequest } from "./lib/ticketswap-api.mjs";
+import { createWorkerRequest } from "./lib/ticketswap-worker.mjs";
+import { summarizeListings } from "./lib/ticketswap-summary.mjs";
+
+const ticketSwapRequest = await createWorkerRequest();
 
 const search = await ticketSwapRequest("search_events", {
   query: "Lambert"
@@ -38,4 +41,5 @@ const listings = await ticketSwapRequest("get_event_listings", {
 });
 
 console.log("Available listings:");
-console.log(JSON.stringify(listings, null, 2));
+if (listings.event_id !== event.id) throw new Error("Wrong event");
+console.log(summarizeListings(listings));

@@ -26,6 +26,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -41,10 +43,22 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' && !inputs.live }}
         run: node scripts/refresh-ticketswap.mjs
 
+      - name: Load latest main for the serialized worker
+        if: ${{ github.event_name == 'push' || inputs.live }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git pull --ff-only origin main
+
       - name: Check TicketSwap
         if: ${{ github.event_name == 'push' || inputs.live }}
         env:
           PARSE_API_KEY: ${{ secrets.PARSE_API_KEY }}
+          TICKETSWAP_INITIAL_CREDITS: ${{ vars.TICKETSWAP_INITIAL_CREDITS }}
+          TICKETSWAP_DAILY_LIMIT: ${{ vars.TICKETSWAP_DAILY_LIMIT }}
+          TICKETSWAP_MONTHLY_LIMIT: ${{ vars.TICKETSWAP_MONTHLY_LIMIT }}
+          TICKETSWAP_CREDIT_RESERVE: ${{ vars.TICKETSWAP_CREDIT_RESERVE }}
+          TICKETSWAP_TRUST_CREDIT_HEADERS: ${{ vars.TICKETSWAP_TRUST_CREDIT_HEADERS }}
           TICKETSWAP_REQUESTS: ${{ github.event_name == 'push' }}
         run: node scripts/refresh-ticketswap.mjs --live
 

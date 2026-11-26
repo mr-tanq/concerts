@@ -1,9 +1,17 @@
 const BASE =
   "https://api.parse.bot/scraper/4a34adf3-5a3c-4e01-ad98-1cc9204d5dbd";
 
-export async function ticketSwapRequest(endpoint, params) {
-  const allowed = new Set(["search_events", "get_event_listings"]);
-  if (!allowed.has(endpoint)) {
+import { endpointCosts } from './ticketswap-budget.mjs';
+
+function creditHeader(headers, name) {
+  const value = headers?.get(name);
+  if (typeof value !== 'string' || !/^\d+$/.test(value)) return null;
+  const number = Number(value);
+  return Number.isSafeInteger(number) ? number : null;
+}
+
+export async function ticketSwapRequest(endpoint, params, onResponse = () => {}) {
+  if (!Object.hasOwn(endpointCosts, endpoint)) {
     throw new Error("Unsupported TicketSwap endpoint");
   }
 
@@ -14,6 +22,7 @@ export async function ticketSwapRequest(endpoint, params) {
   try {
     response = await fetch(`${BASE}/${endpoint}`, {
       method: "POST",
+      redirect: "error",
       headers: {
         "X-API-Key": key,
         "Content-Type": "application/json"
@@ -24,6 +33,13 @@ export async function ticketSwapRequest(endpoint, params) {
   } catch (error) {
     throw new Error(`TicketSwap ${endpoint}: ${error?.name === "TimeoutError" ? "request timed out" : "network request failed"}`);
   }
+
+  onResponse({
+    status: response.status,
+    charged: creditHeader(response.headers, 'X-Credits-Charged'),
+    remaining: creditHeader(response.headers, 'X-Credits-Remaining'),
+    retryAfterMs: (creditHeader(response.headers, 'Retry-After') ?? 0) * 1000
+  });
 
   if (!response.ok) {
     let details = "";
