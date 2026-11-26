@@ -1,6 +1,6 @@
 import { selectRequestedConcerts } from './lib/ticketswap-requests.mjs';
 import { readFile, writeFile, rename } from 'node:fs/promises';
-import { ticketSwapRequest } from './lib/ticketswap-api.mjs';
+import { createWorkerRequest } from './lib/ticketswap-worker.mjs';
 import { selectConcerts, checkConcert } from './lib/ticketswap-going.mjs';
 
 const live = process.argv.includes('--live');
@@ -54,11 +54,11 @@ console.table(selected.map(c => ({
 if (!live) {
   console.log('DRY RUN OK — no API calls, no credits used, no data written.');
 } else if (selected.length) {
-  if (!process.env.PARSE_API_KEY) throw new Error('Missing PARSE_API_KEY');
+  const request = await createWorkerRequest();
 
   for (const c of selected) {
     snapshot.entries[c.id] = await checkConcert(
-      c, snapshot.entries[c.id], ticketSwapRequest, now,
+      c, snapshot.entries[c.id], request, new Date(),
       requestedMode ? requests[c.id].selectedEventId : null
     );
     if (requestedMode) {
@@ -68,7 +68,7 @@ if (!live) {
       snapshot.entries[c.id].lastError || '');
   }
 
-  snapshot.updatedAt = now.toISOString();
+  snapshot.updatedAt = new Date().toISOString();
   await writeFile('data/ticketswap.json.tmp', JSON.stringify(snapshot, null, 2) + '\n');
   await rename('data/ticketswap.json.tmp', 'data/ticketswap.json');
 }

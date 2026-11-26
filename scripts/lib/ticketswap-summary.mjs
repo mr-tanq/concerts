@@ -13,13 +13,13 @@ export function summarizeListings(data) {
   let missingPrices = false;
 
   for (const listing of data.listings) {
-    if (!listing.id) throw new Error("Missing listing ID");
-    if (seen.has(listing.id)) continue;
-    seen.add(listing.id);
-
+    if (typeof listing?.id !== 'string' || !listing.id.trim()) throw new Error("Missing listing ID");
     if (listing.event?.id !== data.event_id) {
       throw new Error("Listing belongs to a different event");
     }
+
+    if (seen.has(listing.id)) continue;
+    seen.add(listing.id);
 
     const count = listing.number_of_available_tickets;
     if (!Number.isSafeInteger(count) || count < 0) {
@@ -28,6 +28,9 @@ export function summarizeListings(data) {
     if (!count) continue;
 
     availableTickets += count;
+    if (!Number.isSafeInteger(availableTickets)) {
+      throw new Error("Invalid total available ticket count");
+    }
 
     const price = listing.converted_price?.total_price
       ?? listing.price?.total_price;

@@ -1,6 +1,4 @@
-const identity = c => JSON.stringify([
-  c.artist, c.date, c.venue, c.city, c.country
-]);
+import { identity } from './ticketswap-matching.mjs';
 
 export function selectRequestedConcerts(
   concerts, entries, requests, now = new Date()

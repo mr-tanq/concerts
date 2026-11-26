@@ -112,3 +112,16 @@ test('failed checks preserve the confirmed event for retry', async () => {
   const retried = await checkConcert(c, failed, listings, now);
   assert.equal(retried.status, 'ok');
 });
+
+test('a failed alternate selection keeps successful observations attached to their event', async () => {
+  const previous = await checkConcert(c, old(), listings, now, 'chosen');
+  const next = await checkConcert(c, {
+    ...previous, matchCandidates: [{ ...candidate, id: 'alternate' }]
+  }, async () => { throw new Error('offline'); }, new Date(now.getTime() + 1000), 'alternate');
+  assert.equal(next.status, 'error');
+  assert.equal(next.checkedAt, previous.checkedAt);
+  assert.notEqual(next.lastAttemptAt, previous.lastAttemptAt);
+  assert.equal(next.availableTickets, previous.availableTickets);
+  assert.equal(next.lowestPriceCents, previous.lowestPriceCents);
+  assert.equal(next.event.id, 'chosen');
+});

@@ -1,15 +1,9 @@
-import { resolveTicketSwap, reviewCandidates, ticketSwapURL } from './ticketswap-matching.mjs';
+import {
+  resolveTicketSwap, reviewCandidates, ticketSwapURL, identity, canConfirmTicketSwap
+} from './ticketswap-matching.mjs';
 import { summarizeListings } from './ticketswap-summary.mjs';
 
-const norm = value => String(value ?? '')
-  .normalize('NFKD')
-  .replace(/[\u0300-\u036f]/g, '')
-  .toLowerCase()
-  .replace(/[^\p{L}\p{N}]/gu, '');
-
-export const identity = c => JSON.stringify([
-  c.artist, c.date, c.venue, c.city, c.country
-]);
+export { identity };
 
 export function selectConcerts(concerts, entries, now = new Date(), limit = 3) {
   const today = new Intl.DateTimeFormat('en-CA', {
@@ -41,39 +35,27 @@ export function matchEvent(c, results) {
   return result.status === 'matched' ? result.event : null;
 }
 
-function safeURL(value) {
-  try {
-    const u = new URL(value);
-    return u.protocol === 'https:'
-      && ['ticketswap.com', 'www.ticketswap.com'].includes(u.hostname)
-      && !u.username && !u.password
-      ? u.href : null;
-  } catch {
-    return null;
-  }
-}
-
 export async function checkConcert(c, old, request, now = new Date(), selectedEventId = null) {
   const stamp = now.toISOString();
   const same = old?.identity === identity(c);
-  let event = same ? old.event : null;
+  const previousEvent = same ? old.event : null;
+  let event = ticketSwapURL(previousEvent?.url)
+    && previousEvent.date === c.date && previousEvent.id
+    && (!previousEvent.confirmedByUser || canConfirmTicketSwap(c, previousEvent))
+    ? previousEvent : null;
 
   try {
     if (selectedEventId) {
       const candidate = same && old?.matchCandidates?.find(item =>
         item.id === selectedEventId
-        && item.date === c.date
-        && (!item.country || item.country === c.country)
-        && ticketSwapURL(item.url)
+        && canConfirmTicketSwap(c, item)
       );
 
       if (!candidate) throw new Error('Invalid selection');
 
       event = {
-        id: candidate.id,
+        ...candidate,
         url: ticketSwapURL(candidate.url),
-        name: candidate.name,
-        date: c.date,
         confirmedByUser: true
       };
     }
@@ -84,6 +66,9 @@ export async function checkConcert(c, old, request, now = new Date(), selectedEv
       const found = resolution.event;
 
       if (!found) {
+        if (same && Number.isFinite(Date.parse(old.checkedAt)) && Number.isSafeInteger(old.availableTickets)) {
+          throw new Error('Could not reverify the saved event match');
+        }
         return {
           identity: identity(c),
           status: resolution.status,
@@ -98,7 +83,7 @@ export async function checkConcert(c, old, request, now = new Date(), selectedEv
               country: c.country
             },
             candidates: (search.results || [])
-              .filter(e => e.__typename === 'EventResult')
+              .filter(e => e?.__typename === 'EventResult')
               .slice(0, 30)
               .map(e => ({
                 id: e.id,
@@ -107,16 +92,15 @@ export async function checkConcert(c, old, request, now = new Date(), selectedEv
                 venue: e.locationName,
                 city: e.cityName,
                 country: e.country?.code,
-                url: safeURL(e.uri?.url)
+                url: ticketSwapURL(e.uri?.url)
               })),
             pageInfo: search.page_info || null
           },
-          lastAttemptAt: stamp,
-          checkedAt: stamp
+          lastAttemptAt: stamp
         };
       }
 
-      const url = safeURL(found.uri?.url);
+      const url = ticketSwapURL(found.uri?.url);
       if (!found.id || !url) throw new Error('Invalid event');
 
       event = {
@@ -149,7 +133,7 @@ export async function checkConcert(c, old, request, now = new Date(), selectedEv
     return {
       ...(same ? old : {}),
       identity: identity(c),
-      ...(event ? { event } : {}),
+      ...(event && (!previousEvent || previousEvent.id === event.id) ? { event } : {}),
       status: 'error',
       lastAttemptAt: stamp,
       lastError: error instanceof Error ? error.message : 'TicketSwap check failed'
