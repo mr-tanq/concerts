@@ -4,6 +4,7 @@ import { countryCode, locationKey } from '../../js/concert-countries.js';
 import { localDate, validDate } from '../../js/concert-schedule.js';
 import { ticketSourceURL } from '../../js/ticket-official.js';
 import { venueConfig, zoneFor } from './concert-schedule.mjs';
+import { namedDate } from './manual-concert-search.mjs';
 import { publisherConfigs, venueKey } from './schedule-providers.mjs';
 
 const asArray = value => Array.isArray(value) ? value : value == null ? [] : [value];
@@ -69,15 +70,17 @@ function structuredEvents(html) {
   return events;
 }
 
-function matchesEvent(event, concert) {
+function matchesEvent(event, concert, source) {
   if (event.eventStatus && schemaName(event.eventStatus) !== 'EventScheduled') return false;
   const date = typeof event.startDate === 'string' ? event.startDate : '';
   const day = /T.*(?:Z|[+-]\d\d:\d\d)$/i.test(date)
     ? (Number.isFinite(Date.parse(date)) ? localDate(Date.parse(date), zoneFor(concert)) : '')
     : date.slice(0, 10);
   const location = event.location;
-  const city = location?.address?.addressLocality;
-  const country = location?.address?.addressCountry;
+  const address = source.domain === 'tivolivredenburg.nl' && typeof location?.address === 'string'
+    ? location.address.split(',').map(part => part.trim()) : [];
+  const city = location?.address?.addressLocality ?? (address.length >= 3 ? address.at(-2) : null);
+  const country = location?.address?.addressCountry ?? (address.length >= 3 ? address.at(-1) : null);
   const billing = [concert.artist, concert.eventName].map(searchKey).filter(Boolean);
   const performers = asArray(event.performer).map(person => searchKey(person?.name ?? person));
   return validDate(day) && day === concert.date && !!location?.name && !!concert.venue
@@ -130,11 +133,18 @@ function pricesFor(offer, currency) {
 }
 
 export function parseOfficialTicketPage(html, concert, source, observedAt) {
-  const matches = structuredEvents(html).filter(event => matchesEvent(event, concert));
+  const events = structuredEvents(html);
+  const matches = events.filter(event => matchesEvent(event, concert, source));
+  if (!events.length && source.domain === 'patronaat.nl') {
+    const offer = patronaatOffer(html, concert, source, observedAt);
+    return offer ? [offer] : [];
+  }
   if (matches.length !== 1) return [];
   const result = [];
   for (const offer of asArray(matches[0].offers)) {
-    if (!hasType(offer, 'Offer') || offer.eligibleCustomerType) continue;
+    const typedOffer = hasType(offer, 'Offer')
+      || (source.domain === 'tivolivredenburg.nl' && hasType(offer, 'offer'));
+    if (!typedOffer || offer.eligibleCustomerType) continue;
     if ((offer.validFrom && !(Date.parse(offer.validFrom) <= observedAt))
       || (offer.validThrough && !(Date.parse(offer.validThrough) >= observedAt))) continue;
     const category = typeof offer.name === 'string' ? offer.name.trim() : '';
@@ -142,7 +152,7 @@ export function parseOfficialTicketPage(html, concert, source, observedAt) {
     const purchase = sourceURL(offer.url, source.url);
     const knownStagerLink = purchase && /^[a-z0-9-]+\.stager\.co$/.test(host(purchase))
       && new URL(purchase).pathname.startsWith('/shop/') && purchase === sourceURL(concert.ticketUrl);
-    if (purchase && host(purchase) !== source.domain && !isTicketmaster(purchase) && !knownStagerLink) continue;
+    if (purchase && host(purchase) !== source.domain && !isTicketmaster(purchase) && !knownStagerLink && !venueCheckout(source.domain, purchase)) continue;
     if (source.provider === 'ticketmaster-jsonld'
       && !/^(standard tickets?|reguliere? tickets?|standaard tickets?)$/i.test(category)) continue;
     const currencies = new Set(asArray(offer.priceSpecification).map(spec => spec?.priceCurrency).filter(Boolean));
@@ -173,5 +183,79 @@ export function parseOfficialTicketPage(html, concert, source, observedAt) {
     });
     if (result.length === 20) break;
   }
+  if (result.length === 1) {
+    const priceContext = venuePriceContext(html, source.domain, result[0]);
+    if (priceContext) result[0].priceContext = priceContext;
+  }
   return result;
+}
+
+function venueCheckout(domain, purchase) {
+  const url = new URL(purchase);
+  if (domain === 'tivolivredenburg.nl') return url.hostname === 'ticket.tivolivredenburg.nl'
+    && /^\/nl\/buyingflow\/tickets\/\d+\/\d+\/?$/.test(url.pathname);
+  if (domain === 'paradiso.nl') return url.hostname === 'tickets.paradiso.nl'
+    && /^\/[a-z0-9]{12,64}\/?$/i.test(url.pathname);
+  return false;
+}
+
+function dutchEUR(value) {
+  const amount = /^€\s*(\d+),(\d{2})$/.exec(value.trim());
+  return amount ? minorUnits(amount[1] + '.' + amount[2], 'EUR') : null;
+}
+
+function venuePriceContext(html, domain, offer) {
+  if (!['tivolivredenburg.nl', 'paradiso.nl'].includes(domain) || offer.listedCents === null) return null;
+  const $ = cheerio.load(html);
+  if (domain === 'tivolivredenburg.nl') {
+    const matching = $('main .btn-group__link').filter((_, link) => {
+      const group = $(link).closest('.btn-group');
+      return sourceURL($(link).attr('href'), offer.sourceUrl) === offer.purchaseUrl
+        && dutchEUR(group.find('.btn-group__price').text()) === offer.listedCents
+        && /^incl\. servicekosten$/i.test(group.next('.btn-group__info').text().trim());
+    });
+    return matching.length ? { serviceFeesIncluded: true } : null;
+  }
+
+  const notes = new Set();
+  $('main p').each((_, node) => {
+    const membership = /^Exclusief\s+(€\s*\d+,\d{2})\s+maandlidmaatschap$/i.exec($(node).text().trim());
+    if (!membership) return;
+    const related = $(node).parent().parent().find('a[href]').toArray().some(link => {
+      const url = sourceURL($(link).attr('href'), offer.sourceUrl);
+      const price = /€\s*\d+,\d{2}\s*$/.exec($(link).text().trim());
+      return url && venueCheckout(domain, url) && price && dutchEUR(price[0]) === offer.listedCents;
+    });
+    if (related) notes.add(dutchEUR(membership[1]));
+  });
+  return notes.size === 1 ? { excludedMembershipCents: [...notes][0] } : null;
+}
+
+function patronaatOffer(html, concert, source, observedAt) {
+  if (venueKey(concert.venue) !== 'patronaat' || locationKey(concert.city) !== 'haarlem'
+    || countryCode(concert.country) !== 'NL' || !/^\/event\/[^/]+\/?$/.test(new URL(source.url).pathname)) return null;
+  const $ = cheerio.load(html);
+  const canonical = sourceURL($('link[rel="canonical"]').attr('href'), source.url);
+  const headline = $('h1.event__name');
+  const card = $('.event__info-bar');
+  if (canonical !== source.url || headline.length !== 1 || card.length !== 1) return null;
+  const billing = headline.text().trim().split(/\s+\+\s+/).map(searchKey);
+  const expected = [concert.artist, ...asArray(concert.supportingArtists)].map(searchKey);
+  if (searchKey(headline.text()) !== searchKey(concert.eventName) && billing.join('|') !== expected.join('|')) return null;
+  const date = card.find('.event__info-bar--star-date');
+  const price = card.find('.event__info-bar--ticket-price');
+  if (date.length !== 1 || price.length !== 1 || namedDate(date.text()) !== concert.date) return null;
+  const listedCents = dutchEUR(price.text());
+  if (listedCents === null) return null;
+
+  const links = card.find('.event__ticket-button a.button--tickets');
+  const purchase = links.length === 1 ? sourceURL(links.attr('href'), source.url) : null;
+  return {
+    seller: 'Patronaat (official source)', category: 'Category not stated', provider: 'patronaat-event-page',
+    sourceUrl: source.url, purchaseUrl: purchase && isTicketmaster(purchase) ? purchase : source.url,
+    verifiedAt: new Date(observedAt).toISOString(), evidence: 'Official Patronaat event price',
+    quantity: 1, availability: 'unknown', currency: 'EUR', faceCents: null,
+    listedCents, baseCents: null, feesCents: null, finalCents: null, feeInclusive: false,
+    offerKey: null, resaleEventId: null, resaleTypeId: null, equivalenceEvidence: null
+  };
 }
