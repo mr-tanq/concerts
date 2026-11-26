@@ -21,7 +21,6 @@ function sourceURL(value, base) {
     const safe = ticketSourceURL(new URL(value, base).href);
     if (!safe) return null;
     const url = new URL(safe);
-    url.search = '';
     return url.href;
   } catch {
     return null;
@@ -32,16 +31,20 @@ export function officialTicketSources(concert) {
   const publishers = publisherConfigs(concert, venueConfig(concert));
   const candidates = new Map();
   for (const input of [
-    concert.officialEventUrl, concert.officialUrl,
+    concert.ticketUrl, concert.officialEventUrl, concert.officialUrl,
     ...asArray(concert.schedule?.sources).filter(source => source?.kind === 'official').map(source => source.url),
-    ...asArray(concert.scheduleSourceUrls), concert.sourceUrl, concert.ticketUrl
+    ...asArray(concert.scheduleSourceUrls), concert.sourceUrl
   ]) {
     const url = sourceURL(input);
     if (!url || candidates.has(url)) continue;
     const domain = host(url);
     const publisher = publishers.find(item => item[1] === domain);
     const path = new URL(url).pathname.replace(/\/$/, '');
-    if (isTicketmaster(url)) {
+    const direct = url === sourceURL(concert.ticketUrl);
+    const stager = direct && /^[a-z0-9-]+\.stager\.co$/.test(domain) && /^\/shop\/[^/]+\/events\/\d+\/?$/.test(new URL(url).pathname);
+    if (stager) {
+      candidates.set(url, { url, domain, provider: 'stager-jsonld', label: 'Stager' });
+    } else if (isTicketmaster(url)) {
       candidates.set(url, { url, domain, provider: 'ticketmaster-jsonld', label: 'Ticketmaster' });
     } else if (publisher && path && path !== publisher[2].replace(/\/$/, '')) {
       candidates.set(url, { url, domain, provider: 'venue-jsonld', label: domain });
@@ -49,10 +52,10 @@ export function officialTicketSources(concert) {
   }
   // Reserve a slot for a known direct seller as well as the strongest existing venue page.
   const sources = [...candidates.values()];
-  return [
-    ...sources.filter(source => source.provider === 'venue-jsonld').slice(0, 2),
-    ...sources.filter(source => source.provider === 'ticketmaster-jsonld').slice(0, 1)
-  ];
+  const direct = sources.find(source => source.url === sourceURL(concert.ticketUrl));
+  return [...new Map([direct, ...sources.filter(source => source.provider === 'venue-jsonld').slice(0, 2),
+    ...sources.filter(source => source.provider === 'ticketmaster-jsonld').slice(0, 1)]
+    .filter(Boolean).map(source => [source.url, source])).values()].slice(0, 3);
 }
 
 function structuredEvents(html) {
