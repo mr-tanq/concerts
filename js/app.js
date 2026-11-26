@@ -1,3 +1,4 @@
+import { clearWatchConnection, readWatchConnection, saveWatchConnection } from './ticket-watch-store.js';
 import { renderTicketWatchList } from './ticket-watch-panel.js';
 import { warmupArtists } from "./warmup-setlist-model.js?v=festival-discovery-20261031";
 import {canShowFestivalRevisit} from "./festival-revisit-model.js?v=festival-revisit-20261111";
@@ -3115,6 +3116,17 @@ function openSettings() {
           </div>
           <p class="status" id="set-status"></p>
         </div>
+        <div class="settings-section">
+          <p class="whisper">Private Ticket Watch</p>
+          <p class="footnote">Connect a separate private repository for your watch settings and alerts. Use a token scoped to that repository with Contents read and write.</p>
+          <div class="field"><label for="watch-repo">Private repository</label><input id="watch-repo" placeholder="owner/private-watch" autocomplete="off" /></div>
+          <div class="field"><label for="watch-token">Watch token</label><input id="watch-token" type="password" autocomplete="off" /></div>
+          <div class="act-row">
+            <button type="button" class="plain-act" id="watch-connect">Connect Watch storage</button>
+            <button type="button" class="plain-act" id="watch-disconnect">Disconnect Watch storage</button>
+          </div>
+          <p class="status" id="watch-storage-status" role="status"></p>
+        </div>
         <div class="settings-relay">
           <p class="whisper">Android companion</p>
           <p class="footnote">
@@ -3134,6 +3146,31 @@ function openSettings() {
   root.appendChild(veil);
 
   const status = veil.querySelector("#set-status");
+  const watchRepo = veil.querySelector("#watch-repo");
+  const watchToken = veil.querySelector("#watch-token");
+  const watchStatus = veil.querySelector("#watch-storage-status");
+  const watchConnection = readWatchConnection();
+  watchRepo.value = watchConnection?.repository ?? "";
+  if (watchConnection) watchStatus.textContent = "Private Watch storage is connected.";
+  veil.querySelector("#watch-connect").addEventListener("click", async event => {
+    const button = event.currentTarget;
+    button.disabled = true;
+    watchStatus.textContent = "Verifying private repository…";
+    try {
+      await saveWatchConnection({ repository: watchRepo.value.trim(), token: watchToken.value.trim() });
+      watchToken.value = "";
+      watchStatus.textContent = "Private Watch storage connected.";
+    } catch (error) {
+      watchStatus.textContent = error.message;
+    } finally {
+      button.disabled = false;
+    }
+  });
+  veil.querySelector("#watch-disconnect").addEventListener("click", () => {
+    clearWatchConnection();
+    watchRepo.value = watchToken.value = "";
+    watchStatus.textContent = "Private Watch storage disconnected.";
+  });
   mountRelaySettings(veil.querySelector("#relay-box"), veil.querySelector("#relay-status"));
   veil.querySelector("#set-close").addEventListener("click", () => { root.innerHTML = ""; });
   veil.addEventListener("click", (e) => { if (e.target === veil) root.innerHTML = ""; });

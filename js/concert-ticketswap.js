@@ -26,6 +26,8 @@ async function renderTicketSwap(host, concert, officialOpen = false) {
   const [saved, official] = await Promise.allSettled([snapshot.load(), officialOffers.load()]);
   if (!host.isConnected) return;
   const evidence = official.status === 'fulfilled' ? official.value : null;
+  const watchOpen = !!host.querySelector('.ticket-watch[open]');
+  const watchPanel = entry => renderTicketWatch(concert, entry, [], undefined, watchOpen);
   const officialPanel = resale => renderOfficialPanel(concert, resale, evidence, async updated => {
     officialOffers.publish(updated);
     await renderTicketSwap(host, concert, true);
@@ -38,7 +40,7 @@ async function renderTicketSwap(host, concert, officialOpen = false) {
     const entry = data.entries?.[concert.id];
     if (!entry || entry.identity !== identity(concert)) {
       host.replaceChildren(document.createTextNode('This concert has not been checked yet.'),
-        officialPanel(null), renderTicketWatch(concert, null));
+        officialPanel(null), watchPanel(null));
       return;
     }
 
@@ -167,11 +169,11 @@ async function renderTicketSwap(host, concert, officialOpen = false) {
 
     const market = renderTicketSwapMarket(entry);
     if (market) section.append(market);
-    section.append(officialPanel(snapshotStale ? null : entry), renderTicketWatch(concert, entry));
+    section.append(officialPanel(snapshotStale ? null : entry), watchPanel(entry));
     host.replaceChildren(section);
   } catch {
     host.replaceChildren(document.createTextNode('Could not load TicketSwap results. Close and try again.'),
-      officialPanel(null), renderTicketWatch(concert, null));
+      officialPanel(null), watchPanel(null));
   }
 }
 

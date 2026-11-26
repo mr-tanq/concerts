@@ -1,5 +1,7 @@
-const id = value => typeof value === 'string' && value.trim() && value.length <= 500;
+const id = value => typeof value === 'string' && value.trim() === value && value.length > 0 && value.length <= 500;
 const label = value => typeof value === 'string' ? value.trim().slice(0, 240) : null;
+const wording = value => typeof value === 'string' ? value.slice(0, 4000) : null;
+const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const limit = (value, max) => Number.isInteger(value) && value >= 1 && value <= max;
 const requireId = value => {
   if (!id(value)) throw new Error('Invalid TicketSwap identifier');
@@ -23,12 +25,12 @@ function unique(input, max) {
 }
 
 function group(value) {
-  if (value == null) return null;
-  if (!Array.isArray(value.listings)) return null;
+  if (!object(value) || !Array.isArray(value.listings) || value.listings.length > 100) return null;
   const pagination = value.page_info;
   return {
     listings: value.listings,
     complete: pagination?.has_next_page === false,
+    paginationKnown: typeof pagination?.has_next_page === 'boolean',
     cursor: id(pagination?.end_cursor) ? pagination.end_cursor : null
   };
 }
@@ -50,7 +52,7 @@ export function createTicketWatchAdapters(request) {
       return {
         results: raw.results.map(item => ({
           typeId: id(item?.event_type_id) ? item.event_type_id : null,
-          found: item?.found === true,
+          found: item?.found === true && (item.error == null || item.error === ''),
           error: label(item?.error),
           eventType: item?.event_type,
           available: group(item?.available),
@@ -63,19 +65,19 @@ export function createTicketWatchAdapters(request) {
     },
 
     async eventDemand(eventId) {
-      const id = requireId(eventId);
-      const raw = await request('get_event_demand', { event_id: id, currency: 'EUR' });
-      if (!raw?.demand || (raw.event_id !== undefined && raw.event_id !== id)
+      const target = requireId(eventId);
+      const raw = await request('get_event_demand', { event_id: target, currency: 'EUR' });
+      if (!object(raw?.demand) || (raw.event_id !== undefined && raw.event_id !== target)
         || !Array.isArray(raw.event_types)) throw new Error('Invalid TicketSwap demand response');
       return {
         hasDemand: typeof raw.demand.has_demand === 'boolean' ? raw.demand.has_demand : null,
-        title: label(raw.demand.title), intro: label(raw.demand.intro), recentlySold: label(raw.demand.recently_sold),
+        title: wording(raw.demand.title), intro: wording(raw.demand.intro), recentlySold: wording(raw.demand.recently_sold),
         types: raw.event_types.slice(0, 50).map(type => ({
-          id: label(type?.id), title: label(type?.title),
+          id: id(type?.id) ? type.id : null, title: label(type?.title),
           instantSellable: typeof type?.demand?.instant_sellable === 'boolean' ? type.demand.instant_sellable : null,
           updatedAt: Number.isFinite(Date.parse(type?.demand?.updated_at)) ? type.demand.updated_at : null,
           priceLevels: Array.isArray(type?.demand?.price_levels) ? type.demand.price_levels.map(level => ({
-            text: label(level?.text), price: level?.price ?? null, convertedPrice: level?.converted_price ?? null
+            text: wording(level?.text), price: level?.price ?? null, convertedPrice: level?.converted_price ?? null
           })) : []
         }))
       };

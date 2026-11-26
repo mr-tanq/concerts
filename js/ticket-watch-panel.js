@@ -1,7 +1,7 @@
 import { identity, ticketSwapURL } from './ticketswap-matching.js';
 import { offerIsFresh, ticketSourceURL, watchOfficialComparison } from './ticket-official.js';
 import { WATCH_ALERTS, watchMarketMatch, watchPreferences, watchStopReason } from './ticket-watch.js';
-import { changeWatch, readWatchData, readWatches, WATCH_CHANGED } from './ticket-watch-store.js';
+import { changeWatch, readWatchConnection, readWatchData, readWatchState, readWatches, WATCH_CHANGED } from './ticket-watch-store.js';
 
 const euros = new Intl.NumberFormat('en-IE', { style: 'currency', currency: 'EUR' });
 const price = cents => euros.format(cents / 100);
@@ -38,14 +38,33 @@ function disclosure(label) {
   return item;
 }
 
-export function renderTicketWatch(concert, entry, knownTypes = [], initialWatch) {
+export function watchCategoryOptions(concert, market, privateState, remembered = []) {
+  const concertIdentity = identity(concert);
+  const manual = market?.identity === concertIdentity ? market : null;
+  const observed = privateState?.observation?.identity === concertIdentity ? privateState.observation : null;
+  const latest = (Date.parse(observed?.checkedAt) || 0) > (Date.parse(manual?.checkedAt) || 0)
+    ? observed : manual ?? observed;
+  const eventId = latest?.event?.id;
+  if (!eventId) return [];
+  const compatible = [manual, observed].filter(entry => entry?.event?.id === eventId);
+  return [...new Map([
+    ...[...remembered, ...(privateState?.knownTypes ?? [])].filter(type => type.eventId === eventId),
+    ...compatible.flatMap(entry => entry.market?.categories ?? [])
+  ].filter(type => type.id && type.title).map(type => [type.id, type.title]))];
+}
+
+export function renderTicketWatch(concert, entry, knownTypes = [], initialWatch, open = false) {
   const details = disclosure('Ticket Watch');
+  details.open = open;
   const content = node('div');
   const feedback = node('p');
   feedback.setAttribute('role', 'status');
   details.append(content, feedback);
   const concertIdentity = identity(concert);
   let stored = initialWatch;
+  let latestMarket = entry;
+  let privateState;
+  let generation = 0;
   let busy = false;
 
   async function save(change, message) {
@@ -87,8 +106,7 @@ export function renderTicketWatch(concert, entry, knownTypes = [], initialWatch)
       Object.assign(quantity, { type: 'number', min: '1', max: '10', required: true, value: watch?.quantity ?? 1 });
       const category = field('Ticket category', node('select'));
       category.append(new Option('Any category', ''));
-      const categories = new Map([...knownTypes.filter(type => type.eventId === entry?.event?.id),
-        ...(entry?.market?.categories ?? [])].filter(type => type.id && type.title).map(type => [type.id, type.title]));
+      const categories = new Map(watchCategoryOptions(concert, latestMarket, privateState, knownTypes));
       if (watch?.categoryId && !categories.has(watch.categoryId)) categories.set(watch.categoryId, 'Saved category');
       for (const [id, title] of categories) category.append(new Option(title, id));
       category.value = watch?.categoryId ?? '';
@@ -110,7 +128,8 @@ export function renderTicketWatch(concert, entry, knownTypes = [], initialWatch)
           if (!watch) preferences.paused = false;
           save(current => {
             const old = current?.identity === concertIdentity ? current : null;
-            const unchanged = old && ['maxCents', 'quantity', 'categoryId'].every(key => old[key] === preferences[key]);
+            const unchanged = old && ['maxCents', 'quantity', 'categoryId'].every(key => old[key] === preferences[key])
+              && JSON.stringify(old.alerts) === JSON.stringify(preferences.alerts);
             return {
               paused: old?.paused ?? false, ...preferences, identity: concertIdentity,
               watchId: old?.watchId ?? crypto.randomUUID(), revision: unchanged ? old.revision : crypto.randomUUID()
@@ -137,15 +156,30 @@ export function renderTicketWatch(concert, entry, knownTypes = [], initialWatch)
   }
 
   details.addEventListener('toggle', async () => {
-    if (!details.open) return;
-    if (stored !== undefined) { render(); return; }
-    feedback.textContent = 'Loading watch…';
+    if (!details.open || busy) return;
+    const load = ++generation;
+    content.replaceChildren();
+    if (!readWatchConnection()) {
+      feedback.textContent = 'Connect a private Watch repository in Settings.';
+      return;
+    }
+    feedback.textContent = 'Loading watch and ticket categories…';
     try {
-      stored = (await readWatches()).entries[concert.id] ?? null;
+      const [saved, state, currentMarket] = await Promise.all([
+        readWatches(),
+        readWatchState().catch(() => null),
+        readWatchData('data/ticketswap.json').catch(() => null)
+      ]);
+      if (load !== generation || !details.isConnected || !details.open) return;
+      stored = saved.entries[concert.id] ?? null;
+      privateState = state?.entries[concert.id];
+      const newer = currentMarket?.entries[concert.id];
+      if (newer?.identity === concertIdentity && (!latestMarket
+        || (Date.parse(newer.checkedAt) || 0) >= (Date.parse(latestMarket.checkedAt) || 0))) latestMarket = newer;
       render();
       feedback.textContent = '';
-    } catch {
-      feedback.textContent = 'Could not load your watch. Reopen this panel to retry.';
+    } catch (error) {
+      feedback.textContent = error.message;
     }
   });
   return details;
@@ -183,11 +217,16 @@ export function renderTicketWatchList(concerts) {
 
   async function load() {
     const generationId = ++generation;
+    if (!readWatchConnection()) {
+      body.replaceChildren();
+      status.textContent = 'Connect a private Watch repository in Settings.';
+      return;
+    }
     status.textContent = 'Loading Watchlist…';
     try {
       const [watches, state, market, officialOffers] = await Promise.all([
         readWatches(),
-        readWatchData('data/ticket-watch-state.json').catch(() => ({ entries: {} })),
+        readWatchState(),
         readWatchData('data/ticketswap.json').catch(() => ({ entries: {} })),
         readWatchData('data/official-ticket-offers.json').catch(() => ({ entries: {} }))
       ]);
@@ -269,7 +308,8 @@ export function renderTicketWatchList(concerts) {
         body.append(card);
       }
     } catch {
-      status.textContent = 'Could not load Watchlist. Close and reopen to retry.';
+      body.replaceChildren();
+      status.textContent = 'Could not load the private Watchlist. Check Watch storage in Settings.';
     }
   }
 
