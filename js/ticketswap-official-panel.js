@@ -1,4 +1,4 @@
-import { getOfficialComparison, knownOfficialLink, offerIsFresh, ticketSourceURL } from './ticket-official.js';
+import { getOfficialComparison, knownOfficialLink, offerIsFresh, offerWasSuperseded, ticketSourceURL } from './ticket-official.js';
 import { identity, ticketSwapURL } from './ticketswap-matching.js';
 
 function text(tag, value) {
@@ -20,30 +20,37 @@ function link(value, label) {
 
 export function renderOfficialPanel(concert, resale, snapshot) {
   const record = snapshot?.data.entries[concert.id];
-  const offers = record?.identity === identity(concert) && Array.isArray(record.offers)
-    ? record.offers.filter(offer => offer && /^[A-Z]{3}$/.test(offer.currency)) : [];
+  const current = record?.identity === identity(concert) ? record : null;
+  const checks = Object.values(current?.providerChecks ?? {});
+  const offers = [
+    ...(current?.offers ?? []),
+    ...checks.flatMap(check => check.offers.map(offer => ({ ...offer, sourceFailed: check.status === 'failed' })))
+  ].filter(offer => offer && (offer.currency === null || /^[A-Z]{3}$/.test(offer.currency)));
   const panel = document.createElement('details');
   panel.className = 'ticketswap-market';
   panel.append(text('summary', 'Official vs Resale'));
 
   if (!offers.length) {
     panel.append(text('p', 'Official price and availability: Not verified.'));
+    if (checks.some(check => check.status === 'failed')) panel.append(text('p', 'The official source could not be refreshed.'));
     const official = link(knownOfficialLink(concert), 'Official Tickets ↗');
     if (official) panel.append(official);
     return panel;
   }
 
   for (const offer of offers) {
-    const format = new Intl.NumberFormat('en-IE', { style: 'currency', currency: offer.currency });
-    const divisor = 10 ** format.resolvedOptions().maximumFractionDigits;
-    const money = value => value === null ? 'Unknown' : format.format(value / divisor);
-    const fresh = !snapshot.stale && offerIsFresh(offer.verifiedAt);
+    const format = offer.currency && new Intl.NumberFormat('en-IE', { style: 'currency', currency: offer.currency });
+    const divisor = format ? 10 ** format.resolvedOptions().maximumFractionDigits : 1;
+    const money = value => !format || !Number.isSafeInteger(value) ? 'Unknown' : format.format(value / divisor);
+    const fresh = !snapshot.stale && !offer.sourceFailed && offerIsFresh(offer.verifiedAt)
+      && !offerWasSuperseded(offer, offers);
     const availability = offer.availability === 'sold-out' ? 'Sold out'
       : offer.availability === 'available' ? 'Available' : 'Unknown';
     panel.append(text('h4', `${offer.seller} · ${offer.category}`));
     const facts = document.createElement('dl');
     for (const [label, value] of [
       ['Official availability', fresh ? availability : 'Not verified'],
+      ...(offer.listedCents == null ? [] : [['Published ticket price', money(offer.listedCents)]]),
       ['Official face value', money(offer.faceCents)],
       ['Official ticket price', money(offer.baseCents)],
       ['Official booking fees', money(offer.feesCents)],

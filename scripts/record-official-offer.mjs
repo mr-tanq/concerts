@@ -1,4 +1,4 @@
-import { open, readFile, rename, unlink, writeFile } from 'node:fs/promises';
+import { readJSON, updateOfficialTicketStore } from './lib/official-ticket-store.mjs';
 import { pathToFileURL } from 'node:url';
 import { identity } from '../js/ticketswap-matching.js';
 import { ticketSourceURL } from '../js/ticket-official.js';
@@ -70,33 +70,25 @@ export function recordOfficialOffer(store, concert, resale, input, now = Date.no
   }
   return {
     ...store,
-    updatedAt: new Date(now).toISOString(),
+    updatedAt: new Date(Math.max(now, Date.parse(store.updatedAt) || 0)).toISOString(),
     entries: {
       ...store.entries,
-      [concert.id]: { identity: concertIdentity, offers: [...offers.filter(item => !sameOffer(item)), offer] }
+      [concert.id]: {
+        ...(old?.identity === concertIdentity ? old : {}),
+        identity: concertIdentity,
+        offers: [...offers.filter(item => !sameOffer(item)), offer]
+      }
     }
   };
 }
 
 if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) {
-  const path = 'data/official-ticket-offers.json';
-  const lockPath = path + '.lock';
-  const tmpPath = path + '.tmp';
-  const lock = await open(lockPath, 'wx');
-  try {
-    const [planned, ticketSwap, store, input] = await Promise.all([
-      readFile('data/planned.json', 'utf8'),
-      readFile('data/ticketswap.json', 'utf8'),
-      readFile(path, 'utf8'),
-      readFile(process.argv[2], 'utf8')
-    ]).then(values => values.map(value => JSON.parse(value)));
-    const entry = planned.concerts.find(concert => concert.id === input.concertId);
-    const saved = recordOfficialOffer(store, entry, ticketSwap.entries[input.concertId], input);
-    await writeFile(tmpPath, JSON.stringify(saved, null, 2) + '\n');
-    await rename(tmpPath, path);
-    console.log('Recorded the supplied official-ticket evidence locally.');
-  } finally {
-    await lock.close();
-    await unlink(lockPath);
-  }
+  const [planned, ticketSwap, input] = await Promise.all([
+    readJSON('data/planned.json'),
+    readJSON('data/ticketswap.json'),
+    readJSON(process.argv[2])
+  ]);
+  const entry = planned.concerts.find(concert => concert.id === input.concertId);
+  await updateOfficialTicketStore(store => recordOfficialOffer(store, entry, ticketSwap.entries[input.concertId], input));
+  console.log('Recorded the supplied official-ticket evidence locally.');
 }

@@ -54,3 +54,10 @@ export function getOfficialComparison(offer, resale, now = Date.now()) {
     sampled: !resale.complete || resale.missingPrices || buyerCents !== category.buyerPrices.low
   };
 }
+
+export function offerWasSuperseded(offer, offers) {
+  return offers.some(other => !other.sourceFailed && other.availability !== 'unknown'
+    && other.category === offer.category
+    && (other.seller === offer.seller || other.purchaseUrl === offer.purchaseUrl)
+    && Date.parse(other.verifiedAt) > Date.parse(offer.verifiedAt));
+}
