@@ -16,11 +16,11 @@ data class CalendarEvent(
 object Meetings {
     const val LEAD_MS = 5 * 60_000L
     /** If the phone was asleep at the 5-minute mark, still mention a meeting that just started. */
-    const val GRACE_MS = 2 * 60_000L
+    const val GRACE_MS = 5 * 60_000L
 
     /**
      * Meetings Yoda should announce now: they start within the next five
-     * minutes (or started under two minutes ago), aren't all-day, cancelled or declined,
+     * minutes (or started under five minutes ago, e.g. the screen was off), aren't all-day, cancelled or declined,
      * and haven't been announced before. Soonest first.
      */
     fun due(events: List<CalendarEvent>, now: Long, announced: Set<String>): List<CalendarEvent> =

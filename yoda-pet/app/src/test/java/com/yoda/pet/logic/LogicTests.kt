@@ -11,7 +11,7 @@ class LogicTests {
         CalendarEvent(id, now + (inMin * 60_000).toLong(), "Meeting $id", null, allDay, canceled, declined)
 
     @Test fun announcesMeetingsStartingWithinFiveMinutes() {
-        val due = Meetings.due(listOf(ev(1, 4.9), ev(2, 5.0), ev(3, 5.5), ev(4, -1.0), ev(5, 0.5), ev(7, -3.0)), now, emptySet())
+        val due = Meetings.due(listOf(ev(1, 4.9), ev(2, 5.0), ev(3, 5.5), ev(4, -1.0), ev(5, 0.5), ev(7, -6.0)), now, emptySet())
         assertEquals(listOf(4L, 5L, 1L, 2L), due.map { it.eventId })
     }
 

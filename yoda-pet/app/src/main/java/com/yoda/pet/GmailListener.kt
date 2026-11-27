@@ -31,12 +31,14 @@ class GmailListener : NotificationListenerService() {
     override fun onListenerConnected() {
         connected = true
         Prefs(this).mailListenerConnectedAt = System.currentTimeMillis()
+        YodaLog.add(this, "📧 Email listener connected")
         // Don't re-announce mail that was already sitting in the shade.
         runCatching { activeNotifications }.getOrNull()?.forEach { remember(signature(it)) }
     }
 
     override fun onListenerDisconnected() {
         connected = false
+        YodaLog.add(this, "📧 Email listener disconnected by Android — reconnecting")
         rebind(this)
     }
 
@@ -52,6 +54,7 @@ class GmailListener : NotificationListenerService() {
         fun log(outcome: String) {
             prefs.lastMailSeenAt = System.currentTimeMillis()
             prefs.lastMailSeen = "${title ?: "(no title)"} — $outcome"
+            YodaLog.add(this, "📧 Gmail: ${title ?: "(no title)"}${if (summary) " [summary]" else ""} → $outcome")
         }
 
         if (!remember(signature(sbn))) return // Gmail re-posting the same thing on sync

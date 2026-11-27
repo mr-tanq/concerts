@@ -14,6 +14,7 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.content.res.Configuration
+import android.database.ContentObserver
 import android.hardware.display.DisplayManager
 import android.os.Build
 import android.os.Handler
@@ -64,6 +65,17 @@ class YodaService : Service() {
         }
     }
 
+    private val checkNow = Runnable { checkMeetings() }
+    private var lastCalendarSummary: String? = null
+
+    /** Re-check right away whenever any calendar changes (e.g. you just added an event). */
+    private val calendarObserver = object : ContentObserver(main) {
+        override fun onChange(selfChange: Boolean) {
+            main.removeCallbacks(checkNow)
+            main.postDelayed(checkNow, 1500)
+        }
+    }
+
     private val meetingLoop = object : Runnable {
         override fun run() {
             checkMeetings()
@@ -89,6 +101,8 @@ class YodaService : Service() {
             addAction(Intent.ACTION_SCREEN_ON)
             addAction(Intent.ACTION_USER_PRESENT)
         })
+        runCatching { contentResolver.registerContentObserver(CalendarContract.CONTENT_URI, true, calendarObserver) }
+        YodaLog.add(this, "🐾 Yoda started")
         main.post(meetingLoop)
     }
 
@@ -108,6 +122,9 @@ class YodaService : Service() {
     override fun onDestroy() {
         isRunning = false
         main.removeCallbacks(meetingLoop)
+        main.removeCallbacks(checkNow)
+        runCatching { contentResolver.unregisterContentObserver(calendarObserver) }
+        YodaLog.add(this, "🐾 Yoda stopped")
         runCatching { unregisterReceiver(screenReceiver) }
         overlay?.hide()
         overlay = null
@@ -158,6 +175,7 @@ class YodaService : Service() {
             CalendarReader.read(this, now - 10 * 60_000, now + 24 * 3600_000L)
         } catch (e: Exception) {
             prefs.calendarStatus = "✗ Couldn't read the calendar: ${e.message}"
+            logCalendar("📅 Couldn't read the calendar: ${e.message}")
             return
         }
         val upcoming = events.filter { !it.allDay && !it.canceled && !it.declined && it.begin > now }
@@ -165,12 +183,29 @@ class YodaService : Service() {
         prefs.calendarStatus = "✓ Checked at ${fmt.format(Date(now))}. " + (upcoming.firstOrNull()
             ?.let { "Next meeting: ${Meetings.displayTitle(it.title)} at ${fmt.format(Date(it.begin))}" }
             ?: "No meetings in the next 24 hours.")
+        val next = upcoming.firstOrNull()
+        logCalendar(next?.let {
+            "📅 Next meeting: ${Meetings.displayTitle(it.title)} at ${fmt.format(Date(it.begin))} — I'll speak 5 min before"
+        } ?: "📅 No meetings in the next 24 hours")
+        // Wake up exactly at the 5-minute mark instead of waiting for the next 30 s tick.
+        main.removeCallbacks(checkNow)
+        if (next != null) {
+            val wait = next.begin - Meetings.LEAD_MS - now + 1000
+            if (wait in 1..(30 * 60_000L)) main.postDelayed(checkNow, wait)
+        }
         val announced = prefs.announcedMeetings
         val due = Meetings.due(events, now, announced)
         if (due.isEmpty()) return
         prefs.announcedMeetings = (announced.toList().takeLast(50) + due.map { it.key }).toSet()
         val e = due.first()
+        YodaLog.add(this, "📅 Announced: ${Meetings.displayTitle(e.title)}")
         pet.announceMeeting(Meetings.displayTitle(e.title), Meetings.whenText(e.begin, now, fmt.format(Date(e.begin))), e.location) { openEvent(e) }
+    }
+
+    private fun logCalendar(line: String) {
+        if (line == lastCalendarSummary) return
+        lastCalendarSummary = line
+        YodaLog.add(this, line)
     }
 
     private fun openEvent(e: CalendarEvent) {

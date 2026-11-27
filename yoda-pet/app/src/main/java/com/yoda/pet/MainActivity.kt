@@ -56,10 +56,32 @@ class MainActivity : Activity() {
         })
     }
 
+    private var emailStatusView: TextView? = null
+    private var calendarStatusView: TextView? = null
+    private var logView: TextView? = null
+    private val ticker = android.os.Handler(android.os.Looper.getMainLooper())
+    private val refresher = object : Runnable {
+        override fun run() { refreshLive(); ticker.postDelayed(this, 2000) }
+    }
+
+    private fun refreshLive() {
+        emailStatusView?.text = emailStatus()
+        calendarStatusView?.text = calendarStatus()
+        logView?.text = logText()
+    }
+
+    private fun logText(): String = YodaLog.lines(this).joinToString("\n").ifEmpty { "Nothing yet." }
+
+    override fun onPause() {
+        super.onPause()
+        ticker.removeCallbacks(refresher)
+    }
+
     override fun onResume() {
         super.onResume()
         if (hasGmailAccess && !GmailListener.connected) GmailListener.rebind(this)
         render()
+        ticker.postDelayed(refresher, 2000)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -144,7 +166,8 @@ class MainActivity : Activity() {
 
         section("Alerts")
         toggle("Email alerts", "Tell me who new Gmail is from.", prefs.emailAlerts) { prefs.emailAlerts = it }
-        list.addView(text(emailStatus(), 13f, muted).apply { setPadding(dp(4), 0, dp(4), dp(4)) })
+        emailStatusView = text(emailStatus(), 13f, muted).apply { setPadding(dp(4), 0, dp(4), dp(4)) }
+        list.addView(emailStatusView)
         list.addView(smallButton("Test email bubble") {
             if (!YodaService.isRunning) {
                 Toast.makeText(this, "Show Yoda first.", Toast.LENGTH_SHORT).show()
@@ -154,7 +177,8 @@ class MainActivity : Activity() {
             }
         })
         toggle("Meeting reminders", "Speech bubble 5 minutes before a meeting.", prefs.meetingAlerts) { prefs.meetingAlerts = it }
-        list.addView(text(calendarStatus(), 13f, muted).apply { setPadding(dp(4), 0, dp(4), dp(4)) })
+        calendarStatusView = text(calendarStatus(), 13f, muted).apply { setPadding(dp(4), 0, dp(4), dp(4)) }
+        list.addView(calendarStatusView)
         list.addView(smallButton("Test meeting bubble") { testMeeting() })
 
         section("Size")
@@ -170,6 +194,17 @@ class MainActivity : Activity() {
                 }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply { marginEnd = dp(8) })
             }
         })
+
+        section("What Yoda noticed")
+        list.addView(text("Newest first. If an alert didn't show up, this says why.", 13f, muted).apply { setPadding(0, 0, 0, dp(6)) })
+        logView = text(logText(), 12f, ink).apply {
+            typeface = Typeface.MONOSPACE
+            setTextIsSelectable(true)
+            setPadding(dp(12), dp(10), dp(12), dp(10))
+            background = card()
+        }
+        list.addView(logView, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+        list.addView(smallButton("Clear") { YodaLog.clear(this); refreshLive() })
 
         section("How to use")
         list.addView(text(
