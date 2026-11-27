@@ -109,7 +109,7 @@ export async function resolveOfficialSeller({ concert, reader, discover, now = D
   const key = identity(concert);
   const checkedAt = new Date(now).toISOString();
   const stored = classifyTicketLink(concert.ticketUrl);
-  const base = { identity: key, ticketUrl: stored.url, ticketLink: stored.kind, checkedAt };
+  const base = { identity: key, ticketUrl: stored.url, ticketLink: stored.url ? stored.kind : 'none', checkedAt };
 
   if (stored.kind === 'official-seller') {
     return { ...base, status: 'resolved', method: 'direct', provider: stored.provider, seller: stored.label,
