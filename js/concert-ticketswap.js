@@ -2,7 +2,7 @@ import { renderTicketWatch } from './ticket-watch-panel.js';
 import { renderOfficialPanel } from './ticketswap-official-panel.js';
 import { attachTicketSwapCheck } from './ticketswap-check.js';
 import { canConfirmTicketSwap, identity, ticketSwapURL } from './ticketswap-matching.js';
-import { knownOfficialLink, offerIsFresh, ticketSourceURL } from './ticket-official.js';
+import { knownOfficialLink, offerIsFresh, ticketSourceURL, unverifiedTicketLink } from './ticket-official.js';
 import { sellerSummary } from './ticket-links.js';
 import { createSnapshotCache } from './ticketswap-snapshot.js';
 import { readWatchConnection, readWatchData, readWatchState, WATCH_CHANGED } from './ticket-watch-store.js';
@@ -104,6 +104,7 @@ function priceHero(evidence, concert, officialSnapshot) {
       : 'Advertised price includes service fees. Checkout charges are not verified.', 'ti-muted'));
   }
   const seller = sellerSummary(evidence.officialRecord, identity(concert), concert.ticketUrl);
+  if (offer?.availabilityConflict) official.append(element('p', 'Conflicting stock evidence: availability not confirmed.', 'ti-muted'));
   // Without an offer, say where the seller stands; an offer already names it.
   if (!offer) official.append(element('p', seller.text, 'ti-muted ti-seller'));
   if (knownAmount(offer?.priceContext?.excludedMembershipCents)) {
@@ -403,7 +404,12 @@ function createDashboard(concert, artwork, launcher) {
     }
 
     footer.replaceChildren();
-    appendLink(footer, 'Official tickets', ticketSourceURL(offer?.purchaseUrl) || knownOfficialLink(concert, evidence.officialRecord), 'ti-purchase ti-purchase-primary');
+    const officialURL = ticketSourceURL(offer?.purchaseUrl) || knownOfficialLink(concert, evidence.officialRecord);
+    appendLink(footer, 'Official tickets', officialURL, 'ti-purchase ti-purchase-primary');
+    // Automated verification failed or never ran: keep the stored link
+    // reachable, clearly marked as unverified.
+    const fallback = officialURL ? null : unverifiedTicketLink(concert);
+    if (fallback) appendLink(footer, fallback.label, fallback.url, 'ti-purchase ti-purchase-unverified');
     appendLink(footer, 'TicketSwap', ticketSwapURL(resale?.event?.url), 'ti-purchase');
     if (!footer.childNodes.length) footer.append(element('p', 'Purchase links appear when a source is identified.', 'ti-muted'));
     if (resaleStale && validDate(resale?.checkedAt)) footer.classList.add('ti-footer-stale');

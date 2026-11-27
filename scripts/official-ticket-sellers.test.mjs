@@ -60,7 +60,7 @@ test('only the main content ticket for the night counts as the seller link', () 
   assert.deepEqual(links.map(link => link.url), ['https://www.ticketmaster.nl/event/megadeth-tour-tickets/1372783969?language=en-us']);
   assert.equal(pickSeller(links).provider, 'ticketmaster');
   const waitlist = sellerLinksOnPage('<main><a href="https://tickets.paradiso.nl/7a68e4c375754bbea06e66413eeec6e1">WachtlijstTicket € 55,40</a></main>', 'https://www.paradiso.nl/');
-  assert.deepEqual([waitlist[0].state, waitlist[0].priceCents], ['waitlist', 5540]);
+  assert.deepEqual([waitlist[0].state, waitlist[0].priceCents], ['waitlist', null]);
   const two = sellerLinksOnPage('<main><a href="https://tickets.013.nl/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa">Dag 1</a><a href="https://tickets.013.nl/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb">Dag 2</a></main>', 'https://www.013.nl/');
   assert.equal(pickSeller(two), null);
 });
@@ -316,4 +316,57 @@ test('advertised official observations form their own history series, never the 
   assert.deepEqual(series.map(group => group.id), ['resale', 'official', 'official-listed']);
   assert.deepEqual(series[1].points, []);
   assert.deepEqual(series[2].points.map(point => point.cents), [3990, 4230]);
+});
+
+// ---------- review fixes ----------
+
+test('contradictory stock evidence never yields a confirmed available status', async () => {
+  const { reconcileOfficialAvailability, getOfficialComparison } = await import('../js/ticket-official.js');
+  const { selectTicketEvidence } = await import('../js/ticket-intelligence-model.js');
+  const bonobo = { id: 'planned-podiuminfo-492859', artist: 'Bonobo', date: '2027-03-05', venue: 'Gashouder', city: 'Amsterdam', country: 'NL' };
+  const tm = 'https://www.ticketmaster.nl/event/bonobo-distance-in-static-live-amsterdam-tickets/1012510332';
+  const event = { '@type': 'MusicEvent', name: 'Bonobo', startDate: '2027-03-05', location: { name: 'Gashouder', address: { addressLocality: 'Amsterdam', addressCountry: 'NL' } },
+    offers: { '@type': 'Offer', price: '50.49', priceCurrency: 'EUR', availability: 'https://schema.org/InStock', url: tm } };
+  const src = source('https://gashouder.nl/programma/bonobo');
+  const soldOut = `<main><h1>Bonobo</h1><a href="${tm}">Uitverkocht</a></main>${ld(event)}`;
+  const [offer] = parseOfficialTicketPage(soldOut, bonobo, src, now);
+  assert.equal(offer.availability, 'unknown');
+  assert.match(offer.availabilityConflict, /sold out/);
+  assert.equal(offer.listedCents, 5049);
+  assert.equal(parseOfficialTicketPage(`<main><h1>Bonobo</h1><a href="${tm}">Tickets</a></main>${ld(event)}`, bonobo, src, now)[0].availability, 'available');
+  const soldEvent = { ...event, offers: { ...event.offers, availability: 'https://schema.org/SoldOut' } };
+  assert.equal(parseOfficialTicketPage(`<main><a href="${tm}">Uitverkocht</a></main>${ld(soldEvent)}`, bonobo, src, now)[0].availability, 'sold-out');
+
+  // Snapshots written before this rule are reconciled in the browser and the Watch runner.
+  const key = identity(bonobo);
+  const stored = { ...offer, availability: 'available', availabilityConflict: undefined, verifiedAt: new Date(now).toISOString() };
+  const record = { identity: key, seller: { identity: key, status: 'resolved', buttonState: 'sold-out', checkedAt: new Date(now - 60000).toISOString() },
+    providerChecks: { [src.url]: { status: 'verified', attemptedAt: stored.verifiedAt, offers: [stored] } } };
+  assert.equal(reconcileOfficialAvailability(stored, record, key).availability, 'unknown');
+  assert.equal(reconcileOfficialAvailability(stored, { ...record, seller: { ...record.seller, buttonState: null } }, key).availability, 'available');
+  const evidence = selectTicketEvidence(bonobo, null, { data: { entries: { [bonobo.id]: record } } }, null, now + 1000);
+  assert.equal(evidence.offer.availability, 'unknown');
+  assert.equal(getOfficialComparison({ ...evidence.offer, feeInclusive: true, finalCents: 5049, resaleTypeId: 't', resaleEventId: 'e' },
+    { status: 'ok', checkedAt: new Date(now).toISOString(), event: { id: 'e' }, currency: 'EUR', market: { categories: [] } }, now + 1000), null);
+});
+
+test('waiting-list amounts are never read as ticket prices', () => {
+  const links = sellerLinksOnPage('<main><a href="https://tickets.paradiso.nl/7a68e4c375754bbea06e66413eeec6e1">Wachtlijst € 5,00</a></main>', 'https://www.paradiso.nl/');
+  assert.deepEqual([links[0].state, links[0].priceCents], ['waitlist', null]);
+  const concert = { id: 'x', artist: 'The Ocean', date: '2027-01-27', venue: 'Doornroosje', city: 'Nijmegen', country: 'NL' };
+  const html = `<main><h1>The Ocean</h1>${live.doornroosje.replace('€ 31,00</span>', '€ 2,50</span> Wachtlijst')}</main>${ld({ '@type': 'Event', name: 'The Ocean + A.A. Williams', startDate: '2027-01-27T20:15:00+00:00' })}`;
+  const [offer] = parseOfficialTicketPage(html, concert, source('https://www.doornroosje.nl/event/the-ocean-3/'), now);
+  assert.deepEqual([offer.listedCents, offer.availability], [null, 'sold-out']);
+  const waitOffer = { '@type': 'MusicEvent', name: 'Amorphis', startDate: '2027-02-14', location: { name: '013', address: { addressLocality: 'Tilburg', addressCountry: 'NL' } },
+    offers: [{ '@type': 'Offer', name: 'Wachtlijst', price: '5.00', priceCurrency: 'EUR', availability: 'https://schema.org/InStock' }] };
+  assert.deepEqual(parseOfficialTicketPage(ld(waitOffer), amorphis, source('https://www.013.nl/programma/131462/amorphis'), now), []);
+});
+
+test('the stored ticket link stays reachable, marked unverified, when verification fails', async () => {
+  const { unverifiedTicketLink } = await import('../js/ticket-official.js');
+  assert.deepEqual(unverifiedTicketLink(amorphis), { url: amorphis.ticketUrl, label: 'Tickets via Podiuminfo · unverified' });
+  assert.equal(unverifiedTicketLink({ ticketUrl: 'https://www.ticketswap.nl/event/x' }).label, 'Resale link · unverified');
+  assert.equal(unverifiedTicketLink({ ticketUrl: 'https://venue.example/tickets' }).label, 'Ticket link · unverified');
+  assert.equal(unverifiedTicketLink({ ticketUrl: null }), null);
+  assert.equal(unverifiedTicketLink({ ticketUrl: 'javascript:alert(1)' }), null);
 });

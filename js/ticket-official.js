@@ -34,6 +34,29 @@ export function knownOfficialLink(concert, record) {
   return fallback && !['intermediary', 'resale'].includes(classifyTicketLink(fallback).kind) ? fallback : null;
 }
 
+// A sold-out or waiting-list ticket button seen by the seller check
+// contradicts an "in stock" offer from the same period; neither is
+// confirmed, so availability becomes unknown and the conflict is shown.
+export const AVAILABILITY_CONFLICT = 'Structured data reports in stock; the venue ticket button reports sold out or waiting list';
+export function reconcileOfficialAvailability(offer, record, concertIdentity) {
+  const seller = record?.seller;
+  if (offer?.availability !== 'available' || !seller || seller.identity !== concertIdentity
+    || !['sold-out', 'waitlist'].includes(seller.buttonState)
+    || !(Math.abs(Date.parse(offer.verifiedAt) - Date.parse(seller.checkedAt)) < OFFER_MAX_AGE_MS)) return offer;
+  return { ...offer, availability: 'unknown', availabilityConflict: offer.availabilityConflict ?? AVAILABILITY_CONFLICT };
+}
+
+// The stored ticket link when no verified destination exists, labelled as
+// unverified so it stays usable without being presented as official.
+export function unverifiedTicketLink(concert) {
+  const link = classifyTicketLink(concert.ticketUrl);
+  if (!link.url || link.kind === 'invalid' || link.kind === 'unrelated') return null;
+  const label = link.kind === 'intermediary' ? `Tickets via ${link.label} · unverified`
+    : link.kind === 'resale' ? 'Resale link · unverified'
+    : link.kind === 'official-seller' ? `${link.label} · unverified` : 'Ticket link · unverified';
+  return { url: link.url, label };
+}
+
 export function offerIsFresh(value, now = Date.now()) {
   const age = now - Date.parse(value);
   return age >= 0 && age <= OFFER_MAX_AGE_MS;
@@ -73,7 +96,8 @@ export function offerWasSuperseded(offer, offers) {
 export function watchOfficialComparison(record, resale, categoryId, now = Date.now()) {
   if (!resale || record?.identity !== resale.identity) return null;
   const offers = [...(record.offers ?? []), ...Object.values(record.providerChecks ?? {})
-    .filter(check => check.status === 'verified').flatMap(check => check.offers)];
+    .filter(check => check.status === 'verified').flatMap(check => check.offers)]
+    .map(offer => reconcileOfficialAvailability(offer, record, record.identity));
   for (const offer of offers) {
     if ((categoryId && offer.resaleTypeId !== categoryId) || offerWasSuperseded(offer, offers)) continue;
     const result = getOfficialComparison(offer, resale, now);

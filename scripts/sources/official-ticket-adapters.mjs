@@ -81,8 +81,9 @@ function adapterDoornroosje(html, concert, source, observedAt) {
   if (buttons.length !== 1) return [];
   const link = classifyTicketLink(buttons.attr('href'), source.url);
   if (link.kind !== 'official-seller') return [];
-  const listedCents = euroCents(buttons.find('.c-btn__price').text());
   const state = buttonState(buttons.text());
+  // A waiting-list or sold-out button amount is not the ticket price.
+  const listedCents = state ? null : euroCents(buttons.find('.c-btn__price').text());
   if (listedCents === null && !state) return [];
   return [offer(source, observedAt, {
     seller: 'Doornroosje', provider: 'doornroosje-event-page', purchaseUrl: link.url,

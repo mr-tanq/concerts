@@ -33,6 +33,12 @@ const dutchCents = text => {
   return match ? Number(match[1]) * 100 + Number(match[2] ?? 0) : null;
 };
 
+// Whether the venue's own ticket buttons on this page say sold out or
+// waiting list. Used to keep contradictory stock evidence unconfirmed.
+export function pageSoldOutSignal(html, pageUrl) {
+  return sellerLinksOnPage(html, pageUrl).some(link => link.state === 'sold-out' || link.state === 'waitlist');
+}
+
 // The state a venue prints on its own ticket button. A plain "Tickets" link
 // says nothing about stock, so it stays unknown.
 export function buttonState(text) {
@@ -54,10 +60,13 @@ export function sellerLinksOnPage(html, pageUrl) {
     const link = classifyTicketLink($(node).attr('href'), pageUrl);
     if (link.kind !== 'official-seller' || NOT_THE_TICKET.test(text)) return;
     const previous = links.get(link.url);
+    const state = previous?.state ?? buttonState(text);
+    // An amount on a sold-out or waiting-list button (e.g. "Wachtlijst € 5,00")
+    // can be a waiting-list fee; it is never read as a ticket price.
     links.set(link.url, {
       url: link.url, provider: link.provider, label: link.label, checkout: link.checkout,
-      text: previous?.text || text, priceCents: previous?.priceCents ?? dutchCents(text),
-      state: previous?.state ?? buttonState(text)
+      text: previous?.text || text, priceCents: state ? null : previous?.priceCents ?? dutchCents(text),
+      state
     });
   });
   return [...links.values()];

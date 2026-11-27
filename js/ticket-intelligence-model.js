@@ -1,4 +1,4 @@
-import { getOfficialComparison, offerIsFresh, offerWasSuperseded } from './ticket-official.js';
+import { getOfficialComparison, offerIsFresh, offerWasSuperseded, reconcileOfficialAvailability } from './ticket-official.js';
 import { identity } from './ticketswap-matching.js';
 
 export const knownAmount = value => Number.isSafeInteger(value) && value >= 0;
@@ -16,11 +16,12 @@ export function selectTicketEvidence(concert, swap, official, privateState, now 
   const record = official?.data.entries[concert.id];
   const resale = entry?.identity === key ? entry : null;
   const officialRecord = record?.identity === key ? record : null;
+  const reconcile = offer => reconcileOfficialAvailability(offer, officialRecord, key);
   const offers = [
     ...(officialRecord?.offers ?? []),
     ...Object.values(officialRecord?.providerChecks ?? {}).flatMap(check =>
       (check.offers ?? []).map(offer => ({ ...offer, sourceFailed: check.status === 'failed' })))
-  ].filter(offer => validDate(offer?.verifiedAt))
+  ].map(reconcile).filter(offer => validDate(offer?.verifiedAt))
     .sort((a, b) => Date.parse(b.verifiedAt) - Date.parse(a.verifiedAt));
   const offerFresh = offer => !official?.stale && !offer.sourceFailed && offerIsFresh(offer.verifiedAt, now)
     && !offerWasSuperseded(offer, offers);

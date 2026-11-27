@@ -6,6 +6,7 @@ import { ticketSourceURL } from '../../js/ticket-official.js';
 import { classifyTicketLink } from '../../js/ticket-links.js';
 import { parseSchedule, venueConfig, zoneFor } from './concert-schedule.mjs';
 import { parseZiggoTickets, venuePageOffers } from './official-ticket-adapters.mjs';
+import { pageSoldOutSignal } from './official-ticket-sellers.mjs';
 import { namedDate } from './manual-concert-search.mjs';
 import { isOrganizer, publisherConfigs, venueKey, venueOnPage, ziggoAPI } from './schedule-providers.mjs';
 
@@ -159,7 +160,23 @@ function venuePageIdentity(html, concert, source) {
   }
 }
 
+// Stock evidence must agree. When structured data says in stock but the
+// venue's own ticket button on the same page says sold out or waiting list,
+// availability is left unknown and the conflict is recorded.
+function reconcileAvailability(offers, html, source) {
+  if (!offers.some(offer => offer.availability === 'available') || source.mediaType === 'application/json') return offers;
+  if (!pageSoldOutSignal(html, source.url)) return offers;
+  return offers.map(offer => offer.availability !== 'available' ? offer : {
+    ...offer, availability: 'unknown',
+    availabilityConflict: 'Structured data reports in stock; the venue ticket button reports sold out or waiting list'
+  });
+}
+
 export function parseOfficialTicketPage(html, concert, source, observedAt) {
+  return reconcileAvailability(parseOffers(html, concert, source, observedAt), html, source);
+}
+
+function parseOffers(html, concert, source, observedAt) {
   if (source.provider === 'ziggodome-api') {
     let payload;
     try { payload = JSON.parse(html); } catch { return []; }
@@ -184,7 +201,8 @@ export function parseOfficialTicketPage(html, concert, source, observedAt) {
     if ((offer.validFrom && !(Date.parse(offer.validFrom) <= observedAt))
       || (offer.validThrough && !(Date.parse(offer.validThrough) >= observedAt))) continue;
     const category = typeof offer.name === 'string' ? offer.name.trim() : '';
-    if (/\b(resale|doorverkoop|parking|upgrade|afterparty|locker|shuttle|vip)\b/i.test(category)) continue;
+    if (/\b(resale|doorverkoop|parking|upgrade|afterparty|locker|shuttle|vip)\b/i.test(category)
+      || /(wachtlijst|waiting ?list|waitlist)/i.test(category)) continue;
     const purchase = sourceURL(offer.url, source.url);
     const knownStagerLink = purchase && /^[a-z0-9-]+\.stager\.co$/.test(host(purchase))
       && new URL(purchase).pathname.startsWith('/shop/') && purchase === sourceURL(concert.ticketUrl);
