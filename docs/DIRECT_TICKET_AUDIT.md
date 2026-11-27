@@ -105,14 +105,16 @@ Access controls and 429 responses stopped all requests to that host. During prob
 
 | Stored link | URLs examined | Official seller resolved | Price extracted | Availability verified | Fees evidenced | Not resolved |
 | --- | --- | --- | --- | --- | --- | --- |
-| Podiuminfo | 52 | 26 | 22 | 10 | 10 | 3 blocked · 2 ambiguous · 1 robots · 15 no matching page or source unavailable · 5 unsupported venue |
+| Podiuminfo | 52 | 26 | 22 | 9 | 10 | 3 blocked · 2 ambiguous · 1 robots · 15 no matching page or source unavailable · 5 unsupported venue |
 | Festivalinfo | 6 | 0 | 0 | 0 | 0 | 6 unsupported (festival sites are not verified publishers) |
 | Ticketmaster (direct) | 1 | 1 | 0 | 0 | 0 | Ticketmaster blocks automated reads (`robots.txt` returns 403 `{"response":"block"}`) |
 | Stager (direct) | 1 | 1 | 0 | 0 | 0 | `muziekgieterij.stager.co` robots disallows checks |
 | No stored link | 41 | 23 | 8 | 2 | 4 | 3 robots · 8 no matching page or source unavailable · 7 unsupported venue |
-| **Total** | **101** | **51** | **30** | **12** | **14** | |
+| **Total** | **101** | **51** | **30** | **11** | **14** | |
 
-"Availability verified" counts explicit stock states only: JSON-LD stock, the Paradiso event record, the Ziggo `showState`, or a sold-out or waitlist button. In this run it covers on-sale and sold-out states. The sold-out ones include Hermanos Gutiérrez (Paradiso waiting list, both nights) and Bonobo (Gashouder). A plain "Tickets" link is never treated as availability.
+"Availability verified" counts explicit stock states only: JSON-LD stock, the Paradiso event record, the Ziggo `showState`, or a sold-out or waitlist button. In this run it covers on-sale and sold-out states, for example Hermanos Gutiérrez (Paradiso waiting list, both nights).
+
+Contradictory evidence is never confirmed. Bonobo at Gashouder is an example: the page's JSON-LD reports `InStock`, but its Ticketmaster button reads "Uitverkocht". Availability is therefore stored as `unknown` with an `availabilityConflict` note, and Bonobo is not counted above. Amounts on waiting-list or sold-out buttons, such as Paradiso's "Wachtlijst € 5,00", and offers named as a waiting list are never read as ticket prices. A plain "Tickets" link is never treated as availability.
 
 ### Resolved sellers
 
@@ -162,6 +164,10 @@ Sample observations:
   - Paard redirects its agenda to `/en/agenda-2/` and lists no matching link.
 - **Ambiguous:** 2 Carré nights. The organizer page lists several shops and the venue page did not verify the night.
 - **Unsupported venues** (18 concerts): venues and festivals with no verified official publisher in the existing registry. This covers all 6 Festivalinfo festivals, plus Bitterzoet, De Helling, Metropool, Martiniplaza and others. No seller URL is made up for them.
+
+## When verification fails
+
+If no verified destination exists, the Ticket Intelligence window still offers the stored ticket link. It appears as a dashed secondary button labelled, for example, "Tickets via Podiuminfo · unverified", and never as "Official tickets". The existing Tickets links on Going cards and concert sheets are unchanged.
 
 ## Remaining limitations
 
