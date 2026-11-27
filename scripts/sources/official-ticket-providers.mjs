@@ -3,9 +3,12 @@ import { searchKey } from '../../js/concert-search-model.js';
 import { countryCode, locationKey } from '../../js/concert-countries.js';
 import { localDate, validDate } from '../../js/concert-schedule.js';
 import { ticketSourceURL } from '../../js/ticket-official.js';
-import { venueConfig, zoneFor } from './concert-schedule.mjs';
+import { classifyTicketLink } from '../../js/ticket-links.js';
+import { parseSchedule, venueConfig, zoneFor } from './concert-schedule.mjs';
+import { parseZiggoTickets, venuePageOffers } from './official-ticket-adapters.mjs';
+import { pageSoldOutSignal } from './official-ticket-sellers.mjs';
 import { namedDate } from './manual-concert-search.mjs';
-import { publisherConfigs, venueKey } from './schedule-providers.mjs';
+import { isOrganizer, publisherConfigs, venueKey, venueOnPage, ziggoAPI } from './schedule-providers.mjs';
 
 const asArray = value => Array.isArray(value) ? value : value == null ? [] : [value];
 const schemaName = value => typeof value === 'string'
@@ -21,38 +24,49 @@ function sourceURL(value, base) {
     const safe = ticketSourceURL(new URL(value, base).href);
     if (!safe) return null;
     const url = new URL(safe);
-    url.search = '';
     return url.href;
   } catch {
     return null;
   }
 }
 
-export function officialTicketSources(concert) {
+export function officialTicketSources(concert, sellerRecord = null) {
   const publishers = publisherConfigs(concert, venueConfig(concert));
   const candidates = new Map();
+  // A verified seller destination or event page cached by the seller resolver
+  // for this exact concert identity comes first.
+  const resolved = sellerRecord?.status === 'resolved' ? sellerRecord : null;
   for (const input of [
-    concert.officialEventUrl, concert.officialUrl,
+    resolved?.purchaseUrl, resolved?.eventPageUrl,
+    concert.ticketUrl, concert.officialEventUrl, concert.officialUrl,
     ...asArray(concert.schedule?.sources).filter(source => source?.kind === 'official').map(source => source.url),
-    ...asArray(concert.scheduleSourceUrls), concert.sourceUrl, concert.ticketUrl
+    ...asArray(concert.scheduleSourceUrls), concert.sourceUrl
   ]) {
     const url = sourceURL(input);
     if (!url || candidates.has(url)) continue;
     const domain = host(url);
     const publisher = publishers.find(item => item[1] === domain);
     const path = new URL(url).pathname.replace(/\/$/, '');
-    if (isTicketmaster(url)) {
+    const link = classifyTicketLink(url);
+    if (link.provider === 'stager') {
+      candidates.set(url, { url, domain, provider: 'stager-jsonld', label: 'Stager' });
+    } else if (isTicketmaster(url)) {
       candidates.set(url, { url, domain, provider: 'ticketmaster-jsonld', label: 'Ticketmaster' });
+    } else if (publisher && domain === 'ziggodome.nl' && ziggoAPI(url)) {
+      candidates.set(url, { url: ziggoAPI(url), pageUrl: url, domain, provider: 'ziggodome-api',
+        label: 'Ziggo Dome', mediaType: 'application/json' });
     } else if (publisher && path && path !== publisher[2].replace(/\/$/, '')) {
       candidates.set(url, { url, domain, provider: 'venue-jsonld', label: domain });
     }
   }
-  // Reserve a slot for a known direct seller as well as the strongest existing venue page.
+  // Reserve a slot for a known direct seller as well as the strongest existing venue pages.
   const sources = [...candidates.values()];
-  return [
-    ...sources.filter(source => source.provider === 'venue-jsonld').slice(0, 2),
-    ...sources.filter(source => source.provider === 'ticketmaster-jsonld').slice(0, 1)
-  ];
+  const directURL = sourceURL(resolved?.purchaseUrl) ?? sourceURL(concert.ticketUrl);
+  const direct = sources.find(source => source.url === directURL && source.provider !== 'venue-jsonld');
+  return [...new Map([direct,
+    ...sources.filter(source => ['venue-jsonld', 'ziggodome-api'].includes(source.provider)).slice(0, 2),
+    ...sources.filter(source => source.provider === 'ticketmaster-jsonld').slice(0, 1)]
+    .filter(Boolean).map(source => [source.url, source])).values()].slice(0, 3);
 }
 
 function structuredEvents(html) {
@@ -132,14 +146,53 @@ function pricesFor(offer, currency) {
   return { ...amounts, listedCents: minorUnits(offer.price, currency), feeInclusive: amounts.finalCents !== null };
 }
 
+// The page must be the venue's (or a verified organizer's) page for this
+// artist on this date before a provider adapter may read it.
+function venuePageIdentity(html, concert, source) {
+  const config = venueConfig(concert);
+  const hosts = publisherConfigs(concert, config).map(item => item[1]);
+  if (!hosts.includes(source.domain)) return false;
+  if (isOrganizer(concert, source.domain, config) && !venueOnPage(html, concert)) return false;
+  try {
+    return !!parseSchedule(html, concert, source.url, 'official');
+  } catch {
+    return false;
+  }
+}
+
+// Stock evidence must agree. When structured data says in stock but the
+// venue's own ticket button on the same page says sold out or waiting list,
+// availability is left unknown and the conflict is recorded.
+function reconcileAvailability(offers, html, source) {
+  if (!offers.some(offer => offer.availability === 'available') || source.mediaType === 'application/json') return offers;
+  if (!pageSoldOutSignal(html, source.url)) return offers;
+  return offers.map(offer => offer.availability !== 'available' ? offer : {
+    ...offer, availability: 'unknown',
+    availabilityConflict: 'Structured data reports in stock; the venue ticket button reports sold out or waiting list'
+  });
+}
+
 export function parseOfficialTicketPage(html, concert, source, observedAt) {
+  return reconcileAvailability(parseOffers(html, concert, source, observedAt), html, source);
+}
+
+function parseOffers(html, concert, source, observedAt) {
+  if (source.provider === 'ziggodome-api') {
+    let payload;
+    try { payload = JSON.parse(html); } catch { return []; }
+    const event = payload?.data?.[0];
+    if (venueKey(concert.venue) !== 'ziggo dome' || searchKey(event?.performerName) !== searchKey(concert.artist)) return [];
+    return parseZiggoTickets(payload, concert, source, observedAt);
+  }
+  const fromAdapter = () => source.provider === 'venue-jsonld' && venuePageIdentity(html, concert, source)
+    ? venuePageOffers(html, concert, source, observedAt) : [];
   const events = structuredEvents(html);
   const matches = events.filter(event => matchesEvent(event, concert, source));
   if (!events.length && source.domain === 'patronaat.nl') {
     const offer = patronaatOffer(html, concert, source, observedAt);
     return offer ? [offer] : [];
   }
-  if (matches.length !== 1) return [];
+  if (matches.length !== 1) return fromAdapter();
   const result = [];
   for (const offer of asArray(matches[0].offers)) {
     const typedOffer = hasType(offer, 'Offer')
@@ -148,7 +201,8 @@ export function parseOfficialTicketPage(html, concert, source, observedAt) {
     if ((offer.validFrom && !(Date.parse(offer.validFrom) <= observedAt))
       || (offer.validThrough && !(Date.parse(offer.validThrough) >= observedAt))) continue;
     const category = typeof offer.name === 'string' ? offer.name.trim() : '';
-    if (/\b(resale|doorverkoop|parking|upgrade|afterparty|locker|shuttle|vip)\b/i.test(category)) continue;
+    if (/\b(resale|doorverkoop|parking|upgrade|afterparty|locker|shuttle|vip)\b/i.test(category)
+      || /(wachtlijst|waiting ?list|waitlist)/i.test(category)) continue;
     const purchase = sourceURL(offer.url, source.url);
     const knownStagerLink = purchase && /^[a-z0-9-]+\.stager\.co$/.test(host(purchase))
       && new URL(purchase).pathname.startsWith('/shop/') && purchase === sourceURL(concert.ticketUrl);
@@ -187,11 +241,13 @@ export function parseOfficialTicketPage(html, concert, source, observedAt) {
     const priceContext = venuePriceContext(html, source.domain, result[0]);
     if (priceContext) result[0].priceContext = priceContext;
   }
-  return result;
+  return result.length ? result : fromAdapter();
 }
 
 function venueCheckout(domain, purchase) {
   const url = new URL(purchase);
+  const link = classifyTicketLink(purchase);
+  if (link.kind === 'official-seller' && link.checkout && host(purchase).endsWith(domain.split('.').slice(-2).join('.'))) return true;
   if (domain === 'tivolivredenburg.nl') return url.hostname === 'ticket.tivolivredenburg.nl'
     && /^\/nl\/buyingflow\/tickets\/\d+\/\d+\/?$/.test(url.pathname);
   if (domain === 'paradiso.nl') return url.hostname === 'tickets.paradiso.nl'

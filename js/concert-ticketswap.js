@@ -2,7 +2,8 @@ import { renderTicketWatch } from './ticket-watch-panel.js';
 import { renderOfficialPanel } from './ticketswap-official-panel.js';
 import { attachTicketSwapCheck } from './ticketswap-check.js';
 import { canConfirmTicketSwap, identity, ticketSwapURL } from './ticketswap-matching.js';
-import { knownOfficialLink, offerIsFresh, ticketSourceURL } from './ticket-official.js';
+import { knownOfficialLink, offerIsFresh, ticketSourceURL, unverifiedTicketLink } from './ticket-official.js';
+import { sellerSummary } from './ticket-links.js';
 import { createSnapshotCache } from './ticketswap-snapshot.js';
 import { readWatchConnection, readWatchData, readWatchState, WATCH_CHANGED } from './ticket-watch-store.js';
 import { renderTicketHistory } from './ticket-intelligence-chart.js';
@@ -69,6 +70,14 @@ function amountRange(prices) {
   return prices.low === prices.high ? money(prices.low) : `${money(prices.low)}–${money(prices.high)}`;
 }
 
+// Several official categories for one night are listed by name; the hero
+// shows the one whose price it displays.
+function categoryLabel(offer, offers) {
+  const same = offers.filter(item => item.seller === offer.seller && item.verifiedAt === offer.verifiedAt);
+  const named = offer.category && offer.category !== 'Category not stated' ? offer.category : 'Not stated';
+  return same.length > 1 ? `${named} · ${same.length} categories` : named;
+}
+
 function priceHero(evidence, concert, officialSnapshot) {
   const { resale, resaleStale, offer, offerFresh, comparable, offers } = evidence;
   const grid = element('div', null, 'ti-prices');
@@ -81,11 +90,23 @@ function priceHero(evidence, concert, officialSnapshot) {
   const official = priceCard('Official tickets', money(final ?? advertised, currency),
     !priceAvailable ? 'No verified price' : knownAmount(final) ? 'All-in for one ticket' : 'Advertised price',
     officialStatus, offer ? (offerFresh ? 'Verified ' : 'Last verified ') + timestamp(offer.verifiedAt) : 'Awaiting verification', offer ? [
+      ['Seller', offer.seller || 'Unknown'],
+      ['Category', categoryLabel(offer, offers)],
       ['Advertised', money(advertised, currency)],
-      ['All-in total', money(final, currency)],
-      ['Booking fees', money(offer?.feesCents, currency)]
+      ...(knownAmount(offer.baseCents) ? [['Ticket price', money(offer.baseCents, currency)]] : []),
+      ['Fees', knownAmount(offer.feesCents) ? money(offer.feesCents, currency)
+        : offer.priceContext?.serviceFeesIncluded ? 'Service fees included' : 'Unknown'],
+      ['All-in total', money(final, currency)]
     ] : []);
-  if (offer?.priceContext?.serviceFeesIncluded) official.append(element('p', 'Advertised price includes service fees.', 'ti-muted'));
+  if (offer?.priceContext?.serviceFeesIncluded) {
+    official.append(element('p', knownAmount(offer.feesCents)
+      ? `Advertised price includes ${money(offer.feesCents, currency)} service fees. Checkout charges are not verified.`
+      : 'Advertised price includes service fees. Checkout charges are not verified.', 'ti-muted'));
+  }
+  const seller = sellerSummary(evidence.officialRecord, identity(concert), concert.ticketUrl);
+  if (offer?.availabilityConflict) official.append(element('p', 'Conflicting stock evidence: availability not confirmed.', 'ti-muted'));
+  // Without an offer, say where the seller stands; an offer already names it.
+  if (!offer) official.append(element('p', seller.text, 'ti-muted ti-seller'));
   if (knownAmount(offer?.priceContext?.excludedMembershipCents)) {
     official.append(element('p', `${money(offer.priceContext.excludedMembershipCents, currency)} membership excluded.`, 'ti-muted'));
   }
@@ -383,7 +404,12 @@ function createDashboard(concert, artwork, launcher) {
     }
 
     footer.replaceChildren();
-    appendLink(footer, 'Official tickets', ticketSourceURL(offer?.purchaseUrl) || knownOfficialLink(concert), 'ti-purchase ti-purchase-primary');
+    const officialURL = ticketSourceURL(offer?.purchaseUrl) || knownOfficialLink(concert, evidence.officialRecord);
+    appendLink(footer, 'Official tickets', officialURL, 'ti-purchase ti-purchase-primary');
+    // Automated verification failed or never ran: keep the stored link
+    // reachable, clearly marked as unverified.
+    const fallback = officialURL ? null : unverifiedTicketLink(concert);
+    if (fallback) appendLink(footer, fallback.label, fallback.url, 'ti-purchase ti-purchase-unverified');
     appendLink(footer, 'TicketSwap', ticketSwapURL(resale?.event?.url), 'ti-purchase');
     if (!footer.childNodes.length) footer.append(element('p', 'Purchase links appear when a source is identified.', 'ti-muted'));
     if (resaleStale && validDate(resale?.checkedAt)) footer.classList.add('ti-footer-stale');

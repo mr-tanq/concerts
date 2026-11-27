@@ -140,3 +140,15 @@ The hero shows observed buyer totals, advertised official prices, explicitly ver
 The responsive canvas chart follows recorded dates, preserves gaps, and provides labeled touch and keyboard points plus an observation selector. History category filtering appears when a recorded point has a validated category association. Official history is limited to compatible, still-stored verified totals from one seller/category. The current store often retains only a single official observation. Aggregate resale history cannot be retroactively split by category.
 
 The review gallery uses the real application with browser-intercepted snapshots and private GitHub responses. Every screenshot is labeled **OFFLINE FIXTURE**. No review prices, stock, notifications or dates are written into production snapshots. [Browser review and screenshots](ticket-intelligence-review/README.md)
+
+### V2.4.3 direct official ticket intelligence
+
+Stored Podiuminfo and Festivalinfo ticket links are intermediaries. Their robots policies disallow `/ticket/*`, so they are never followed. The official seller is resolved from the venue's own verified event page instead, with the existing schedule discovery, a seller registry (`js/ticket-links.js`) and the identity rules of the schedule parser. The result is cached on the concert's official record as `seller` and keyed by identity.
+
+Provider adapters read the following, where published:
+
+- 013, Doornroosje and AFAS Live: event-page prices.
+- Paradiso and Parallel: event-record base price, service fee and stock.
+- Ziggo Dome: categories and on-sale state from its public data.
+
+Successful checks add to a per-concert price `history`. The dashboard shows seller, category, base price and fees separately. Advertised prices form their own chart series. "Official tickets" links only to a verified destination. All-in totals remain unverified, so savings comparisons are unchanged. Live results, blocked sources and limitations: [Direct official ticket audit](DIRECT_TICKET_AUDIT.md).

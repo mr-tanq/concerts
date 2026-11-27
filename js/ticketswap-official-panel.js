@@ -1,5 +1,5 @@
 import { attachTicketSwapCheck } from './ticketswap-check.js';
-import { getOfficialComparison, knownOfficialLink, offerIsFresh, offerWasSuperseded, ticketSourceURL } from './ticket-official.js';
+import { getOfficialComparison, knownOfficialLink, offerIsFresh, offerWasSuperseded, reconcileOfficialAvailability, ticketSourceURL, unverifiedTicketLink } from './ticket-official.js';
 import { identity, ticketSwapURL } from './ticketswap-matching.js';
 
 function text(tag, value) {
@@ -27,7 +27,8 @@ export function renderOfficialPanel(concert, resale, snapshot, onUpdate, open = 
   const offers = [
     ...(current?.offers ?? []),
     ...checks.flatMap(check => check.offers.map(offer => ({ ...offer, sourceFailed: check.status === 'failed' })))
-  ].filter(offer => offer && (offer.currency === null || /^[A-Z]{3}$/.test(offer.currency)));
+  ].map(offer => reconcileOfficialAvailability(offer, current, concertIdentity))
+    .filter(offer => offer && (offer.currency === null || /^[A-Z]{3}$/.test(offer.currency)));
   const panel = document.createElement('details');
   panel.className = 'ticketswap-market official-ticket-check';
   panel.open = open;
@@ -65,8 +66,11 @@ export function renderOfficialPanel(concert, resale, snapshot, onUpdate, open = 
   if (!offers.length) {
     panel.append(text('p', 'Official price and availability: Not verified.'));
     if (checks.some(check => check.status === 'failed')) panel.append(text('p', 'The official source could not be refreshed.'));
-    const official = link(knownOfficialLink(concert), 'Official Tickets ↗');
+    const official = link(knownOfficialLink(concert, current), 'Official Tickets ↗');
+    const fallback = official ? null : unverifiedTicketLink(concert);
+    const stored = fallback && link(fallback.url, fallback.label + ' ↗');
     if (official) panel.append(official);
+    else if (stored) panel.append(stored);
     return panel;
   }
 
@@ -89,6 +93,7 @@ export function renderOfficialPanel(concert, resale, snapshot, onUpdate, open = 
       [fresh ? 'Official final price' : 'Last verified official final price', money(offer.finalCents)]
     ]) facts.append(text('dt', label), text('dd', value));
     panel.append(facts);
+    if (offer.availabilityConflict) panel.append(text('p', `Availability not confirmed: ${offer.availabilityConflict}.`));
     if (offer.priceContext?.serviceFeesIncluded) {
       panel.append(text('p', 'The published price includes service fees.'));
     }

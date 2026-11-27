@@ -1,29 +1,60 @@
+import { classifyTicketLink, cleanTicketURL, verifiedSellerLink } from './ticket-links.js';
+import { identity } from './ticketswap-matching.js';
+
 export const OFFER_MAX_AGE_MS = 6 * 3600000;
 
+// An https link with tracking parameters removed; event and shop parameters stay.
 export function ticketSourceURL(value) {
   try {
-    const url = new URL(value);
-    if (url.protocol !== 'https:' || url.username || url.password || url.port) return null;
-    url.hash = '';
-    for (const key of [...url.searchParams.keys()]) {
-      if (/^utm_/i.test(key)) url.searchParams.delete(key);
-    }
-    return url.href;
+    if (new URL(value).protocol !== 'https:') return null;
   } catch {
     return null;
   }
+  return cleanTicketURL(value);
 }
 
-export function knownOfficialLink(concert) {
+// The purchase link to offer when no fresh official offer names one: a
+// verified seller destination first, then a stored link that is itself an
+// official seller. Intermediary, resale and unknown links are never offered
+// as "Official tickets".
+export function knownOfficialLink(concert, record) {
+  const verified = verifiedSellerLink(record, identity(concert));
+  if (verified) return verified.purchaseUrl;
   for (const value of [concert.ticketUrl, concert.officialUrl, concert.sourceUrl]) {
     const safe = ticketSourceURL(value);
     if (!safe) continue;
+    const link = classifyTicketLink(safe);
+    if (link.kind === 'official-seller') return link.url;
     const url = new URL(safe);
-    if (/^(www\.)?ticketmaster\.(nl|be|de|fr|co\.uk|com)$/.test(url.hostname)
+    if (/^(www\.)?ticketmaster\.(de|fr|co\.uk|com)$/.test(url.hostname)
       && /(?:^|\/)event\/[^/]+/.test(url.pathname)) return safe;
   }
-  return ticketSourceURL(concert.officialUrl)
+  const fallback = ticketSourceURL(concert.officialUrl)
     || (concert.source === 'official' ? ticketSourceURL(concert.sourceUrl) : null);
+  return fallback && !['intermediary', 'resale'].includes(classifyTicketLink(fallback).kind) ? fallback : null;
+}
+
+// A sold-out or waiting-list ticket button seen by the seller check
+// contradicts an "in stock" offer from the same period; neither is
+// confirmed, so availability becomes unknown and the conflict is shown.
+export const AVAILABILITY_CONFLICT = 'Structured data reports in stock; the venue ticket button reports sold out or waiting list';
+export function reconcileOfficialAvailability(offer, record, concertIdentity) {
+  const seller = record?.seller;
+  if (offer?.availability !== 'available' || !seller || seller.identity !== concertIdentity
+    || !['sold-out', 'waitlist'].includes(seller.buttonState)
+    || !(Math.abs(Date.parse(offer.verifiedAt) - Date.parse(seller.checkedAt)) < OFFER_MAX_AGE_MS)) return offer;
+  return { ...offer, availability: 'unknown', availabilityConflict: offer.availabilityConflict ?? AVAILABILITY_CONFLICT };
+}
+
+// The stored ticket link when no verified destination exists, labelled as
+// unverified so it stays usable without being presented as official.
+export function unverifiedTicketLink(concert) {
+  const link = classifyTicketLink(concert.ticketUrl);
+  if (!link.url || link.kind === 'invalid' || link.kind === 'unrelated') return null;
+  const label = link.kind === 'intermediary' ? `Tickets via ${link.label} · unverified`
+    : link.kind === 'resale' ? 'Resale link · unverified'
+    : link.kind === 'official-seller' ? `${link.label} · unverified` : 'Ticket link · unverified';
+  return { url: link.url, label };
 }
 
 export function offerIsFresh(value, now = Date.now()) {
@@ -65,7 +96,8 @@ export function offerWasSuperseded(offer, offers) {
 export function watchOfficialComparison(record, resale, categoryId, now = Date.now()) {
   if (!resale || record?.identity !== resale.identity) return null;
   const offers = [...(record.offers ?? []), ...Object.values(record.providerChecks ?? {})
-    .filter(check => check.status === 'verified').flatMap(check => check.offers)];
+    .filter(check => check.status === 'verified').flatMap(check => check.offers)]
+    .map(offer => reconcileOfficialAvailability(offer, record, record.identity));
   for (const offer of offers) {
     if ((categoryId && offer.resaleTypeId !== categoryId) || offerWasSuperseded(offer, offers)) continue;
     const result = getOfficialComparison(offer, resale, now);
