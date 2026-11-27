@@ -58,6 +58,7 @@ class MainActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
+        if (hasGmailAccess && !GmailListener.connected) GmailListener.rebind(this)
         render()
     }
 
@@ -143,7 +144,18 @@ class MainActivity : Activity() {
 
         section("Alerts")
         toggle("Email alerts", "Tell me who new Gmail is from.", prefs.emailAlerts) { prefs.emailAlerts = it }
+        list.addView(text(emailStatus(), 13f, muted).apply { setPadding(dp(4), 0, dp(4), dp(4)) })
+        list.addView(smallButton("Test email bubble") {
+            if (!YodaService.isRunning) {
+                Toast.makeText(this, "Show Yoda first.", Toast.LENGTH_SHORT).show()
+            } else {
+                PetBus.post { it.announceEmail("Yoda (test)", "This is how a new email will look", null, force = true) }
+                Toast.makeText(this, "Look at Yoda 🐾", Toast.LENGTH_SHORT).show()
+            }
+        })
         toggle("Meeting reminders", "Speech bubble 5 minutes before a meeting.", prefs.meetingAlerts) { prefs.meetingAlerts = it }
+        list.addView(text(calendarStatus(), 13f, muted).apply { setPadding(dp(4), 0, dp(4), dp(4)) })
+        list.addView(smallButton("Test meeting bubble") { testMeeting() })
 
         section("Size")
         val sizes = listOf("Small" to 72, "Medium" to 96, "Large" to 128)
@@ -167,6 +179,51 @@ class MainActivity : Activity() {
                 "• When new Gmail arrives he tells you who it's from, with an Open it button.\n" +
                 "• To hide him: the “Hide Yoda” button above or in his notification.",
             14f, ink))
+    }
+
+    private fun calendarStatus(): String = when {
+        !hasCalendar -> "✗ Calendar permission is off (see Permissions above)"
+        !YodaService.isRunning -> "Yoda checks your calendar while he's on screen."
+        else -> prefs.calendarStatus ?: "Checking…"
+    }
+
+    /** Shows the next meeting today as a reminder bubble, right now. */
+    private fun testMeeting() {
+        if (!YodaService.isRunning) { Toast.makeText(this, "Show Yoda first.", Toast.LENGTH_SHORT).show(); return }
+        if (!hasCalendar) { Toast.makeText(this, "Allow Calendar first.", Toast.LENGTH_SHORT).show(); return }
+        val now = System.currentTimeMillis()
+        val next = try {
+            CalendarReader.read(this, now, now + 24 * 3600_000L).firstOrNull { !it.allDay && !it.canceled && !it.declined && it.begin > now }
+        } catch (e: Exception) {
+            Toast.makeText(this, "Couldn't read the calendar: ${e.message}", Toast.LENGTH_LONG).show(); return
+        }
+        val clock = java.text.DateFormat.getTimeInstance(java.text.DateFormat.SHORT).format(java.util.Date(next?.begin ?: now))
+        PetBus.post { pet ->
+            if (next == null) {
+                pet.announceMeeting("No meetings in the next 24 hours", "(this is a test)", null) {}
+            } else {
+                pet.announceMeeting(com.yoda.pet.logic.Meetings.displayTitle(next.title),
+                    com.yoda.pet.logic.Meetings.whenText(next.begin, now, clock) + " (test)", next.location) {
+                    val i = Intent(Intent.ACTION_VIEW, android.content.ContentUris.withAppendedId(android.provider.CalendarContract.Events.CONTENT_URI, next.eventId))
+                        .putExtra(android.provider.CalendarContract.EXTRA_EVENT_BEGIN_TIME, next.begin)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    runCatching { startActivity(i) }
+                }
+            }
+        }
+        Toast.makeText(this, "Look at Yoda 🐾", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun emailStatus(): String {
+        val fmt = java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.SHORT, java.text.DateFormat.SHORT)
+        val listener = when {
+            !hasGmailAccess -> "✗ Notification access is off (see Permissions above)"
+            GmailListener.connected -> "✓ Listening for Gmail"
+            else -> "… Access is on but Android hasn't connected Yoda yet. Turn the access off and on again, or restart the phone."
+        }
+        val last = prefs.lastMailSeen?.let { "Last Gmail notification: $it (${fmt.format(java.util.Date(prefs.lastMailSeenAt))})" }
+            ?: "No Gmail notification seen yet. Check that Gmail notifications are on (Gmail → Settings → your account → Notifications: All)."
+        return "$listener\n$last"
     }
 
     private fun section(title: String) {

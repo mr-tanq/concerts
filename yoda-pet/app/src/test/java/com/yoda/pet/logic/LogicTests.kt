@@ -11,8 +11,8 @@ class LogicTests {
         CalendarEvent(id, now + (inMin * 60_000).toLong(), "Meeting $id", null, allDay, canceled, declined)
 
     @Test fun announcesMeetingsStartingWithinFiveMinutes() {
-        val due = Meetings.due(listOf(ev(1, 4.9), ev(2, 5.0), ev(3, 5.5), ev(4, -1.0), ev(5, 0.5)), now, emptySet())
-        assertEquals(listOf(5L, 1L, 2L), due.map { it.eventId })
+        val due = Meetings.due(listOf(ev(1, 4.9), ev(2, 5.0), ev(3, 5.5), ev(4, -1.0), ev(5, 0.5), ev(7, -3.0)), now, emptySet())
+        assertEquals(listOf(4L, 5L, 1L, 2L), due.map { it.eventId })
     }
 
     @Test fun skipsAllDayCancelledDeclinedAndAlreadyAnnounced() {
@@ -25,6 +25,8 @@ class LogicTests {
         assertEquals(5, Meetings.minutesUntil(now + 4 * 60_000 + 1, now))
         assertEquals(1, Meetings.minutesUntil(now + 10_000, now))
         assertEquals("(no title)", Meetings.displayTitle("  "))
+        assertEquals("Starts in 5 min, at 10:00", Meetings.whenText(now + 5 * 60_000, now, "10:00"))
+        assertEquals("Started 1 min ago (10:00)", Meetings.whenText(now - 90_000, now, "10:00"))
     }
 
     @Test fun parsesGmailSenderAndSubject() {
@@ -33,10 +35,16 @@ class LogicTests {
     }
 
     @Test fun ignoresSummariesOtherAppsAndRollups() {
-        assertNull(MailAlerts.parse("com.google.android.gm", true, "Maria", "Hi"))
         assertNull(MailAlerts.parse("com.whatsapp", false, "Maria", "Hi"))
         assertNull(MailAlerts.parse("com.google.android.gm", false, "3 new messages", "x"))
         assertNull(MailAlerts.parse("com.google.android.gm", false, null, "x"))
+    }
+
+    @Test fun acceptsSingleEmailPostedAsSummaryAndFallsBackToBigText() {
+        assertEquals(MailAlert("Maria", "Hi"), MailAlerts.parse("com.google.android.gm", true, "Maria", "Hi"))
+        assertEquals(MailAlert("Nikos", "Invoice"), MailAlerts.parse("com.google.android.gm", false, "Nikos", null, "\nInvoice\nbody"))
+        assertNull(MailAlerts.parse("com.google.android.gm", true, "me@gmail.com", "Maria: Hi", account = "me@gmail.com"))
+        assertEquals("Maria|Hi", MailAlert("Maria", "Hi").dedupKey)
     }
 
     @Test fun pkceMatchesRfc7636Vector() {

@@ -319,8 +319,8 @@ class PetOverlay(private val ctx: Context) {
             autoHideMs = 90_000, dismissOnOutside = false)
     }
 
-    fun announceEmail(sender: String, subject: String?, contentIntent: PendingIntent?) {
-        if (!prefs.emailAlerts) return
+    fun announceEmail(sender: String, subject: String?, contentIntent: PendingIntent?, force: Boolean = false) {
+        if (!prefs.emailAlerts && !force) return
         jump()
         say("📧 New email from", sender + (subject?.let { "\n“$it”" } ?: ""),
             buttons = listOf("Open it" to { openEmail(contentIntent) }, "Later" to {}),

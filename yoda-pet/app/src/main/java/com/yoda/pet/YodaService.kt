@@ -149,52 +149,28 @@ class YodaService : Service() {
     private fun checkMeetings() {
         val pet = overlay ?: return
         if (!prefs.meetingAlerts) return
-        if (checkSelfPermission(Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) return
+        if (!CalendarReader.hasPermission(this)) {
+            prefs.calendarStatus = "✗ No calendar permission"
+            return
+        }
         val now = System.currentTimeMillis()
-        val events = runCatching { readEvents(now - 60_000, now + Meetings.LEAD_MS + 60_000) }.getOrDefault(emptyList())
+        val events = try {
+            CalendarReader.read(this, now - 10 * 60_000, now + 24 * 3600_000L)
+        } catch (e: Exception) {
+            prefs.calendarStatus = "✗ Couldn't read the calendar: ${e.message}"
+            return
+        }
+        val upcoming = events.filter { !it.allDay && !it.canceled && !it.declined && it.begin > now }
+        val fmt = DateFormat.getTimeInstance(DateFormat.SHORT)
+        prefs.calendarStatus = "✓ Checked at ${fmt.format(Date(now))}. " + (upcoming.firstOrNull()
+            ?.let { "Next meeting: ${Meetings.displayTitle(it.title)} at ${fmt.format(Date(it.begin))}" }
+            ?: "No meetings in the next 24 hours.")
         val announced = prefs.announcedMeetings
         val due = Meetings.due(events, now, announced)
         if (due.isEmpty()) return
-        // Remember them all; keep the list short (only keys for recent meetings matter).
         prefs.announcedMeetings = (announced.toList().takeLast(50) + due.map { it.key }).toSet()
         val e = due.first()
-        val mins = Meetings.minutesUntil(e.begin, now)
-        val at = DateFormat.getTimeInstance(DateFormat.SHORT).format(Date(e.begin))
-        val whenText = if (mins <= 1) "Starting in about a minute ($at)" else "Starts in $mins min, at $at"
-        pet.announceMeeting(Meetings.displayTitle(e.title), whenText, e.location) { openEvent(e) }
-    }
-
-    private fun readEvents(from: Long, to: Long): List<CalendarEvent> {
-        val uri = CalendarContract.Instances.CONTENT_URI.buildUpon().also {
-            ContentUris.appendId(it, from)
-            ContentUris.appendId(it, to)
-        }.build()
-        val projection = arrayOf(
-            CalendarContract.Instances.EVENT_ID,
-            CalendarContract.Instances.BEGIN,
-            CalendarContract.Instances.TITLE,
-            CalendarContract.Instances.EVENT_LOCATION,
-            CalendarContract.Instances.ALL_DAY,
-            CalendarContract.Instances.STATUS,
-            CalendarContract.Instances.SELF_ATTENDEE_STATUS,
-            CalendarContract.Instances.VISIBLE,
-        )
-        val out = ArrayList<CalendarEvent>()
-        contentResolver.query(uri, projection, null, null, CalendarContract.Instances.BEGIN + " ASC")?.use { c ->
-            while (c.moveToNext()) {
-                if (c.getInt(7) == 0) continue // calendar hidden in the Calendar app
-                out += CalendarEvent(
-                    eventId = c.getLong(0),
-                    begin = c.getLong(1),
-                    title = c.getString(2),
-                    location = c.getString(3),
-                    allDay = c.getInt(4) == 1,
-                    canceled = !c.isNull(5) && c.getInt(5) == CalendarContract.Events.STATUS_CANCELED,
-                    declined = !c.isNull(6) && c.getInt(6) == CalendarContract.Attendees.ATTENDEE_STATUS_DECLINED,
-                )
-            }
-        }
-        return out
+        pet.announceMeeting(Meetings.displayTitle(e.title), Meetings.whenText(e.begin, now, fmt.format(Date(e.begin))), e.location) { openEvent(e) }
     }
 
     private fun openEvent(e: CalendarEvent) {

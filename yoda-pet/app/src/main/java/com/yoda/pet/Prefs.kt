@@ -26,6 +26,21 @@ class Prefs(context: Context) {
         get() = sp.getStringSet("announced", emptySet()) ?: emptySet()
         set(v) = sp.edit().putStringSet("announced", v).apply()
 
+    var calendarStatus: String?
+        get() = sp.getString("cal_status", null)
+        set(v) = sp.edit().putString("cal_status", v).apply()
+
+    // Email alert diagnostics (shown in the app)
+    var lastMailSeen: String?
+        get() = sp.getString("mail_last", null)
+        set(v) = sp.edit().putString("mail_last", v).apply()
+    var lastMailSeenAt: Long
+        get() = sp.getLong("mail_last_at", 0)
+        set(v) = sp.edit().putLong("mail_last_at", v).apply()
+    var mailListenerConnectedAt: Long
+        get() = sp.getLong("mail_conn_at", 0)
+        set(v) = sp.edit().putLong("mail_conn_at", v).apply()
+
     // Spotify session
     var spotifyAccess: String?
         get() = sp.getString("sp_access", null)
