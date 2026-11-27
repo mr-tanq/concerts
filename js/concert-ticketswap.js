@@ -104,7 +104,8 @@ function priceHero(evidence, concert, officialSnapshot) {
       : 'Advertised price includes service fees. Checkout charges are not verified.', 'ti-muted'));
   }
   const seller = sellerSummary(evidence.officialRecord, identity(concert), concert.ticketUrl);
-  if (!offer || seller.state !== 'verified') official.append(element('p', seller.text, 'ti-muted ti-seller'));
+  // Without an offer, say where the seller stands; an offer already names it.
+  if (!offer) official.append(element('p', seller.text, 'ti-muted ti-seller'));
   if (knownAmount(offer?.priceContext?.excludedMembershipCents)) {
     official.append(element('p', `${money(offer.priceContext.excludedMembershipCents, currency)} membership excluded.`, 'ti-muted'));
   }

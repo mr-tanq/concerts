@@ -197,7 +197,9 @@ export async function resolveOfficialSeller({ concert, reader, discover, now = D
   if (known) return known;
   let found = [];
   try {
-    found = (await discover(concert, reader.fetchPage)).map(url => cleanTicketURL(url)).filter(Boolean);
+    const urls = await discover(concert, reader.fetchPage);
+    for (const reason of urls.failures ?? []) reasons.add(reason);
+    found = urls.map(url => cleanTicketURL(url)).filter(Boolean);
   } catch (error) {
     reasons.add(failure(error));
   }
@@ -225,8 +227,17 @@ export function sellerIsCurrent(record, concert, now = Date.now()) {
 export function scheduleDiscovery(enrichOne) {
   return async (concert, fetchPage) => {
     const schedule = await enrichOne(concert, new Date().toISOString(), 'manual', fetchPage);
-    return (schedule.discovery?.attempts ?? [])
-      .filter(attempt => /^verified/.test(attempt.status)).map(attempt => attempt.url);
+    const attempts = schedule.discovery?.attempts ?? [];
+    const urls = attempts.filter(attempt => /^verified/.test(attempt.status)).map(attempt => attempt.url);
+    // Why discovery found nothing, for the audit report.
+    urls.failures = [...new Set(attempts.filter(attempt => attempt.status === 'fetch-failed').map(attempt =>
+      /robots/i.test(attempt.reason) ? 'robots-disallowed'
+        : /access unavailable/i.test(attempt.reason) ? 'access-control'
+        : /Unapproved/.test(attempt.reason) ? 'unapproved-host' : 'unavailable'))];
+    if (attempts.some(attempt => attempt.status === 'identity-unverified' || attempt.status === 'venue-mismatch')) {
+      urls.failures.push('identity-unverified');
+    }
+    return urls;
   };
 }
 
