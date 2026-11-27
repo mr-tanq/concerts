@@ -27,8 +27,51 @@
         "lastAttemptAt": "2026-11-26T22:26:09.918Z",
         "status": "unsupported"
       }
+    },
+    "planned-hermanos-guti-rrez-paradiso-2026-12-13": {
+      "identity": "[\"Hermanos Gutiérrez\",\"2026-12-13\",\"Paradiso\",\"Amsterdam\",\"NL\"]",
+      "offers": [],
+      "providerChecks": {
+        "https://www.paradiso.nl/programma/hermanos-gutierrez/2896806": {
+          "attemptedAt": "2026-11-27T05:44:19.866Z",
+          "status": "verified",
+          "offers": [
+            {
+              "seller": "paradiso.nl",
+              "category": "Category not stated",
+              "sourceUrl": "https://www.paradiso.nl/programma/hermanos-gutierrez/2896806",
+              "purchaseUrl": "https://tickets.paradiso.nl/eda1308455464800a70636c83bd828ee",
+              "provider": "venue-jsonld",
+              "offerKey": null,
+              "verifiedAt": "2026-11-27T05:44:21.183Z",
+              "evidence": "Official event page · structured offer data",
+              "quantity": 1,
+              "availability": "sold-out",
+              "currency": "EUR",
+              "faceCents": null,
+              "baseCents": null,
+              "feesCents": null,
+              "finalCents": null,
+              "listedCents": 5540,
+              "feeInclusive": false,
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null,
+              "priceContext": {
+                "excludedMembershipCents": 450
+              }
+            }
+          ]
+        }
+      },
+      "lastCheck": {
+        "identity": "[\"Hermanos Gutiérrez\",\"2026-12-13\",\"Paradiso\",\"Amsterdam\",\"NL\"]",
+        "requestId": "ef57563b-3471-4ce0-b7ad-58e13901f700",
+        "lastAttemptAt": "2026-11-27T05:44:19.866Z",
+        "status": "verified"
+      }
     }
   },
   "providerBackoff": {},
-  "updatedAt": "2026-11-27T05:39:35.665Z"
+  "updatedAt": "2026-11-27T05:44:21.375Z"
 }
