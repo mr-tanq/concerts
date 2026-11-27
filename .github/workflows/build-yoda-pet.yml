@@ -1,0 +1,64 @@
+name: Build Yoda pet APK
+
+# Yoda, the on-screen French bulldog (yoda-pet/). Builds on any change there.
+# Every build also replaces the APK on one fixed release, so the phone can
+# always grab the newest one from:
+# https://github.com/mr-tanq/concerts/releases/download/yoda-latest/yoda.apk
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "yoda-pet/**"
+      - ".github/workflows/build-yoda-pet.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: yoda-pet
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+
+      - name: Unit tests
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon :app:testDebugUnitTest
+
+      - name: Build APK
+        run: ./gradlew --no-daemon :app:assembleDebug
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: yoda-apk
+          path: yoda-pet/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Publish as the latest Yoda download
+        working-directory: ${{ github.workspace }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cp yoda-pet/app/build/outputs/apk/debug/app-debug.apk yoda.apk
+          NOTES="Yoda desktop pet, built from ${GITHUB_SHA::7} (${GITHUB_REF_NAME}). Open yoda.apk on the phone to install or update."
+          if ! gh release view yoda-latest >/dev/null 2>&1; then
+            gh release create yoda-latest --title "Yoda (latest)" --notes "$NOTES" --latest=false --target "$GITHUB_SHA"
+          fi
+          gh release upload yoda-latest yoda.apk --clobber
+          gh release edit yoda-latest --notes "$NOTES"
