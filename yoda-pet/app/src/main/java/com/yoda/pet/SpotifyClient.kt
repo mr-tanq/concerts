@@ -104,6 +104,26 @@ class SpotifyClient(context: Context) {
         }
     }
 
+    /** What your Spotify account is playing on any device (phone, computer, speaker). null = nothing. */
+    fun currentlyPlaying(onResult: (Result<NowPlaying.Song?>) -> Unit) {
+        io.execute {
+            onResult(runCatching {
+                val (code, text) = api("GET", "/me/player?additional_types=track,episode", allowError = true)
+                if (code == 401) { prefs.clearSpotify(); throw Exception("Spotify signed me out. Reconnect in the Yoda app.") }
+                if (code == 204 || text.isBlank()) return@runCatching null
+                if (code !in 200..299) throw SpotifyException(code, "Spotify error ($code)")
+                val json = JSONObject(text)
+                val item = json.optJSONObject("item") ?: return@runCatching null
+                val artists = item.optJSONArray("artists")
+                val by = if (artists != null && artists.length() > 0) track(item).artists
+                    else item.optJSONObject("show")?.optString("name")
+                val device = json.optJSONObject("device")?.optString("name")?.takeIf { it.isNotEmpty() }
+                NowPlaying.Song(item.optString("name"), by?.takeIf { it.isNotEmpty() },
+                    "Spotify" + (device?.let { " on $it" } ?: ""), json.optBoolean("is_playing"))
+            })
+        }
+    }
+
     private fun randomFavorite(): Track {
         val first = JSONObject(api("GET", "/me/tracks?limit=1").second)
         val total = first.optInt("total", 0)

@@ -129,10 +129,10 @@ class MainActivity : Activity() {
 
         section("Spotify")
         if (spotify.isConnected) {
-            list.addView(text("✓ Connected${prefs.spotifyUser?.let { " as $it" } ?: ""}. Tap Yoda to hear a random song from your Liked Songs.", 14f, green))
+            list.addView(text("✓ Connected${prefs.spotifyUser?.let { " as $it" } ?: ""}. Double-tap Yoda to hear a random song from your Liked Songs.", 14f, green))
             list.addView(smallButton("Disconnect Spotify") { spotify.disconnect(); render() })
         } else {
-            list.addView(text("Tap Yoda and he plays a random song from your Liked Songs.", 14f, ink))
+            list.addView(text("Double-tap Yoda and he plays a random song from your Liked Songs.", 14f, ink))
             list.addView(text("One-time setup: in your app on developer.spotify.com, add this Redirect URI and save:\n${SpotifyClient.REDIRECT_URI}", 13f, muted).apply {
                 setTextIsSelectable(true)
                 setPadding(0, dp(6), 0, 0)
@@ -173,7 +173,8 @@ class MainActivity : Activity() {
 
         section("How to use")
         list.addView(text(
-            "• Tap Yoda: he jumps and plays one of your favourite songs.\n" +
+            "• Tap Yoda: he tells you which song is playing.\n" +
+                "• Double-tap Yoda: he jumps and plays one of your favourite songs.\n" +
                 "• Hold Yoda: Encourage me, Say something funny, Check in on me, and email alerts on/off.\n" +
                 "• 5 minutes before a meeting he tells you what it is.\n" +
                 "• When new Gmail arrives he tells you who it's from, with an Open it button.\n" +

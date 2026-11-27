@@ -5,7 +5,8 @@ screen, on top of other apps.
 
 | You do | Yoda does |
 |---|---|
-| Tap him | Jumps and plays a random song from your Spotify Liked Songs (top tracks if you have none) |
+| Tap him | Speech bubble with the song playing now — from any music app on the phone, or your Spotify account on any device |
+| Double-tap him | Jumps and plays a random song from your Spotify Liked Songs (top tracks if you have none) |
 | Hold him | Menu: **Encourage me**, **Say something funny**, **Check in on me**, **Email alerts on/off** |
 | — | 5 minutes before a Google Calendar meeting: speech bubble with the meeting, time and place (**Open** / **Got it**) |
 | — | New Gmail: "New email from …" with the subject and an **Open it** button |

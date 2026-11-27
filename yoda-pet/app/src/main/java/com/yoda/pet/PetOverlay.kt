@@ -101,7 +101,7 @@ class PetOverlay(private val ctx: Context) {
         setMode(Mode.WALK)
         resume()
         PetBus.overlay = this
-        main.postDelayed({ say("Woof! I'm Yoda 🐾", "Tap me for a song, hold me for more.", autoHideMs = 6000) }, 800)
+        main.postDelayed({ say("Woof! I'm Yoda 🐾", "Tap: what's playing · Double-tap: a favourite song · Hold: more", autoHideMs = 6000) }, 800)
     }
 
     fun hide() {
@@ -239,13 +239,52 @@ class PetOverlay(private val ctx: Context) {
     private fun attachGestures() {
         val detector = GestureDetector(ctx, object : GestureDetector.SimpleOnGestureListener() {
             override fun onDown(e: MotionEvent) = true
-            override fun onSingleTapUp(e: MotionEvent): Boolean { onTap(); return true }
+            override fun onSingleTapConfirmed(e: MotionEvent): Boolean { onTap(); return true }
+            override fun onDoubleTap(e: MotionEvent): Boolean { onDoubleTap(); return true }
             override fun onLongPress(e: MotionEvent) { onLongPress() }
         })
         root.setOnTouchListener { _, e -> detector.onTouchEvent(e); true }
     }
 
+    /** Tap: say what's playing right now. */
     private fun onTap() {
+        lastInteraction = SystemClock.uptimeMillis()
+        if (mode == Mode.SLEEP) setMode(Mode.STAND)
+        val local = NowPlaying.onThisPhone(ctx)
+        if (local != null && local.playing) { showSong(local); return }
+        if (!spotify.isConnected) {
+            if (local != null) showSong(local) else nothingPlaying()
+            return
+        }
+        spotify.currentlyPlaying { result ->
+            main.post {
+                val remote = result.getOrNull()
+                when {
+                    remote != null && remote.playing -> showSong(remote)
+                    local != null -> showSong(local)
+                    remote != null -> showSong(remote)
+                    result.isFailure -> say("Ruh-roh 🐶", result.exceptionOrNull()?.message ?: "Couldn't reach Spotify.", autoHideMs = 6000)
+                    else -> nothingPlaying()
+                }
+            }
+        }
+    }
+
+    private fun showSong(song: NowPlaying.Song) {
+        val body = buildString {
+            append(song.title)
+            song.artist?.let { append("\n").append(it) }
+            song.app?.let { append("\n").append(if (song.playing) "on " else "paused · ").append(it) }
+        }
+        say(if (song.playing) "🎵 Now playing" else "⏸ Paused", body, autoHideMs = 7000)
+    }
+
+    private fun nothingPlaying() {
+        say("🤫 Nothing playing", "Double-tap me and I'll put on one of your favourites!", autoHideMs = 5000)
+    }
+
+    /** Double tap: jump and play a random favourite. */
+    private fun onDoubleTap() {
         lastInteraction = SystemClock.uptimeMillis()
         jump()
         if (!spotify.isConnected) {
