@@ -16,6 +16,20 @@
         "requestId": "e7a246c7-d191-4362-8155-ce32bb531079",
         "lastAttemptAt": "2026-11-26T21:40:17.206Z",
         "status": "unsupported"
+      },
+      "seller": {
+        "identity": "[\"SYML\",\"2026-12-03\",\"TivoliVredenburg\",\"Utrecht\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/130937/cd/Syml-Metropole-Orkest/TivoliVredenburg/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:33:56.078Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/130937/cd/Syml-Metropole-Orkest/TivoliVredenburg/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "blocked",
+        "reason": "access-control"
       }
     },
     "planned-podiuminfo-457138": {
@@ -26,9 +40,3633 @@
         "requestId": "04c41476-f25c-4c46-981f-f91f98e6a7ba",
         "lastAttemptAt": "2026-11-26T22:26:09.918Z",
         "status": "unsupported"
+      },
+      "seller": {
+        "identity": "[\"DeWolff\",\"2026-12-12\",\"TivoliVredenburg\",\"Utrecht\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/139625/cd/DeWolff/TivoliVredenburg/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:27:53.314Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/139625/cd/DeWolff/TivoliVredenburg/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "unresolved",
+        "reason": "No official event page found"
+      }
+    },
+    "planned-mono-tivolivredenburg-2027-02-17": {
+      "identity": "[\"MONO\",\"2027-02-17\",\"TivoliVredenburg\",\"Utrecht\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"MONO\",\"2027-02-17\",\"TivoliVredenburg\",\"Utrecht\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/132190/cd/MONO/TivoliVredenburg/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:27:19.283Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/132190/cd/MONO/TivoliVredenburg/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "blocked",
+        "reason": "access-control"
+      },
+      "providerChecks": {
+        "https://www.tivolivredenburg.nl/agenda/38718465/mono-17-02-2027": {
+          "attemptedAt": "2026-11-27T05:27:19.282Z",
+          "status": "failed",
+          "offers": []
+        }
+      }
+    },
+    "planned-mono-botanique-2027-02-18": {
+      "identity": "[\"MONO\",\"2027-02-18\",\"Botanique\",\"Brussel\",\"BE\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"MONO\",\"2027-02-18\",\"Botanique\",\"Brussel\",\"BE\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:27:20.874Z",
+        "intermediary": null,
+        "status": "robots-disallowed",
+        "reason": "robots-disallowed"
+      }
+    },
+    "planned-hermanos-guti-rrez-paradiso-2026-12-13": {
+      "identity": "[\"Hermanos Gutiérrez\",\"2026-12-13\",\"Paradiso\",\"Amsterdam\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Hermanos Gutiérrez\",\"2026-12-13\",\"Paradiso\",\"Amsterdam\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/136096/cd/Hermanos-Gutierrez/Paradiso/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:27:20.901Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/136096/cd/Hermanos-Gutierrez/Paradiso/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "paradiso-tickets",
+        "seller": "Paradiso",
+        "purchaseUrl": "https://tickets.paradiso.nl/7a68e4c375754bbea06e66413eeec6e1",
+        "eventPageUrl": "https://www.paradiso.nl/programma/hermanos-gutierrez/2896806",
+        "buttonState": "waitlist",
+        "buttonPriceCents": 500,
+        "evidence": "Linked from the verified paradiso.nl event page"
+      },
+      "providerChecks": {
+        "https://www.paradiso.nl/programma/hermanos-gutierrez/2896806": {
+          "attemptedAt": "2026-11-27T05:27:20.901Z",
+          "status": "verified",
+          "offers": [
+            {
+              "seller": "paradiso.nl",
+              "category": "Category not stated",
+              "sourceUrl": "https://www.paradiso.nl/programma/hermanos-gutierrez/2896806",
+              "purchaseUrl": "https://tickets.paradiso.nl/eda1308455464800a70636c83bd828ee",
+              "provider": "venue-jsonld",
+              "offerKey": null,
+              "verifiedAt": "2026-11-27T05:27:23.537Z",
+              "evidence": "Official event page · structured offer data",
+              "quantity": 1,
+              "availability": "sold-out",
+              "currency": "EUR",
+              "faceCents": null,
+              "baseCents": null,
+              "feesCents": null,
+              "finalCents": null,
+              "listedCents": 5540,
+              "feeInclusive": false,
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null,
+              "priceContext": {
+                "excludedMembershipCents": 450
+              }
+            }
+          ]
+        }
+      },
+      "history": [
+        {
+          "at": "2026-11-27T05:27:23.537Z",
+          "seller": "paradiso.nl",
+          "category": "Category not stated",
+          "currency": "EUR",
+          "listedCents": 5540,
+          "baseCents": null,
+          "feesCents": null,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": false,
+          "availability": "sold-out",
+          "sourceUrl": "https://www.paradiso.nl/programma/hermanos-gutierrez/2896806"
+        }
+      ]
+    },
+    "planned-hermanos-guti-rrez-paradiso-2026-12-14": {
+      "identity": "[\"Hermanos Gutiérrez\",\"2026-12-14\",\"Paradiso\",\"Amsterdam\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Hermanos Gutiérrez\",\"2026-12-14\",\"Paradiso\",\"Amsterdam\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/136097/cd/Hermanos-Gutierrez/Paradiso/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:27:23.658Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/136097/cd/Hermanos-Gutierrez/Paradiso/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "paradiso-tickets",
+        "seller": "Paradiso",
+        "purchaseUrl": "https://tickets.paradiso.nl/6d6b52da44d642529eddd6c1d3b22817",
+        "eventPageUrl": "https://www.paradiso.nl/programma/hermanos-gutierrez/2896810",
+        "buttonState": "waitlist",
+        "buttonPriceCents": 500,
+        "evidence": "Linked from the verified paradiso.nl event page"
+      },
+      "providerChecks": {
+        "https://www.paradiso.nl/programma/hermanos-gutierrez/2896810": {
+          "attemptedAt": "2026-11-27T05:27:23.658Z",
+          "status": "verified",
+          "offers": [
+            {
+              "seller": "paradiso.nl",
+              "category": "Category not stated",
+              "sourceUrl": "https://www.paradiso.nl/programma/hermanos-gutierrez/2896810",
+              "purchaseUrl": "https://tickets.paradiso.nl/13e39d9aba8f4a129e35710a360cb6d2",
+              "provider": "venue-jsonld",
+              "offerKey": null,
+              "verifiedAt": "2026-11-27T05:27:41.966Z",
+              "evidence": "Official event page · structured offer data",
+              "quantity": 1,
+              "availability": "sold-out",
+              "currency": "EUR",
+              "faceCents": null,
+              "baseCents": null,
+              "feesCents": null,
+              "finalCents": null,
+              "listedCents": 5540,
+              "feeInclusive": false,
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null,
+              "priceContext": {
+                "excludedMembershipCents": 450
+              }
+            }
+          ]
+        }
+      },
+      "history": [
+        {
+          "at": "2026-11-27T05:27:41.966Z",
+          "seller": "paradiso.nl",
+          "category": "Category not stated",
+          "currency": "EUR",
+          "listedCents": 5540,
+          "baseCents": null,
+          "feesCents": null,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": false,
+          "availability": "sold-out",
+          "sourceUrl": "https://www.paradiso.nl/programma/hermanos-gutierrez/2896810"
+        }
+      ]
+    },
+    "planned-rst-ir-tivolivredenburg-2026-12-16": {
+      "identity": "[\"Árstíðir\",\"2026-12-16\",\"TivoliVredenburg\",\"Utrecht\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Árstíðir\",\"2026-12-16\",\"TivoliVredenburg\",\"Utrecht\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/130147/cd/Arstidir/TivoliVredenburg/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:27:42.076Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/130147/cd/Arstidir/TivoliVredenburg/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "unresolved",
+        "reason": "No official event page found"
+      }
+    },
+    "planned-tindersticks-tivolivredenburg-2027-04-21": {
+      "identity": "[\"tindersticks\",\"2027-04-21\",\"TivoliVredenburg\",\"Utrecht\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"tindersticks\",\"2027-04-21\",\"TivoliVredenburg\",\"Utrecht\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/132661/cd/tindersticks/TivoliVredenburg/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:27:42.077Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/132661/cd/tindersticks/TivoliVredenburg/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "unresolved",
+        "reason": "No official event page found"
+      }
+    },
+    "planned-tindersticks-tivolivredenburg-2027-04-22": {
+      "identity": "[\"tindersticks\",\"2027-04-22\",\"TivoliVredenburg\",\"Utrecht\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"tindersticks\",\"2027-04-22\",\"TivoliVredenburg\",\"Utrecht\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/132660/cd/tindersticks/TivoliVredenburg/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:27:42.078Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/132660/cd/tindersticks/TivoliVredenburg/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "unresolved",
+        "reason": "No official event page found"
+      }
+    },
+    "planned-podiuminfo-474447": {
+      "identity": "[\"Hooverphonic\",\"2027-04-19\",\"Theater aan het Vrijthof\",\"Maastricht\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Hooverphonic\",\"2027-04-19\",\"Theater aan het Vrijthof\",\"Maastricht\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:27:42.078Z",
+        "intermediary": null,
+        "status": "robots-disallowed",
+        "reason": "robots-disallowed"
+      }
+    },
+    "planned-podiuminfo-461633": {
+      "identity": "[\"Morrissey\",\"2026-12-28\",\"013\",\"Tilburg\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Morrissey\",\"2026-12-28\",\"013\",\"Tilburg\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/132452/cd/Morrissey/013/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:27:43.147Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/132452/cd/Morrissey/013/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "venue-event-page",
+        "seller": "013.nl",
+        "purchaseUrl": "https://www.013.nl/programma/128536/morrissey",
+        "eventPageUrl": "https://www.013.nl/programma/128536/morrissey",
+        "buttonState": null,
+        "buttonPriceCents": null,
+        "evidence": "Verified official event page; no separate seller link is published on it"
+      },
+      "providerChecks": {
+        "https://www.013.nl/programma/128536/morrissey": {
+          "attemptedAt": "2026-11-27T05:27:43.147Z",
+          "status": "verified",
+          "offers": [
+            {
+              "seller": "013",
+              "category": "Category not stated",
+              "sourceUrl": "https://www.013.nl/programma/128536/morrissey",
+              "purchaseUrl": "https://www.013.nl/programma/128536/morrissey",
+              "provider": "013-event-page",
+              "offerKey": null,
+              "verifiedAt": "2026-11-27T05:27:50.421Z",
+              "evidence": "Official 013 event page price table",
+              "quantity": 1,
+              "availability": "unknown",
+              "currency": "EUR",
+              "faceCents": null,
+              "listedCents": 8580,
+              "baseCents": null,
+              "feesCents": null,
+              "finalCents": null,
+              "feeInclusive": false,
+              "priceContext": {
+                "serviceFeesIncluded": true
+              },
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null
+            }
+          ]
+        }
+      },
+      "history": [
+        {
+          "at": "2026-11-27T05:27:50.421Z",
+          "seller": "013",
+          "category": "Category not stated",
+          "currency": "EUR",
+          "listedCents": 8580,
+          "baseCents": null,
+          "feesCents": null,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": true,
+          "availability": "unknown",
+          "sourceUrl": "https://www.013.nl/programma/128536/morrissey"
+        }
+      ]
+    },
+    "planned-podiuminfo-452241": {
+      "identity": "[\"Draconian\",\"2027-03-04\",\"TivoliVredenburg\",\"Utrecht\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Draconian\",\"2027-03-04\",\"TivoliVredenburg\",\"Utrecht\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/130375/cd/Draconian/TivoliVredenburg/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:27:50.497Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/130375/cd/Draconian/TivoliVredenburg/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "unresolved",
+        "reason": "No official event page found"
+      }
+    },
+    "planned-podiuminfo-484782": {
+      "identity": "[\"Ólafur Arnalds\",\"2027-05-11\",\"TivoliVredenburg\",\"Utrecht\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Ólafur Arnalds\",\"2027-05-11\",\"TivoliVredenburg\",\"Utrecht\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/139701/cd/Olafur-Arnalds/TivoliVredenburg/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:27:51.261Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/139701/cd/Olafur-Arnalds/TivoliVredenburg/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "unresolved",
+        "reason": "No official event page found"
+      }
+    },
+    "planned-podiuminfo-484468": {
+      "identity": "[\"Bonobo\",\"2027-02-04\",\"Stadsschouwburg Utrecht\",\"Utrecht\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Bonobo\",\"2027-02-04\",\"Stadsschouwburg Utrecht\",\"Utrecht\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:27:52.073Z",
+        "intermediary": null,
+        "status": "robots-disallowed",
+        "reason": "robots-disallowed"
+      }
+    },
+    "planned-podiuminfo-489503": {
+      "identity": "[\"Megadeth\",\"2027-03-24\",\"AFAS Live\",\"Amsterdam\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Megadeth\",\"2027-03-24\",\"AFAS Live\",\"Amsterdam\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/140396/cd/Megadeth-Breakout-Hibernation-Of-The-Nations/AFAS-Live/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:27:54.290Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/140396/cd/Megadeth-Breakout-Hibernation-Of-The-Nations/AFAS-Live/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "ticketmaster",
+        "seller": "Ticketmaster",
+        "purchaseUrl": "https://www.ticketmaster.nl/event/megadeth-breakout-hibernation-of-the-nations-europe-tour-2027-tickets/1372783969?language=en-us",
+        "eventPageUrl": "https://www.afaslive.nl/agenda/megadeth",
+        "buttonState": null,
+        "buttonPriceCents": null,
+        "evidence": "Linked from the verified afaslive.nl event page"
+      },
+      "providerChecks": {
+        "https://www.ticketmaster.nl/event/megadeth-breakout-hibernation-of-the-nations-europe-tour-2027-tickets/1372783969?language=en-us": {
+          "attemptedAt": "2026-11-27T05:27:54.290Z",
+          "status": "failed",
+          "offers": []
+        },
+        "https://www.afaslive.nl/agenda/megadeth": {
+          "attemptedAt": "2026-11-27T05:27:54.290Z",
+          "status": "verified",
+          "offers": [
+            {
+              "seller": "Ticketmaster",
+              "category": "General Admission",
+              "sourceUrl": "https://www.afaslive.nl/agenda/megadeth",
+              "purchaseUrl": "https://www.ticketmaster.nl/event/megadeth-breakout-hibernation-of-the-nations-europe-tour-2027-tickets/1372783969?language=en-us",
+              "provider": "afaslive-event-page",
+              "offerKey": null,
+              "verifiedAt": "2026-11-27T05:27:56.961Z",
+              "evidence": "Official AFAS Live ticket categories",
+              "quantity": 1,
+              "availability": "unknown",
+              "currency": "EUR",
+              "faceCents": null,
+              "listedCents": 10098,
+              "baseCents": null,
+              "feesCents": null,
+              "finalCents": null,
+              "feeInclusive": false,
+              "priceContext": {
+                "serviceFeesIncluded": true
+              },
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null
+            },
+            {
+              "seller": "Ticketmaster",
+              "category": "Rolstoelplatform",
+              "sourceUrl": "https://www.afaslive.nl/agenda/megadeth",
+              "purchaseUrl": "https://www.ticketmaster.nl/event/megadeth-breakout-hibernation-of-the-nations-europe-tour-2027-tickets/1372783969?language=en-us",
+              "provider": "afaslive-event-page",
+              "offerKey": null,
+              "verifiedAt": "2026-11-27T05:27:56.961Z",
+              "evidence": "Official AFAS Live ticket categories",
+              "quantity": 1,
+              "availability": "unknown",
+              "currency": "EUR",
+              "faceCents": null,
+              "listedCents": 10098,
+              "baseCents": null,
+              "feesCents": null,
+              "finalCents": null,
+              "feeInclusive": false,
+              "priceContext": {
+                "serviceFeesIncluded": true
+              },
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null
+            }
+          ]
+        },
+        "https://www.mojo.nl/concerten/megadeth": {
+          "attemptedAt": "2026-11-27T05:27:54.290Z",
+          "status": "unsupported",
+          "offers": []
+        }
+      },
+      "history": [
+        {
+          "at": "2026-11-27T05:27:56.961Z",
+          "seller": "Ticketmaster",
+          "category": "General Admission",
+          "currency": "EUR",
+          "listedCents": 10098,
+          "baseCents": null,
+          "feesCents": null,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": true,
+          "availability": "unknown",
+          "sourceUrl": "https://www.afaslive.nl/agenda/megadeth"
+        },
+        {
+          "at": "2026-11-27T05:27:56.961Z",
+          "seller": "Ticketmaster",
+          "category": "Rolstoelplatform",
+          "currency": "EUR",
+          "listedCents": 10098,
+          "baseCents": null,
+          "feesCents": null,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": true,
+          "availability": "unknown",
+          "sourceUrl": "https://www.afaslive.nl/agenda/megadeth"
+        }
+      ]
+    },
+    "planned-podiuminfo-490523": {
+      "identity": "[\"Colour Haze\",\"2027-02-27\",\"Baroeg\",\"Rotterdam\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Colour Haze\",\"2027-02-27\",\"Baroeg\",\"Rotterdam\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:27:58.679Z",
+        "intermediary": null,
+        "status": "robots-disallowed",
+        "reason": "robots-disallowed"
+      }
+    },
+    "planned-podiuminfo-492859": {
+      "identity": "[\"Bonobo\",\"2027-03-05\",\"Gashouder\",\"Amsterdam\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Bonobo\",\"2027-03-05\",\"Gashouder\",\"Amsterdam\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/141281/cd/Bonobo/Gashouder/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:28:19.356Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/141281/cd/Bonobo/Gashouder/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "ticketmaster",
+        "seller": "Ticketmaster",
+        "purchaseUrl": "https://www.ticketmaster.nl/event/bonobo-distance-in-static-live-amsterdam-tickets/1012510332",
+        "eventPageUrl": "https://gashouder.nl/programma/bonobo",
+        "buttonState": "sold-out",
+        "buttonPriceCents": null,
+        "evidence": "Linked from the verified gashouder.nl event page"
+      },
+      "providerChecks": {
+        "https://www.ticketmaster.nl/event/bonobo-distance-in-static-live-amsterdam-tickets/1012510332": {
+          "attemptedAt": "2026-11-27T05:28:19.356Z",
+          "status": "failed",
+          "offers": []
+        },
+        "https://gashouder.nl/programma/bonobo": {
+          "attemptedAt": "2026-11-27T05:28:19.356Z",
+          "status": "verified",
+          "offers": [
+            {
+              "seller": "Ticketmaster",
+              "category": "Category not stated",
+              "sourceUrl": "https://gashouder.nl/programma/bonobo",
+              "purchaseUrl": "https://www.ticketmaster.nl/event/bonobo-distance-in-static-live-amsterdam-tickets/1012510332",
+              "provider": "venue-jsonld",
+              "offerKey": null,
+              "verifiedAt": "2026-11-27T05:28:30.852Z",
+              "evidence": "Official event page · structured offer data",
+              "quantity": 1,
+              "availability": "available",
+              "currency": "EUR",
+              "faceCents": null,
+              "baseCents": null,
+              "feesCents": null,
+              "finalCents": null,
+              "listedCents": 5049,
+              "feeInclusive": false,
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null
+            }
+          ]
+        }
+      },
+      "history": [
+        {
+          "at": "2026-11-27T05:28:30.852Z",
+          "seller": "Ticketmaster",
+          "category": "Category not stated",
+          "currency": "EUR",
+          "listedCents": 5049,
+          "baseCents": null,
+          "feesCents": null,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": false,
+          "availability": "available",
+          "sourceUrl": "https://gashouder.nl/programma/bonobo"
+        }
+      ]
+    },
+    "planned-podiuminfo-492571": {
+      "identity": "[\"Colour Haze\",\"2027-02-26\",\"Vera\",\"Groningen\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Colour Haze\",\"2027-02-26\",\"Vera\",\"Groningen\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:28:30.860Z",
+        "intermediary": null,
+        "status": "unresolved",
+        "reason": "unavailable, robots-disallowed"
+      }
+    },
+    "planned-podiuminfo-492796": {
+      "identity": "[\"Cult Of Luna\",\"2027-03-04\",\"Muziekgieterij\",\"Maastricht\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Cult Of Luna\",\"2027-03-04\",\"Muziekgieterij\",\"Maastricht\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:28:48.613Z",
+        "intermediary": null,
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "stager",
+        "seller": "Stager",
+        "purchaseUrl": "https://muziekgieterij.stager.co/shop/concert/events/111675413",
+        "eventPageUrl": "https://muziekgieterij.nl/event/cult-of-luna-2027-03-04/",
+        "buttonState": null,
+        "buttonPriceCents": 3750,
+        "evidence": "Linked from the verified muziekgieterij.nl event page"
+      },
+      "providerChecks": {
+        "https://muziekgieterij.stager.co/shop/concert/events/111675413": {
+          "attemptedAt": "2026-11-27T05:28:48.613Z",
+          "status": "failed",
+          "offers": []
+        },
+        "https://muziekgieterij.nl/event/cult-of-luna-2027-03-04/": {
+          "attemptedAt": "2026-11-27T05:28:48.613Z",
+          "status": "unsupported",
+          "offers": []
+        }
+      }
+    },
+    "planned-podiuminfo-492970": {
+      "identity": "[\"Alcest\",\"2027-03-21\",\"013\",\"Tilburg\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Alcest\",\"2027-03-21\",\"013\",\"Tilburg\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:28:51.052Z",
+        "intermediary": null,
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "013-tickets",
+        "seller": "013",
+        "purchaseUrl": "https://tickets.013.nl/90695e5e0e154cf5bb1e15670b777c68?_website",
+        "eventPageUrl": "https://www.013.nl/programma/153847/alcest",
+        "buttonState": null,
+        "buttonPriceCents": null,
+        "evidence": "Linked from the verified 013.nl event page"
+      },
+      "providerChecks": {
+        "https://www.013.nl/programma/153847/alcest": {
+          "attemptedAt": "2026-11-27T05:28:51.052Z",
+          "status": "verified",
+          "offers": [
+            {
+              "seller": "013",
+              "category": "Category not stated",
+              "sourceUrl": "https://www.013.nl/programma/153847/alcest",
+              "purchaseUrl": "https://tickets.013.nl/90695e5e0e154cf5bb1e15670b777c68?_website",
+              "provider": "013-event-page",
+              "offerKey": null,
+              "verifiedAt": "2026-11-27T05:28:53.654Z",
+              "evidence": "Official 013 event page price table",
+              "quantity": 1,
+              "availability": "unknown",
+              "currency": "EUR",
+              "faceCents": null,
+              "listedCents": 3480,
+              "baseCents": null,
+              "feesCents": null,
+              "finalCents": null,
+              "feeInclusive": false,
+              "priceContext": {
+                "serviceFeesIncluded": true
+              },
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null
+            }
+          ]
+        }
+      },
+      "history": [
+        {
+          "at": "2026-11-27T05:28:53.654Z",
+          "seller": "013",
+          "category": "Category not stated",
+          "currency": "EUR",
+          "listedCents": 3480,
+          "baseCents": null,
+          "feesCents": null,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": true,
+          "availability": "unknown",
+          "sourceUrl": "https://www.013.nl/programma/153847/alcest"
+        }
+      ]
+    },
+    "planned-podiuminfo-493093": {
+      "identity": "[\"Alcest\",\"2027-04-02\",\"SPOT / De Oosterpoort\",\"Groningen\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Alcest\",\"2027-04-02\",\"SPOT / De Oosterpoort\",\"Groningen\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:28:53.727Z",
+        "intermediary": null,
+        "status": "robots-disallowed",
+        "reason": "robots-disallowed"
+      }
+    },
+    "planned-podiuminfo-493535": {
+      "identity": "[\"The Pineapple Thief\",\"2027-04-24\",\"013\",\"Tilburg\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"The Pineapple Thief\",\"2027-04-24\",\"013\",\"Tilburg\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:28:55.480Z",
+        "intermediary": null,
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "013-tickets",
+        "seller": "013",
+        "purchaseUrl": "https://tickets.013.nl/4ee8c603971d414a990ecdcbcf560ec1",
+        "eventPageUrl": "https://www.013.nl/programma/154895/the-pineapple-thief",
+        "buttonState": null,
+        "buttonPriceCents": null,
+        "evidence": "Linked from the verified 013.nl event page"
+      },
+      "providerChecks": {
+        "https://www.013.nl/programma/154895/the-pineapple-thief": {
+          "attemptedAt": "2026-11-27T05:28:55.480Z",
+          "status": "verified",
+          "offers": [
+            {
+              "seller": "013",
+              "category": "Category not stated",
+              "sourceUrl": "https://www.013.nl/programma/154895/the-pineapple-thief",
+              "purchaseUrl": "https://tickets.013.nl/4ee8c603971d414a990ecdcbcf560ec1",
+              "provider": "013-event-page",
+              "offerKey": null,
+              "verifiedAt": "2026-11-27T05:28:57.964Z",
+              "evidence": "Official 013 event page price table",
+              "quantity": 1,
+              "availability": "unknown",
+              "currency": "EUR",
+              "faceCents": null,
+              "listedCents": 3880,
+              "baseCents": null,
+              "feesCents": null,
+              "finalCents": null,
+              "feeInclusive": false,
+              "priceContext": {
+                "serviceFeesIncluded": true
+              },
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null
+            }
+          ]
+        }
+      },
+      "history": [
+        {
+          "at": "2026-11-27T05:28:57.964Z",
+          "seller": "013",
+          "category": "Category not stated",
+          "currency": "EUR",
+          "listedCents": 3880,
+          "baseCents": null,
+          "feesCents": null,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": true,
+          "availability": "unknown",
+          "sourceUrl": "https://www.013.nl/programma/154895/the-pineapple-thief"
+        }
+      ]
+    },
+    "planned-podiuminfo-494042": {
+      "identity": "[\"RY X\",\"2027-04-08\",\"Gashouder\",\"Amsterdam\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"RY X\",\"2027-04-08\",\"Gashouder\",\"Amsterdam\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/141881/cd/RY-X/Gashouder/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:28:58.023Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/141881/cd/RY-X/Gashouder/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "paylogic",
+        "seller": "Paylogic",
+        "purchaseUrl": "https://shop.paylogic.com/cbaf5503be3d40e2bb98732b3241f1e2",
+        "eventPageUrl": "https://gashouder.nl/programma/ry-x",
+        "buttonState": null,
+        "buttonPriceCents": 4950,
+        "evidence": "Linked from the verified gashouder.nl event page"
+      },
+      "providerChecks": {
+        "https://gashouder.nl/programma/ry-x": {
+          "attemptedAt": "2026-11-27T05:28:58.023Z",
+          "status": "unsupported",
+          "offers": []
+        }
+      }
+    },
+    "planned-podiuminfo-494067": {
+      "identity": "[\"Oasis\",\"2027-07-16\",\"Johan Cruijff ArenA\",\"Amsterdam\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Oasis\",\"2027-07-16\",\"Johan Cruijff ArenA\",\"Amsterdam\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:29:08.885Z",
+        "intermediary": null,
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "venue-event-page",
+        "seller": "johancruijffarena.nl",
+        "purchaseUrl": "https://www.johancruijffarena.nl/kalender/462141-oasis/",
+        "eventPageUrl": "https://www.johancruijffarena.nl/kalender/462141-oasis/",
+        "buttonState": null,
+        "buttonPriceCents": null,
+        "evidence": "Verified official event page; no separate seller link is published on it"
+      },
+      "providerChecks": {
+        "https://www.johancruijffarena.nl/kalender/462141-oasis/": {
+          "attemptedAt": "2026-11-27T05:29:08.885Z",
+          "status": "unsupported",
+          "offers": []
+        }
+      }
+    },
+    "planned-podiuminfo-494068": {
+      "identity": "[\"Oasis\",\"2027-07-17\",\"Johan Cruijff ArenA\",\"Amsterdam\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Oasis\",\"2027-07-17\",\"Johan Cruijff ArenA\",\"Amsterdam\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:29:18.693Z",
+        "intermediary": null,
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "venue-event-page",
+        "seller": "johancruijffarena.nl",
+        "purchaseUrl": "https://www.johancruijffarena.nl/kalender/462272-oasis/",
+        "eventPageUrl": "https://www.johancruijffarena.nl/kalender/462272-oasis/",
+        "buttonState": null,
+        "buttonPriceCents": null,
+        "evidence": "Verified official event page; no separate seller link is published on it"
+      },
+      "providerChecks": {
+        "https://www.johancruijffarena.nl/kalender/462272-oasis/": {
+          "attemptedAt": "2026-11-27T05:29:18.693Z",
+          "status": "unsupported",
+          "offers": []
+        }
+      }
+    },
+    "planned-podiuminfo-494662": {
+      "identity": "[\"Oh Hiroshima\",\"2027-03-15\",\"Baroeg\",\"Rotterdam\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Oh Hiroshima\",\"2027-03-15\",\"Baroeg\",\"Rotterdam\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:29:20.891Z",
+        "intermediary": null,
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "stager",
+        "seller": "Stager",
+        "purchaseUrl": "https://baroeg.stager.co/shop/default/events/111699693",
+        "eventPageUrl": "https://baroeg.nl/productie/oh-hiroshima-torzs/",
+        "buttonState": null,
+        "buttonPriceCents": 1950,
+        "evidence": "Linked from the verified baroeg.nl event page"
+      },
+      "providerChecks": {
+        "https://baroeg.stager.co/shop/default/events/111699693": {
+          "attemptedAt": "2026-11-27T05:29:20.891Z",
+          "status": "failed",
+          "offers": []
+        },
+        "https://baroeg.nl/productie/oh-hiroshima-torzs/": {
+          "attemptedAt": "2026-11-27T05:29:20.891Z",
+          "status": "unsupported",
+          "offers": []
+        }
+      }
+    },
+    "planned-podiuminfo-494792": {
+      "identity": "[\"Get Well Soon\",\"2027-02-16\",\"dB's\",\"Utrecht\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Get Well Soon\",\"2027-02-16\",\"dB's\",\"Utrecht\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/142187/cd/GET-WELL-SOON/dBs/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:29:22.963Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/142187/cd/GET-WELL-SOON/dBs/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "robots-disallowed",
+        "reason": "robots-disallowed"
+      }
+    },
+    "planned-podiuminfo-495100": {
+      "identity": "[\"Alexis Ffrench\",\"2027-06-05\",\"De Doelen\",\"Rotterdam\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Alexis Ffrench\",\"2027-06-05\",\"De Doelen\",\"Rotterdam\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/142228/cd/Alexis-Ffrench/De-Doelen/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:29:23.701Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/142228/cd/Alexis-Ffrench/De-Doelen/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "unresolved",
+        "reason": "unavailable, robots-disallowed"
+      }
+    },
+    "planned-podiuminfo-495275": {
+      "identity": "[\"Nevermore\",\"2027-05-09\",\"Effenaar\",\"Eindhoven\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Nevermore\",\"2027-05-09\",\"Effenaar\",\"Eindhoven\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:29:44.902Z",
+        "intermediary": null,
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "venue-event-page",
+        "seller": "effenaar.nl",
+        "purchaseUrl": "https://effenaar.nl/agenda/nevermore",
+        "eventPageUrl": "https://effenaar.nl/agenda/nevermore",
+        "buttonState": null,
+        "buttonPriceCents": null,
+        "evidence": "Verified official event page; no separate seller link is published on it"
+      },
+      "providerChecks": {
+        "https://effenaar.nl/agenda/nevermore": {
+          "attemptedAt": "2026-11-27T05:29:44.902Z",
+          "status": "unsupported",
+          "offers": []
+        }
+      }
+    },
+    "planned-podiuminfo-495659": {
+      "identity": "[\"Sólstafir\",\"2027-02-20\",\"TivoliVredenburg\",\"Utrecht\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Sólstafir\",\"2027-02-20\",\"TivoliVredenburg\",\"Utrecht\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:29:49.463Z",
+        "intermediary": null,
+        "status": "unresolved",
+        "reason": "No official event page found"
+      }
+    },
+    "planned-podiuminfo-495970": {
+      "identity": "[\"Scientist\",\"2027-02-11\",\"Parallel\",\"Amsterdam\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Scientist\",\"2027-02-11\",\"Parallel\",\"Amsterdam\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:29:49.942Z",
+        "intermediary": null,
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "parallel-tickets",
+        "seller": "Parallel",
+        "purchaseUrl": "https://tickets.parallel.am/e76beb4ade5549688937ade262a3b4d9",
+        "eventPageUrl": "https://www.paradiso.nl/programma/scientist/2938907",
+        "buttonState": null,
+        "buttonPriceCents": 2350,
+        "evidence": "Linked from the verified paradiso.nl event page"
+      },
+      "providerChecks": {
+        "https://www.paradiso.nl/programma/scientist/2938907": {
+          "attemptedAt": "2026-11-27T05:29:49.942Z",
+          "status": "verified",
+          "offers": [
+            {
+              "seller": "Parallel",
+              "category": "Ticket",
+              "sourceUrl": "https://www.paradiso.nl/programma/scientist/2938907",
+              "purchaseUrl": "https://tickets.parallel.am/e76beb4ade5549688937ade262a3b4d9",
+              "provider": "paradiso-event-data",
+              "offerKey": null,
+              "verifiedAt": "2026-11-27T05:29:55.818Z",
+              "evidence": "Official event record on the venue page",
+              "quantity": 1,
+              "availability": "available",
+              "currency": "EUR",
+              "faceCents": null,
+              "listedCents": 2350,
+              "baseCents": 2100,
+              "feesCents": 250,
+              "finalCents": null,
+              "feeInclusive": false,
+              "priceContext": {
+                "serviceFeesIncluded": true
+              },
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null
+            }
+          ]
+        }
+      },
+      "history": [
+        {
+          "at": "2026-11-27T05:29:55.818Z",
+          "seller": "Parallel",
+          "category": "Ticket",
+          "currency": "EUR",
+          "listedCents": 2350,
+          "baseCents": 2100,
+          "feesCents": 250,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": true,
+          "availability": "available",
+          "sourceUrl": "https://www.paradiso.nl/programma/scientist/2938907"
+        }
+      ]
+    },
+    "planned-podiuminfo-495538": {
+      "identity": "[\"King Buffalo\",\"2027-03-04\",\"Patronaat\",\"Haarlem\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"King Buffalo\",\"2027-03-04\",\"Patronaat\",\"Haarlem\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/142285/cd/King-Buffalo-Spirit-Mother/Patronaat/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:29:56.196Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/142285/cd/King-Buffalo-Spirit-Mother/Patronaat/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "ticketmaster",
+        "seller": "Ticketmaster",
+        "purchaseUrl": "https://www.ticketmaster.nl/event/1933699226?brand=nl_patronaat",
+        "eventPageUrl": "https://patronaat.nl/event/king-buffalo-04-03-27/",
+        "buttonState": null,
+        "buttonPriceCents": null,
+        "evidence": "Linked from the verified patronaat.nl event page"
+      },
+      "providerChecks": {
+        "https://www.ticketmaster.nl/event/1933699226?brand=nl_patronaat": {
+          "attemptedAt": "2026-11-27T05:29:56.196Z",
+          "status": "failed",
+          "offers": []
+        },
+        "https://patronaat.nl/event/king-buffalo-04-03-27/": {
+          "attemptedAt": "2026-11-27T05:29:56.196Z",
+          "status": "verified",
+          "offers": [
+            {
+              "seller": "Patronaat (official source)",
+              "category": "Category not stated",
+              "provider": "patronaat-event-page",
+              "sourceUrl": "https://patronaat.nl/event/king-buffalo-04-03-27/",
+              "purchaseUrl": "https://www.ticketmaster.nl/event/1933699226?brand=nl_patronaat",
+              "verifiedAt": "2026-11-27T05:30:01.224Z",
+              "evidence": "Official Patronaat event price",
+              "quantity": 1,
+              "availability": "unknown",
+              "currency": "EUR",
+              "faceCents": null,
+              "listedCents": 2950,
+              "baseCents": null,
+              "feesCents": null,
+              "finalCents": null,
+              "feeInclusive": false,
+              "offerKey": null,
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null
+            }
+          ]
+        }
+      },
+      "history": [
+        {
+          "at": "2026-11-27T05:30:01.224Z",
+          "seller": "Patronaat (official source)",
+          "category": "Category not stated",
+          "currency": "EUR",
+          "listedCents": 2950,
+          "baseCents": null,
+          "feesCents": null,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": false,
+          "availability": "unknown",
+          "sourceUrl": "https://patronaat.nl/event/king-buffalo-04-03-27/"
+        }
+      ]
+    },
+    "planned-podiuminfo-496712": {
+      "identity": "[\"Archive\",\"2027-09-08\",\"My Name in PHIL\",\"Haarlem\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Archive\",\"2027-09-08\",\"My Name in PHIL\",\"Haarlem\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/142753/cd/Archive/PHIL/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:30:01.236Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/142753/cd/Archive/PHIL/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "ticketmaster",
+        "seller": "Ticketmaster",
+        "purchaseUrl": "https://www.ticketmaster.nl/event/1235988272",
+        "eventPageUrl": "https://patronaat.nl/event/archive-08-09-27/",
+        "buttonState": null,
+        "buttonPriceCents": null,
+        "evidence": "Linked from the verified patronaat.nl event page"
+      },
+      "providerChecks": {
+        "https://www.ticketmaster.nl/event/1235988272": {
+          "attemptedAt": "2026-11-27T05:30:01.236Z",
+          "status": "failed",
+          "offers": []
+        },
+        "https://patronaat.nl/event/archive-08-09-27/": {
+          "attemptedAt": "2026-11-27T05:30:01.236Z",
+          "status": "unsupported",
+          "offers": []
+        }
+      }
+    },
+    "planned-podiuminfo-496713": {
+      "identity": "[\"Archive\",\"2027-09-09\",\"013\",\"Tilburg\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Archive\",\"2027-09-09\",\"013\",\"Tilburg\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/142750/cd/Archive/013/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:30:08.861Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/142750/cd/Archive/013/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "013-tickets",
+        "seller": "013",
+        "purchaseUrl": "https://tickets.013.nl/30c086cebf2d4e6f9cd4cbe22cf064bd",
+        "eventPageUrl": "https://www.013.nl/programma/159539/archive",
+        "buttonState": null,
+        "buttonPriceCents": null,
+        "evidence": "Linked from the verified 013.nl event page"
+      },
+      "providerChecks": {
+        "https://www.013.nl/programma/159539/archive": {
+          "attemptedAt": "2026-11-27T05:30:08.861Z",
+          "status": "verified",
+          "offers": [
+            {
+              "seller": "013",
+              "category": "Category not stated",
+              "sourceUrl": "https://www.013.nl/programma/159539/archive",
+              "purchaseUrl": "https://tickets.013.nl/30c086cebf2d4e6f9cd4cbe22cf064bd",
+              "provider": "013-event-page",
+              "offerKey": null,
+              "verifiedAt": "2026-11-27T05:30:10.732Z",
+              "evidence": "Official 013 event page price table",
+              "quantity": 1,
+              "availability": "unknown",
+              "currency": "EUR",
+              "faceCents": null,
+              "listedCents": 4080,
+              "baseCents": null,
+              "feesCents": null,
+              "finalCents": null,
+              "feeInclusive": false,
+              "priceContext": {
+                "serviceFeesIncluded": true
+              },
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null
+            }
+          ]
+        }
+      },
+      "history": [
+        {
+          "at": "2026-11-27T05:30:10.732Z",
+          "seller": "013",
+          "category": "Category not stated",
+          "currency": "EUR",
+          "listedCents": 4080,
+          "baseCents": null,
+          "feesCents": null,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": true,
+          "availability": "unknown",
+          "sourceUrl": "https://www.013.nl/programma/159539/archive"
+        }
+      ]
+    },
+    "planned-podiuminfo-467043": {
+      "identity": "[\"Amorphis\",\"2027-02-14\",\"013\",\"Tilburg\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Amorphis\",\"2027-02-14\",\"013\",\"Tilburg\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/133172/cd/Amorphis-Borderland-tour/013/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:30:10.795Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/133172/cd/Amorphis-Borderland-tour/013/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "013-tickets",
+        "seller": "013",
+        "purchaseUrl": "https://tickets.013.nl/e092e5e1864a48abbe4ddf6d6e06e49a",
+        "eventPageUrl": "https://www.013.nl/programma/131462/amorphis",
+        "buttonState": null,
+        "buttonPriceCents": null,
+        "evidence": "Linked from the verified 013.nl event page"
+      },
+      "providerChecks": {
+        "https://www.013.nl/programma/131462/amorphis": {
+          "attemptedAt": "2026-11-27T05:30:10.795Z",
+          "status": "verified",
+          "offers": [
+            {
+              "seller": "013",
+              "category": "Category not stated",
+              "sourceUrl": "https://www.013.nl/programma/131462/amorphis",
+              "purchaseUrl": "https://tickets.013.nl/e092e5e1864a48abbe4ddf6d6e06e49a",
+              "provider": "013-event-page",
+              "offerKey": null,
+              "verifiedAt": "2026-11-27T05:30:12.948Z",
+              "evidence": "Official 013 event page price table",
+              "quantity": 1,
+              "availability": "unknown",
+              "currency": "EUR",
+              "faceCents": null,
+              "listedCents": 4230,
+              "baseCents": null,
+              "feesCents": null,
+              "finalCents": null,
+              "feeInclusive": false,
+              "priceContext": {
+                "serviceFeesIncluded": true
+              },
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null
+            }
+          ]
+        }
+      },
+      "history": [
+        {
+          "at": "2026-11-27T05:30:12.948Z",
+          "seller": "013",
+          "category": "Category not stated",
+          "currency": "EUR",
+          "listedCents": 4230,
+          "baseCents": null,
+          "feesCents": null,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": true,
+          "availability": "unknown",
+          "sourceUrl": "https://www.013.nl/programma/131462/amorphis"
+        }
+      ]
+    },
+    "planned-podiuminfo-496788": {
+      "identity": "[\"Colour Haze\",\"2027-02-21\",\"Baroeg\",\"Rotterdam\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Colour Haze\",\"2027-02-21\",\"Baroeg\",\"Rotterdam\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:30:12.999Z",
+        "intermediary": null,
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "stager",
+        "seller": "Stager",
+        "purchaseUrl": "https://baroeg.stager.co/shop/default/events/111687856",
+        "eventPageUrl": "https://baroeg.nl/productie/riffsniffer-presents-colour-haze-smokemaster/",
+        "buttonState": null,
+        "buttonPriceCents": 2650,
+        "evidence": "Linked from the verified baroeg.nl event page"
+      },
+      "providerChecks": {
+        "https://baroeg.stager.co/shop/default/events/111687856": {
+          "attemptedAt": "2026-11-27T05:30:12.999Z",
+          "status": "failed",
+          "offers": []
+        },
+        "https://baroeg.nl/productie/riffsniffer-presents-colour-haze-smokemaster/": {
+          "attemptedAt": "2026-11-27T05:30:12.999Z",
+          "status": "unsupported",
+          "offers": []
+        }
+      }
+    },
+    "planned-podiuminfo-495742": {
+      "identity": "[\"Sólstafir\",\"2027-02-19\",\"Doornroosje\",\"Nijmegen\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Sólstafir\",\"2027-02-19\",\"Doornroosje\",\"Nijmegen\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:30:14.826Z",
+        "intermediary": null,
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "doornroosje-tickets",
+        "seller": "Doornroosje",
+        "purchaseUrl": "https://ticketshop.doornroosje.nl/0bc928c8f9ab473a8728d4a62260e574",
+        "eventPageUrl": "https://www.doornroosje.nl/event/enslaved-solstafir/",
+        "buttonState": null,
+        "buttonPriceCents": 3650,
+        "evidence": "Linked from the verified doornroosje.nl event page"
+      },
+      "providerChecks": {
+        "https://www.doornroosje.nl/event/enslaved-solstafir/": {
+          "attemptedAt": "2026-11-27T05:30:14.826Z",
+          "status": "verified",
+          "offers": [
+            {
+              "seller": "Doornroosje",
+              "category": "Category not stated",
+              "sourceUrl": "https://www.doornroosje.nl/event/enslaved-solstafir/",
+              "purchaseUrl": "https://ticketshop.doornroosje.nl/0bc928c8f9ab473a8728d4a62260e574",
+              "provider": "doornroosje-event-page",
+              "offerKey": null,
+              "verifiedAt": "2026-11-27T05:30:21.263Z",
+              "evidence": "Official Doornroosje ticket button price",
+              "quantity": 1,
+              "availability": "unknown",
+              "currency": "EUR",
+              "faceCents": null,
+              "listedCents": 3650,
+              "baseCents": null,
+              "feesCents": null,
+              "finalCents": null,
+              "feeInclusive": false,
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null
+            }
+          ]
+        }
+      },
+      "history": [
+        {
+          "at": "2026-11-27T05:30:21.263Z",
+          "seller": "Doornroosje",
+          "category": "Category not stated",
+          "currency": "EUR",
+          "listedCents": 3650,
+          "baseCents": null,
+          "feesCents": null,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": false,
+          "availability": "unknown",
+          "sourceUrl": "https://www.doornroosje.nl/event/enslaved-solstafir/"
+        }
+      ]
+    },
+    "planned-podiuminfo-494642": {
+      "identity": "[\"Oh Hiroshima\",\"2027-03-16\",\"Zik-Zak\",\"Ittre\",\"??\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Oh Hiroshima\",\"2027-03-16\",\"Zik-Zak\",\"Ittre\",\"??\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:30:21.364Z",
+        "intermediary": null,
+        "status": "robots-disallowed",
+        "reason": "robots-disallowed"
+      }
+    },
+    "planned-podiuminfo-474111": {
+      "identity": "[\"Nothing But Thieves\",\"2027-01-15\",\"Ziggo Dome\",\"Amsterdam\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Nothing But Thieves\",\"2027-01-15\",\"Ziggo Dome\",\"Amsterdam\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/135505/cd/Nothing-But-Thieves-The-Stray-Dogs-World-Tour/Ziggo-Dome/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:30:22.282Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/135505/cd/Nothing-But-Thieves-The-Stray-Dogs-World-Tour/Ziggo-Dome/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "venue-event-page",
+        "seller": "Ticketmaster",
+        "purchaseUrl": "https://www.ziggodome.nl/events/eabea2f5-b7a4-492d-a008-acf4b9289b0a/",
+        "eventPageUrl": "https://www.ziggodome.nl/events/eabea2f5-b7a4-492d-a008-acf4b9289b0a/",
+        "buttonState": null,
+        "buttonPriceCents": null,
+        "evidence": "Ziggo Dome public event data names Ticketmaster as seller"
+      },
+      "providerChecks": {
+        "https://www.ziggodome.nl/api/agenda/events/eabea2f5-b7a4-492d-a008-acf4b9289b0a": {
+          "attemptedAt": "2026-11-27T05:30:22.282Z",
+          "status": "verified",
+          "offers": [
+            {
+              "seller": "Ticketmaster",
+              "category": "Tickets",
+              "sourceUrl": "https://www.ziggodome.nl/events/eabea2f5-b7a4-492d-a008-acf4b9289b0a/",
+              "purchaseUrl": "https://www.ziggodome.nl/events/eabea2f5-b7a4-492d-a008-acf4b9289b0a/",
+              "provider": "ziggodome-api",
+              "offerKey": "e0ab0fd5-d55f-4ece-a51f-42d1ec501486",
+              "verifiedAt": "2026-11-27T05:30:32.707Z",
+              "evidence": "Ziggo Dome public event data",
+              "quantity": 1,
+              "availability": "available",
+              "currency": "EUR",
+              "faceCents": null,
+              "listedCents": 5040,
+              "baseCents": null,
+              "feesCents": null,
+              "finalCents": null,
+              "feeInclusive": false,
+              "priceContext": {
+                "serviceFeesIncluded": true
+              },
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null
+            }
+          ]
+        }
+      },
+      "history": [
+        {
+          "at": "2026-11-27T05:30:32.707Z",
+          "seller": "Ticketmaster",
+          "category": "Tickets",
+          "currency": "EUR",
+          "listedCents": 5040,
+          "baseCents": null,
+          "feesCents": null,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": true,
+          "availability": "available",
+          "sourceUrl": "https://www.ziggodome.nl/events/eabea2f5-b7a4-492d-a008-acf4b9289b0a/"
+        }
+      ]
+    },
+    "planned-podiuminfo-478274": {
+      "identity": "[\"Greenleaf\",\"2026-12-17\",\"Vera\",\"Groningen\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Greenleaf\",\"2026-12-17\",\"Vera\",\"Groningen\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/137425/cd/Greenleaf-SWE-support/Vera/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:30:32.708Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/137425/cd/Greenleaf-SWE-support/Vera/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "robots-disallowed",
+        "reason": "robots-disallowed"
+      }
+    },
+    "planned-podiuminfo-484045": {
+      "identity": "[\"Queensrÿche\",\"2026-12-07\",\"013\",\"Tilburg\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Queensrÿche\",\"2026-12-07\",\"013\",\"Tilburg\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/139317/cd/Queensryche/013/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:30:34.584Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/139317/cd/Queensryche/013/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "013-tickets",
+        "seller": "013",
+        "purchaseUrl": "https://tickets.013.nl/555bfa41c875414e97b8e958e645be93",
+        "eventPageUrl": "https://www.013.nl/programma/145171/queensr%C3%BFche",
+        "buttonState": null,
+        "buttonPriceCents": null,
+        "evidence": "Linked from the verified 013.nl event page"
+      },
+      "providerChecks": {
+        "https://www.013.nl/programma/145171/queensr%C3%BFche": {
+          "attemptedAt": "2026-11-27T05:30:34.584Z",
+          "status": "verified",
+          "offers": [
+            {
+              "seller": "013",
+              "category": "Category not stated",
+              "sourceUrl": "https://www.013.nl/programma/145171/queensr%C3%BFche",
+              "purchaseUrl": "https://tickets.013.nl/555bfa41c875414e97b8e958e645be93",
+              "provider": "013-event-page",
+              "offerKey": null,
+              "verifiedAt": "2026-11-27T05:30:35.757Z",
+              "evidence": "Official 013 event page price table",
+              "quantity": 1,
+              "availability": "unknown",
+              "currency": "EUR",
+              "faceCents": null,
+              "listedCents": 4480,
+              "baseCents": null,
+              "feesCents": null,
+              "finalCents": null,
+              "feeInclusive": false,
+              "priceContext": {
+                "serviceFeesIncluded": true
+              },
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null
+            }
+          ]
+        }
+      },
+      "history": [
+        {
+          "at": "2026-11-27T05:30:35.757Z",
+          "seller": "013",
+          "category": "Category not stated",
+          "currency": "EUR",
+          "listedCents": 4480,
+          "baseCents": null,
+          "feesCents": null,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": true,
+          "availability": "unknown",
+          "sourceUrl": "https://www.013.nl/programma/145171/queensr%C3%BFche"
+        }
+      ]
+    },
+    "planned-podiuminfo-497002": {
+      "identity": "[\"Mad Caddies\",\"2027-02-25\",\"Bibelot\",\"Dordrecht\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Mad Caddies\",\"2027-02-25\",\"Bibelot\",\"Dordrecht\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:30:35.820Z",
+        "intermediary": null,
+        "status": "robots-disallowed",
+        "reason": "robots-disallowed"
+      }
+    },
+    "planned-podiuminfo-474112": {
+      "identity": "[\"Nothing But Thieves\",\"2027-01-16\",\"Ziggo Dome\",\"Amsterdam\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Nothing But Thieves\",\"2027-01-16\",\"Ziggo Dome\",\"Amsterdam\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/135506/cd/Nothing-But-Thieves-The-Stray-Dogs-World-Tour/Ziggo-Dome/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:30:36.564Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/135506/cd/Nothing-But-Thieves-The-Stray-Dogs-World-Tour/Ziggo-Dome/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "venue-event-page",
+        "seller": "Ticketmaster",
+        "purchaseUrl": "https://www.ziggodome.nl/events/9a1ecf64-aaa6-43ab-8dbe-6e1b5f608d97/",
+        "eventPageUrl": "https://www.ziggodome.nl/events/9a1ecf64-aaa6-43ab-8dbe-6e1b5f608d97/",
+        "buttonState": null,
+        "buttonPriceCents": null,
+        "evidence": "Ziggo Dome public event data names Ticketmaster as seller"
+      },
+      "providerChecks": {
+        "https://www.ziggodome.nl/api/agenda/events/9a1ecf64-aaa6-43ab-8dbe-6e1b5f608d97": {
+          "attemptedAt": "2026-11-27T05:30:36.564Z",
+          "status": "verified",
+          "offers": [
+            {
+              "seller": "Ticketmaster",
+              "category": "Tickets",
+              "sourceUrl": "https://www.ziggodome.nl/events/9a1ecf64-aaa6-43ab-8dbe-6e1b5f608d97/",
+              "purchaseUrl": "https://www.ziggodome.nl/events/9a1ecf64-aaa6-43ab-8dbe-6e1b5f608d97/",
+              "provider": "ziggodome-api",
+              "offerKey": "818edff0-29d5-4f36-ac4f-07fdc2e28cfd",
+              "verifiedAt": "2026-11-27T05:30:41.905Z",
+              "evidence": "Ziggo Dome public event data",
+              "quantity": 1,
+              "availability": "available",
+              "currency": "EUR",
+              "faceCents": null,
+              "listedCents": 5040,
+              "baseCents": null,
+              "feesCents": null,
+              "finalCents": null,
+              "feeInclusive": false,
+              "priceContext": {
+                "serviceFeesIncluded": true
+              },
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null
+            }
+          ]
+        }
+      },
+      "history": [
+        {
+          "at": "2026-11-27T05:30:41.905Z",
+          "seller": "Ticketmaster",
+          "category": "Tickets",
+          "currency": "EUR",
+          "listedCents": 5040,
+          "baseCents": null,
+          "feesCents": null,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": true,
+          "availability": "available",
+          "sourceUrl": "https://www.ziggodome.nl/events/9a1ecf64-aaa6-43ab-8dbe-6e1b5f608d97/"
+        }
+      ]
+    },
+    "planned-podiuminfo-482709": {
+      "identity": "[\"Dead Poet Society\",\"2027-02-10\",\"TivoliVredenburg\",\"Utrecht\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Dead Poet Society\",\"2027-02-10\",\"TivoliVredenburg\",\"Utrecht\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/139305/cd/Dead-Poet-Society/TivoliVredenburg/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:30:41.906Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/139305/cd/Dead-Poet-Society/TivoliVredenburg/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "blocked",
+        "reason": "access-control"
+      },
+      "providerChecks": {
+        "https://www.tivolivredenburg.nl/agenda/83608734/dead-poet-society-10-02-2027": {
+          "attemptedAt": "2026-11-27T05:30:41.906Z",
+          "status": "failed",
+          "offers": []
+        }
+      }
+    },
+    "planned-podiuminfo-489544": {
+      "identity": "[\"Weezer\",\"2027-05-26\",\"AFAS Live\",\"Amsterdam\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Weezer\",\"2027-05-26\",\"AFAS Live\",\"Amsterdam\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/140398/cd/Weezer/AFAS-Live/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:30:42.514Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/140398/cd/Weezer/AFAS-Live/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "ticketmaster",
+        "seller": "Ticketmaster",
+        "purchaseUrl": "https://www.ticketmaster.nl/event/1205197733",
+        "eventPageUrl": "https://www.afaslive.nl/agenda/weezer",
+        "buttonState": null,
+        "buttonPriceCents": null,
+        "evidence": "Linked from the verified afaslive.nl event page"
+      },
+      "providerChecks": {
+        "https://www.ticketmaster.nl/event/1205197733": {
+          "attemptedAt": "2026-11-27T05:30:42.514Z",
+          "status": "failed",
+          "offers": []
+        },
+        "https://www.afaslive.nl/agenda/weezer": {
+          "attemptedAt": "2026-11-27T05:30:42.514Z",
+          "status": "verified",
+          "offers": [
+            {
+              "seller": "Ticketmaster",
+              "category": "Entree vanaf",
+              "sourceUrl": "https://www.afaslive.nl/agenda/weezer",
+              "purchaseUrl": "https://www.ticketmaster.nl/event/1205197733",
+              "provider": "afaslive-event-page",
+              "offerKey": null,
+              "verifiedAt": "2026-11-27T05:30:52.234Z",
+              "evidence": "Official AFAS Live ticket categories",
+              "quantity": 1,
+              "availability": "unknown",
+              "currency": "EUR",
+              "faceCents": null,
+              "listedCents": 7854,
+              "baseCents": null,
+              "feesCents": null,
+              "finalCents": null,
+              "feeInclusive": false,
+              "priceContext": {
+                "serviceFeesIncluded": true
+              },
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null
+            }
+          ]
+        }
+      },
+      "history": [
+        {
+          "at": "2026-11-27T05:30:52.234Z",
+          "seller": "Ticketmaster",
+          "category": "Entree vanaf",
+          "currency": "EUR",
+          "listedCents": 7854,
+          "baseCents": null,
+          "feesCents": null,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": true,
+          "availability": "unknown",
+          "sourceUrl": "https://www.afaslive.nl/agenda/weezer"
+        }
+      ]
+    },
+    "planned-podiuminfo-497224": {
+      "identity": "[\"Igorrr\",\"2027-04-02\",\"Muziekgieterij\",\"Maastricht\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Igorrr\",\"2027-04-02\",\"Muziekgieterij\",\"Maastricht\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:30:52.263Z",
+        "intermediary": null,
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "stager",
+        "seller": "Stager",
+        "purchaseUrl": "https://muziekgieterij.stager.co/shop/concert/events/111683598",
+        "eventPageUrl": "https://muziekgieterij.nl/event/igorrr-secret-chiefs-3-fange-2027-04-02/",
+        "buttonState": null,
+        "buttonPriceCents": 3700,
+        "evidence": "Linked from the verified muziekgieterij.nl event page"
+      },
+      "providerChecks": {
+        "https://muziekgieterij.stager.co/shop/concert/events/111683598": {
+          "attemptedAt": "2026-11-27T05:30:52.263Z",
+          "status": "failed",
+          "offers": []
+        },
+        "https://muziekgieterij.nl/event/igorrr-secret-chiefs-3-fange-2027-04-02/": {
+          "attemptedAt": "2026-11-27T05:30:52.263Z",
+          "status": "unsupported",
+          "offers": []
+        }
+      }
+    },
+    "planned-podiuminfo-497443": {
+      "identity": "[\"Moonspell\",\"2027-03-07\",\"Effenaar\",\"Eindhoven\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Moonspell\",\"2027-03-07\",\"Effenaar\",\"Eindhoven\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:31:04.207Z",
+        "intermediary": null,
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "venue-event-page",
+        "seller": "effenaar.nl",
+        "purchaseUrl": "https://effenaar.nl/agenda/moonspell",
+        "eventPageUrl": "https://effenaar.nl/agenda/moonspell",
+        "buttonState": null,
+        "buttonPriceCents": null,
+        "evidence": "Verified official event page; no separate seller link is published on it"
+      },
+      "providerChecks": {
+        "https://effenaar.nl/agenda/moonspell": {
+          "attemptedAt": "2026-11-27T05:31:04.207Z",
+          "status": "unsupported",
+          "offers": []
+        }
+      }
+    },
+    "planned-podiuminfo-497418": {
+      "identity": "[\"Groundation\",\"2027-05-18\",\"Patronaat\",\"Haarlem\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Groundation\",\"2027-05-18\",\"Patronaat\",\"Haarlem\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:31:06.208Z",
+        "intermediary": null,
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "ticketmaster",
+        "seller": "Ticketmaster",
+        "purchaseUrl": "https://www.ticketmaster.nl/event/groundation-a-tribute-to-bob-marley-tickets/156652265",
+        "eventPageUrl": "https://patronaat.nl/event/groundation-a-tribute-to-bob-marley-18-05-27/",
+        "buttonState": null,
+        "buttonPriceCents": null,
+        "evidence": "Linked from the verified patronaat.nl event page"
+      },
+      "providerChecks": {
+        "https://www.ticketmaster.nl/event/groundation-a-tribute-to-bob-marley-tickets/156652265": {
+          "attemptedAt": "2026-11-27T05:31:06.208Z",
+          "status": "failed",
+          "offers": []
+        },
+        "https://patronaat.nl/event/groundation-a-tribute-to-bob-marley-18-05-27/": {
+          "attemptedAt": "2026-11-27T05:31:06.208Z",
+          "status": "unsupported",
+          "offers": []
+        }
+      }
+    },
+    "planned-podiuminfo-497728": {
+      "identity": "[\"The Ocean\",\"2027-01-24\",\"Vera\",\"Groningen\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"The Ocean\",\"2027-01-24\",\"Vera\",\"Groningen\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:31:08.969Z",
+        "intermediary": null,
+        "status": "robots-disallowed",
+        "reason": "robots-disallowed"
+      }
+    },
+    "planned-podiuminfo-497730": {
+      "identity": "[\"The Ocean\",\"2027-01-27\",\"Doornroosje\",\"Nijmegen\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"The Ocean\",\"2027-01-27\",\"Doornroosje\",\"Nijmegen\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:31:10.853Z",
+        "intermediary": null,
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "doornroosje-tickets",
+        "seller": "Doornroosje",
+        "purchaseUrl": "https://ticketshop.doornroosje.nl/2f540e74a2064cbc8169369898244e8a",
+        "eventPageUrl": "https://www.doornroosje.nl/event/the-ocean-3/",
+        "buttonState": null,
+        "buttonPriceCents": 3100,
+        "evidence": "Linked from the verified doornroosje.nl event page"
+      },
+      "providerChecks": {
+        "https://www.doornroosje.nl/event/the-ocean-3/": {
+          "attemptedAt": "2026-11-27T05:31:10.853Z",
+          "status": "verified",
+          "offers": [
+            {
+              "seller": "Doornroosje",
+              "category": "Category not stated",
+              "sourceUrl": "https://www.doornroosje.nl/event/the-ocean-3/",
+              "purchaseUrl": "https://ticketshop.doornroosje.nl/2f540e74a2064cbc8169369898244e8a",
+              "provider": "doornroosje-event-page",
+              "offerKey": null,
+              "verifiedAt": "2026-11-27T05:31:12.618Z",
+              "evidence": "Official Doornroosje ticket button price",
+              "quantity": 1,
+              "availability": "unknown",
+              "currency": "EUR",
+              "faceCents": null,
+              "listedCents": 3100,
+              "baseCents": null,
+              "feesCents": null,
+              "finalCents": null,
+              "feeInclusive": false,
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null
+            }
+          ]
+        }
+      },
+      "history": [
+        {
+          "at": "2026-11-27T05:31:12.618Z",
+          "seller": "Doornroosje",
+          "category": "Category not stated",
+          "currency": "EUR",
+          "listedCents": 3100,
+          "baseCents": null,
+          "feesCents": null,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": false,
+          "availability": "unknown",
+          "sourceUrl": "https://www.doornroosje.nl/event/the-ocean-3/"
+        }
+      ]
+    },
+    "planned-official-5686b4d750881a67": {
+      "identity": "[\"Moonspell + Iotunn + TodoMal\",\"2027-04-18\",\"Patronaat\",\"Haarlem\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Moonspell + Iotunn + TodoMal\",\"2027-04-18\",\"Patronaat\",\"Haarlem\",\"NL\"]",
+        "ticketUrl": "https://www.ticketmaster.nl/event/1650454376",
+        "ticketLink": "official-seller",
+        "checkedAt": "2026-11-27T05:31:12.722Z",
+        "status": "resolved",
+        "method": "direct",
+        "provider": "ticketmaster",
+        "seller": "Ticketmaster",
+        "purchaseUrl": "https://www.ticketmaster.nl/event/1650454376",
+        "eventPageUrl": null,
+        "evidence": "Stored ticket link is an official seller"
+      },
+      "providerChecks": {
+        "https://www.ticketmaster.nl/event/1650454376": {
+          "attemptedAt": "2026-11-27T05:31:12.722Z",
+          "status": "failed",
+          "offers": []
+        },
+        "https://patronaat.nl/event/moonspell-iotunn-support-18-04-27/": {
+          "attemptedAt": "2026-11-27T05:31:12.722Z",
+          "status": "unsupported",
+          "offers": []
+        }
+      }
+    },
+    "planned-podiuminfo-497823": {
+      "identity": "[\"Royal Blood\",\"2027-02-26\",\"AFAS Live\",\"Amsterdam\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Royal Blood\",\"2027-02-26\",\"AFAS Live\",\"Amsterdam\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/143193/cd/Royal-Blood/AFAS-Live/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:31:14.021Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/143193/cd/Royal-Blood/AFAS-Live/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "venue-event-page",
+        "seller": "afaslive.nl",
+        "purchaseUrl": "https://www.afaslive.nl/agenda/royal-blood",
+        "eventPageUrl": "https://www.afaslive.nl/agenda/royal-blood",
+        "buttonState": null,
+        "buttonPriceCents": null,
+        "evidence": "Verified official event page; no separate seller link is published on it"
+      },
+      "providerChecks": {
+        "https://www.afaslive.nl/agenda/royal-blood": {
+          "attemptedAt": "2026-11-27T05:31:14.021Z",
+          "status": "verified",
+          "offers": [
+            {
+              "seller": "Ticketmaster",
+              "category": "Entree vanaf",
+              "sourceUrl": "https://www.afaslive.nl/agenda/royal-blood",
+              "purchaseUrl": "https://www.afaslive.nl/agenda/royal-blood",
+              "provider": "afaslive-event-page",
+              "offerKey": null,
+              "verifiedAt": "2026-11-27T05:31:19.205Z",
+              "evidence": "Official AFAS Live ticket categories",
+              "quantity": 1,
+              "availability": "unknown",
+              "currency": "EUR",
+              "faceCents": null,
+              "listedCents": 7293,
+              "baseCents": null,
+              "feesCents": null,
+              "finalCents": null,
+              "feeInclusive": false,
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null
+            }
+          ]
+        }
+      },
+      "history": [
+        {
+          "at": "2026-11-27T05:31:19.205Z",
+          "seller": "Ticketmaster",
+          "category": "Entree vanaf",
+          "currency": "EUR",
+          "listedCents": 7293,
+          "baseCents": null,
+          "feesCents": null,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": false,
+          "availability": "unknown",
+          "sourceUrl": "https://www.afaslive.nl/agenda/royal-blood"
+        }
+      ]
+    },
+    "planned-podiuminfo-477573": {
+      "identity": "[\"Ontaard\",\"2027-01-21\",\"De Bosuil\",\"Weert\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Ontaard\",\"2027-01-21\",\"De Bosuil\",\"Weert\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:31:19.247Z",
+        "intermediary": null,
+        "status": "robots-disallowed",
+        "reason": "robots-disallowed"
+      }
+    },
+    "planned-official-55f44e9cbecb46b6": {
+      "identity": "[\"Trentemøller\",\"2027-03-10\",\"Muziekgieterij\",\"Maastricht\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Trentemøller\",\"2027-03-10\",\"Muziekgieterij\",\"Maastricht\",\"NL\"]",
+        "ticketUrl": "https://muziekgieterij.stager.co/shop/concert/events/111698497",
+        "ticketLink": "official-seller",
+        "checkedAt": "2026-11-27T05:31:20.068Z",
+        "status": "resolved",
+        "method": "direct",
+        "provider": "stager",
+        "seller": "Stager",
+        "purchaseUrl": "https://muziekgieterij.stager.co/shop/concert/events/111698497",
+        "eventPageUrl": null,
+        "evidence": "Stored ticket link is an official seller"
+      },
+      "providerChecks": {
+        "https://muziekgieterij.stager.co/shop/concert/events/111698497": {
+          "attemptedAt": "2026-11-27T05:31:20.068Z",
+          "status": "failed",
+          "offers": []
+        }
+      }
+    },
+    "planned-podiuminfo-498392": {
+      "identity": "[\"Hazlett\",\"2027-03-12\",\"Paradiso\",\"Amsterdam\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Hazlett\",\"2027-03-12\",\"Paradiso\",\"Amsterdam\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/143479/cd/Hazlett/Paradiso/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:31:20.069Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/143479/cd/Hazlett/Paradiso/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "paradiso-tickets",
+        "seller": "Paradiso",
+        "purchaseUrl": "https://tickets.paradiso.nl/fe617724078447f5b9448a32de8e3733",
+        "eventPageUrl": "https://www.paradiso.nl/programma/hazlett/2929730",
+        "buttonState": null,
+        "buttonPriceCents": 2720,
+        "evidence": "Linked from the verified paradiso.nl event page"
+      },
+      "providerChecks": {
+        "https://www.paradiso.nl/programma/hazlett/2929730": {
+          "attemptedAt": "2026-11-27T05:31:20.069Z",
+          "status": "verified",
+          "offers": [
+            {
+              "seller": "paradiso.nl",
+              "category": "Category not stated",
+              "sourceUrl": "https://www.paradiso.nl/programma/hazlett/2929730",
+              "purchaseUrl": "https://tickets.paradiso.nl/fe617724078447f5b9448a32de8e3733",
+              "provider": "venue-jsonld",
+              "offerKey": null,
+              "verifiedAt": "2026-11-27T05:31:26.935Z",
+              "evidence": "Official event page · structured offer data",
+              "quantity": 1,
+              "availability": "available",
+              "currency": "EUR",
+              "faceCents": null,
+              "baseCents": null,
+              "feesCents": null,
+              "finalCents": null,
+              "listedCents": 2720,
+              "feeInclusive": false,
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null
+            }
+          ]
+        }
+      },
+      "history": [
+        {
+          "at": "2026-11-27T05:31:26.935Z",
+          "seller": "paradiso.nl",
+          "category": "Category not stated",
+          "currency": "EUR",
+          "listedCents": 2720,
+          "baseCents": null,
+          "feesCents": null,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": false,
+          "availability": "available",
+          "sourceUrl": "https://www.paradiso.nl/programma/hazlett/2929730"
+        }
+      ]
+    },
+    "planned-podiuminfo-498471": {
+      "identity": "[\"Orbital\",\"2027-04-29\",\"Gashouder\",\"Amsterdam\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Orbital\",\"2027-04-29\",\"Gashouder\",\"Amsterdam\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/143501/cd/Orbital/Gashouder/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:31:27.089Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/143501/cd/Orbital/Gashouder/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "venue-event-page",
+        "seller": "gashouder.nl",
+        "purchaseUrl": "https://gashouder.nl/programma/orbital",
+        "eventPageUrl": "https://gashouder.nl/programma/orbital",
+        "buttonState": null,
+        "buttonPriceCents": null,
+        "evidence": "Verified official event page; no separate seller link is published on it"
+      },
+      "providerChecks": {
+        "https://gashouder.nl/programma/orbital": {
+          "attemptedAt": "2026-11-27T05:31:27.089Z",
+          "status": "verified",
+          "offers": [
+            {
+              "seller": "gashouder.nl",
+              "category": "Category not stated",
+              "sourceUrl": "https://gashouder.nl/programma/orbital",
+              "purchaseUrl": "https://gashouder.nl/programma/mojo.nl/orbital",
+              "provider": "venue-jsonld",
+              "offerKey": null,
+              "verifiedAt": "2026-11-27T05:31:30.789Z",
+              "evidence": "Official event page · structured offer data",
+              "quantity": 1,
+              "availability": "available",
+              "currency": "EUR",
+              "faceCents": null,
+              "baseCents": null,
+              "feesCents": null,
+              "finalCents": null,
+              "listedCents": 5045,
+              "feeInclusive": false,
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null
+            }
+          ]
+        }
+      },
+      "history": [
+        {
+          "at": "2026-11-27T05:31:30.789Z",
+          "seller": "gashouder.nl",
+          "category": "Category not stated",
+          "currency": "EUR",
+          "listedCents": 5045,
+          "baseCents": null,
+          "feesCents": null,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": false,
+          "availability": "available",
+          "sourceUrl": "https://gashouder.nl/programma/orbital"
+        }
+      ]
+    },
+    "planned-podiuminfo-498847": {
+      "identity": "[\"Damien Rice\",\"2027-04-16\",\"Koninklijk Theater Carré\",\"Amsterdam\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Damien Rice\",\"2027-04-16\",\"Koninklijk Theater Carré\",\"Amsterdam\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/143643/cd/Damien-Rice/Koninklijk-Theater-Carre/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:31:30.793Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/143643/cd/Damien-Rice/Koninklijk-Theater-Carre/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "ambiguous",
+        "reason": "identity-unverified, ambiguous-seller"
+      }
+    },
+    "planned-podiuminfo-498848": {
+      "identity": "[\"Damien Rice\",\"2027-04-17\",\"Koninklijk Theater Carré\",\"Amsterdam\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Damien Rice\",\"2027-04-17\",\"Koninklijk Theater Carré\",\"Amsterdam\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/143644/cd/Damien-Rice/Koninklijk-Theater-Carre/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:31:39.754Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/143644/cd/Damien-Rice/Koninklijk-Theater-Carre/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "ambiguous",
+        "reason": "identity-unverified, ambiguous-seller"
+      }
+    },
+    "planned-podiuminfo-496318": {
+      "identity": "[\"Slomosa\",\"2027-03-04\",\"Neushoorn\",\"Leeuwarden\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Slomosa\",\"2027-03-04\",\"Neushoorn\",\"Leeuwarden\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/143179/cd/Slomosa/Neushoorn/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:31:40.772Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/143179/cd/Slomosa/Neushoorn/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "unresolved",
+        "reason": "robots-disallowed, unavailable"
+      }
+    },
+    "planned-podiuminfo-496319": {
+      "identity": "[\"SLOMOSA\",\"2027-03-05\",\"Paard\",\"Den Haag\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"SLOMOSA\",\"2027-03-05\",\"Paard\",\"Den Haag\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/142908/cd/SLOMOSA/Paard/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:31:53.826Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/142908/cd/SLOMOSA/Paard/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "unresolved",
+        "reason": "unavailable"
+      }
+    },
+    "planned-podiuminfo-496484": {
+      "identity": "[\"Slomosa\",\"2027-03-07\",\"Muziekgieterij\",\"Maastricht\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Slomosa\",\"2027-03-07\",\"Muziekgieterij\",\"Maastricht\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:32:23.053Z",
+        "intermediary": null,
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "stager",
+        "seller": "Stager",
+        "purchaseUrl": "https://muziekgieterij.stager.co/shop/concert/events/111680507",
+        "eventPageUrl": "https://muziekgieterij.nl/en/event/slomosa-2027-03-07/",
+        "buttonState": null,
+        "buttonPriceCents": 2000,
+        "evidence": "Linked from the verified muziekgieterij.nl event page"
+      },
+      "providerChecks": {
+        "https://muziekgieterij.stager.co/shop/concert/events/111680507": {
+          "attemptedAt": "2026-11-27T05:32:23.053Z",
+          "status": "failed",
+          "offers": []
+        },
+        "https://muziekgieterij.nl/en/event/slomosa-2027-03-07/": {
+          "attemptedAt": "2026-11-27T05:32:23.053Z",
+          "status": "unsupported",
+          "offers": []
+        }
+      }
+    },
+    "planned-podiuminfo-499143": {
+      "identity": "[\"Robbie Williams\",\"2027-07-10\",\"Stadspark Groningen\",\"Groningen\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Robbie Williams\",\"2027-07-10\",\"Stadspark Groningen\",\"Groningen\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/143679/cd/Robbie-Williams/Stadspark-Groningen/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:32:25.070Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/143679/cd/Robbie-Williams/Stadspark-Groningen/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "unsupported-venue",
+        "reason": "No verified official publisher for this venue"
+      }
+    },
+    "planned-podiuminfo-499340": {
+      "identity": "[\"Other Lives\",\"2027-03-24\",\"Melkweg\",\"Amsterdam\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Other Lives\",\"2027-03-24\",\"Melkweg\",\"Amsterdam\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/143805/cd/Other-Lives/Melkweg/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:32:25.070Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/143805/cd/Other-Lives/Melkweg/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "venue-event-page",
+        "seller": "melkweg.nl",
+        "purchaseUrl": "https://www.melkweg.nl/nl/agenda/other-lives-24-03-2027/",
+        "eventPageUrl": "https://www.melkweg.nl/nl/agenda/other-lives-24-03-2027/",
+        "buttonState": null,
+        "buttonPriceCents": null,
+        "evidence": "Verified official event page; no separate seller link is published on it"
+      },
+      "providerChecks": {
+        "https://www.melkweg.nl/nl/agenda/other-lives-24-03-2027/": {
+          "attemptedAt": "2026-11-27T05:32:25.070Z",
+          "status": "unsupported",
+          "offers": []
+        }
+      }
+    },
+    "planned-podiuminfo-500025": {
+      "identity": "[\"Villagers of Ioannina City\",\"2027-03-26\",\"Metropool Enschede\",\"Enschede\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Villagers of Ioannina City\",\"2027-03-26\",\"Metropool Enschede\",\"Enschede\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/144081/cd/Villagers-Of-Ioannina-City/Metropool-Enschede/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:32:32.146Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/144081/cd/Villagers-Of-Ioannina-City/Metropool-Enschede/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "unsupported-venue",
+        "reason": "No verified official publisher for this venue"
+      }
+    },
+    "planned-podiuminfo-500027": {
+      "identity": "[\"Villagers of Ioannina city\",\"2027-03-27\",\"Muziekgieterij\",\"Maastricht\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Villagers of Ioannina city\",\"2027-03-27\",\"Muziekgieterij\",\"Maastricht\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:32:32.147Z",
+        "intermediary": null,
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "stager",
+        "seller": "Stager",
+        "purchaseUrl": "https://muziekgieterij.stager.co/shop/concert/events/111660750",
+        "eventPageUrl": "https://muziekgieterij.nl/event/villagers-of-ioannina-city-2027-03-27/",
+        "buttonState": null,
+        "buttonPriceCents": 2250,
+        "evidence": "Linked from the verified muziekgieterij.nl event page"
+      },
+      "providerChecks": {
+        "https://muziekgieterij.stager.co/shop/concert/events/111660750": {
+          "attemptedAt": "2026-11-27T05:32:32.147Z",
+          "status": "failed",
+          "offers": []
+        },
+        "https://muziekgieterij.nl/event/villagers-of-ioannina-city-2027-03-27/": {
+          "attemptedAt": "2026-11-27T05:32:32.147Z",
+          "status": "unsupported",
+          "offers": []
+        }
+      }
+    },
+    "planned-podiuminfo-500028": {
+      "identity": "[\"Villagers of Ioannina City\",\"2027-03-28\",\"Neushoorn\",\"Leeuwarden\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Villagers of Ioannina City\",\"2027-03-28\",\"Neushoorn\",\"Leeuwarden\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:32:34.224Z",
+        "intermediary": null,
+        "status": "robots-disallowed",
+        "reason": "robots-disallowed"
+      }
+    },
+    "planned-podiuminfo-500076": {
+      "identity": "[\"Joshua Radin\",\"2027-02-10\",\"Paard\",\"Den Haag\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Joshua Radin\",\"2027-02-10\",\"Paard\",\"Den Haag\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/144105/cd/Joshua-Radin/Paard/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:32:35.122Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/144105/cd/Joshua-Radin/Paard/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "unresolved",
+        "reason": "No official event page found"
+      }
+    },
+    "planned-podiuminfo-478995": {
+      "identity": "[\"Ozric Tentacles\",\"2027-02-25\",\"De Helling\",\"Utrecht\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Ozric Tentacles\",\"2027-02-25\",\"De Helling\",\"Utrecht\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/137437/cd/Ozric-Tentacles/De-Helling/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:32:35.919Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/137437/cd/Ozric-Tentacles/De-Helling/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "unsupported-venue",
+        "reason": "No verified official publisher for this venue"
+      }
+    },
+    "planned-podiuminfo-500051": {
+      "identity": "[\"Bruce Dickinson\",\"2027-11-25\",\"AFAS Live\",\"Amsterdam\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Bruce Dickinson\",\"2027-11-25\",\"AFAS Live\",\"Amsterdam\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/144061/cd/Bruce-Dickinson-Psychogod-Tour-2027/AFAS-Live/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:32:35.919Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/144061/cd/Bruce-Dickinson-Psychogod-Tour-2027/AFAS-Live/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "venue-event-page",
+        "seller": "afaslive.nl",
+        "purchaseUrl": "https://www.afaslive.nl/agenda/bruce-dickinson",
+        "eventPageUrl": "https://www.afaslive.nl/agenda/bruce-dickinson",
+        "buttonState": null,
+        "buttonPriceCents": null,
+        "evidence": "Verified official event page; no separate seller link is published on it"
+      },
+      "providerChecks": {
+        "https://www.afaslive.nl/agenda/bruce-dickinson": {
+          "attemptedAt": "2026-11-27T05:32:35.919Z",
+          "status": "verified",
+          "offers": [
+            {
+              "seller": "Ticketmaster",
+              "category": "Entree vanaf",
+              "sourceUrl": "https://www.afaslive.nl/agenda/bruce-dickinson",
+              "purchaseUrl": "https://www.afaslive.nl/agenda/bruce-dickinson",
+              "provider": "afaslive-event-page",
+              "offerKey": null,
+              "verifiedAt": "2026-11-27T05:32:42.226Z",
+              "evidence": "Official AFAS Live ticket categories",
+              "quantity": 1,
+              "availability": "unknown",
+              "currency": "EUR",
+              "faceCents": null,
+              "listedCents": 7013,
+              "baseCents": null,
+              "feesCents": null,
+              "finalCents": null,
+              "feeInclusive": false,
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null
+            }
+          ]
+        }
+      },
+      "history": [
+        {
+          "at": "2026-11-27T05:32:42.226Z",
+          "seller": "Ticketmaster",
+          "category": "Entree vanaf",
+          "currency": "EUR",
+          "listedCents": 7013,
+          "baseCents": null,
+          "feesCents": null,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": false,
+          "availability": "unknown",
+          "sourceUrl": "https://www.afaslive.nl/agenda/bruce-dickinson"
+        }
+      ]
+    },
+    "planned-podiuminfo-500236": {
+      "identity": "[\"U2\",\"2027-06-05\",\"Johan Cruijff ArenA\",\"Amsterdam\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"U2\",\"2027-06-05\",\"Johan Cruijff ArenA\",\"Amsterdam\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/144316/cd/U2/Johan-Cruijff-ArenA/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:32:42.255Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/144316/cd/U2/Johan-Cruijff-ArenA/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "unresolved",
+        "reason": "identity-unverified"
+      }
+    },
+    "planned-podiuminfo-500578": {
+      "identity": "[\"Truckfighters\",\"2027-03-07\",\"Metropool\",\"Hengelo\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Truckfighters\",\"2027-03-07\",\"Metropool\",\"Hengelo\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:33:15.361Z",
+        "intermediary": null,
+        "status": "unsupported-venue",
+        "reason": "No verified official publisher for this venue"
+      }
+    },
+    "planned-festivalinfo-36695": {
+      "identity": "[\"Roadburn\",\"2027-04-15\",\"Roadburn\",\"Tilburg\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Roadburn\",\"2027-04-15\",\"Roadburn\",\"Tilburg\",\"NL\"]",
+        "ticketUrl": "https://www.festivalinfo.nl/ticket/135659/df/Roadburn-2027-Neurosis-Kulk-Poor-Creature/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:33:15.361Z",
+        "intermediary": {
+          "provider": "festivalinfo",
+          "url": "https://www.festivalinfo.nl/ticket/135659/df/Roadburn-2027-Neurosis-Kulk-Poor-Creature/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "unsupported-venue",
+        "reason": "No verified official publisher for this venue"
+      }
+    },
+    "planned-festivalinfo-35648": {
+      "identity": "[\"Eindhoven Metal Meeting\",\"2026-12-11\",\"Eindhoven Metal Meeting\",\"Eindhoven\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Eindhoven Metal Meeting\",\"2026-12-11\",\"Eindhoven Metal Meeting\",\"Eindhoven\",\"NL\"]",
+        "ticketUrl": "https://www.festivalinfo.nl/ticket/128350/df/Eindhoven-Metal-Meeting-2026-2-day-combi-ticket/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:33:15.697Z",
+        "intermediary": {
+          "provider": "festivalinfo",
+          "url": "https://www.festivalinfo.nl/ticket/128350/df/Eindhoven-Metal-Meeting-2026-2-day-combi-ticket/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "unsupported-venue",
+        "reason": "No verified official publisher for this venue"
+      }
+    },
+    "planned-festivalinfo-37169": {
+      "identity": "[\"Into The Void Eindhoven\",\"2027-03-06\",\"Into The Void Eindhoven\",\"Eindhoven\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Into The Void Eindhoven\",\"2027-03-06\",\"Into The Void Eindhoven\",\"Eindhoven\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:33:15.697Z",
+        "intermediary": null,
+        "status": "unsupported-venue",
+        "reason": "No verified official publisher for this venue"
+      }
+    },
+    "planned-festivalinfo-36875": {
+      "identity": "[\"Into the Grave\",\"2027-06-11\",\"Into the Grave\",\"Leeuwarden\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Into the Grave\",\"2027-06-11\",\"Into the Grave\",\"Leeuwarden\",\"NL\"]",
+        "ticketUrl": "https://www.festivalinfo.nl/ticket/139261/df/Into-the-Grave-2027/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:33:15.698Z",
+        "intermediary": {
+          "provider": "festivalinfo",
+          "url": "https://www.festivalinfo.nl/ticket/139261/df/Into-the-Grave-2027/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "unsupported-venue",
+        "reason": "No verified official publisher for this venue"
+      }
+    },
+    "planned-festivalinfo-35760": {
+      "identity": "[\"Eurosonic Noorderslag (ESNS)\",\"2027-01-13\",\"Eurosonic Noorderslag (ESNS)\",\"Groningen\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Eurosonic Noorderslag (ESNS)\",\"2027-01-13\",\"Eurosonic Noorderslag (ESNS)\",\"Groningen\",\"NL\"]",
+        "ticketUrl": "https://www.festivalinfo.nl/ticket/129897/df/Eurosonic-Noorderslag-ESNS-2027/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:33:15.698Z",
+        "intermediary": {
+          "provider": "festivalinfo",
+          "url": "https://www.festivalinfo.nl/ticket/129897/df/Eurosonic-Noorderslag-ESNS-2027/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "unsupported-venue",
+        "reason": "No verified official publisher for this venue"
+      }
+    },
+    "planned-podiuminfo-500788": {
+      "identity": "[\"The Cinematic Orchestra\",\"2027-04-16\",\"Paradiso\",\"Amsterdam\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"The Cinematic Orchestra\",\"2027-04-16\",\"Paradiso\",\"Amsterdam\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:33:15.698Z",
+        "intermediary": null,
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "paradiso-tickets",
+        "seller": "Paradiso",
+        "purchaseUrl": "https://tickets.paradiso.nl/1196b37ca52d44d29b0537239b91b221",
+        "eventPageUrl": "https://www.paradiso.nl/programma/the-cinematic-orchestra/2945509",
+        "buttonState": null,
+        "buttonPriceCents": 3680,
+        "evidence": "Linked from the verified paradiso.nl event page"
+      },
+      "providerChecks": {
+        "https://www.paradiso.nl/programma/the-cinematic-orchestra/2945509": {
+          "attemptedAt": "2026-11-27T05:33:15.698Z",
+          "status": "verified",
+          "offers": [
+            {
+              "seller": "paradiso.nl",
+              "category": "Category not stated",
+              "sourceUrl": "https://www.paradiso.nl/programma/the-cinematic-orchestra/2945509",
+              "purchaseUrl": "https://tickets.paradiso.nl/1196b37ca52d44d29b0537239b91b221",
+              "provider": "venue-jsonld",
+              "offerKey": null,
+              "verifiedAt": "2026-11-27T05:33:22.779Z",
+              "evidence": "Official event page · structured offer data",
+              "quantity": 1,
+              "availability": "available",
+              "currency": "EUR",
+              "faceCents": null,
+              "baseCents": null,
+              "feesCents": null,
+              "finalCents": null,
+              "listedCents": 3680,
+              "feeInclusive": false,
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null
+            }
+          ]
+        }
+      },
+      "history": [
+        {
+          "at": "2026-11-27T05:33:22.779Z",
+          "seller": "paradiso.nl",
+          "category": "Category not stated",
+          "currency": "EUR",
+          "listedCents": 3680,
+          "baseCents": null,
+          "feesCents": null,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": false,
+          "availability": "available",
+          "sourceUrl": "https://www.paradiso.nl/programma/the-cinematic-orchestra/2945509"
+        }
+      ]
+    },
+    "planned-podiuminfo-500785": {
+      "identity": "[\"The Cinematic Orchestra\",\"2027-04-18\",\"TivoliVredenburg\",\"Utrecht\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"The Cinematic Orchestra\",\"2027-04-18\",\"TivoliVredenburg\",\"Utrecht\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:33:22.917Z",
+        "intermediary": null,
+        "status": "unresolved",
+        "reason": "No official event page found"
+      }
+    },
+    "planned-festivalinfo-36965": {
+      "identity": "[\"Midjonno Prog\",\"2027-01-16\",\"Midjonno Prog\",\"Utrecht\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Midjonno Prog\",\"2027-01-16\",\"Midjonno Prog\",\"Utrecht\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:33:23.683Z",
+        "intermediary": null,
+        "status": "unsupported-venue",
+        "reason": "No verified official publisher for this venue"
+      }
+    },
+    "planned-podiuminfo-501524": {
+      "identity": "[\"Antimatter\",\"2027-04-23\",\"Spirit of 66\",\"Verviers\",\"??\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Antimatter\",\"2027-04-23\",\"Spirit of 66\",\"Verviers\",\"??\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:33:23.683Z",
+        "intermediary": null,
+        "status": "unsupported-venue",
+        "reason": "No verified official publisher for this venue"
+      }
+    },
+    "planned-podiuminfo-482144": {
+      "identity": "[\"City of the Sun\",\"2026-12-17\",\"Paard\",\"Den Haag\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"City of the Sun\",\"2026-12-17\",\"Paard\",\"Den Haag\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/139225/cd/CITY-OF-THE-SUN/Paard/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:33:23.684Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/139225/cd/CITY-OF-THE-SUN/Paard/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "unresolved",
+        "reason": "No official event page found"
+      }
+    },
+    "planned-festivalinfo-36807": {
+      "identity": "[\"March Into Walhalla\",\"2027-02-13\",\"March Into Walhalla\",\"Apeldoorn\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"March Into Walhalla\",\"2027-02-13\",\"March Into Walhalla\",\"Apeldoorn\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:33:24.569Z",
+        "intermediary": null,
+        "status": "unsupported-venue",
+        "reason": "No verified official publisher for this venue"
+      }
+    },
+    "planned-podiuminfo-502342": {
+      "identity": "[\"Neurosis\",\"2027-08-23\",\"Doornroosje\",\"Nijmegen\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Neurosis\",\"2027-08-23\",\"Doornroosje\",\"Nijmegen\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:33:24.569Z",
+        "intermediary": null,
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "doornroosje-tickets",
+        "seller": "Doornroosje",
+        "purchaseUrl": "https://ticketshop.doornroosje.nl/c2ca7d76118c4c4d8ac21bae7b348630",
+        "eventPageUrl": "https://www.doornroosje.nl/event/neurosis-2/",
+        "buttonState": null,
+        "buttonPriceCents": 4900,
+        "evidence": "Linked from the verified doornroosje.nl event page"
+      },
+      "providerChecks": {
+        "https://www.doornroosje.nl/event/neurosis-2/": {
+          "attemptedAt": "2026-11-27T05:33:24.569Z",
+          "status": "verified",
+          "offers": [
+            {
+              "seller": "Doornroosje",
+              "category": "Category not stated",
+              "sourceUrl": "https://www.doornroosje.nl/event/neurosis-2/",
+              "purchaseUrl": "https://ticketshop.doornroosje.nl/c2ca7d76118c4c4d8ac21bae7b348630",
+              "provider": "doornroosje-event-page",
+              "offerKey": null,
+              "verifiedAt": "2026-11-27T05:33:27.671Z",
+              "evidence": "Official Doornroosje ticket button price",
+              "quantity": 1,
+              "availability": "unknown",
+              "currency": "EUR",
+              "faceCents": null,
+              "listedCents": 4900,
+              "baseCents": null,
+              "feesCents": null,
+              "finalCents": null,
+              "feeInclusive": false,
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null
+            }
+          ]
+        }
+      },
+      "history": [
+        {
+          "at": "2026-11-27T05:33:27.671Z",
+          "seller": "Doornroosje",
+          "category": "Category not stated",
+          "currency": "EUR",
+          "listedCents": 4900,
+          "baseCents": null,
+          "feesCents": null,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": false,
+          "availability": "unknown",
+          "sourceUrl": "https://www.doornroosje.nl/event/neurosis-2/"
+        }
+      ]
+    },
+    "planned-podiuminfo-502280": {
+      "identity": "[\"The Dead South\",\"2027-11-26\",\"013\",\"Tilburg\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"The Dead South\",\"2027-11-26\",\"013\",\"Tilburg\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/144912/cd/The-Dead-South/013/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:33:27.792Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/144912/cd/The-Dead-South/013/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "013-tickets",
+        "seller": "013",
+        "purchaseUrl": "https://tickets.013.nl/4de1de9d11914865bffb3073e8c55253",
+        "eventPageUrl": "https://www.013.nl/programma/162784/the-dead-south",
+        "buttonState": null,
+        "buttonPriceCents": null,
+        "evidence": "Linked from the verified 013.nl event page"
+      },
+      "providerChecks": {
+        "https://www.013.nl/programma/162784/the-dead-south": {
+          "attemptedAt": "2026-11-27T05:33:27.792Z",
+          "status": "verified",
+          "offers": [
+            {
+              "seller": "013",
+              "category": "Category not stated",
+              "sourceUrl": "https://www.013.nl/programma/162784/the-dead-south",
+              "purchaseUrl": "https://tickets.013.nl/4de1de9d11914865bffb3073e8c55253",
+              "provider": "013-event-page",
+              "offerKey": null,
+              "verifiedAt": "2026-11-27T05:33:29.459Z",
+              "evidence": "Official 013 event page price table",
+              "quantity": 1,
+              "availability": "unknown",
+              "currency": "EUR",
+              "faceCents": null,
+              "listedCents": 5580,
+              "baseCents": null,
+              "feesCents": null,
+              "finalCents": null,
+              "feeInclusive": false,
+              "priceContext": {
+                "serviceFeesIncluded": true
+              },
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null
+            }
+          ]
+        }
+      },
+      "history": [
+        {
+          "at": "2026-11-27T05:33:29.459Z",
+          "seller": "013",
+          "category": "Category not stated",
+          "currency": "EUR",
+          "listedCents": 5580,
+          "baseCents": null,
+          "feesCents": null,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": true,
+          "availability": "unknown",
+          "sourceUrl": "https://www.013.nl/programma/162784/the-dead-south"
+        }
+      ]
+    },
+    "planned-podiuminfo-502384": {
+      "identity": "[\"Boogie Belgique\",\"2027-05-01\",\"TivoliVredenburg\",\"Utrecht\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Boogie Belgique\",\"2027-05-01\",\"TivoliVredenburg\",\"Utrecht\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/144953/cd/Boogie-Belgique/TivoliVredenburg/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:33:29.521Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/144953/cd/Boogie-Belgique/TivoliVredenburg/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "unresolved",
+        "reason": "No official event page found"
+      }
+    },
+    "planned-podiuminfo-503760": {
+      "identity": "[\"Dan Mangan\",\"2027-06-15\",\"Bitterzoet\",\"Amsterdam\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Dan Mangan\",\"2027-06-15\",\"Bitterzoet\",\"Amsterdam\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:33:29.997Z",
+        "intermediary": null,
+        "status": "unsupported-venue",
+        "reason": "No verified official publisher for this venue"
+      }
+    },
+    "planned-festivalinfo-36899": {
+      "identity": "[\"Down the Rabbit Hole\",\"2027-07-02\",\"Down the Rabbit Hole\",\"Ewijk\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Down the Rabbit Hole\",\"2027-07-02\",\"Down the Rabbit Hole\",\"Ewijk\",\"NL\"]",
+        "ticketUrl": "https://www.festivalinfo.nl/ticket/145548/df/Down-the-Rabbit-Hole-2027/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:33:29.997Z",
+        "intermediary": {
+          "provider": "festivalinfo",
+          "url": "https://www.festivalinfo.nl/ticket/145548/df/Down-the-Rabbit-Hole-2027/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "unsupported-venue",
+        "reason": "No verified official publisher for this venue"
+      }
+    },
+    "planned-podiuminfo-503184": {
+      "identity": "[\"The Cat Empire\",\"2027-05-01\",\"Gashouder\",\"Amsterdam\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"The Cat Empire\",\"2027-05-01\",\"Gashouder\",\"Amsterdam\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/145284/cd/The-Cat-Empire-Bells-Of-Midnight-Album-Tour/Gashouder/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:33:30.004Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/145284/cd/The-Cat-Empire-Bells-Of-Midnight-Album-Tour/Gashouder/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "venue-event-page",
+        "seller": "gashouder.nl",
+        "purchaseUrl": "https://gashouder.nl/programma/the-cat-empire",
+        "eventPageUrl": "https://gashouder.nl/programma/the-cat-empire",
+        "buttonState": null,
+        "buttonPriceCents": null,
+        "evidence": "Verified official event page; no separate seller link is published on it"
+      },
+      "providerChecks": {
+        "https://gashouder.nl/programma/the-cat-empire": {
+          "attemptedAt": "2026-11-27T05:33:30.004Z",
+          "status": "verified",
+          "offers": [
+            {
+              "seller": "gashouder.nl",
+              "category": "Category not stated",
+              "sourceUrl": "https://gashouder.nl/programma/the-cat-empire",
+              "purchaseUrl": "https://gashouder.nl/programma/mojo.nl/thecatempire",
+              "provider": "venue-jsonld",
+              "offerKey": null,
+              "verifiedAt": "2026-11-27T05:33:34.320Z",
+              "evidence": "Official event page · structured offer data",
+              "quantity": 1,
+              "availability": "available",
+              "currency": "EUR",
+              "faceCents": null,
+              "baseCents": null,
+              "feesCents": null,
+              "finalCents": null,
+              "listedCents": null,
+              "feeInclusive": false,
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null
+            }
+          ]
+        }
+      }
+    },
+    "planned-podiuminfo-503095": {
+      "identity": "[\"Judas Priest\",\"2027-06-22\",\"Martiniplaza\",\"Groningen\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Judas Priest\",\"2027-06-22\",\"Martiniplaza\",\"Groningen\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/145249/cd/Judas-Priest-Only-The-Strong-Survive/Martiniplaza/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:33:34.326Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/145249/cd/Judas-Priest-Only-The-Strong-Survive/Martiniplaza/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "unsupported-venue",
+        "reason": "No verified official publisher for this venue"
+      }
+    },
+    "planned-podiuminfo-502527": {
+      "identity": "[\"Everlast\",\"2027-02-03\",\"Paradiso\",\"Amsterdam\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Everlast\",\"2027-02-03\",\"Paradiso\",\"Amsterdam\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/144992/cd/Everlast-Europe-2027/Paradiso/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:33:34.327Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/144992/cd/Everlast-Europe-2027/Paradiso/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "paradiso-tickets",
+        "seller": "Paradiso",
+        "purchaseUrl": "https://tickets.paradiso.nl/38afc0ddeab74dd6bfc95b3121d89f73",
+        "eventPageUrl": "https://www.paradiso.nl/programma/everlast-europe-2027/2953537",
+        "buttonState": null,
+        "buttonPriceCents": 3680,
+        "evidence": "Linked from the verified paradiso.nl event page"
+      },
+      "providerChecks": {
+        "https://www.paradiso.nl/programma/everlast-europe-2027/2953537": {
+          "attemptedAt": "2026-11-27T05:33:34.327Z",
+          "status": "verified",
+          "offers": [
+            {
+              "seller": "paradiso.nl",
+              "category": "Category not stated",
+              "sourceUrl": "https://www.paradiso.nl/programma/everlast-europe-2027/2953537",
+              "purchaseUrl": "https://tickets.paradiso.nl/38afc0ddeab74dd6bfc95b3121d89f73",
+              "provider": "venue-jsonld",
+              "offerKey": null,
+              "verifiedAt": "2026-11-27T05:33:39.837Z",
+              "evidence": "Official event page · structured offer data",
+              "quantity": 1,
+              "availability": "available",
+              "currency": "EUR",
+              "faceCents": null,
+              "baseCents": null,
+              "feesCents": null,
+              "finalCents": null,
+              "listedCents": 3680,
+              "feeInclusive": false,
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null
+            }
+          ]
+        }
+      },
+      "history": [
+        {
+          "at": "2026-11-27T05:33:39.837Z",
+          "seller": "paradiso.nl",
+          "category": "Category not stated",
+          "currency": "EUR",
+          "listedCents": 3680,
+          "baseCents": null,
+          "feesCents": null,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": false,
+          "availability": "available",
+          "sourceUrl": "https://www.paradiso.nl/programma/everlast-europe-2027/2953537"
+        }
+      ]
+    },
+    "planned-podiuminfo-503286": {
+      "identity": "[\"Deep Purple\",\"2027-02-11\",\"Ziggo Dome\",\"Amsterdam\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Deep Purple\",\"2027-02-11\",\"Ziggo Dome\",\"Amsterdam\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/145413/cd/Deep-Purple-Splat!-World-Tour-2027/Ziggo-Dome/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:33:39.969Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/145413/cd/Deep-Purple-Splat!-World-Tour-2027/Ziggo-Dome/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "venue-event-page",
+        "seller": "Ticketmaster",
+        "purchaseUrl": "https://www.ziggodome.nl/events/c308eca1-8169-498b-9eea-ebea524f10d3/",
+        "eventPageUrl": "https://www.ziggodome.nl/events/c308eca1-8169-498b-9eea-ebea524f10d3/",
+        "buttonState": null,
+        "buttonPriceCents": null,
+        "evidence": "Ziggo Dome public event data names Ticketmaster as seller"
+      },
+      "providerChecks": {
+        "https://www.ziggodome.nl/api/agenda/events/c308eca1-8169-498b-9eea-ebea524f10d3": {
+          "attemptedAt": "2026-11-27T05:33:39.969Z",
+          "status": "verified",
+          "offers": [
+            {
+              "seller": "Ticketmaster",
+              "category": "Tickets",
+              "sourceUrl": "https://www.ziggodome.nl/events/c308eca1-8169-498b-9eea-ebea524f10d3/",
+              "purchaseUrl": "https://www.ziggodome.nl/events/c308eca1-8169-498b-9eea-ebea524f10d3/",
+              "provider": "ziggodome-api",
+              "offerKey": "99a5f477-e8e2-4160-b175-628e2850a00a",
+              "verifiedAt": "2026-11-27T05:33:49.329Z",
+              "evidence": "Ziggo Dome public event data",
+              "quantity": 1,
+              "availability": "available",
+              "currency": "EUR",
+              "faceCents": null,
+              "listedCents": 9520,
+              "baseCents": null,
+              "feesCents": null,
+              "finalCents": null,
+              "feeInclusive": false,
+              "priceContext": {
+                "serviceFeesIncluded": true
+              },
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null
+            }
+          ]
+        }
+      },
+      "history": [
+        {
+          "at": "2026-11-27T05:33:49.329Z",
+          "seller": "Ticketmaster",
+          "category": "Tickets",
+          "currency": "EUR",
+          "listedCents": 9520,
+          "baseCents": null,
+          "feesCents": null,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": true,
+          "availability": "available",
+          "sourceUrl": "https://www.ziggodome.nl/events/c308eca1-8169-498b-9eea-ebea524f10d3/"
+        }
+      ]
+    },
+    "planned-podiuminfo-502699": {
+      "identity": "[\"The Skatalites\",\"2027-03-20\",\"TivoliVredenburg\",\"Utrecht\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"The Skatalites\",\"2027-03-20\",\"TivoliVredenburg\",\"Utrecht\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/145042/cd/The-Skatalites/TivoliVredenburg/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:33:49.330Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/145042/cd/The-Skatalites/TivoliVredenburg/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "unresolved",
+        "reason": "No official event page found"
+      }
+    },
+    "planned-podiuminfo-503939": {
+      "identity": "[\"The Wailers\",\"2027-06-12\",\"Zuiderparktheater\",\"Den Haag\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"The Wailers\",\"2027-06-12\",\"Zuiderparktheater\",\"Den Haag\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/145553/cd/The-Wailers/Zuiderparktheater/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:33:50.023Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/145553/cd/The-Wailers/Zuiderparktheater/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "unsupported-venue",
+        "reason": "No verified official publisher for this venue"
+      }
+    },
+    "planned-podiuminfo-486829": {
+      "identity": "[\"Terror\",\"2026-12-02\",\"Patronaat\",\"Haarlem\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Terror\",\"2026-12-02\",\"Patronaat\",\"Haarlem\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/139918/cd/Terror-Bane-Start-Today-Peace-of-Mind/Patronaat/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:33:50.027Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/139918/cd/Terror-Bane-Start-Today-Peace-of-Mind/Patronaat/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "ticketmaster",
+        "seller": "Ticketmaster",
+        "purchaseUrl": "https://www.ticketmaster.nl/event/1071853401?brand=nl_patronaat",
+        "eventPageUrl": "https://patronaat.nl/event/terror-02-12-26/",
+        "buttonState": null,
+        "buttonPriceCents": null,
+        "evidence": "Linked from the verified patronaat.nl event page"
+      },
+      "providerChecks": {
+        "https://www.ticketmaster.nl/event/1071853401?brand=nl_patronaat": {
+          "attemptedAt": "2026-11-27T05:33:50.027Z",
+          "status": "failed",
+          "offers": []
+        },
+        "https://patronaat.nl/event/terror-02-12-26/": {
+          "attemptedAt": "2026-11-27T05:33:50.027Z",
+          "status": "verified",
+          "offers": [
+            {
+              "seller": "Patronaat (official source)",
+              "category": "Category not stated",
+              "provider": "patronaat-event-page",
+              "sourceUrl": "https://patronaat.nl/event/terror-02-12-26/",
+              "purchaseUrl": "https://www.ticketmaster.nl/event/1071853401?brand=nl_patronaat",
+              "verifiedAt": "2026-11-27T05:33:51.963Z",
+              "evidence": "Official Patronaat event price",
+              "quantity": 1,
+              "availability": "unknown",
+              "currency": "EUR",
+              "faceCents": null,
+              "listedCents": 3050,
+              "baseCents": null,
+              "feesCents": null,
+              "finalCents": null,
+              "feeInclusive": false,
+              "offerKey": null,
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null
+            }
+          ]
+        }
+      },
+      "history": [
+        {
+          "at": "2026-11-27T05:33:51.963Z",
+          "seller": "Patronaat (official source)",
+          "category": "Category not stated",
+          "currency": "EUR",
+          "listedCents": 3050,
+          "baseCents": null,
+          "feesCents": null,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": false,
+          "availability": "unknown",
+          "sourceUrl": "https://patronaat.nl/event/terror-02-12-26/"
+        }
+      ]
+    },
+    "planned-podiuminfo-504007": {
+      "identity": "[\"Born From Pain\",\"2027-02-20\",\"Patronaat\",\"Haarlem\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Born From Pain\",\"2027-02-20\",\"Patronaat\",\"Haarlem\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:33:51.972Z",
+        "intermediary": null,
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "ticketmaster",
+        "seller": "Ticketmaster",
+        "purchaseUrl": "https://www.ticketmaster.nl/event/96022984?brand=nl_patronaat",
+        "eventPageUrl": "https://patronaat.nl/event/born-from-pain-inherited-20-02-27/",
+        "buttonState": null,
+        "buttonPriceCents": null,
+        "evidence": "Linked from the verified patronaat.nl event page"
+      },
+      "providerChecks": {
+        "https://www.ticketmaster.nl/event/96022984?brand=nl_patronaat": {
+          "attemptedAt": "2026-11-27T05:33:51.972Z",
+          "status": "failed",
+          "offers": []
+        },
+        "https://patronaat.nl/event/born-from-pain-inherited-20-02-27/": {
+          "attemptedAt": "2026-11-27T05:33:51.972Z",
+          "status": "unsupported",
+          "offers": []
+        }
+      }
+    },
+    "planned-podiuminfo-503708": {
+      "identity": "[\"Hemelbestormer\",\"2027-04-02\",\"Vera\",\"Groningen\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Hemelbestormer\",\"2027-04-02\",\"Vera\",\"Groningen\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:33:54.297Z",
+        "intermediary": null,
+        "status": "robots-disallowed",
+        "reason": "robots-disallowed"
+      }
+    },
+    "planned-podiuminfo-504420": {
+      "identity": "[\"Paradise Lost\",\"2027-11-22\",\"013\",\"Tilburg\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Paradise Lost\",\"2027-11-22\",\"013\",\"Tilburg\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:33:56.632Z",
+        "intermediary": null,
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "venue-event-page",
+        "seller": "013.nl",
+        "purchaseUrl": "https://www.013.nl/programma/163695/paradise-lost",
+        "eventPageUrl": "https://www.013.nl/programma/163695/paradise-lost",
+        "buttonState": null,
+        "buttonPriceCents": null,
+        "evidence": "Verified official event page; no separate seller link is published on it"
+      },
+      "providerChecks": {
+        "https://www.013.nl/programma/163695/paradise-lost": {
+          "attemptedAt": "2026-11-27T05:33:56.632Z",
+          "status": "verified",
+          "offers": [
+            {
+              "seller": "013",
+              "category": "Category not stated",
+              "sourceUrl": "https://www.013.nl/programma/163695/paradise-lost",
+              "purchaseUrl": "https://www.013.nl/programma/163695/paradise-lost",
+              "provider": "013-event-page",
+              "offerKey": null,
+              "verifiedAt": "2026-11-27T05:33:58.916Z",
+              "evidence": "Official 013 event page price table",
+              "quantity": 1,
+              "availability": "unknown",
+              "currency": "EUR",
+              "faceCents": null,
+              "listedCents": 4230,
+              "baseCents": null,
+              "feesCents": null,
+              "finalCents": null,
+              "feeInclusive": false,
+              "priceContext": {
+                "serviceFeesIncluded": true
+              },
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null
+            }
+          ]
+        }
+      },
+      "history": [
+        {
+          "at": "2026-11-27T05:33:58.916Z",
+          "seller": "013",
+          "category": "Category not stated",
+          "currency": "EUR",
+          "listedCents": 4230,
+          "baseCents": null,
+          "feesCents": null,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": true,
+          "availability": "unknown",
+          "sourceUrl": "https://www.013.nl/programma/163695/paradise-lost"
+        }
+      ]
+    },
+    "planned-podiuminfo-504393": {
+      "identity": "[\"Anthrax\",\"2027-03-16\",\"AFAS Live\",\"Amsterdam\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Anthrax\",\"2027-03-16\",\"AFAS Live\",\"Amsterdam\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/145681/cd/Anthrax-Cursum-Perficio/AFAS-Live/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:33:58.995Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/145681/cd/Anthrax-Cursum-Perficio/AFAS-Live/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "venue-event-page",
+        "seller": "afaslive.nl",
+        "purchaseUrl": "https://www.afaslive.nl/agenda/anthrax",
+        "eventPageUrl": "https://www.afaslive.nl/agenda/anthrax",
+        "buttonState": null,
+        "buttonPriceCents": null,
+        "evidence": "Verified official event page; no separate seller link is published on it"
+      },
+      "providerChecks": {
+        "https://www.afaslive.nl/agenda/anthrax": {
+          "attemptedAt": "2026-11-27T05:33:58.995Z",
+          "status": "verified",
+          "offers": [
+            {
+              "seller": "Ticketmaster",
+              "category": "Entree vanaf",
+              "sourceUrl": "https://www.afaslive.nl/agenda/anthrax",
+              "purchaseUrl": "https://www.afaslive.nl/agenda/anthrax",
+              "provider": "afaslive-event-page",
+              "offerKey": null,
+              "verifiedAt": "2026-11-27T05:34:03.424Z",
+              "evidence": "Official AFAS Live ticket categories",
+              "quantity": 1,
+              "availability": "unknown",
+              "currency": "EUR",
+              "faceCents": null,
+              "listedCents": 8415,
+              "baseCents": null,
+              "feesCents": null,
+              "finalCents": null,
+              "feeInclusive": false,
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null
+            }
+          ]
+        }
+      },
+      "history": [
+        {
+          "at": "2026-11-27T05:34:03.424Z",
+          "seller": "Ticketmaster",
+          "category": "Entree vanaf",
+          "currency": "EUR",
+          "listedCents": 8415,
+          "baseCents": null,
+          "feesCents": null,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": false,
+          "availability": "unknown",
+          "sourceUrl": "https://www.afaslive.nl/agenda/anthrax"
+        }
+      ]
+    },
+    "planned-festivalinfo-36262": {
+      "identity": "[\"Paaspop Schijndel\",\"2027-03-26\",\"Paaspop Schijndel\",\"Schijndel\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Paaspop Schijndel\",\"2027-03-26\",\"Paaspop Schijndel\",\"Schijndel\",\"NL\"]",
+        "ticketUrl": "https://www.festivalinfo.nl/ticket/144066/df/Paaspop-Schijndel-2027/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:34:03.462Z",
+        "intermediary": {
+          "provider": "festivalinfo",
+          "url": "https://www.festivalinfo.nl/ticket/144066/df/Paaspop-Schijndel-2027/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "unsupported-venue",
+        "reason": "No verified official publisher for this venue"
+      }
+    },
+    "planned-podiuminfo-504554": {
+      "identity": "[\"CAKE\",\"2027-06-08\",\"Doornroosje\",\"Nijmegen\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"CAKE\",\"2027-06-08\",\"Doornroosje\",\"Nijmegen\",\"NL\"]",
+        "ticketUrl": "https://www.podiuminfo.nl/ticket/145813/cd/CAKE/Doornroosje/",
+        "ticketLink": "intermediary",
+        "checkedAt": "2026-11-27T05:34:03.462Z",
+        "intermediary": {
+          "provider": "podiuminfo",
+          "url": "https://www.podiuminfo.nl/ticket/145813/cd/CAKE/Doornroosje/",
+          "traversed": false,
+          "reason": "robots-disallowed (Disallow: /ticket/*)"
+        },
+        "status": "resolved",
+        "method": "venue-event-page",
+        "provider": "doornroosje-tickets",
+        "seller": "Doornroosje",
+        "purchaseUrl": "https://ticketshop.doornroosje.nl/e9b7366053534c70aa0ee0d86fb83b70",
+        "eventPageUrl": "https://www.doornroosje.nl/event/cake/",
+        "buttonState": null,
+        "buttonPriceCents": 6250,
+        "evidence": "Linked from the verified doornroosje.nl event page"
+      },
+      "providerChecks": {
+        "https://www.doornroosje.nl/event/cake/": {
+          "attemptedAt": "2026-11-27T05:34:03.462Z",
+          "status": "verified",
+          "offers": [
+            {
+              "seller": "Doornroosje",
+              "category": "Category not stated",
+              "sourceUrl": "https://www.doornroosje.nl/event/cake/",
+              "purchaseUrl": "https://ticketshop.doornroosje.nl/e9b7366053534c70aa0ee0d86fb83b70",
+              "provider": "doornroosje-event-page",
+              "offerKey": null,
+              "verifiedAt": "2026-11-27T05:34:06.100Z",
+              "evidence": "Official Doornroosje ticket button price",
+              "quantity": 1,
+              "availability": "unknown",
+              "currency": "EUR",
+              "faceCents": null,
+              "listedCents": 6250,
+              "baseCents": null,
+              "feesCents": null,
+              "finalCents": null,
+              "feeInclusive": false,
+              "resaleEventId": null,
+              "resaleTypeId": null,
+              "equivalenceEvidence": null
+            }
+          ]
+        }
+      },
+      "history": [
+        {
+          "at": "2026-11-27T05:34:06.100Z",
+          "seller": "Doornroosje",
+          "category": "Category not stated",
+          "currency": "EUR",
+          "listedCents": 6250,
+          "baseCents": null,
+          "feesCents": null,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": false,
+          "availability": "unknown",
+          "sourceUrl": "https://www.doornroosje.nl/event/cake/"
+        }
+      ]
+    },
+    "planned-festivalinfo-36314": {
+      "identity": "[\"Rewire Festival\",\"2027-11-08\",\"Rewire Festival\",\"Den Haag\",\"NL\"]",
+      "offers": [],
+      "seller": {
+        "identity": "[\"Rewire Festival\",\"2027-11-08\",\"Rewire Festival\",\"Den Haag\",\"NL\"]",
+        "ticketUrl": null,
+        "ticketLink": "invalid",
+        "checkedAt": "2026-11-27T05:34:06.184Z",
+        "intermediary": null,
+        "status": "unsupported-venue",
+        "reason": "No verified official publisher for this venue"
       }
     }
   },
-  "providerBackoff": {},
-  "updatedAt": "2026-11-26T22:26:09.926Z"
+  "providerBackoff": {
+    "tivolivredenburg.nl": 1795760840869,
+    "ticketmaster.nl": 1795760876347
+  },
+  "updatedAt": "2026-11-27T05:34:06.188Z"
 }
