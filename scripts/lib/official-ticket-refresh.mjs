@@ -1,6 +1,29 @@
 import { identity } from '../../js/ticketswap-matching.js';
 import { PublisherBackoff } from '../sources/official-ticket-http.mjs';
 import { officialTicketSources, parseOfficialTicketPage } from '../sources/official-ticket-providers.mjs';
+import { sellerIsCurrent } from '../sources/official-ticket-sellers.mjs';
+
+// One compact price observation per seller/category per check, so verified
+// official prices build a history across checks (the provider checks
+// themselves are replaced each time).
+const HISTORY_LIMIT = 120;
+function observations(checks) {
+  return Object.values(checks).filter(check => check.status === 'verified').flatMap(check => check.offers)
+    .filter(offer => offer.currency && [offer.listedCents, offer.finalCents].some(Number.isSafeInteger))
+    .map(offer => ({
+      at: offer.verifiedAt, seller: offer.seller, category: offer.category, currency: offer.currency,
+      listedCents: offer.listedCents ?? null, baseCents: offer.baseCents ?? null, feesCents: offer.feesCents ?? null,
+      finalCents: offer.feeInclusive === true ? offer.finalCents : null, feeInclusive: offer.feeInclusive === true,
+      serviceFeesIncluded: offer.priceContext?.serviceFeesIncluded === true,
+      availability: offer.availability, sourceUrl: offer.sourceUrl
+    }));
+}
+function mergeHistory(previous, added) {
+  const key = item => [item.at, item.seller, item.category].join('\u0000');
+  const rows = new Map((Array.isArray(previous) ? previous : []).map(item => [key(item), item]));
+  for (const item of added) rows.set(key(item), item);
+  return [...rows.values()].sort((a, b) => Date.parse(a.at) - Date.parse(b.at)).slice(-HISTORY_LIMIT);
+}
 
 function mapped(offer, checks, mappings, concert, resale) {
   if (!offer.offerKey || checks.filter(item => item.offerKey === offer.offerKey).length !== 1
@@ -16,16 +39,32 @@ function mapped(offer, checks, mappings, concert, resale) {
 }
 
 export async function refreshOfficialTickets({
-  store, concert, resale, mappings = [], readPage, now = Date.now()
+  store, concert, resale, mappings = [], readPage, resolveSeller = null, now = Date.now()
 }) {
   if (store?.version !== 1 || !store.entries || typeof store.entries !== 'object' || Array.isArray(store.entries)) {
     throw new Error('Invalid official ticket store');
   }
-  const sources = officialTicketSources(concert);
-  if (!sources.length) return { store, status: 'unsupported', sources: 0 };
   const concertIdentity = identity(concert);
   const record = Object.hasOwn(store.entries, concert.id) && store.entries[concert.id]?.identity === concertIdentity
     ? store.entries[concert.id] : { identity: concertIdentity, offers: [] };
+  let seller = record.seller?.identity === concertIdentity ? record.seller : null;
+  let sellerChanged = false;
+  if (resolveSeller && !sellerIsCurrent(record, concert, now)) {
+    try {
+      seller = await resolveSeller(concert);
+      sellerChanged = true;
+    } catch {
+      // A failed resolution keeps the previous verified destination.
+    }
+  }
+  const sources = officialTicketSources(concert, seller);
+  if (!sources.length) {
+    if (!sellerChanged) return { store, status: 'unsupported', sources: 0 };
+    return { status: 'unsupported', sources: 0, store: {
+      ...store, updatedAt: new Date(Math.max(now, Date.parse(store.updatedAt) || 0)).toISOString(),
+      entries: { ...store.entries, [concert.id]: { ...record, seller } }
+    } };
+  }
   const checks = {};
   const backoff = { ...store.providerBackoff };
   for (const source of sources) {
@@ -56,7 +95,9 @@ export async function refreshOfficialTickets({
       }, check.offers, mappings, concert, resale))
     };
   }
-  const updated = { ...record, providerChecks: checks };
+  const updated = { ...record, ...(seller ? { seller } : {}), providerChecks: checks };
+  const history = mergeHistory(record.history, observations(checks));
+  if (history.length) updated.history = history;
   if (JSON.stringify(record) === JSON.stringify(updated)) return { store, status: 'cached', sources: sources.length };
   return {
     status: Object.values(checks).some(check => check.status === 'verified') ? 'verified'

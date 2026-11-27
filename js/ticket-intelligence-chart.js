@@ -112,7 +112,8 @@ export function renderTicketHistory(host, evidence) {
       }
       for (const group of series) {
         ctx.beginPath();
-        ctx.strokeStyle = group.id === 'official' ? '#a8aeba' : '#dbc391';
+        ctx.strokeStyle = group.id === 'official' ? '#a8aeba' : group.id === 'official-listed' ? '#8a93a3' : '#dbc391';
+        ctx.setLineDash(group.id === 'official-listed' ? [5, 4] : []);
         ctx.lineWidth = 2;
         let active = false;
         for (const point of group.points) {

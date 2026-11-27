@@ -6,7 +6,7 @@ const requestAgeLimit = 10 * 60000;
 const requestIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export async function processOfficialTicketRequests({
-  queue, store, concerts, resale, mappings, readPage, clock = Date.now
+  queue, store, concerts, resale, mappings, readPage, resolveSeller = null, clock = Date.now
 }) {
   if (queue?.version !== 1 || !queue.requests || typeof queue.requests !== 'object'
     || Array.isArray(queue.requests)) throw new Error('Invalid official ticket request queue');
@@ -27,7 +27,7 @@ export async function processOfficialTicketRequests({
       && (concert.endDate || concert.date) >= localDate(attemptedAt, 'Europe/Amsterdam')) {
       try {
         const checked = await refreshOfficialTickets({
-          store, concert, resale: resale[id], mappings, readPage, now: attemptedAt
+          store, concert, resale: resale[id], mappings, readPage, resolveSeller, now: attemptedAt
         });
         store = checked.store;
         status = checked.status;

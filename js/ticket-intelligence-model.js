@@ -95,12 +95,28 @@ export function ticketHistory(evidence, categoryId = '') {
       && (!categoryId || item.resaleTypeId === categoryId) && item.feeInclusive === true
       && item.quantity === 1 && knownAmount(item.finalCents))
     .map(item => ({ at: item.verifiedAt, cents: item.finalCents, sampled: false })) : [];
+  // Recorded official observations (one per seller/category per successful
+  // check). All-in totals and advertised prices are separate series: an
+  // advertised price is never drawn as a buyer total.
+  const history = categoryId ? [] : (evidence.officialRecord?.history ?? []).filter(item =>
+    anchor && item.currency === 'EUR' && item.seller === anchor.seller && item.category === anchor.category
+      && validDate(item.at));
+  official.push(...history.filter(item => item.feeInclusive === true && knownAmount(item.finalCents))
+    .map(item => ({ at: item.at, cents: item.finalCents, sampled: false })));
+  const advertised = history.filter(item => item.feeInclusive !== true && knownAmount(item.listedCents))
+    .map(item => ({ at: item.at, cents: item.listedCents, sampled: false }));
+  if (anchor && !categoryId && anchor.currency === 'EUR' && anchor.feeInclusive !== true
+    && knownAmount(anchor.listedCents) && validDate(anchor.verifiedAt)) {
+    advertised.push({ at: anchor.verifiedAt, cents: anchor.listedCents, sampled: false });
+  }
   const chronological = rows => [...new Map(rows.map(row => [Date.parse(row.at), row])).values()]
     .sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
-  return [
+  const series = [
     { id: 'resale', label: 'TicketSwap observed low', points: chronological(market) },
     { id: 'official', label: 'Official all-in', points: chronological(official) }
   ];
+  if (advertised.length) series.push({ id: 'official-listed', label: 'Official advertised', points: chronological(advertised) });
+  return series;
 }
 
 export function ticketInsight(evidence) {

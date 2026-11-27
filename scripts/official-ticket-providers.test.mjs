@@ -24,7 +24,9 @@ test('approved candidates reuse Dutch schedule sources and direct Ticketmaster e
   assert.equal(source.url, 'https://www.tivolivredenburg.nl/agenda/example/');
   assert.equal(officialTicketSources({ ...concert, schedule: null, officialUrl: 'https://www.tivolivredenburg.nl/' }).length, 0);
   assert.equal(officialTicketSources({ ...concert, officialUrl: 'https://tivolivredenburg.nl.evil.invalid/agenda/x' }).length, 1);
-  assert.equal(officialTicketSources({ ...concert, ticketUrl: 'https://www.ticketmaster.nl/event/123' })[1].provider, 'ticketmaster-jsonld');
+  // A stored direct seller link takes the first slot; the venue page follows.
+  const withTicketmaster = officialTicketSources({ ...concert, ticketUrl: 'https://www.ticketmaster.nl/event/123' });
+  assert.deepEqual(withTicketmaster.map(item => item.provider), ['ticketmaster-jsonld', 'venue-jsonld']);
 });
 
 test('structured event offers retain EUR components, stock, timestamp and checkout provenance', () => {

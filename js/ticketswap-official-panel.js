@@ -65,7 +65,7 @@ export function renderOfficialPanel(concert, resale, snapshot, onUpdate, open = 
   if (!offers.length) {
     panel.append(text('p', 'Official price and availability: Not verified.'));
     if (checks.some(check => check.status === 'failed')) panel.append(text('p', 'The official source could not be refreshed.'));
-    const official = link(knownOfficialLink(concert), 'Official Tickets ↗');
+    const official = link(knownOfficialLink(concert, current), 'Official Tickets ↗');
     if (official) panel.append(official);
     return panel;
   }
