@@ -203,10 +203,43 @@
       "currency": "EUR",
       "complete": true,
       "missingPrices": false,
-      "checkedAt": "2026-11-26T18:06:45.769Z",
-      "lastAttemptAt": "2026-11-26T18:06:45.769Z",
+      "market": {
+        "activeListings": 0,
+        "watchLotsKnown": true,
+        "missingWatchLots": false,
+        "buyerPrices": {
+          "low": null,
+          "high": null,
+          "median": null,
+          "listingsCounted": 0
+        },
+        "cheapest": null,
+        "categories": []
+      },
+      "checkedAt": "2026-11-27T05:50:29.426Z",
+      "lastAttemptAt": "2026-11-27T05:50:29.426Z",
       "lastError": null,
-      "requestId": "40a5d502-a529-43db-acb8-4c10ad287ac2"
+      "marketHistory": [
+        {
+          "checkedAt": "2026-11-26T18:06:45.769Z",
+          "availableTickets": 0,
+          "lowestPriceCents": null,
+          "medianPriceCents": null,
+          "originalPriceCents": null,
+          "complete": true,
+          "missingPrices": false
+        },
+        {
+          "checkedAt": "2026-11-27T05:50:29.426Z",
+          "availableTickets": 0,
+          "lowestPriceCents": null,
+          "medianPriceCents": null,
+          "originalPriceCents": null,
+          "complete": true,
+          "missingPrices": false
+        }
+      ],
+      "requestId": "fc9e01bd-d108-4472-9aa7-ad18c936ebfd"
     },
     "planned-mogwai-tivolivredenburg-2026-11-10": {
       "identity": "[\"Mogwai\",\"2026-11-10\",\"TivoliVredenburg\",\"Utrecht\",\"NL\"]",
@@ -472,5 +505,5 @@
       "requestId": "347c7ea9-c1c7-450b-bb5a-e33cdbc210c0"
     }
   },
-  "updatedAt": "2026-11-27T05:39:09.433Z"
+  "updatedAt": "2026-11-27T05:50:34.210Z"
 }

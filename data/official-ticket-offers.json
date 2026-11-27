@@ -116,12 +116,12 @@
         "purchaseUrl": "https://tickets.paradiso.nl/7a68e4c375754bbea06e66413eeec6e1",
         "eventPageUrl": "https://www.paradiso.nl/programma/hermanos-gutierrez/2896806",
         "buttonState": "waitlist",
-        "buttonPriceCents": 500,
+        "buttonPriceCents": null,
         "evidence": "Linked from the verified paradiso.nl event page"
       },
       "providerChecks": {
         "https://www.paradiso.nl/programma/hermanos-gutierrez/2896806": {
-          "attemptedAt": "2026-11-27T05:27:20.901Z",
+          "attemptedAt": "2026-11-27T05:44:19.866Z",
           "status": "verified",
           "offers": [
             {
@@ -131,7 +131,7 @@
               "purchaseUrl": "https://tickets.paradiso.nl/eda1308455464800a70636c83bd828ee",
               "provider": "venue-jsonld",
               "offerKey": null,
-              "verifiedAt": "2026-11-27T05:27:23.537Z",
+              "verifiedAt": "2026-11-27T05:44:21.183Z",
               "evidence": "Official event page · structured offer data",
               "quantity": 1,
               "availability": "sold-out",
@@ -166,8 +166,28 @@
           "serviceFeesIncluded": false,
           "availability": "sold-out",
           "sourceUrl": "https://www.paradiso.nl/programma/hermanos-gutierrez/2896806"
+        },
+        {
+          "at": "2026-11-27T05:44:21.183Z",
+          "seller": "paradiso.nl",
+          "category": "Category not stated",
+          "currency": "EUR",
+          "listedCents": 5540,
+          "baseCents": null,
+          "feesCents": null,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": false,
+          "availability": "sold-out",
+          "sourceUrl": "https://www.paradiso.nl/programma/hermanos-gutierrez/2896806"
         }
-      ]
+      ],
+      "lastCheck": {
+        "identity": "[\"Hermanos Gutiérrez\",\"2026-12-13\",\"Paradiso\",\"Amsterdam\",\"NL\"]",
+        "requestId": "ef57563b-3471-4ce0-b7ad-58e13901f700",
+        "lastAttemptAt": "2026-11-27T05:44:19.866Z",
+        "status": "verified"
+      }
     },
     "planned-hermanos-guti-rrez-paradiso-2026-12-14": {
       "identity": "[\"Hermanos Gutiérrez\",\"2026-12-14\",\"Paradiso\",\"Amsterdam\",\"NL\"]",
@@ -190,7 +210,7 @@
         "purchaseUrl": "https://tickets.paradiso.nl/6d6b52da44d642529eddd6c1d3b22817",
         "eventPageUrl": "https://www.paradiso.nl/programma/hermanos-gutierrez/2896810",
         "buttonState": "waitlist",
-        "buttonPriceCents": 500,
+        "buttonPriceCents": null,
         "evidence": "Linked from the verified paradiso.nl event page"
       },
       "providerChecks": {
@@ -613,7 +633,7 @@
               "verifiedAt": "2026-11-27T05:28:30.852Z",
               "evidence": "Official event page · structured offer data",
               "quantity": 1,
-              "availability": "available",
+              "availability": "unknown",
               "currency": "EUR",
               "faceCents": null,
               "baseCents": null,
@@ -623,7 +643,8 @@
               "feeInclusive": false,
               "resaleEventId": null,
               "resaleTypeId": null,
-              "equivalenceEvidence": null
+              "equivalenceEvidence": null,
+              "availabilityConflict": "Structured data reports in stock; the venue ticket button reports sold out or waiting list"
             }
           ]
         }
@@ -640,8 +661,9 @@
           "finalCents": null,
           "feeInclusive": false,
           "serviceFeesIncluded": false,
-          "availability": "available",
-          "sourceUrl": "https://gashouder.nl/programma/bonobo"
+          "availability": "unknown",
+          "sourceUrl": "https://gashouder.nl/programma/bonobo",
+          "availabilityConflict": true
         }
       ]
     },
@@ -3374,7 +3396,7 @@
           "offers": []
         },
         "https://patronaat.nl/event/terror-02-12-26/": {
-          "attemptedAt": "2026-11-27T05:33:50.027Z",
+          "attemptedAt": "2026-11-27T07:58:54.879Z",
           "status": "verified",
           "offers": [
             {
@@ -3382,8 +3404,8 @@
               "category": "Category not stated",
               "provider": "patronaat-event-page",
               "sourceUrl": "https://patronaat.nl/event/terror-02-12-26/",
-              "purchaseUrl": "https://www.ticketmaster.nl/event/1071853401?brand=nl_patronaat",
-              "verifiedAt": "2026-11-27T05:33:51.963Z",
+              "purchaseUrl": "https://www.ticketmaster.nl/event/1071853401",
+              "verifiedAt": "2026-11-27T07:58:56.275Z",
               "evidence": "Official Patronaat event price",
               "quantity": 1,
               "availability": "unknown",
@@ -3416,8 +3438,28 @@
           "serviceFeesIncluded": false,
           "availability": "unknown",
           "sourceUrl": "https://patronaat.nl/event/terror-02-12-26/"
+        },
+        {
+          "at": "2026-11-27T07:58:56.275Z",
+          "seller": "Patronaat (official source)",
+          "category": "Category not stated",
+          "currency": "EUR",
+          "listedCents": 3050,
+          "baseCents": null,
+          "feesCents": null,
+          "finalCents": null,
+          "feeInclusive": false,
+          "serviceFeesIncluded": false,
+          "availability": "unknown",
+          "sourceUrl": "https://patronaat.nl/event/terror-02-12-26/"
         }
-      ]
+      ],
+      "lastCheck": {
+        "identity": "[\"Terror\",\"2026-12-02\",\"Patronaat\",\"Haarlem\",\"NL\"]",
+        "requestId": "e6621600-e76a-4ce6-a5b5-5b5ec2e9c2dd",
+        "lastAttemptAt": "2026-11-27T07:58:54.879Z",
+        "status": "verified"
+      }
     },
     "planned-podiuminfo-504007": {
       "identity": "[\"Born From Pain\",\"2027-02-20\",\"Patronaat\",\"Haarlem\",\"NL\"]",
@@ -3711,5 +3753,5 @@
     "tivolivredenburg.nl": 1795760840869,
     "ticketmaster.nl": 1795760876347
   },
-  "updatedAt": "2026-11-27T05:40:10.902Z"
+  "updatedAt": "2026-11-27T07:58:56.339Z"
 }
