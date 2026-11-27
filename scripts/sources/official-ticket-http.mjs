@@ -108,10 +108,18 @@ export function createOfficialPageReader({
           return target => policy.isAllowed(target, agent) === true;
         }).catch(error => {
           if (error instanceof PublisherBackoff) throw error;
-          return () => false;
+          // A robots.txt that cannot be read (network failure, oversized or
+          // malformed response) permits nothing, but it is reported as an
+          // unreachable source, not as the publisher's policy. The failure
+          // is not cached, so a later concert may retry it.
+          policies.delete(origin);
+          return null;
         }));
     }
-    return policies.get(origin).then(allowed => allowed(url));
+    return policies.get(origin).then(allowed => {
+      if (!allowed) throw new Error('Official publisher robots.txt unreachable');
+      return allowed(url);
+    });
   }
 
   async function read(source) {

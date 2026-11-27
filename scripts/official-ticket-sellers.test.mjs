@@ -271,6 +271,22 @@ test('robots.txt redirects are followed; challenges back off as access control; 
   assert.equal(await reader.robotsAllowed('https://013.nl/programma/1'), true);
 });
 
+test('an unreachable robots.txt is reported as unavailable, never as the publisher policy, and is retried', async () => {
+  let robotsCalls = 0;
+  const reader = createOfficialPageReader({ fetcher: async url => {
+    if (url.endsWith('/robots.txt')) {
+      robotsCalls++;
+      if (robotsCalls === 1) throw new TypeError('fetch failed');
+      return new Response('User-agent: *\nAllow: /', { headers: { 'content-type': 'text/plain' } });
+    }
+    return new Response('<main>ok</main>', { headers: { 'content-type': 'text/html' } });
+  } });
+  await assert.rejects(reader.fetchPage('https://www.vera-groningen.nl/events/x', ['vera-groningen.nl']),
+    error => !(error instanceof RobotsDisallowed) && /unreachable/.test(error.message));
+  assert.equal((await reader.fetchPage('https://www.vera-groningen.nl/events/y', ['vera-groningen.nl'])).html, '<main>ok</main>');
+  assert.equal(robotsCalls, 2);
+});
+
 // ---------- dashboard ----------
 
 test('the dashboard links only verified destinations and explains unresolved sellers', () => {

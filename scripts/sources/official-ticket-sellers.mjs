@@ -231,7 +231,7 @@ export function scheduleDiscovery(enrichOne) {
     const urls = attempts.filter(attempt => /^verified/.test(attempt.status)).map(attempt => attempt.url);
     // Why discovery found nothing, for the audit report.
     urls.failures = [...new Set(attempts.filter(attempt => attempt.status === 'fetch-failed').map(attempt =>
-      /robots/i.test(attempt.reason) ? 'robots-disallowed'
+      /robots policy/i.test(attempt.reason) ? 'robots-disallowed'
         : /access unavailable/i.test(attempt.reason) ? 'access-control'
         : /Unapproved/.test(attempt.reason) ? 'unapproved-host' : 'unavailable'))];
     if (attempts.some(attempt => attempt.status === 'identity-unverified' || attempt.status === 'venue-mismatch')) {

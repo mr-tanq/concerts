@@ -7,7 +7,7 @@
 // official sources for price, fees, categories and availability.
 //
 //   node scripts/audit-official-tickets.mjs [--only REGEX] [--limit N]
-//        [--report path.json] [--write]
+//        [--report path.json] [--write] [--fresh]
 //
 // Without --write nothing in data/ changes. With --write the verified seller
 // destinations and observations are saved to data/official-ticket-offers.json
@@ -33,6 +33,8 @@ const only = argument('--only') ? new RegExp(argument('--only')) : null;
 const limit = Math.min(Number(argument('--limit') ?? 101) || 101, 150);
 const reportPath = argument('--report');
 const write = process.argv.includes('--write');
+// --fresh ignores a cached seller result for the audited concerts.
+const fresh = process.argv.includes('--fresh');
 
 const [planned, resale, initial] = await Promise.all([
   readJSON('data/planned.json'), readJSON('data/ticketswap.json'), readJSON('data/official-ticket-offers.json')
@@ -48,6 +50,10 @@ const rows = [];
 for (const concert of concerts) {
   const started = Date.now();
   let seller = null;
+  if (fresh && store.entries[concert.id]?.seller) {
+    const { seller: _cached, ...rest } = store.entries[concert.id];
+    store = { ...store, entries: { ...store.entries, [concert.id]: rest } };
+  }
   const result = await refreshOfficialTickets({
     store, concert, resale: resale.entries[concert.id], readPage: reader,
     resolveSeller: async item => (seller = await resolveOfficialSeller({ concert: item, reader, discover }))
