@@ -1,7 +1,7 @@
 {
   "$schema": "Listening Mirror Planned Concerts Schema v1",
   "meta": {
-    "lastUpdated": "2026-11-27T20:18:07.123Z",
+    "lastUpdated": "2026-11-27T20:18:26.755Z",
     "note": "Concerts only end up here after an explicit 'Plan' decision on a recommendation — nothing is added automatically."
   },
   "concerts": [
@@ -4442,6 +4442,128 @@
       "planning": {
         "plannedAt": "2026-11-27T20:18:07.123Z",
         "originalScore": 41
+      },
+      "schedule": {
+        "version": 1,
+        "date": "2026-11-29",
+        "timeZone": "Europe/Amsterdam",
+        "doors": {
+          "name": "DOORS",
+          "time": "19:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.013.nl/programma/128241/sevendust",
+          "sourceKind": "official",
+          "checkedAt": "2026-11-27T20:18:24.776Z",
+          "evidence": "19:00 Zaal Open",
+          "at": "2026-11-29T18:00:00.000Z"
+        },
+        "start": {
+          "name": "PROGRAMME START",
+          "time": null
+        },
+        "support": [
+          {
+            "name": "Overgrown",
+            "time": "20:00",
+            "dayOffset": 0,
+            "status": "confirmed",
+            "sourceUrl": "https://www.013.nl/programma/128241/sevendust",
+            "sourceKind": "official",
+            "checkedAt": "2026-11-27T20:18:24.776Z",
+            "evidence": "20:00 - 20:30 Overgrown",
+            "endTime": "20:30",
+            "endDayOffset": 0,
+            "at": "2026-11-29T19:00:00.000Z"
+          }
+        ],
+        "main": {
+          "name": "Sevendust",
+          "time": "21:00",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.013.nl/programma/128241/sevendust",
+          "sourceKind": "official",
+          "checkedAt": "2026-11-27T20:18:24.776Z",
+          "evidence": "21:00 - 22:30 Sevendust",
+          "sets": [
+            {
+              "name": "Sevendust",
+              "time": "21:00",
+              "dayOffset": 0,
+              "status": "confirmed",
+              "sourceUrl": "https://www.013.nl/programma/128241/sevendust",
+              "sourceKind": "official",
+              "checkedAt": "2026-11-27T20:18:24.776Z",
+              "evidence": "21:00 - 22:30 Sevendust",
+              "endTime": "22:30",
+              "endDayOffset": 0
+            }
+          ],
+          "breaks": [],
+          "at": "2026-11-29T20:00:00.000Z"
+        },
+        "end": {
+          "name": "END",
+          "time": "22:30",
+          "dayOffset": 0,
+          "status": "confirmed",
+          "sourceUrl": "https://www.013.nl/programma/128241/sevendust",
+          "sourceKind": "official",
+          "checkedAt": "2026-11-27T20:18:24.776Z",
+          "evidence": "21:00 - 22:30 Sevendust",
+          "at": "2026-11-29T21:30:00.000Z"
+        },
+        "sources": [
+          {
+            "url": "https://www.podiuminfo.nl/concert/460282/Sevendust/013/",
+            "kind": "secondary",
+            "label": "podiuminfo.nl",
+            "checkedAt": "2026-11-27T20:18:24.776Z"
+          },
+          {
+            "url": "https://www.013.nl/programma/128241/sevendust",
+            "kind": "official",
+            "label": "013.nl",
+            "checkedAt": "2026-11-27T20:18:24.776Z"
+          }
+        ],
+        "lastCheckedAt": "2026-11-27T20:18:24.776Z",
+        "lastAttemptAt": "2026-11-27T20:18:24.776Z",
+        "checks": {
+          "before48h": "2026-11-27T20:18:24.776Z"
+        },
+        "lastError": null,
+        "noSupport": null,
+        "refreshRequestedAt": null,
+        "lastOfficialCheckedAt": "2026-11-27T20:18:24.776Z",
+        "checkStatus": "official",
+        "discovery": {
+          "version": 2,
+          "attempts": [
+            {
+              "url": "https://www.podiuminfo.nl/concert/460282/Sevendust/013/",
+              "status": "fetched"
+            },
+            {
+              "url": "https://013.nl/programma",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.013.nl/programma/128241/sevendust",
+              "status": "fetched"
+            },
+            {
+              "url": "https://www.013.nl/programma/128241/sevendust",
+              "status": "verified"
+            }
+          ],
+          "configured": [
+            "013.nl"
+          ],
+          "requests": 3
+        },
+        "availability": "published"
       }
     }
   ]
