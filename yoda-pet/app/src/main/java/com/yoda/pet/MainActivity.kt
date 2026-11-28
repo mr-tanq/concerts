@@ -181,6 +181,21 @@ class MainActivity : Activity() {
         list.addView(calendarStatusView)
         list.addView(smallButton("Test meeting bubble") { testMeeting() })
 
+        if (hasCalendar) {
+            section("Calendars for meeting reminders")
+            list.addView(text("Only meetings from the calendars switched on here. Turn off old accounts you don't use.", 13f, muted).apply { setPadding(0, 0, 0, dp(6)) })
+            val cals = runCatching { CalendarReader.calendars(this) }.getOrDefault(emptyList())
+            if (cals.isEmpty()) list.addView(text("No calendars found on this phone.", 13f, muted))
+            val selected = CalendarReader.selectedIds(this)
+            cals.forEach { cal ->
+                toggle(cal.name, cal.account, cal.id in selected) { on ->
+                    val now = CalendarReader.selectedIds(this).toMutableSet()
+                    if (on) now += cal.id else now -= cal.id
+                    prefs.calendarIds = now.map { it.toString() }.toSet()
+                }
+            }
+        }
+
         section("Walking")
         toggle("Walk around the whole screen", "Bottom, up the side, across the top and back down. Off = only along the bottom.", prefs.wholeScreen) { prefs.wholeScreen = it }
 

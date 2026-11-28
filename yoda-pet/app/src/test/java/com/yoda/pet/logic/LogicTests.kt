@@ -36,15 +36,25 @@ class LogicTests {
 
     @Test fun ignoresSummariesOtherAppsAndRollups() {
         assertNull(MailAlerts.parse("com.whatsapp", false, "Maria", "Hi"))
-        assertNull(MailAlerts.parse("com.google.android.gm", false, "3 new messages", "x"))
+        assertNull(MailAlerts.parse("com.google.android.gm", false, "3 new messages", "x")) // no lines to read
         assertNull(MailAlerts.parse("com.google.android.gm", false, null, "x"))
     }
 
     @Test fun acceptsSingleEmailPostedAsSummaryAndFallsBackToBigText() {
         assertEquals(MailAlert("Maria", "Hi"), MailAlerts.parse("com.google.android.gm", true, "Maria", "Hi"))
         assertEquals(MailAlert("Nikos", "Invoice"), MailAlerts.parse("com.google.android.gm", false, "Nikos", null, "\nInvoice\nbody"))
-        assertNull(MailAlerts.parse("com.google.android.gm", true, "me@gmail.com", "Maria: Hi", account = "me@gmail.com"))
-        assertEquals("Maria|Hi", MailAlert("Maria", "Hi").dedupKey)
+        assertEquals("|Maria|Hi", MailAlert("Maria", "Hi").dedupKey)
+    }
+
+    @Test fun readsNewestLineOfABundleFromASecondAccount() {
+        val a = MailAlerts.parse("com.google.android.gm", true, "2 new messages", "Nikos, Maria",
+            account = "work@company.com", firstLine = MailLine("Nikos", "Contract v2"), lineCount = 2)
+        assertEquals(MailAlert("Nikos", "Contract v2", "work@company.com", 2), a)
+        val b = MailAlerts.parse("com.google.android.gm", true, "work@company.com", null,
+            account = "work@company.com", firstLine = MailLine("Nikos", "Hi"), lineCount = 3)
+        assertEquals(3, b?.count)
+        assertEquals(MailLine("Nikos Pap", "Contract v2"), MailAlerts.splitLine("Nikos Pap   Contract v2"))
+        assertEquals(MailLine(null, "just text"), MailAlerts.splitLine("just text"))
     }
 
     @Test fun pkceMatchesRfc7636Vector() {

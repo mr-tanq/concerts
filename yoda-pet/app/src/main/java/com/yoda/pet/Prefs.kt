@@ -27,6 +27,11 @@ class Prefs(context: Context) {
         get() = sp.getInt("pet_size_dp", 96)
         set(v) = sp.edit().putInt("pet_size_dp", v).apply()
 
+    /** Calendar ids Yoda reads; null = not chosen yet (use the visible ones). */
+    var calendarIds: Set<String>?
+        get() = sp.getStringSet("calendar_ids", null)?.toSet()
+        set(v) = sp.edit().apply { if (v == null) remove("calendar_ids") else putStringSet("calendar_ids", v) }.apply()
+
     var announcedMeetings: Set<String>
         get() = sp.getStringSet("announced", emptySet()) ?: emptySet()
         set(v) = sp.edit().putStringSet("announced", v).apply()

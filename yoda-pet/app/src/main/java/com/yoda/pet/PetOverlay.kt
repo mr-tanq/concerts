@@ -20,6 +20,7 @@ import android.view.GestureDetector
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
+import android.view.Choreographer
 import android.view.ViewConfiguration
 import android.view.WindowInsets
 import android.view.WindowManager
@@ -52,19 +53,30 @@ class PetOverlay(private val ctx: Context) {
 
     // All sprites share one scale: walk frames are 260 px tall in the source art.
     private val scale = dp(prefs.petSizeDp) / 260f
+    // Square window: the same box fits every edge, so corners join up without a jump
+    // and he can turn smoothly in place.
     private val winW = (300 * scale).roundToInt()
-    private val winH = (265 * scale).roundToInt()
+    private val winH = winW
     private val jumpHeight = dp(prefs.petSizeDp * 0.9f)
     private val speed = dp(prefs.petSizeDp * 0.42f).toFloat() // px per second
     private val touchSlop = ViewConfiguration.get(ctx).scaledTouchSlop
 
-    private val walkFrames = intArrayOf(R.drawable.yoda_walk_1, R.drawable.yoda_walk_2, R.drawable.yoda_walk_3, R.drawable.yoda_walk_4)
+    /** yoda_walk_1 … yoda_walk_N — however many frames the art has (4, 8, 12 …). */
+    @SuppressLint("DiscouragedApi")
+    private val walkFrames: IntArray = generateSequence(1) { it + 1 }
+        .map { ctx.resources.getIdentifier("yoda_walk_$it", "drawable", ctx.packageName) }
+        .takeWhile { it != 0 }
+        .toList().toIntArray()
+    /** Distance covered by one full walk cycle, so feet don't slide. */
+    private val strideLength = winW * 0.62f
+    private var walked = 0f
+    private val choreographer = Choreographer.getInstance()
     private val drawables = HashMap<Int, Drawable>()
 
     /** Draws the current sprite, turned so his feet face the edge he walks on. */
     private inner class PetView : View(ctx) {
         var sprite: Drawable? = null
-        var rotationDeg = 0
+        var rotationDeg = 0f
         var flip = false
 
         override fun onDraw(c: Canvas) {
@@ -73,7 +85,7 @@ class PetOverlay(private val ctx: Context) {
             val dh = d.intrinsicHeight * scale
             c.save()
             c.translate(width / 2f, height / 2f)
-            c.rotate(rotationDeg.toFloat())
+            c.rotate(rotationDeg)
             if (flip) c.scale(-1f, 1f)
             // In the art's own frame the window is winW x winH; feet on its bottom line.
             d.setBounds((-dw / 2).roundToInt(), (winH / 2f - dh).roundToInt(), (dw / 2).roundToInt(), (winH / 2f).roundToInt())
@@ -86,7 +98,7 @@ class PetOverlay(private val ctx: Context) {
     private val petParams = WindowManager.LayoutParams(
         winW, winH,
         WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
         PixelFormat.TRANSLUCENT,
     ).apply {
         gravity = Gravity.TOP or Gravity.START
@@ -101,8 +113,9 @@ class PetOverlay(private val ctx: Context) {
     private var pos = 0f              // position along the path
     private var dir = 1               // +1 counter-clockwise (right along the bottom), -1 the other way
     private var pose: Perimeter.Pose? = null
+    private var targetRotation = 0f
+    private var lastFrameNanos = 0L
     private var jumpStart = 0L
-    private var lastTick = 0L
     private var lastInteraction = SystemClock.uptimeMillis()
 
     // Dragging
@@ -148,14 +161,14 @@ class PetOverlay(private val ctx: Context) {
 
     fun pause() {
         running = false
-        main.removeCallbacks(tick)
+        choreographer.removeFrameCallback(frame)
     }
 
     fun resume() {
         if (!attached || running) return
         running = true
-        lastTick = SystemClock.uptimeMillis()
-        main.post(tick)
+        lastFrameNanos = 0L
+        choreographer.postFrameCallback(frame)
     }
 
     fun onScreenSizeChanged() {
@@ -197,24 +210,25 @@ class PetOverlay(private val ctx: Context) {
             petParams.y = ny
             if (attached) wm.updateViewLayout(root, petParams)
         }
-        if (root.rotationDeg != p.rotation) { root.rotationDeg = p.rotation; root.invalidate() }
+        targetRotation = p.rotation.toFloat()
         pose = p
     }
 
     // ---------------------------------------------------------------- animation
 
-    private val tick = object : Runnable {
-        override fun run() {
+    /** Runs once per screen refresh (60/90/120 Hz), so movement stays smooth. */
+    private val frame = object : Choreographer.FrameCallback {
+        override fun doFrame(frameTimeNanos: Long) {
             if (!running) return
-            step()
-            main.postDelayed(this, 33)
+            val dt = if (lastFrameNanos == 0L) 0f else ((frameTimeNanos - lastFrameNanos) / 1e9f).coerceIn(0f, 0.1f)
+            lastFrameNanos = frameTimeNanos
+            step(dt)
+            choreographer.postFrameCallback(this)
         }
     }
 
-    private fun step() {
+    private fun step(dt: Float) {
         val now = SystemClock.uptimeMillis()
-        val dt = (now - lastTick).coerceAtMost(100) / 1000f
-        lastTick = now
         if (mode == Mode.DRAG) return
 
         val path = path()
@@ -224,11 +238,14 @@ class PetOverlay(private val ctx: Context) {
         when (mode) {
             Mode.WALK -> {
                 pos += dir * speed * dt
+                walked += speed * dt
                 if (!path.wholeScreen) {
                     if (pos <= 0f) { pos = 0f; dir = 1 }
                     if (pos >= path.length) { pos = path.length; dir = -1 }
                 }
-                setSprite(walkFrames[((now / 150) % 4).toInt()], flip = dir < 0)
+                val n = walkFrames.size
+                val i = (((walked % strideLength) / strideLength) * n).toInt().coerceIn(0, n - 1)
+                setSprite(walkFrames[i], flip = dir < 0)
             }
             Mode.STAND, Mode.TALK -> setSprite(R.drawable.yoda_stand, false)
             Mode.SIT -> setSprite(R.drawable.yoda_sit, false)
@@ -251,6 +268,18 @@ class PetOverlay(private val ctx: Context) {
 
         if (mode != Mode.TALK && mode != Mode.JUMP && now >= modeUntil) nextMode()
         applyPose(path.pose(pos), offX, offY)
+        turnTowardTarget(dt)
+    }
+
+    /** Turn gradually (about a fifth of a second per corner) instead of snapping. */
+    private fun turnTowardTarget(dt: Float) {
+        var delta = (targetRotation - root.rotationDeg) % 360f
+        if (delta > 180f) delta -= 360f
+        if (delta < -180f) delta += 360f
+        if (delta == 0f) return
+        val maxStep = 450f * dt
+        root.rotationDeg = if (kotlin.math.abs(delta) <= maxStep) targetRotation else root.rotationDeg + kotlin.math.sign(delta) * maxStep
+        root.invalidate()
     }
 
     private fun nextMode() {
@@ -339,7 +368,8 @@ class PetOverlay(private val ctx: Context) {
         frameOffX = loc[0] - petParams.x
         frameOffY = loc[1] - petParams.y
         setMode(Mode.DRAG)
-        root.rotationDeg = 0
+        root.rotationDeg = 0f
+        targetRotation = 0f
         setSprite(R.drawable.yoda_jump, flip = false)
         moveDrag(downX, downY)
     }
@@ -468,10 +498,23 @@ class PetOverlay(private val ctx: Context) {
             autoHideMs = 90_000, dismissOnOutside = false)
     }
 
-    fun announceEmail(sender: String, subject: String?, contentIntent: PendingIntent?, force: Boolean = false) {
+    fun announceEmail(
+        sender: String,
+        subject: String?,
+        contentIntent: PendingIntent?,
+        force: Boolean = false,
+        account: String? = null,
+        count: Int = 1,
+    ) {
         if (!prefs.emailAlerts && !force) return
         jump()
-        say("📧 New email from", sender + (subject?.let { "\n“$it”" } ?: ""),
+        val title = if (count > 1) "📧 $count new emails — latest from" else "📧 New email from"
+        val body = buildString {
+            append(sender)
+            subject?.let { append("\n“").append(it).append("”") }
+            account?.let { append("\n✉️ ").append(it) }
+        }
+        say(title, body,
             buttons = listOf("Open it" to { openEmail(contentIntent) }, "Later" to {}),
             autoHideMs = 30_000, dismissOnOutside = false)
     }
