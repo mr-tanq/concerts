@@ -17,6 +17,11 @@ class Prefs(context: Context) {
         get() = sp.getBoolean("meeting_alerts", true)
         set(v) = sp.edit().putBoolean("meeting_alerts", v).apply()
 
+    /** Walk around all four edges of the screen (false = only along the bottom). */
+    var wholeScreen: Boolean
+        get() = sp.getBoolean("whole_screen", true)
+        set(v) = sp.edit().putBoolean("whole_screen", v).apply()
+
     /** Yoda's height on screen, in dp. */
     var petSizeDp: Int
         get() = sp.getInt("pet_size_dp", 96)

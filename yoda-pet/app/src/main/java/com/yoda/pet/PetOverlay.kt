@@ -5,6 +5,7 @@ import android.app.ActivityOptions
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.Typeface
@@ -19,23 +20,27 @@ import android.view.GestureDetector
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewConfiguration
+import android.view.WindowInsets
 import android.view.WindowManager
 import android.widget.FrameLayout
-import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import com.yoda.pet.logic.Perimeter
 import kotlin.math.PI
+import kotlin.math.hypot
 import kotlin.math.roundToInt
 import kotlin.math.sin
 import kotlin.random.Random
 
 /**
- * Yoda himself: a small window that walks along the bottom of the screen on
- * top of other apps, plus a speech-bubble window that floats above him.
+ * Yoda himself: a small window that walks around the edges of the screen
+ * on top of other apps (or just along the bottom), can be picked up and
+ * dropped with a finger, plus a speech-bubble window that floats next to him.
  */
 class PetOverlay(private val ctx: Context) {
 
-    private enum class Mode { WALK, STAND, SIT, SLEEP, JUMP, TALK }
+    private enum class Mode { WALK, STAND, SIT, SLEEP, JUMP, TALK, DRAG }
 
     private val wm = ctx.getSystemService(WindowManager::class.java)
     private val main = Handler(Looper.getMainLooper())
@@ -51,33 +56,63 @@ class PetOverlay(private val ctx: Context) {
     private val winH = (265 * scale).roundToInt()
     private val jumpHeight = dp(prefs.petSizeDp * 0.9f)
     private val speed = dp(prefs.petSizeDp * 0.42f).toFloat() // px per second
+    private val touchSlop = ViewConfiguration.get(ctx).scaledTouchSlop
 
     private val walkFrames = intArrayOf(R.drawable.yoda_walk_1, R.drawable.yoda_walk_2, R.drawable.yoda_walk_3, R.drawable.yoda_walk_4)
     private val drawables = HashMap<Int, Drawable>()
 
-    private val root = FrameLayout(ctx)
-    private val img = ImageView(ctx).apply { scaleType = ImageView.ScaleType.FIT_XY }
+    /** Draws the current sprite, turned so his feet face the edge he walks on. */
+    private inner class PetView : View(ctx) {
+        var sprite: Drawable? = null
+        var rotationDeg = 0
+        var flip = false
+
+        override fun onDraw(c: Canvas) {
+            val d = sprite ?: return
+            val dw = d.intrinsicWidth * scale
+            val dh = d.intrinsicHeight * scale
+            c.save()
+            c.translate(width / 2f, height / 2f)
+            c.rotate(rotationDeg.toFloat())
+            if (flip) c.scale(-1f, 1f)
+            // In the art's own frame the window is winW x winH; feet on its bottom line.
+            d.setBounds((-dw / 2).roundToInt(), (winH / 2f - dh).roundToInt(), (dw / 2).roundToInt(), (winH / 2f).roundToInt())
+            d.draw(c)
+            c.restore()
+        }
+    }
+
+    private val root = PetView()
     private val petParams = WindowManager.LayoutParams(
         winW, winH,
         WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
         WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
         PixelFormat.TRANSLUCENT,
     ).apply {
-        gravity = Gravity.BOTTOM or Gravity.START
+        gravity = Gravity.TOP or Gravity.START
         title = "Yoda"
+        if (Build.VERSION.SDK_INT >= 30) fitInsetsTypes = WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout()
     }
 
     private var attached = false
     private var running = false
     private var mode = Mode.WALK
     private var modeUntil = 0L
-    private var x = 0f
-    private var dir = 1
-    private var curSprite = 0
-    private var curFlip = false
+    private var pos = 0f              // position along the path
+    private var dir = 1               // +1 counter-clockwise (right along the bottom), -1 the other way
+    private var pose: Perimeter.Pose? = null
     private var jumpStart = 0L
     private var lastTick = 0L
     private var lastInteraction = SystemClock.uptimeMillis()
+
+    // Dragging
+    private var dragging = false
+    private var downX = 0f
+    private var downY = 0f
+    private var frameOffX = 0
+    private var frameOffY = 0
+    private var dragX = 0f
+    private var dragY = 0f
 
     // Speech bubble
     private var bubble: View? = null
@@ -86,7 +121,6 @@ class PetOverlay(private val ctx: Context) {
     private val hideBubble = Runnable { dismissBubble() }
 
     init {
-        root.addView(img)
         attachGestures()
     }
 
@@ -94,14 +128,14 @@ class PetOverlay(private val ctx: Context) {
 
     fun show() {
         if (attached) return
-        x = Random.nextInt(0, (screenWidth() - winW).coerceAtLeast(1)).toFloat()
-        petParams.x = x.roundToInt()
+        pos = Random.nextFloat() * (areaWidth() - winW).coerceAtLeast(1) // start somewhere on the bottom
+        applyPose(path().pose(pos), 0, 0)
         wm.addView(root, petParams)
         attached = true
         setMode(Mode.WALK)
         resume()
         PetBus.overlay = this
-        main.postDelayed({ say("Woof! I'm Yoda 🐾", "Tap: what's playing · Double-tap: a favourite song · Hold: more", autoHideMs = 6000) }, 800)
+        main.postDelayed({ say("Woof! I'm Yoda 🐾", "Tap: what's playing · Double-tap: a favourite song · Hold: settings · Drag me anywhere", autoHideMs = 6000) }, 800)
     }
 
     fun hide() {
@@ -125,8 +159,46 @@ class PetOverlay(private val ctx: Context) {
     }
 
     fun onScreenSizeChanged() {
-        x = x.coerceIn(0f, (screenWidth() - winW).coerceAtLeast(0).toFloat())
+        pos = path().normalize(pos)
         positionBubble()
+    }
+
+    // ---------------------------------------------------------------- geometry
+
+    /** The overlay frame: the screen minus status/navigation bars and camera cutout. */
+    private fun areaWidth(): Int = areaSize().first
+    private fun areaHeight(): Int = areaSize().second
+
+    private fun areaSize(): Pair<Int, Int> {
+        if (Build.VERSION.SDK_INT >= 30) {
+            val m = wm.currentWindowMetrics
+            val i = m.windowInsets.getInsetsIgnoringVisibility(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
+            return (m.bounds.width() - i.left - i.right) to (m.bounds.height() - i.top - i.bottom)
+        }
+        val dm = ctx.resources.displayMetrics
+        val sbId = ctx.resources.getIdentifier("status_bar_height", "dimen", "android")
+        val sb = if (sbId > 0) ctx.resources.getDimensionPixelSize(sbId) else 0
+        return dm.widthPixels to (dm.heightPixels - sb)
+    }
+
+    private fun path(): Perimeter {
+        val (w, h) = areaSize()
+        return Perimeter(w, h, winW, winH, prefs.wholeScreen)
+    }
+
+    private fun applyPose(p: Perimeter.Pose, offX: Int, offY: Int) {
+        val sizeChanged = petParams.width != p.winW || petParams.height != p.winH
+        val nx = p.x + offX
+        val ny = p.y + offY
+        if (sizeChanged || nx != petParams.x || ny != petParams.y) {
+            petParams.width = p.winW
+            petParams.height = p.winH
+            petParams.x = nx
+            petParams.y = ny
+            if (attached) wm.updateViewLayout(root, petParams)
+        }
+        if (root.rotationDeg != p.rotation) { root.rotationDeg = p.rotation; root.invalidate() }
+        pose = p
     }
 
     // ---------------------------------------------------------------- animation
@@ -143,14 +215,19 @@ class PetOverlay(private val ctx: Context) {
         val now = SystemClock.uptimeMillis()
         val dt = (now - lastTick).coerceAtMost(100) / 1000f
         lastTick = now
-        val maxX = (screenWidth() - winW).coerceAtLeast(0).toFloat()
-        var y = 0
+        if (mode == Mode.DRAG) return
+
+        val path = path()
+        var offX = 0
+        var offY = 0
 
         when (mode) {
             Mode.WALK -> {
-                x += dir * speed * dt
-                if (x <= 0f) { x = 0f; dir = 1 }
-                if (x >= maxX) { x = maxX; dir = -1 }
+                pos += dir * speed * dt
+                if (!path.wholeScreen) {
+                    if (pos <= 0f) { pos = 0f; dir = 1 }
+                    if (pos >= path.length) { pos = path.length; dir = -1 }
+                }
                 setSprite(walkFrames[((now / 150) % 4).toInt()], flip = dir < 0)
             }
             Mode.STAND, Mode.TALK -> setSprite(R.drawable.yoda_stand, false)
@@ -161,22 +238,19 @@ class PetOverlay(private val ctx: Context) {
                 if (t >= 1f) {
                     setMode(if (bubble != null) Mode.TALK else Mode.WALK)
                 } else {
-                    y = (sin(PI * t) * jumpHeight).roundToInt()
-                    x = (x + dir * speed * 1.6f * dt).coerceIn(0f, maxX)
+                    val edge = path.pose(pos).edge
+                    val (jx, jy) = Perimeter.jumpOffset(edge, (sin(PI * t) * jumpHeight).roundToInt())
+                    offX = jx; offY = jy
                     // The jump art leaps toward the left.
                     setSprite(R.drawable.yoda_jump, flip = dir > 0)
                 }
             }
+            Mode.DRAG -> Unit
         }
+        pos = path.normalize(pos)
 
         if (mode != Mode.TALK && mode != Mode.JUMP && now >= modeUntil) nextMode()
-
-        val nx = x.roundToInt()
-        if (nx != petParams.x || y != petParams.y) {
-            petParams.x = nx
-            petParams.y = y
-            if (attached) wm.updateViewLayout(root, petParams)
-        }
+        applyPose(path.pose(pos), offX, offY)
     }
 
     private fun nextMode() {
@@ -199,39 +273,29 @@ class PetOverlay(private val ctx: Context) {
         mode = m
         val now = SystemClock.uptimeMillis()
         modeUntil = now + when (m) {
-            Mode.WALK -> Random.nextLong(5_000, 12_000)
+            Mode.WALK -> Random.nextLong(6_000, 14_000)
             Mode.STAND -> Random.nextLong(2_500, 5_000)
             Mode.SIT -> Random.nextLong(4_000, 8_000)
             Mode.SLEEP -> Random.nextLong(30_000, 90_000)
-            Mode.JUMP, Mode.TALK -> Long.MAX_VALUE
+            Mode.JUMP, Mode.TALK, Mode.DRAG -> Long.MAX_VALUE
         }
         if (m == Mode.JUMP) jumpStart = now
     }
 
     private fun setSprite(id: Int, flip: Boolean) {
-        if (id != curSprite) {
-            val d = drawables.getOrPut(id) { ctx.getDrawable(id)!! }
-            img.setImageDrawable(d)
-            img.layoutParams = FrameLayout.LayoutParams(
-                (d.intrinsicWidth * scale).roundToInt(),
-                (d.intrinsicHeight * scale).roundToInt(),
-                Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL,
-            )
-            curSprite = id
-        }
-        if (flip != curFlip) {
-            img.scaleX = if (flip) -1f else 1f
-            curFlip = flip
+        val d = drawables.getOrPut(id) { ctx.getDrawable(id)!! }
+        if (root.sprite !== d || root.flip != flip) {
+            root.sprite = d
+            root.flip = flip
+            root.invalidate()
         }
     }
 
     private fun jump() {
-        if (mode != Mode.JUMP) setMode(Mode.JUMP)
+        if (mode != Mode.JUMP && mode != Mode.DRAG) setMode(Mode.JUMP)
     }
 
-    private fun screenWidth(): Int =
-        if (Build.VERSION.SDK_INT >= 30) wm.currentWindowMetrics.bounds.width()
-        else ctx.resources.displayMetrics.widthPixels
+    private fun screenWidth(): Int = areaWidth()
 
     // ---------------------------------------------------------------- touch
 
@@ -241,9 +305,65 @@ class PetOverlay(private val ctx: Context) {
             override fun onDown(e: MotionEvent) = true
             override fun onSingleTapConfirmed(e: MotionEvent): Boolean { onTap(); return true }
             override fun onDoubleTap(e: MotionEvent): Boolean { onDoubleTap(); return true }
-            override fun onLongPress(e: MotionEvent) { onLongPress() }
+            override fun onLongPress(e: MotionEvent) { if (!dragging) onLongPress() }
         })
-        root.setOnTouchListener { _, e -> detector.onTouchEvent(e); true }
+        root.setOnTouchListener { _, e ->
+            when (e.actionMasked) {
+                MotionEvent.ACTION_DOWN -> { downX = e.rawX; downY = e.rawY; dragging = false }
+                MotionEvent.ACTION_MOVE -> if (!dragging && hypot(e.rawX - downX, e.rawY - downY) > touchSlop) {
+                    dragging = true
+                    val cancel = MotionEvent.obtain(e).apply { action = MotionEvent.ACTION_CANCEL }
+                    detector.onTouchEvent(cancel)
+                    cancel.recycle()
+                    startDrag()
+                }
+            }
+            if (dragging) {
+                when (e.actionMasked) {
+                    MotionEvent.ACTION_MOVE -> moveDrag(e.rawX, e.rawY)
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> { endDrag(e.rawX, e.rawY); dragging = false }
+                }
+            } else {
+                detector.onTouchEvent(e)
+            }
+            true
+        }
+    }
+
+    private fun startDrag() {
+        lastInteraction = SystemClock.uptimeMillis()
+        dismissBubble()
+        // Calibrate screen (raw) coordinates against the overlay frame.
+        val loc = IntArray(2)
+        root.getLocationOnScreen(loc)
+        frameOffX = loc[0] - petParams.x
+        frameOffY = loc[1] - petParams.y
+        setMode(Mode.DRAG)
+        root.rotationDeg = 0
+        setSprite(R.drawable.yoda_jump, flip = false)
+        moveDrag(downX, downY)
+    }
+
+    private fun moveDrag(rawX: Float, rawY: Float) {
+        val (aw, ah) = areaSize()
+        dragX = (rawX - frameOffX).coerceIn(0f, aw.toFloat())
+        dragY = (rawY - frameOffY).coerceIn(0f, ah.toFloat())
+        petParams.width = winW
+        petParams.height = winH
+        petParams.x = (dragX - winW / 2f).roundToInt().coerceIn(0, (aw - winW).coerceAtLeast(0))
+        petParams.y = (dragY - winH / 2f).roundToInt().coerceIn(0, (ah - winH).coerceAtLeast(0))
+        if (attached) wm.updateViewLayout(root, petParams)
+        root.invalidate()
+    }
+
+    private fun endDrag(rawX: Float, rawY: Float) {
+        moveDrag(rawX, rawY)
+        val path = path()
+        pos = path.nearest(dragX, dragY)
+        // Land and look around for a moment, then carry on walking.
+        setMode(Mode.STAND)
+        setSprite(R.drawable.yoda_stand, false)
+        applyPose(path.pose(pos), 0, 0)
     }
 
     /** Tap: say what's playing right now. */
@@ -315,32 +435,22 @@ class PetOverlay(private val ctx: Context) {
 
     private fun showMenu() {
         val emailLabel = if (prefs.emailAlerts) "📧 Email alerts: ON" else "📧 Email alerts: OFF"
+        val walkLabel = if (prefs.wholeScreen) "🐾 Walk: whole screen" else "🐾 Walk: bottom only"
         say(
-            "What do you need? 🐾", null,
+            "Yoda 🐾", null,
             buttons = listOf(
-                "💪 Encourage me" to { say("💪", Phrases.pick(Phrases.encourage), autoHideMs = 9000) },
-                "😂 Say something funny" to { say("😂", Phrases.pick(Phrases.funny), autoHideMs = 9000) },
-                "🤗 Check in on me" to { checkIn() },
                 emailLabel to {
                     prefs.emailAlerts = !prefs.emailAlerts
                     say("📧", if (prefs.emailAlerts) "Email alerts are ON. I'll tell you when mail arrives." else "Email alerts are OFF. I'll keep quiet about email.", autoHideMs = 4000)
                 },
+                walkLabel to {
+                    prefs.wholeScreen = !prefs.wholeScreen
+                    say("🐾", if (prefs.wholeScreen) "I'll walk around the whole screen." else "I'll stay on the bottom.", autoHideMs = 3500)
+                },
                 "✕ Close" to {},
             ),
             vertical = true,
-            autoHideMs = 20_000,
-        )
-    }
-
-    private fun checkIn() {
-        say(
-            "🤗", Phrases.pick(Phrases.checkInQuestion),
-            buttons = listOf(
-                "😊 Good" to { say("🐾", Phrases.pick(Phrases.replyGood), autoHideMs = 8000) },
-                "😐 Meh" to { say("🐾", Phrases.pick(Phrases.replyOkay), autoHideMs = 10_000) },
-                "😔 Not great" to { say("🤍", Phrases.pick(Phrases.replyRough), autoHideMs = 14_000) },
-            ),
-            autoHideMs = 30_000,
+            autoHideMs = 15_000,
         )
     }
 
@@ -483,8 +593,9 @@ class PetOverlay(private val ctx: Context) {
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
             PixelFormat.TRANSLUCENT,
         ).apply {
-            gravity = Gravity.BOTTOM or Gravity.START
+            gravity = Gravity.TOP or Gravity.START
             setTitle("Yoda bubble")
+            if (Build.VERSION.SDK_INT >= 30) fitInsetsTypes = WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout()
         }
         bubble = outer
         bubbleParams = params
@@ -497,12 +608,28 @@ class PetOverlay(private val ctx: Context) {
         main.postDelayed(hideBubble, autoHideMs)
     }
 
+    /** Puts the bubble beside Yoda, on the side facing the middle of the screen. */
     private fun positionBubble() {
         val p = bubbleParams ?: return
         val v = bubble ?: return
-        val w = if (p.width > 0) p.width else v.measuredWidth
-        p.x = (x.roundToInt() + winW / 2 - w / 2).coerceIn(dp(4), (screenWidth() - w - dp(4)).coerceAtLeast(dp(4)))
-        p.y = winH - dp(8)
+        val (aw, ah) = areaSize()
+        val bw = if (p.width > 0) p.width else v.measuredWidth
+        val bh = v.measuredHeight
+        val px = petParams.x
+        val py = petParams.y
+        val pw = petParams.width
+        val ph = petParams.height
+        val cx = px + pw / 2
+        val cy = py + ph / 2
+        val gap = dp(2)
+        when (pose?.edge ?: Perimeter.Edge.BOTTOM) {
+            Perimeter.Edge.BOTTOM -> { p.x = cx - bw / 2; p.y = py - bh + gap }
+            Perimeter.Edge.TOP -> { p.x = cx - bw / 2; p.y = py + ph - gap }
+            Perimeter.Edge.RIGHT -> { p.x = px - bw + gap; p.y = cy - bh / 2 }
+            Perimeter.Edge.LEFT -> { p.x = px + pw - gap; p.y = cy - bh / 2 }
+        }
+        p.x = p.x.coerceIn(dp(4), (aw - bw - dp(4)).coerceAtLeast(dp(4)))
+        p.y = p.y.coerceIn(0, (ah - bh).coerceAtLeast(0))
         if (v.isAttachedToWindow) wm.updateViewLayout(v, p)
     }
 

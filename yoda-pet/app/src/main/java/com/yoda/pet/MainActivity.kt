@@ -181,6 +181,9 @@ class MainActivity : Activity() {
         list.addView(calendarStatusView)
         list.addView(smallButton("Test meeting bubble") { testMeeting() })
 
+        section("Walking")
+        toggle("Walk around the whole screen", "Bottom, up the side, across the top and back down. Off = only along the bottom.", prefs.wholeScreen) { prefs.wholeScreen = it }
+
         section("Size")
         val sizes = listOf("Small" to 72, "Medium" to 96, "Large" to 128)
         list.addView(LinearLayout(this).apply {
@@ -210,7 +213,8 @@ class MainActivity : Activity() {
         list.addView(text(
             "• Tap Yoda: he tells you which song is playing.\n" +
                 "• Double-tap Yoda: he jumps and plays one of your favourite songs.\n" +
-                "• Hold Yoda: Encourage me, Say something funny, Check in on me, and email alerts on/off.\n" +
+                "• Hold Yoda: email alerts on/off and where he walks.\n" +
+                "• Drag Yoda with your finger and drop him anywhere — he lands on the nearest edge.\n" +
                 "• 5 minutes before a meeting he tells you what it is.\n" +
                 "• When new Gmail arrives he tells you who it's from, with an Open it button.\n" +
                 "• To hide him: the “Hide Yoda” button above or in his notification.",
