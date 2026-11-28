@@ -181,6 +181,23 @@ class MainActivity : Activity() {
         list.addView(calendarStatusView)
         list.addView(smallButton("Test meeting bubble") { testMeeting() })
 
+        section("Listening Mirror")
+        toggle("New concerts 🎸", "When a new concert lands in your Deciding deck, Yoda tells you (checks every 15 min).", prefs.concertAlerts) { prefs.concertAlerts = it }
+
+        section("Other notifications")
+        list.addView(text("Pick apps whose notifications Yoda reads out — Listening Mirror Companion, Paper World, GitHub… An app shows up here after it has sent at least one notification. Websites in Chrome appear by their address.", 13f, muted).apply { setPadding(0, 0, 0, dp(6)) })
+        val apps = OtherApps.seen(this)
+        if (apps.isEmpty()) {
+            list.addView(text(if (hasGmailAccess) "No app notifications seen yet." else "Needs notification access (see Permissions above).", 13f, muted))
+        }
+        apps.forEach { app ->
+            toggle(app.label, app.lastTitle?.let { "Last: $it" } ?: app.key, app.key in prefs.forwardApps) { on ->
+                val now = prefs.forwardApps.toMutableSet()
+                if (on) now += app.key else now -= app.key
+                prefs.forwardApps = now
+            }
+        }
+
         if (hasCalendar) {
             section("Calendars for meeting reminders")
             list.addView(text("Only meetings from the calendars switched on here. Turn off old accounts you don't use.", 13f, muted).apply { setPadding(0, 0, 0, dp(6)) })

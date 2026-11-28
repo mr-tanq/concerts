@@ -47,7 +47,10 @@ class GmailListener : NotificationListenerService() {
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
-        if (sbn.packageName !in MailAlerts.PACKAGES) return
+        if (sbn.packageName !in MailAlerts.PACKAGES) {
+            runCatching { OtherApps.onPosted(this, sbn) }
+            return
+        }
         val prefs = Prefs(this)
         val n = sbn.notification
         val e = n.extras

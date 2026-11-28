@@ -11,6 +11,11 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <!-- Meeting reminders read the calendars synced to the phone (Google Calendar). -->
     <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <!-- Show the names of apps whose notifications you can let Yoda read out
+         (sideloaded personal app, not distributed through the Play Store). -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+        xmlns:tools="http://schemas.android.com/tools"
+        tools:ignore="QueryAllPackagesPermission" />
     <!-- Spotify Web API. -->
     <uses-permission android:name="android.permission.INTERNET" />
 

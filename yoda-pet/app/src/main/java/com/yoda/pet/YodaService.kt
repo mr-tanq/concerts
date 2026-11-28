@@ -76,6 +76,18 @@ class YodaService : Service() {
         }
     }
 
+    private var concertWatcher: ConcertWatcher? = null
+    private val concertLoop = object : Runnable {
+        override fun run() {
+            checkConcerts()
+            main.postDelayed(this, 15 * 60_000L)
+        }
+    }
+
+    private fun checkConcerts() {
+        concertWatcher?.check { fresh -> main.post { overlay?.announceConcerts(fresh) } }
+    }
+
     private val meetingLoop = object : Runnable {
         override fun run() {
             checkMeetings()
@@ -104,6 +116,8 @@ class YodaService : Service() {
         runCatching { contentResolver.registerContentObserver(CalendarContract.CONTENT_URI, true, calendarObserver) }
         YodaLog.add(this, "🐾 Yoda started")
         main.post(meetingLoop)
+        concertWatcher = ConcertWatcher(this)
+        main.postDelayed(concertLoop, 20_000)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -122,6 +136,7 @@ class YodaService : Service() {
     override fun onDestroy() {
         isRunning = false
         main.removeCallbacks(meetingLoop)
+        main.removeCallbacks(concertLoop)
         main.removeCallbacks(checkNow)
         runCatching { contentResolver.unregisterContentObserver(calendarObserver) }
         YodaLog.add(this, "🐾 Yoda stopped")

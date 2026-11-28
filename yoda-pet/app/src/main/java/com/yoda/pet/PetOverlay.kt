@@ -588,6 +588,36 @@ class PetOverlay(private val ctx: Context) {
         playWhileTalking(mailFrames, frameMs = 230, forMs = 30_000)
     }
 
+    /** New concerts in the Listening Mirror deck. */
+    fun announceConcerts(list: List<com.yoda.pet.logic.FeedConcert>) {
+        if (list.isEmpty()) return
+        val title = if (list.size == 1) "🎸 New concert for you!" else "🎸 ${list.size} new concerts for you!"
+        val body = if (list.size == 1) "${list[0].artist}\n${com.yoda.pet.logic.ConcertFeed.where(list[0])}"
+            else list.take(4).joinToString("\n") { "${it.artist} — ${com.yoda.pet.logic.ConcertFeed.where(it)}" } +
+                (if (list.size > 4) "\n…and ${list.size - 4} more" else "")
+        say(title, body,
+            buttons = listOf("Open" to { openUrl(com.yoda.pet.logic.ConcertFeed.APP_URL) }, "Later" to {}),
+            autoHideMs = 60_000, dismissOnOutside = false)
+        playWhileTalking(headbangFrames, frameMs = 125, forMs = 3_000)
+    }
+
+    /** A notification from an app you picked (Listening Mirror Companion, Paper World, …). */
+    fun announceApp(label: String, title: String, text: String, contentIntent: PendingIntent?, app: String) {
+        val concerty = app == Prefs.LISTENING_MIRROR_COMPANION
+        jump()
+        val body = listOf(title, text).filter { it.isNotBlank() }.joinToString("\n").take(400)
+        say((if (concerty) "🎟️ " else "🔔 ") + label, body,
+            buttons = listOf("Open" to { openEmail(contentIntent, app) }, "Later" to {}),
+            autoHideMs = 30_000, dismissOnOutside = false)
+        if (concerty) playWhileTalking(headbangFrames, frameMs = 125, forMs = 2_500)
+    }
+
+    private fun openUrl(url: String) {
+        runCatching {
+            ctx.startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        }
+    }
+
     /** Show an animation beside the bubble that was just opened. */
     private fun playWhileTalking(frames: IntArray, frameMs: Long, forMs: Long) {
         if (bubble == null) return

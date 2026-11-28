@@ -3,6 +3,10 @@ package com.yoda.pet
 import android.content.Context
 
 class Prefs(context: Context) {
+    companion object {
+        const val LISTENING_MIRROR_COMPANION = "com.listeningmirror.companion"
+    }
+
     private val sp = context.applicationContext.getSharedPreferences("yoda", Context.MODE_PRIVATE)
 
     var yodaEnabled: Boolean
@@ -43,6 +47,29 @@ class Prefs(context: Context) {
     var calendarStatus: String?
         get() = sp.getString("cal_status", null)
         set(v) = sp.edit().putString("cal_status", v).apply()
+
+    // Listening Mirror
+    var concertAlerts: Boolean
+        get() = sp.getBoolean("concert_alerts", true)
+        set(v) = sp.edit().putBoolean("concert_alerts", v).apply()
+    var seenConcertIds: Set<String>
+        get() = sp.getStringSet("concert_seen", emptySet())?.toSet() ?: emptySet()
+        set(v) = sp.edit().putStringSet("concert_seen", v).apply()
+    var concertFeedReady: Boolean
+        get() = sp.getBoolean("concert_ready", false)
+        set(v) = sp.edit().putBoolean("concert_ready", v).apply()
+    var concertEtag: String?
+        get() = sp.getString("concert_etag", null)
+        set(v) = sp.edit().putString("concert_etag", v).apply()
+
+    /** Apps (package, or "package|site" for browsers) whose notifications Yoda reads out. */
+    var forwardApps: Set<String>
+        get() = sp.getStringSet("forward_apps", null)?.toSet() ?: setOf(LISTENING_MIRROR_COMPANION)
+        set(v) = sp.edit().putStringSet("forward_apps", v).apply()
+    /** JSON object: key -> {label, last, at} for apps that have sent notifications. */
+    var seenApps: String
+        get() = sp.getString("seen_apps", "{}") ?: "{}"
+        set(v) = sp.edit().putString("seen_apps", v).apply()
 
     // Email alert diagnostics (shown in the app)
     var lastMailSeen: String?
