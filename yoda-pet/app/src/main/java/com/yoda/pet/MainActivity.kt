@@ -198,7 +198,7 @@ class MainActivity : Activity() {
 
         section("Walking")
         toggle("Walk around the whole screen", "Bottom, up the side, across the top and back down. Off = only along the bottom.", prefs.wholeScreen) { prefs.wholeScreen = it }
-        toggle("Dance when music plays", "When a song is playing on the phone, Yoda dances now and then.", prefs.danceToMusic) { prefs.danceToMusic = it }
+        toggle("Headbang when music plays 🤘", "When a song is playing on the phone, Yoda headbangs now and then.", prefs.danceToMusic) { prefs.danceToMusic = it }
 
         section("Size")
         val sizes = listOf("Small" to 72, "Medium" to 96, "Large" to 128)
@@ -231,7 +231,7 @@ class MainActivity : Activity() {
                 "• Double-tap Yoda: she jumps and plays one of your favourite songs.\n" +
                 "• Hold Yoda: email alerts on/off and where she walks.\n" +
                 "• Drag Yoda with your finger and drop her anywhere — she lands on the nearest edge.\n" +
-                "• When music plays on the phone she dances.\n" +
+                "• When music plays on the phone she headbangs 🤘\n" +
                 "• 5 minutes before a meeting she barks and tells you what it is.\n" +
                 "• When new email arrives she brings you an envelope and tells you who it's from, with an Open it button.\n" +
                 "• To hide her: the “Hide Yoda” button above or in her notification.",

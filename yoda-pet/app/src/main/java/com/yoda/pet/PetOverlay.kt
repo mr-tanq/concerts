@@ -41,7 +41,7 @@ import kotlin.random.Random
  */
 class PetOverlay(private val ctx: Context) {
 
-    private enum class Mode { WALK, STAND, SIT, SLEEP, JUMP, TALK, DRAG, DANCE }
+    private enum class Mode { WALK, STAND, SIT, SLEEP, JUMP, TALK, DRAG, DANCE, SCRATCH, YAWN }
 
     private val wm = ctx.getSystemService(WindowManager::class.java)
     private val main = Handler(Looper.getMainLooper())
@@ -71,7 +71,19 @@ class PetOverlay(private val ctx: Context) {
     private val strideLength = winW * 1.0f // one full 8-frame gait cycle
     private var walked = 0f
     private val choreographer = Choreographer.getInstance()
-    private val danceFrames = intArrayOf(R.drawable.yoda_dance_1, R.drawable.yoda_dance_2, R.drawable.yoda_dance_3, R.drawable.yoda_dance_4)
+    private fun frames(name: String) = intArrayOf(1, 2, 3, 4).map {
+        ctx.resources.getIdentifier("yoda_${name}_$it", "drawable", ctx.packageName)
+    }.toIntArray()
+    private val idleFrames = frames("idle")
+    private val headbangFrames = frames("headbang")
+    private val jumpFrames = frames("jump")
+    private val sleepFrames = frames("sleep")
+    private val yawnFrames = frames("yawn")
+    private val scratchFrames = frames("scratch")
+    private val dangleFrames = frames("dangle")
+
+    /** Loops [f] at [ms] per frame. */
+    private fun loop(f: IntArray, now: Long, ms: Long) = f[((now / ms) % f.size).toInt()]
     private val mailFrames = intArrayOf(R.drawable.yoda_mail_1, R.drawable.yoda_mail_2, R.drawable.yoda_mail_3, R.drawable.yoda_mail_4)
     private val barkFrames = intArrayOf(R.drawable.yoda_bark_1, R.drawable.yoda_bark_2, R.drawable.yoda_bark_3, R.drawable.yoda_bark_4)
 
@@ -128,6 +140,7 @@ class PetOverlay(private val ctx: Context) {
     private var targetRotation = 0f
     private var lastFrameNanos = 0L
     private var jumpStart = 0L
+    private var modeStart = 0L
     private var lastInteraction = SystemClock.uptimeMillis()
 
     // Dragging
@@ -241,7 +254,9 @@ class PetOverlay(private val ctx: Context) {
 
     private fun step(dt: Float) {
         val now = SystemClock.uptimeMillis()
-        if (mode == Mode.DRAG) return
+        if (mode == Mode.DRAG) { setSprite(loop(dangleFrames, now, 170), false); return }
+        val side = dir < 0 // the art faces right; flip when walking the other way
+        val since = now - modeStart
 
         val path = path()
         var offX = 0
@@ -259,25 +274,35 @@ class PetOverlay(private val ctx: Context) {
                 val i = (((walked % strideLength) / strideLength) * n).toInt().coerceIn(0, n - 1)
                 setSprite(walkFrames[i], flip = dir < 0)
             }
-            Mode.STAND -> setSprite(R.drawable.yoda_stand, false)
+            Mode.STAND -> setSprite(loop(idleFrames, now, 420), side)
             Mode.TALK -> {
                 val frames = talkFrames
-                if (frames != null && now < talkAnimUntil) setSprite(frames[((now / talkFrameMs) % frames.size).toInt()], flip = dir < 0)
-                else setSprite(R.drawable.yoda_stand, false)
+                if (frames != null && now < talkAnimUntil) setSprite(loop(frames, now, talkFrameMs), side)
+                else setSprite(loop(idleFrames, now, 420), side)
             }
-            Mode.DANCE -> setSprite(danceFrames[((now / 260) % danceFrames.size).toInt()], false)
+            Mode.DANCE -> setSprite(loop(headbangFrames, now, 125), side) // 🤘 two bangs a second
             Mode.SIT -> setSprite(R.drawable.yoda_sit, false)
-            Mode.SLEEP -> setSprite(R.drawable.yoda_sleep, false)
+            Mode.SCRATCH -> setSprite(
+                if (since < 250) scratchFrames[0] else scratchFrames[1 + ((since / 140) % 3).toInt()], side)
+            Mode.YAWN -> setSprite(yawnFrames[(since / 450).toInt().coerceAtMost(3)], side)
+            Mode.SLEEP -> setSprite(loop(sleepFrames, now, 750), side)
             Mode.JUMP -> {
-                val t = (now - jumpStart) / 700f
+                val t = (now - jumpStart) / 800f
                 if (t >= 1f) {
                     setMode(if (bubble != null) Mode.TALK else Mode.WALK)
                 } else {
+                    // crouch → take-off → in the air → landing; she only leaves the ground after the crouch.
+                    val frame = when {
+                        t < 0.18f -> 0
+                        t < 0.38f -> 1
+                        t < 0.78f -> 2
+                        else -> 3
+                    }
+                    val air = ((t - 0.18f) / 0.82f).coerceIn(0f, 1f)
                     val edge = path.pose(pos).edge
-                    val (jx, jy) = Perimeter.jumpOffset(edge, (sin(PI * t) * jumpHeight).roundToInt())
+                    val (jx, jy) = Perimeter.jumpOffset(edge, (sin(PI * air) * jumpHeight).roundToInt())
                     offX = jx; offY = jy
-                    // The jump art leaps toward the left.
-                    setSprite(R.drawable.yoda_jump, flip = dir > 0)
+                    setSprite(jumpFrames[frame], side)
                 }
             }
             Mode.DRAG -> Unit
@@ -308,7 +333,7 @@ class PetOverlay(private val ctx: Context) {
         val playing = runCatching { NowPlaying.onThisPhone(ctx)?.playing == true }.getOrDefault(false)
         val started = playing && !musicPlaying
         musicPlaying = playing
-        if (started && (mode == Mode.WALK || mode == Mode.STAND || mode == Mode.SIT || mode == Mode.SLEEP)) setMode(Mode.DANCE)
+        if (started && mode in setOf(Mode.WALK, Mode.STAND, Mode.SIT, Mode.SLEEP, Mode.SCRATCH, Mode.YAWN)) setMode(Mode.DANCE)
         if (!playing && mode == Mode.DANCE) setMode(Mode.WALK)
     }
 
@@ -317,8 +342,16 @@ class PetOverlay(private val ctx: Context) {
         if (musicPlaying && mode != Mode.DANCE && Random.nextFloat() < 0.6f) { setMode(Mode.DANCE); return }
         when (mode) {
             Mode.WALK -> setMode(if (Random.nextFloat() < 0.6f) Mode.STAND else Mode.SIT)
-            Mode.STAND, Mode.SIT -> when {
-                idleFor > 3 * 60_000 && Random.nextFloat() < 0.35f -> setMode(Mode.SLEEP)
+            Mode.SIT -> when {
+                idleFor > 3 * 60_000 && Random.nextFloat() < 0.4f -> setMode(Mode.YAWN) // then sleeps
+                Random.nextFloat() < 0.3f -> setMode(Mode.SCRATCH)
+                Random.nextFloat() < 0.15f -> setMode(Mode.YAWN)
+                else -> { if (Random.nextFloat() < 0.35f) dir = -dir; setMode(Mode.WALK) }
+            }
+            Mode.SCRATCH -> setMode(if (Random.nextFloat() < 0.5f) Mode.SIT else Mode.WALK)
+            Mode.YAWN -> setMode(if (idleFor > 3 * 60_000) Mode.SLEEP else Mode.SIT)
+            Mode.STAND -> when {
+                idleFor > 3 * 60_000 && Random.nextFloat() < 0.35f -> setMode(Mode.YAWN)
                 else -> {
                     if (Random.nextFloat() < 0.35f) dir = -dir
                     setMode(Mode.WALK)
@@ -338,9 +371,12 @@ class PetOverlay(private val ctx: Context) {
             Mode.SIT -> Random.nextLong(4_000, 8_000)
             Mode.SLEEP -> Random.nextLong(30_000, 90_000)
             Mode.DANCE -> Random.nextLong(8_000, 16_000)
+            Mode.SCRATCH -> Random.nextLong(2_000, 3_200)
+            Mode.YAWN -> 1_900L
             Mode.JUMP, Mode.TALK, Mode.DRAG -> Long.MAX_VALUE
         }
         if (m == Mode.JUMP) jumpStart = now
+        modeStart = now
     }
 
     private fun setSprite(id: Int, flip: Boolean) {
@@ -402,7 +438,7 @@ class PetOverlay(private val ctx: Context) {
         setMode(Mode.DRAG)
         root.rotationDeg = 0f
         targetRotation = 0f
-        setSprite(R.drawable.yoda_jump, flip = false)
+        setSprite(dangleFrames[0], flip = false)
         moveDrag(downX, downY)
     }
 
@@ -424,7 +460,7 @@ class PetOverlay(private val ctx: Context) {
         pos = path.nearest(dragX, dragY)
         // Land and look around for a moment, then carry on walking.
         setMode(Mode.STAND)
-        setSprite(R.drawable.yoda_stand, false)
+        setSprite(idleFrames[0], dir < 0)
         applyPose(path.pose(pos), 0, 0)
     }
 

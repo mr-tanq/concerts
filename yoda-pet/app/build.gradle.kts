@@ -11,8 +11,8 @@ android {
         applicationId = "com.yoda.pet"
         minSdk = 26
         targetSdk = 35
-        versionCode = 9
-        versionName = "1.8"
+        versionCode = 10
+        versionName = "1.9"
 
         // Spotify app Client ID. Not a secret: the app signs in with PKCE,
         // which never uses a client secret.
