@@ -134,7 +134,7 @@ class MainActivity : Activity() {
             requestPermissions(arrayOf(Manifest.permission.READ_CALENDAR), 1)
         }
         step("Gmail alerts (notification access)",
-            "Lets Yoda see Gmail's new-mail notifications to tell you who wrote. " +
+            "Lets Yoda see new-mail notifications (Gmail, Outlook, Samsung Email…) to tell you who wrote. " +
                 "If Android says “Restricted setting”: open App info for Yoda → ⋮ → Allow restricted settings, then try again.",
             hasGmailAccess) {
             startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))

@@ -68,7 +68,7 @@ class PetOverlay(private val ctx: Context) {
         .takeWhile { it != 0 }
         .toList().toIntArray()
     /** Distance covered by one full walk cycle, so feet don't slide. */
-    private val strideLength = winW * 1.2f // the 8-frame art holds two steps
+    private val strideLength = winW * 1.0f // one full 8-frame gait cycle
     private var walked = 0f
     private val choreographer = Choreographer.getInstance()
     private val drawables = HashMap<Int, Drawable>()
@@ -505,6 +505,7 @@ class PetOverlay(private val ctx: Context) {
         force: Boolean = false,
         account: String? = null,
         count: Int = 1,
+        app: String = "com.google.android.gm",
     ) {
         if (!prefs.emailAlerts && !force) return
         jump()
@@ -515,11 +516,11 @@ class PetOverlay(private val ctx: Context) {
             account?.let { append("\n✉️ ").append(it) }
         }
         say(title, body,
-            buttons = listOf("Open it" to { openEmail(contentIntent) }, "Later" to {}),
+            buttons = listOf("Open it" to { openEmail(contentIntent, app) }, "Later" to {}),
             autoHideMs = 30_000, dismissOnOutside = false)
     }
 
-    private fun openEmail(pi: PendingIntent?) {
+    private fun openEmail(pi: PendingIntent?, app: String) {
         if (pi != null) {
             try {
                 val opts = if (Build.VERSION.SDK_INT >= 34) {
@@ -532,7 +533,7 @@ class PetOverlay(private val ctx: Context) {
                 return
             } catch (_: Exception) { /* fall through to opening Gmail */ }
         }
-        ctx.packageManager.getLaunchIntentForPackage("com.google.android.gm")?.let {
+        ctx.packageManager.getLaunchIntentForPackage(app)?.let {
             ctx.startActivity(it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         }
     }

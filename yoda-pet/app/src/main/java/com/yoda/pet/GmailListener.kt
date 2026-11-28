@@ -59,7 +59,7 @@ class GmailListener : NotificationListenerService() {
         fun log(outcome: String) {
             prefs.lastMailSeenAt = System.currentTimeMillis()
             prefs.lastMailSeen = "${title ?: "(no title)"} — $outcome"
-            YodaLog.add(this, "📧 Gmail${account?.let { " ($it)" } ?: ""}: ${title ?: "(no title)"}${if (summary) " [summary]" else ""} → $outcome")
+            YodaLog.add(this, "📧 ${appName(sbn.packageName)}${account?.let { " ($it)" } ?: ""}: ${title ?: "(no title)"}${if (summary) " [summary]" else ""} → $outcome")
         }
 
         if (!remember(signature(sbn))) return // Gmail re-posting the same thing on sync
@@ -78,10 +78,14 @@ class GmailListener : NotificationListenerService() {
             isRecent(alert.dedupKey) -> log("already announced")
             else -> {
                 log("announced ✓")
-                PetBus.post { it.announceEmail(alert.sender, alert.subject, n.contentIntent, account = alert.account, count = alert.count) }
+                PetBus.post { it.announceEmail(alert.sender, alert.subject, n.contentIntent, account = alert.account, count = alert.count, app = sbn.packageName) }
             }
         }
     }
+
+    private fun appName(pkg: String): String = runCatching {
+        packageManager.getApplicationLabel(packageManager.getApplicationInfo(pkg, 0)).toString()
+    }.getOrDefault(pkg)
 
     /** "Sender  Subject": Gmail makes the sender bold, so use the first bold span when there is one. */
     private fun splitLine(line: CharSequence): MailLine {

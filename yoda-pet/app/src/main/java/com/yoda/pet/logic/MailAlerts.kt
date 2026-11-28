@@ -17,7 +17,18 @@ data class MailLine(val sender: String?, val subject: String?)
 
 object MailAlerts {
     const val GMAIL_PACKAGE = "com.google.android.gm"
-    val PACKAGES = setOf(GMAIL_PACKAGE, "com.google.android.gm.lite")
+    /** Mail apps Yoda listens to. They all put the sender in the title and the subject in the text. */
+    val PACKAGES = setOf(
+        GMAIL_PACKAGE,
+        "com.google.android.gm.lite",                 // Gmail Go
+        "com.samsung.android.email.provider",         // Samsung Email
+        "com.microsoft.office.outlook",               // Outlook
+        "com.yahoo.mobile.client.android.mail",       // Yahoo Mail
+        "ch.protonmail.android",                      // Proton Mail
+        "com.readdle.spark",                          // Spark
+        "me.bluemail.mail",                           // BlueMail
+        "com.fsck.k9", "net.thunderbird.android",     // K-9 / Thunderbird
+    )
 
     private val countTitle = Regex("""^(\d+)\s+(new\s+)?(messages?|emails?|μηνύματα|νέα\s+μηνύματα|νέα\s+email)$""", RegexOption.IGNORE_CASE)
     private val emailAddress = Regex("""^[^\s@]+@[^\s@]+\.[^\s@]+$""")
