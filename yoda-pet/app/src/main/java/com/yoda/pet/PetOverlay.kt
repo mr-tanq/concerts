@@ -41,7 +41,7 @@ import kotlin.random.Random
  */
 class PetOverlay(private val ctx: Context) {
 
-    private enum class Mode { WALK, STAND, SIT, SLEEP, JUMP, TALK, DRAG }
+    private enum class Mode { WALK, STAND, SIT, SLEEP, JUMP, TALK, DRAG, DANCE }
 
     private val wm = ctx.getSystemService(WindowManager::class.java)
     private val main = Handler(Looper.getMainLooper())
@@ -71,6 +71,18 @@ class PetOverlay(private val ctx: Context) {
     private val strideLength = winW * 1.0f // one full 8-frame gait cycle
     private var walked = 0f
     private val choreographer = Choreographer.getInstance()
+    private val danceFrames = intArrayOf(R.drawable.yoda_dance_1, R.drawable.yoda_dance_2, R.drawable.yoda_dance_3, R.drawable.yoda_dance_4)
+    private val mailFrames = intArrayOf(R.drawable.yoda_mail_1, R.drawable.yoda_mail_2, R.drawable.yoda_mail_3, R.drawable.yoda_mail_4)
+    private val barkFrames = intArrayOf(R.drawable.yoda_bark_1, R.drawable.yoda_bark_2, R.drawable.yoda_bark_3, R.drawable.yoda_bark_4)
+
+    // While a bubble is up he can play a short animation (envelope, barking).
+    private var talkFrames: IntArray? = null
+    private var talkFrameMs = 200L
+    private var talkAnimUntil = 0L
+
+    // Dancing when music plays on the phone.
+    private var musicPlaying = false
+    private var nextMusicCheck = 0L
     private val drawables = HashMap<Int, Drawable>()
 
     /** Draws the current sprite, turned so his feet face the edge he walks on. */
@@ -247,7 +259,13 @@ class PetOverlay(private val ctx: Context) {
                 val i = (((walked % strideLength) / strideLength) * n).toInt().coerceIn(0, n - 1)
                 setSprite(walkFrames[i], flip = dir < 0)
             }
-            Mode.STAND, Mode.TALK -> setSprite(R.drawable.yoda_stand, false)
+            Mode.STAND -> setSprite(R.drawable.yoda_stand, false)
+            Mode.TALK -> {
+                val frames = talkFrames
+                if (frames != null && now < talkAnimUntil) setSprite(frames[((now / talkFrameMs) % frames.size).toInt()], flip = dir < 0)
+                else setSprite(R.drawable.yoda_stand, false)
+            }
+            Mode.DANCE -> setSprite(danceFrames[((now / 260) % danceFrames.size).toInt()], false)
             Mode.SIT -> setSprite(R.drawable.yoda_sit, false)
             Mode.SLEEP -> setSprite(R.drawable.yoda_sleep, false)
             Mode.JUMP -> {
@@ -266,6 +284,7 @@ class PetOverlay(private val ctx: Context) {
         }
         pos = path.normalize(pos)
 
+        if (now >= nextMusicCheck) checkMusic(now)
         if (mode != Mode.TALK && mode != Mode.JUMP && now >= modeUntil) nextMode()
         applyPose(path.pose(pos), offX, offY)
         turnTowardTarget(dt)
@@ -282,8 +301,20 @@ class PetOverlay(private val ctx: Context) {
         root.invalidate()
     }
 
+    /** Every few seconds: is music playing on the phone? Start dancing when it starts. */
+    private fun checkMusic(now: Long) {
+        nextMusicCheck = now + 4000
+        if (!prefs.danceToMusic) { musicPlaying = false; return }
+        val playing = runCatching { NowPlaying.onThisPhone(ctx)?.playing == true }.getOrDefault(false)
+        val started = playing && !musicPlaying
+        musicPlaying = playing
+        if (started && (mode == Mode.WALK || mode == Mode.STAND || mode == Mode.SIT || mode == Mode.SLEEP)) setMode(Mode.DANCE)
+        if (!playing && mode == Mode.DANCE) setMode(Mode.WALK)
+    }
+
     private fun nextMode() {
         val idleFor = SystemClock.uptimeMillis() - lastInteraction
+        if (musicPlaying && mode != Mode.DANCE && Random.nextFloat() < 0.6f) { setMode(Mode.DANCE); return }
         when (mode) {
             Mode.WALK -> setMode(if (Random.nextFloat() < 0.6f) Mode.STAND else Mode.SIT)
             Mode.STAND, Mode.SIT -> when {
@@ -306,6 +337,7 @@ class PetOverlay(private val ctx: Context) {
             Mode.STAND -> Random.nextLong(2_500, 5_000)
             Mode.SIT -> Random.nextLong(4_000, 8_000)
             Mode.SLEEP -> Random.nextLong(30_000, 90_000)
+            Mode.DANCE -> Random.nextLong(8_000, 16_000)
             Mode.JUMP, Mode.TALK, Mode.DRAG -> Long.MAX_VALUE
         }
         if (m == Mode.JUMP) jumpStart = now
@@ -487,7 +519,6 @@ class PetOverlay(private val ctx: Context) {
     // ---------------------------------------------------------------- alerts
 
     fun announceMeeting(title: String, whenText: String, location: String?, open: () -> Unit) {
-        jump()
         val body = buildString {
             append(title)
             append("\n").append(whenText)
@@ -496,6 +527,7 @@ class PetOverlay(private val ctx: Context) {
         say("📅 Meeting soon!", body,
             buttons = listOf("Open" to open, "Got it" to {}),
             autoHideMs = 90_000, dismissOnOutside = false)
+        playWhileTalking(barkFrames, frameMs = 180, forMs = 4_000)
     }
 
     fun announceEmail(
@@ -508,7 +540,6 @@ class PetOverlay(private val ctx: Context) {
         app: String = "com.google.android.gm",
     ) {
         if (!prefs.emailAlerts && !force) return
-        jump()
         val title = if (count > 1) "📧 $count new emails — latest from" else "📧 New email from"
         val body = buildString {
             append(sender)
@@ -518,6 +549,16 @@ class PetOverlay(private val ctx: Context) {
         say(title, body,
             buttons = listOf("Open it" to { openEmail(contentIntent, app) }, "Later" to {}),
             autoHideMs = 30_000, dismissOnOutside = false)
+        playWhileTalking(mailFrames, frameMs = 230, forMs = 30_000)
+    }
+
+    /** Show an animation beside the bubble that was just opened. */
+    private fun playWhileTalking(frames: IntArray, frameMs: Long, forMs: Long) {
+        if (bubble == null) return
+        if (mode == Mode.JUMP) setMode(Mode.TALK)
+        talkFrames = frames
+        talkFrameMs = frameMs
+        talkAnimUntil = SystemClock.uptimeMillis() + forMs
     }
 
     private fun openEmail(pi: PendingIntent?, app: String) {
@@ -679,6 +720,7 @@ class PetOverlay(private val ctx: Context) {
 
     fun dismissBubble() {
         main.removeCallbacks(hideBubble)
+        talkFrames = null
         bubble?.let { runCatching { wm.removeView(it) } }
         bubble = null
         bubbleParams = null
