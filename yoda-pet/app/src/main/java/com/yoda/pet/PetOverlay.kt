@@ -68,7 +68,7 @@ class PetOverlay(private val ctx: Context) {
         .takeWhile { it != 0 }
         .toList().toIntArray()
     /** Distance covered by one full walk cycle, so feet don't slide. */
-    private val strideLength = winW * 0.62f
+    private val strideLength = winW * 1.2f // the 8-frame art holds two steps
     private var walked = 0f
     private val choreographer = Choreographer.getInstance()
     private val drawables = HashMap<Int, Drawable>()
