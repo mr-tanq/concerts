@@ -35,9 +35,9 @@ import kotlin.math.sin
 import kotlin.random.Random
 
 /**
- * Yoda himself: a small window that walks around the edges of the screen
+ * Yoda herself: a small window that walks around the edges of the screen
  * on top of other apps (or just along the bottom), can be picked up and
- * dropped with a finger, plus a speech-bubble window that floats next to him.
+ * dropped with a finger, plus a speech-bubble window that floats next to her.
  */
 class PetOverlay(private val ctx: Context) {
 
@@ -54,7 +54,7 @@ class PetOverlay(private val ctx: Context) {
     // All sprites share one scale: walk frames are 260 px tall in the source art.
     private val scale = dp(prefs.petSizeDp) / 260f
     // Square window: the same box fits every edge, so corners join up without a jump
-    // and he can turn smoothly in place.
+    // and she can turn smoothly in place.
     private val winW = (300 * scale).roundToInt()
     private val winH = winW
     private val jumpHeight = dp(prefs.petSizeDp * 0.9f)
@@ -75,7 +75,7 @@ class PetOverlay(private val ctx: Context) {
     private val mailFrames = intArrayOf(R.drawable.yoda_mail_1, R.drawable.yoda_mail_2, R.drawable.yoda_mail_3, R.drawable.yoda_mail_4)
     private val barkFrames = intArrayOf(R.drawable.yoda_bark_1, R.drawable.yoda_bark_2, R.drawable.yoda_bark_3, R.drawable.yoda_bark_4)
 
-    // While a bubble is up he can play a short animation (envelope, barking).
+    // While a bubble is up she can play a short animation (envelope, barking).
     private var talkFrames: IntArray? = null
     private var talkFrameMs = 200L
     private var talkAnimUntil = 0L
@@ -85,7 +85,7 @@ class PetOverlay(private val ctx: Context) {
     private var nextMusicCheck = 0L
     private val drawables = HashMap<Int, Drawable>()
 
-    /** Draws the current sprite, turned so his feet face the edge he walks on. */
+    /** Draws the current sprite, turned so her feet face the edge she walks on. */
     private inner class PetView : View(ctx) {
         var sprite: Drawable? = null
         var rotationDeg = 0f

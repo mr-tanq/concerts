@@ -5,10 +5,10 @@ screen (or just along the bottom), on top of other apps.
 
 | You do | Yoda does |
 |---|---|
-| Tap him | Speech bubble with the song playing now — from any music app on the phone, or your Spotify account on any device |
-| Double-tap him | Jumps and plays a random song from your Spotify Liked Songs (top tracks if you have none) |
-| Hold him | Menu: **Email alerts on/off**, **Walk: whole screen / bottom only** |
-| Drag him | Pick him up and drop him anywhere; he lands on the nearest edge and walks on |
+| Tap her | Speech bubble with the song playing now — from any music app on the phone, or your Spotify account on any device |
+| Double-tap her | Jumps and plays a random song from your Spotify Liked Songs (top tracks if you have none) |
+| Hold her | Menu: **Email alerts on/off**, **Walk: whole screen / bottom only** |
+| Drag her | Pick her up and drop her anywhere; she lands on the nearest edge and walks on |
 | — | 5 minutes before a Google Calendar meeting: speech bubble with the meeting, time and place (**Open** / **Got it**) |
 | — | New Gmail: "New email from …" with the subject and an **Open it** button |
 | Nothing for a while | Stands, sits, and eventually naps |
@@ -35,7 +35,7 @@ screen (or just along the bottom), on top of other apps.
 
 - `PetOverlay` — two `TYPE_APPLICATION_OVERLAY` windows (the dog, the speech bubble); walk cycle at ~7 fps, movement at 30 fps, paused while the screen is off.
 - `logic/Perimeter` — the path around the screen edges: position, window size and rotation per edge, and where a dropped Yoda lands.
-- `YodaService` — foreground service that keeps him on screen and checks `CalendarContract.Instances` every 30 s.
+- `YodaService` — foreground service that keeps her on screen and checks `CalendarContract.Instances` every 30 s.
 - `GmailListener` — `NotificationListenerService` that reads only Gmail's notifications (sender = title, subject = text). Nothing is stored or sent anywhere.
 - `SpotifyClient` — Spotify Web API with PKCE sign-in (Client ID only, no secret, no Spotify SDK).
 - No third-party libraries.

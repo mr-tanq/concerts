@@ -154,7 +154,7 @@ class MainActivity : Activity() {
             list.addView(text("✓ Connected${prefs.spotifyUser?.let { " as $it" } ?: ""}. Double-tap Yoda to hear a random song from your Liked Songs.", 14f, green))
             list.addView(smallButton("Disconnect Spotify") { spotify.disconnect(); render() })
         } else {
-            list.addView(text("Double-tap Yoda and he plays a random song from your Liked Songs.", 14f, ink))
+            list.addView(text("Double-tap Yoda and she plays a random song from your Liked Songs.", 14f, ink))
             list.addView(text("One-time setup: in your app on developer.spotify.com, add this Redirect URI and save:\n${SpotifyClient.REDIRECT_URI}", 13f, muted).apply {
                 setTextIsSelectable(true)
                 setPadding(0, dp(6), 0, 0)
@@ -227,20 +227,20 @@ class MainActivity : Activity() {
 
         section("How to use")
         list.addView(text(
-            "• Tap Yoda: he tells you which song is playing.\n" +
-                "• Double-tap Yoda: he jumps and plays one of your favourite songs.\n" +
-                "• Hold Yoda: email alerts on/off and where he walks.\n" +
-                "• Drag Yoda with your finger and drop him anywhere — he lands on the nearest edge.\n" +
-                "• When music plays on the phone he dances.\n" +
-                "• 5 minutes before a meeting he barks and tells you what it is.\n" +
-                "• When new email arrives he brings you an envelope and tells you who it's from, with an Open it button.\n" +
-                "• To hide him: the “Hide Yoda” button above or in his notification.",
+            "• Tap Yoda: she tells you which song is playing.\n" +
+                "• Double-tap Yoda: she jumps and plays one of your favourite songs.\n" +
+                "• Hold Yoda: email alerts on/off and where she walks.\n" +
+                "• Drag Yoda with your finger and drop her anywhere — she lands on the nearest edge.\n" +
+                "• When music plays on the phone she dances.\n" +
+                "• 5 minutes before a meeting she barks and tells you what it is.\n" +
+                "• When new email arrives she brings you an envelope and tells you who it's from, with an Open it button.\n" +
+                "• To hide her: the “Hide Yoda” button above or in her notification.",
             14f, ink))
     }
 
     private fun calendarStatus(): String = when {
         !hasCalendar -> "✗ Calendar permission is off (see Permissions above)"
-        !YodaService.isRunning -> "Yoda checks your calendar while he's on screen."
+        !YodaService.isRunning -> "Yoda checks your calendar while she's on screen."
         else -> prefs.calendarStatus ?: "Checking…"
     }
 

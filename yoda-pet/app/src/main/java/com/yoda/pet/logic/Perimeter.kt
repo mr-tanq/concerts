@@ -42,7 +42,7 @@ class Perimeter(
         return Pose(0, t.coerceAtMost(lv).toInt(), h, w, 90, Edge.LEFT)
     }
 
-    /** Where Yoda lands when dropped with his middle at (cx, cy): the nearest edge. */
+    /** Where Yoda lands when dropped with her middle at (cx, cy): the nearest edge. */
     fun nearest(cx: Float, cy: Float): Float {
         if (!wholeScreen) return (cx - w / 2f).coerceIn(0f, lb)
         val dBottom = areaH - cy
